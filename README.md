@@ -20,8 +20,8 @@ You can execute commands over serial to it, or by feeding them from a Init.lja
 
 <h2>Installation to a fresh pi pico:</h2>
 
-Install Circuitpython version 7.x
-copy over the display library to /lib along with the framebuf library
+Install Circuitpython version 7.x,  
+copy over the display library to /lib along with the framebuf library,  
 and put the code.py in /
 
 based commands:
