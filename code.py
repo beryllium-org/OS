@@ -6,8 +6,11 @@ import busio
 import time
 import adafruit_ssd1306
 import supervisor
+import storage
 import gc
 import os
+
+Version = "0.0.2"
 
 Exit = False
 Exit_code = 0
@@ -36,29 +39,63 @@ class ljinux():
         def get_volume_val():
             return (ljinux.io.get_voltage(ljinux.io.volume.value)/3.3)
 
+        def left_key():
+            if (ljinux.io.buttonl.value == True):
+                return True
+            else:
+                return False
+
+        def right_key():
+            if (ljinux.io.buttonr.value == True):
+                return True
+            else:
+                return False
+
+        def enter_key():
+            if (ljinux.io.buttone.value == True):
+                return True
+            else:
+                return False
+
+        def volume():
+                return ljinux.io.get_volume_val()
+
+        def serial():
+            return input()
+
     class based(object):
+        user_vars = {}
         inputt = None
         def autorun():
             global Exit
             global Exit_code
             print("Attempting to open /Init.lja..")
             try:
+                ljinux.io.led.value = False
                 f = open("/Init.lja", 'r')
                 lines = f.readlines()
                 count = 0
+                ljinux.io.led.value = True
                 for line in lines:
+                    ljinux.io.led.value = False
                     lines[count] = line.strip()
                     count += 1
+                    ljinux.io.led.value = True
                 for commandd in lines:
                     ljinux.based.shell(commandd)
                 f.close()
+                print("Init complete. Opening shell..")
+                ljinux.based.shell()
             except OSError:
                 print("Init.lja does not exist, dropping to prompt..\n")
-                while not Exit:
-                    try:
-                        ljinux.based.shell()
-                    except KeyboardInterrupt:
-                        print("^C\n",end='')
+            ljinux.io.led.value = True
+            while not Exit:
+                try:
+                    ljinux.based.shell()
+                except KeyboardInterrupt:
+                    ljinux.io.led.value = False
+                    print("^C\n",end='')
+                    ljinux.io.led.value = True
 
         class command():
             def ls(dirr):
@@ -115,16 +152,75 @@ class ljinux():
 
             def not_found(errr):
                 print("based: " + errr[0] + ": command not found")
+
             def execc(whatt):
-                print("not implemeneted - exec")
+                global Exit
+                global Exit_code
+                if (whatt[0] == "exec"):
+                    for i in range(len(whatt)-1):
+                        whatt[i] = whatt[i+1]
+
+                try:
+                    ljinux.io.led.value = False
+                    f = open(whatt[0], 'r')
+                    lines = f.readlines()
+                    count = 0
+                    ljinux.io.led.value = True
+                    for line in lines:
+                        ljinux.io.led.value = False
+                        lines[count] = line.strip()
+                        count += 1
+                        ljinux.io.led.value = True
+                    for commandd in lines:
+                        ljinux.based.shell(commandd)
+                    f.close()
+                except OSError:
+                    ljinux.io.led.value = True
+                    print("based: "+ whatt[0] +": No such file or directory\n")
+
             def pwd(dirr):
                 print(os.getcwd())
-            def helpp(commd):
-                print("not implemeneted - help")
-            def printt(what):
-                print("not implemeneted - print")
+
+            def helpp(dictt):
+                for i in dictt.keys():
+                    print(i)
+
+            def echoo(what):
+                try:
+                    if (what[1].startswith("\"")):
+                        if (what[1].endswith("\"")):
+                            print(str(what[1])[1:-1])
+                        else:
+                            countt = len(what)
+                            if (countt > 2):
+                                if (what[countt-1].endswith("\"")):
+                                    print(str(what[1])[1:],end=' ')
+                                    for i in range(2, countt-1):
+                                        print(what[i],end=' ')
+                                    print(str(what[countt-1])[:-1])
+                                else:
+                                    pass
+                    else:
+                        act_dict = {'left_key': ljinux.io.left_key, 'right_key': ljinux.io.right_key, 'enter_key': ljinux.io.enter_key, 'serial_input': ljinux.io.serial}
+                        if (what[1] in ljinux.based.user_vars):
+                            print(ljinux.based.user_vars[what[1]])
+                        elif (what[1] in act_dict):
+                            print(act_dict[what[1]]())
+                        else:
+                            pass
+                except IndexError:
+                    pass
+
             def read(datatypee):
-                print("not implemeneted - read")
+                dataa = None
+                readopts = {'left_key': ljinux.get_input.left_key, 'right_key': ljinux.get_input.right_key, 'enter_key': ljinux.get_input.enter_key, 'serial_input': ljinux.get_input.serial}
+                try:
+                    if (datatypee[1] in readopts):
+                        dataa = readopts[datatypee[1]]()
+                except IndexError:
+                    print("Available read options: left_key, right_key, enter_key, serial_input")
+                return dataa
+
             def exitt(returncode):
                 global Exit
                 global Exit_code
@@ -134,24 +230,104 @@ class ljinux():
                     Exit_code = returncode[1]
                 except IndexError:
                     pass
+
             def unamee(optt):
+                ljinux.io.led.value = False
+                global Version
                 try:
                     if (optt[1] == "-a"):
                         tt = time.localtime()
-                        print("Ljinux Raspberry Pi Pico 0.0.1 " + str(tt.tm_mday) + "/" + str(tt.tm_mon) + "/" + str(tt.tm_year) + " " + str(tt.tm_hour) + ":" + str(tt.tm_min) + ":" + str(tt.tm_sec) + " circuitpython Ljinux")
+                        print("Ljinux Raspberry Pi Pico " + Version + " " + str(tt.tm_mday) + "/" + str(tt.tm_mon) + "/" + str(tt.tm_year) + " " + str(tt.tm_hour) + ":" + str(tt.tm_min) + ":" + str(tt.tm_sec) + " circuitpython Ljinux")
                 except IndexError:
                     print("Ljinux")
+                ljinux.io.led.value = True
+
             def cdd(optt):
+                ljinux.io.led.value = False
                 try:
                     os.chdir(optt[1])
                 except OSError:
                     print("Error: Directory does not exist")
                 except IndexError:
                     pass
+                ljinux.io.led.value = True
+            def mkdiir(dirr):
+                ljinux.io.led.value = False
+                try:
+                    storage.remount("/",False)
+                    os.mkdir(dirr[1])
+                    storage.remount("/",True)
+                except OSError as errr:
+                    if (str(errr) == "[Errno 17] File exists"):
+                        print("mkdir: cannot create directory ‘" + dirr[1] + "’: File exists")
+                    else:
+                        print("rmdir: cannot create directory ‘" + dirr[1] + "’: Cannot write, the pi pico is in read only mode!\nMake sure to disable to usb drive to be able to access these functions!")
+                except IndexError:
+                    pass
+                ljinux.io.led.value = True
+
+            def rmdiir(dirr):
+                ljinux.io.led.value = False
+                try:
+                    storage.remount("/",False)
+                    os.rmdir(dirr[1])
+                    storage.remount("/",True)
+                except OSError as errr:
+                    if (str(errr) == "[Errno 2] No such file/directory"):
+                        print("rmdir: failed to remove ‘" + dirr[1] + "’: No such file or directory")
+                    else:
+                        print("rmdir: failed to remove ‘" + dirr[1] + "’: Cannot write, the pi pico is in read only mode!\nMake sure to disable to usb drive to be able to access these functions!")
+                except IndexError:
+                    pass
+                ljinux.io.led.value = True
+
+            def var(inpt, user_vars):
+                ljinux.io.led.value = False
+                valid = True
+                if (inpt[0] == "var"):
+                    temp = inpt
+                    del inpt
+                    inpt = []
+                    for i in range(len(temp)-1):
+                        inpt.append(temp[i+1])
+                try:
+                    for chh in inpt[0]:
+                        if not (chh.islower() or chh.isupper()):
+                            valid = False
+                    if (inpt[1] == '='):
+                        if not (inpt[2].startswith('"')):
+                            if not (inpt[2].isdigit()):
+                                valid = False
+                    else:
+                        valid = False
+                    if valid:
+                        new_var = ""
+                        if (inpt[2].startswith("\"")):
+                            countt = len(inpt)
+                            if (inpt[2].endswith("\"")):
+                                new_var = str(inpt[2])[1:-1]
+                            elif ((countt > 3) and (inpt[countt-1].endswith("\""))):
+                                new_var += (str(inpt[2])[1:] + ' ')
+                                for i in range(3, countt-1):
+                                    new_var += (inpt[i] + ' ')
+                                new_var += (str(inpt[countt-1])[:-1])
+                            else:
+                                print("based: invalid syntax")
+                                valid = False
+                        else:
+                            new_var += str(inpt[2])
+                    else:
+                        print("based: invalid syntax")
+                        valid = False
+                    if valid:
+                        user_vars[inpt[0]] = new_var
+                except IndexError:
+                    print("based: invalid syntax")
+                ljinux.io.led.value = True
 
         def shell(inp=None):
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'print':ljinux.based.command.printt, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var}
             command_input = False
             if not Exit:
                 while ((command_input == False) or (command_input == " ")):
@@ -161,17 +337,26 @@ class ljinux():
                     else:
                         command_input = inp
                 command_split = command_input.split()
+                ljinux.io.led.value = False
                 if not (command_input == ""):
-                    if (str(command_split[0])[:2] == "./"):
-                        command_split[0] = str(command_split[0])[2:]
-                        if (command_split[0] != ''):
-                            function_dict["exec"](command_split)
+                    try:
+                        if (str(command_split[0])[:2] == "./"):
+                            command_split[0] = str(command_split[0])[2:]
+                            if (command_split[0] != ''):
+                                function_dict["exec"](command_split)
+                            else:
+                                print("Error: No file specified")
+                        elif ((command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help"])):
+                            function_dict[command_split[0]](command_split)
+                        elif (command_split[0] == "help"):
+                            function_dict["help"](function_dict)
+                        elif ((command_split[1] == "=") or (command_split[0] == "var")):
+                            function_dict["var"](command_split, ljinux.based.user_vars)
                         else:
-                            print("Error: No file specified")
-                    elif ((command_split[0] in function_dict) and (command_split[0] != "error")):
-                        function_dict[command_split[0]](command_split)
-                    else:
-                        ljinux.based.function_dict["error"](command_split)
+                            function_dict["error"](command_split)
+                    except IndexError:
+                        function_dict["error"](command_split)
+                ljinux.io.led.value = True
 
     class farland(object):
         # the screen holder
@@ -623,7 +808,8 @@ try:
         time.sleep(1)
 except EOFError:
     print("\nSerial Ctrl + D caught, exiting")
-    ljinux.farland.clear()
-    time.sleep(1)
-    ljinux.io.led.value = False
-    gc.collect()
+ljinux.farland.clear()
+os.chdir("/")
+time.sleep(1)
+ljinux.io.led.value = False
+gc.collect()
