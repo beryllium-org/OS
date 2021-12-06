@@ -22,7 +22,9 @@ You can execute commands over serial to it, or by feeding them from a Init.lja
 
 Install Circuitpython version 7.x,  
 copy over the display library to /lib along with the framebuf library,  
-and put the code.py in /
+and unzip this repo onto the CIRCUITPY drive
+
+<b>IMPORTANT NOTE: unless the GP0 and GP1 pins are connected the drive will no longer appear after a powercycle.</b>
 
 based commands:
 ```
@@ -33,6 +35,38 @@ OUTPUTS A BASIC LIST OF COMMANDS TO SERIAL OUT
 cd [DIR]...
 
 CHANGES TO SPECIFIED DIRECTORY
+
+
+read [left_key / right_key / enter_key / serial_input]...
+
+READ DATA FROM SPECIFIED SOURCE AND RETURN THEM
+
+
+echo [DATA]...
+
+PRINT SOME VARIABLES OR TEXT ONTO SERIAL OUT
+
+
+var [DATA]...
+
+CREATE A NEW VARIABLE. SYNTAX: var a = "ok"
+NUMBERS DO NOT NEED BRACKETS.
+THE COMMAND ITSELF IS OPTIONAL (a = "is also valid")
+
+
+uname [-a]
+
+OUTPUTS THE INFO ABOUT THE DEVICE TO SERIAL OUT
+
+
+mkdir [DIR]...
+
+MAKE A NEW DIRECTORY
+
+
+rmdir [DIR]...
+
+DELETE A DIRECTORY
 
 
 ls [OPTIONS]... [DIR]...
