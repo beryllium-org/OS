@@ -3,17 +3,21 @@ import pwmio
 import digitalio
 import analogio
 import busio
+import adafruit_sdcard
 import time
 import adafruit_ssd1306
 import supervisor
 import storage
 import gc
 import os
+import sys
 
-Version = "0.0.2"
+
+Version = "0.0.3"
 
 Exit = False
 Exit_code = 0
+sdcard_fs = False
 
 class ljinux():
     class io(object):
@@ -21,6 +25,7 @@ class ljinux():
         led = digitalio.DigitalInOut(board.LED)
         led.direction = digitalio.Direction.OUTPUT
         led.value = True
+        # sd card
         # L R and Enter keys for basic io
         buttonl = digitalio.DigitalInOut(board.GP12)
         buttonl.switch_to_input(pull=digitalio.Pull.DOWN)
@@ -30,14 +35,15 @@ class ljinux():
         buttone.switch_to_input(pull=digitalio.Pull.DOWN)
         # pc puzzer
         buzzer = pwmio.PWMOut(board.GP15, variable_frequency=True, frequency = 200, duty_cycle = 0)
-        # volume knob
-        volume = analogio.AnalogIn(board.GP26)
-        
-        def get_voltage(raw):
-            return (raw * 3.3) / 65536
 
-        def get_volume_val():
-            return (ljinux.io.get_voltage(ljinux.io.volume.value)/3.3)
+        def start_sdcard():
+            global sdcard_fs
+            spi = busio.SPI(board.GP2, MOSI=board.GP3, MISO=board.GP4)
+            cs = digitalio.DigitalInOut(board.GP5)
+            sdcard = adafruit_sdcard.SDCard(spi, cs)
+            vfs = storage.VfsFat(sdcard)
+            storage.mount(vfs, "/ljinux")
+            sdcard_fs = True
 
         def left_key():
             if (ljinux.io.buttonl.value == True):
@@ -57,22 +63,29 @@ class ljinux():
             else:
                 return False
 
-        def volume():
-                return ljinux.io.get_volume_val()
-
         def serial():
             return input()
 
     class based(object):
-        user_vars = {}
+        user_vars = {'user': "root"}
         inputt = None
+
         def autorun():
+            ljinux.io.led.value = False
             global Exit
             global Exit_code
-            print("Attempting to open /Init.lja..")
+            global Version
+            print("\nWelcome to ljinux wanna-be kernel " + Version + "\n\n", end='')
+            try:
+                ljinux.io.start_sdcard()
+                print("sd card mount complete\nljinux partition mounted to /ljinux")
+            except OSError:
+                print("sd card not available, assuming built in fs")
+            ljinux.io.led.value = True
+            print("Attempting to open /ljinux/boot/Init.lja..")
             try:
                 ljinux.io.led.value = False
-                f = open("/Init.lja", 'r')
+                f = open("/ljinux/boot/Init.lja", 'r')
                 lines = f.readlines()
                 count = 0
                 ljinux.io.led.value = True
@@ -84,11 +97,11 @@ class ljinux():
                 for commandd in lines:
                     ljinux.based.shell(commandd)
                 f.close()
-                print("Init complete. Opening shell..")
-                ljinux.based.shell()
+                print("Init complete. Press any key to drop to shell..\n")
             except OSError:
-                print("Init.lja does not exist, dropping to prompt..\n")
+                print("Init does not exist, Press any key to drop to shell..\n")
             ljinux.io.led.value = True
+            sys.stdin.read(1)
             while not Exit:
                 try:
                     ljinux.based.shell()
@@ -251,12 +264,16 @@ class ljinux():
                 except IndexError:
                     pass
                 ljinux.io.led.value = True
+
             def mkdiir(dirr):
+                global sdcard_fs
                 ljinux.io.led.value = False
                 try:
-                    storage.remount("/",False)
+                    if not sdcard_fs:
+                        storage.remount("/",False)
                     os.mkdir(dirr[1])
-                    storage.remount("/",True)
+                    if not sdcard_fs:
+                        storage.remount("/",True)
                 except OSError as errr:
                     if (str(errr) == "[Errno 17] File exists"):
                         print("mkdir: cannot create directory ‘" + dirr[1] + "’: File exists")
@@ -267,11 +284,14 @@ class ljinux():
                 ljinux.io.led.value = True
 
             def rmdiir(dirr):
+                global sdcard_fs
                 ljinux.io.led.value = False
                 try:
-                    storage.remount("/",False)
+                    if not sdcard_fs:
+                        storage.remount("/",False)
                     os.rmdir(dirr[1])
-                    storage.remount("/",True)
+                    if not sdcard_fs:
+                        storage.remount("/",True)
                 except OSError as errr:
                     if (str(errr) == "[Errno 2] No such file/directory"):
                         print("rmdir: failed to remove ‘" + dirr[1] + "’: No such file or directory")
@@ -325,14 +345,73 @@ class ljinux():
                     print("based: invalid syntax")
                 ljinux.io.led.value = True
 
+            def display(inpt):
+                try:
+                    typee = inpt[0]
+                    if (typee == "text"):
+                        xi = inpt[1]
+                        yi = inpt[2]
+                        txt = inpt[3]
+                        col = inpt[4]
+                        if ((xi > 0) and (xi < (ljinux.farland.width()-5)) and (yi > 0) and (yi < (ljinux.farland.height()-8)) and ((col == "false") or (col == "true"))):
+                            pass
+                        else:
+                            print("based: Input error")
+                    elif (typee == "pixel"):
+                        xi = inpt[1]
+                        yi = inpt[2]
+                        col = inpt[3]
+                        if ((xi > 0) and (xi < (ljinux.farland.width())) and (yi > 0) and (yi < (ljinux.farland.height()))):
+                            pass
+                        else:
+                            print("based: Input error")
+                        pass
+                    elif (typee == "rectangle"):
+                        xi = inpt[1]
+                        yi = inpt[2]
+                        xe = inpt[3]
+                        ye = inpt[4]
+                        col = inpt[5]
+                        modd = inpt[6]
+
+                        pass
+                    elif (typee == "line"):
+                        xi = inpt[1]
+                        yi = inpt[2]
+                        xe = inpt[3]
+                        ye = inpt[4]
+                        col = inpt[5]
+                        pass
+                    elif (typee == "circle"):
+                        xi = inpt[1]
+                        yi = inpt[2]
+                        xe = inpt[3]
+                        ye = inpt[4]
+                        col = inpt[5]
+                        modd = inpt[6]
+                        pass
+                    elif (typee == "triangle"):
+                        xi = inpt[1]
+                        yi = inpt[2]
+                        xe = inpt[3]
+                        ye = inpt[4]
+                        rde = inpt[5]
+                        col = inpt[6]
+                        modd = inpt[7]
+                        pass
+                    elif (typee == "fill"):
+                        col = inpt[1]
+                except IndexError:
+                    print("based: Input error")
+
         def shell(inp=None):
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display}
             command_input = False
             if not Exit:
                 while ((command_input == False) or (command_input == " ")):
                     if (inp == None):
-                        print("[pi@pico | " + os.getcwd() + "]> ", end='')
+                        print("[" + ljinux.based.user_vars["user"] + "@pico | " + os.getcwd() + "]> ", end='')
                         command_input = ljinux.get_input.serial()
                     else:
                         command_input = inp
@@ -638,18 +717,19 @@ class ljinux():
                 return True
             else:
                 return False
+
         def right_key():
             if (ljinux.io.buttonr.value == True):
                 return True
             else:
                 return False
+
         def enter_key():
             if (ljinux.io.buttone.value == True):
                 return True
             else:
                 return False
-        def volume():
-                return ljinux.io.get_volume_val()
+
         def serial():
             return input()
 
@@ -805,11 +885,15 @@ try:
         gc.collect()
         print("Shell exited with exit code ", end='')
         print(Exit_code)
-        time.sleep(1)
 except EOFError:
     print("\nSerial Ctrl + D caught, exiting")
 ljinux.farland.clear()
 os.chdir("/")
-time.sleep(1)
 ljinux.io.led.value = False
 gc.collect()
+os.sync()
+try:
+    storage.umount("/ljinux")
+except OSError:
+    pass
+sys.exit(Exit_code)
