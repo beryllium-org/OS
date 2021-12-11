@@ -12,12 +12,39 @@ import gc
 import os
 import sys
 
+# https://github.com/afaonline/DS1302_CircuitPython
+import rtc
+import ds1302
+
+# to anyone that actually knows python, feel free to pr
+# i'm just making it with wht I know.. I don't understand how to __init__ or how to self
+# it works terribly diffrent from "this->"
 
 Version = "0.0.3"
 
 Exit = False
 Exit_code = 0
 sdcard_fs = False
+
+# rtc stuff @ init cuz otherwise system fails to access it
+#the pins to connect it to
+rtcclk = digitalio.DigitalInOut(board.GP6)
+rtcdata = digitalio.DigitalInOut(board.GP7)
+rtcce = digitalio.DigitalInOut(board.GP8)
+
+# to make it suitable for system
+class RTC(object):
+    @property
+    def datetime(self):
+        return rtcc.read_datetime()
+
+try:
+    rtcc = ds1302.DS1302(rtcclk,rtcdata,rtcce) # muh rtc object
+    r = RTC() # now in a good format
+    rtc.set_time_source(r)
+
+except OSError: # not sure how to catch if it's not available, TODO
+    pass
 
 class ljinux():
     class io(object):
@@ -67,7 +94,8 @@ class ljinux():
             return input()
 
     class based(object):
-        user_vars = {'user': "root"}
+        user_vars = {}
+        system_vars = {'user': "root", 'security': "off"}
         inputt = None
 
         def autorun():
@@ -301,7 +329,7 @@ class ljinux():
                     pass
                 ljinux.io.led.value = True
 
-            def var(inpt, user_vars):
+            def var(inpt, user_vars, system_vars):
                 ljinux.io.led.value = False
                 valid = True
                 if (inpt[0] == "var"):
@@ -340,78 +368,102 @@ class ljinux():
                         print("based: invalid syntax")
                         valid = False
                     if valid:
-                        user_vars[inpt[0]] = new_var
+                        if (inpt[0] in system_vars):
+                            if not (system_vars["security"] == "on"):
+                                system_vars[inpt[0]] = new_var
+                            else:
+                                print("Cannot edit system variables, security is enabled.")
+                        else:
+                            user_vars[inpt[0]] = new_var
                 except IndexError:
                     print("based: invalid syntax")
                 ljinux.io.led.value = True
 
-            def display(inpt):
+            def display(inpt, objectss):
                 try:
-                    typee = inpt[0]
-                    if (typee == "text"):
-                        xi = inpt[1]
-                        yi = inpt[2]
-                        txt = inpt[3]
-                        col = inpt[4]
+                    typee = inpt[1] # "text / pixel / rectangle / line / circle / triangle / fill"
+                    if (typee == "text"): # x, y, text in "", color
+                        xi = inpt[2]
+                        yi = inpt[3]
+                        txt = inpt[4]
+                        col = inpt[5]
                         if ((xi > 0) and (xi < (ljinux.farland.width()-5)) and (yi > 0) and (yi < (ljinux.farland.height()-8)) and ((col == "false") or (col == "true"))):
                             pass
                         else:
                             print("based: Input error")
-                    elif (typee == "pixel"):
-                        xi = inpt[1]
-                        yi = inpt[2]
-                        col = inpt[3]
+                    elif (typee == "dot"): # x,y,col
+                        xi = int(inpt[2])
+                        yi = int(inpt[3])
+                        if (int(inpt[4]) == 1):
+                            col = True
+                        else:
+                            col = False
                         if ((xi > 0) and (xi < (ljinux.farland.width())) and (yi > 0) and (yi < (ljinux.farland.height()))):
-                            pass
+                            ljinux.farland.pixel(xi,yi,col)
                         else:
                             print("based: Input error")
-                        pass
-                    elif (typee == "rectangle"):
-                        xi = inpt[1]
-                        yi = inpt[2]
-                        xe = inpt[3]
-                        ye = inpt[4]
-                        col = inpt[5]
-                        modd = inpt[6]
-
-                        pass
-                    elif (typee == "line"):
-                        xi = inpt[1]
-                        yi = inpt[2]
-                        xe = inpt[3]
-                        ye = inpt[4]
-                        col = inpt[5]
-                        pass
-                    elif (typee == "circle"):
-                        xi = inpt[1]
-                        yi = inpt[2]
-                        xe = inpt[3]
-                        ye = inpt[4]
-                        col = inpt[5]
-                        modd = inpt[6]
-                        pass
-                    elif (typee == "triangle"):
-                        xi = inpt[1]
-                        yi = inpt[2]
-                        xe = inpt[3]
-                        ye = inpt[4]
-                        rde = inpt[5]
+                    elif (typee == "rectangle"): # x start, y start, x stop, y stop, color, mode (fill / border)
+                        xi = inpt[2]
+                        yi = inpt[3]
+                        xe = inpt[4]
+                        ye = inpt[5]
                         col = inpt[6]
                         modd = inpt[7]
+                    elif (typee == "line"): # x start, y start, x stop, y stop, color
+                        xi = inpt[2]
+                        yi = inpt[3]
+                        xe = inpt[4]
+                        ye = inpt[5]
+                        col = inpt[6]
+                    elif (typee == "circle"): # x start, y start, x stop, y stop, color, mode (fill/ border / template)
+                        xi = inpt[2]
+                        yi = inpt[3]
+                        xe = inpt[4]
+                        ye = inpt[5]
+                        col = inpt[6]
+                        modd = inpt[7]
+                    elif (typee == "triangle"): # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
+                        xi = inpt[2]
+                        yi = inpt[3]
+                        xe = inpt[4]
+                        ye = inpt[5]
+                        xz = inpt[6]
+                        yz = inpt[7]
+                        col = inpt[8]
+                        modd = inpt[9]
+                    elif (typee == "fill"): # color
+                        col = inpt[2]
+                    elif (typee == "rhombus"): # todo
                         pass
-                    elif (typee == "fill"):
-                        col = inpt[1]
+                    elif (typee == "move"): # todo
+                        pass
+                    elif (typee == "delete"): #todo
+                        pass
+                    elif (typee == "refresh"):
+                        ljinux.farland.frame()
                 except IndexError:
                     print("based: Input error")
 
+            def timme(inpt):
+                try:
+                    if (inpt[1] == "set"):
+                        try:
+                            the_time = time.struct_time((int(inpt[4]),int(inpt[3]),int(inpt[2]),int(inpt[5]),int(inpt[6]),int(inpt[7]),1,-1,-1)) # yr, mon, d, hr, m, s, ss, shit,shit,shit
+                            rtcc.write_datetime(the_time)
+                        except IndexError:
+                            print("based: Syntax error")
+                except IndexError:
+                    tt = time.localtime()
+                    print("Current time: " + str(tt.tm_mday) + "/" + str(tt.tm_mon) + "/" + str(tt.tm_year) + " " + str(tt.tm_hour) + ":" + str(tt.tm_min) + ":" + str(tt.tm_sec))
+
         def shell(inp=None):
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme}
             command_input = False
             if not Exit:
                 while ((command_input == False) or (command_input == " ")):
                     if (inp == None):
-                        print("[" + ljinux.based.user_vars["user"] + "@pico | " + os.getcwd() + "]> ", end='')
+                        print("[" + ljinux.based.system_vars["user"] + "@pico | " + os.getcwd() + "]> ", end='')
                         command_input = ljinux.get_input.serial()
                     else:
                         command_input = inp
@@ -425,12 +477,14 @@ class ljinux():
                                 function_dict["exec"](command_split)
                             else:
                                 print("Error: No file specified")
-                        elif ((command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help"])):
+                        elif ((command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help", "display"])):
                             function_dict[command_split[0]](command_split)
                         elif (command_split[0] == "help"):
                             function_dict["help"](function_dict)
+                        elif (command_split[0] == "display"):
+                            function_dict["display"](command_split,ljinux.farland.entities)
                         elif ((command_split[1] == "=") or (command_split[0] == "var")):
-                            function_dict["var"](command_split, ljinux.based.user_vars)
+                            function_dict["var"](command_split, ljinux.based.user_vars, ljinux.based.system_vars)
                         else:
                             function_dict["error"](command_split)
                     except IndexError:
@@ -452,6 +506,8 @@ class ljinux():
         frames = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
         frame_poi = 0
         frames_suff = False
+        # the display objects
+        entities = {}
         # ---
         
         def setup():

@@ -1,5 +1,6 @@
 SHELL = "based"
 OS = "Ljinux"
-SECURITY = "true"
 cd /ljinux/home/pi
 exec .basedrc
+user = "pi"
+security = "on"

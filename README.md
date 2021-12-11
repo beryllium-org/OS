@@ -17,12 +17,14 @@ there are no basics, this project is a dumpster fire.
 
 It's shell which is named <b>based</b>, is the only programming language it has.
 You can execute commands over serial to it, or by feeding them from a Init.lja
+The Init.lja has to be at /ljinux/boot/ of the pi pico, or on /boot/ of the attached sd card.
 
 <h2>Installation to a fresh pi pico:</h2>
 
 Install Circuitpython version 7.x,  
-copy over the display library to /lib along with the framebuf library,  
 and unzip this repo onto the CIRCUITPY drive
+
+<b>GPIO PINS:</b> GP0,GP1 for usb drive access - rtc GP6(clk),GP7(data),GP8(ce) - button left GP12 - button right GP12 - button enter GP11 - buzzer GP15 - sdcard GP2(clk),GP3(mosi),GP4(miso)GP
 
 <b>IMPORTANT NOTE: unless the GP0 and GP1 pins are connected the drive will no longer appear after a powercycle.</b>
 
@@ -120,6 +122,12 @@ GOTO INTERPRETED LINE AND RERUN FROM THERE
 exit [CODE]
 
 EXIT THE CURRENT PROCESS WITH AN EXIT CODE, DEFAULT = 0
+
+
+time [set]...
+
+VIEW THE TIME, OR SET IT
+VALID FORMAT "time set dd mm yyyy hr mm ss"
 ```
 
 More stuff will be added later as the project progresses into complete mayhem.
