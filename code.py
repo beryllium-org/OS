@@ -449,26 +449,34 @@ class ljinux():
                             ljinux.farland.line(xi,yi,xe,ye,col)
                         except ValueError:
                             print("based: Input error")
-                    elif (typee == "circle"): # x start, y start, x stop, y stop, color, mode (fill/ border / template)
+                    elif (typee == "circle"): # x center, y center, rad, color, mode (fill/ border / template) TODO fix fill and do template
                         try:
-                            xi = inpt[2]
-                            yi = inpt[3]
-                            xe = inpt[4]
-                            ye = inpt[5]
-                            col = inpt[6]
-                            modd = inpt[7]
+                            xi = int(inpt[2])
+                            yi = int(inpt[3])
+                            radd = int(inpt[4])
+                            col = int(inpt[5])
+                            modd = inpt[6]
+                            ljinux.farland.draw_circle(xi,yi,radd,col,modd)
                         except ValueError:
                             print("based: Input error")
                     elif (typee == "triangle"): # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
                         try:
-                            xi = inpt[2]
-                            yi = inpt[3]
-                            xe = inpt[4]
-                            ye = inpt[5]
-                            xz = inpt[6]
-                            yz = inpt[7]
-                            col = inpt[8]
+                            xi = int(inpt[2])
+                            yi = int(inpt[3])
+                            xe = int(inpt[4])
+                            ye = int(inpt[5])
+                            xz = int(inpt[6])
+                            yz = int(inpt[7])
+                            col = int(inpt[8])
                             modd = inpt[9]
+                            ljinux.farland.line(xi,yi,xe,ye,col)
+                            ljinux.farland.line(xi,yi,xz,yz,col)
+                            ljinux.farland.line(xz,yz,xe,ye,col)
+                            if (modd == "fill"):
+                                templ = ljinux.farland.virt_line(xi,yi,xe,ye)
+                                for i in templ:
+                                    ljinux.farland.line(xz,yz,i[0],i[1],col)
+
                         except ValueError:
                             print("based: Input error")
                     elif (typee == "fill"): # color
@@ -604,8 +612,12 @@ class ljinux():
             return int(ljinux.farland.oled.width)
         
         # privitive graphics
-        def draw_circle(xpos0, ypos0, rad, col=1):
+        def draw_circle(xpos0, ypos0, rad, col, modee): # TODO fix empty pixels
             x = rad - 1
+            top_l = None
+            top_r = None
+            bot_l = None
+            bot_r = None
             y = 0
             dx = 1
             dy = 1
@@ -627,6 +639,10 @@ class ljinux():
                     x -= 1
                     dx += 2
                     err += dx - (rad << 1)
+            if ((modee == "fill") and (rad >2)):
+                for i in range(rad, 1, -1):
+                    ljinux.farland.draw_circle(xpos0,ypos0,i,col,"border")
+
         
         def draw_top(): # to be made into an app
             for i in range(128):
@@ -658,6 +674,35 @@ class ljinux():
                         err += dy
                     y += sy
                 ljinux.farland.oled.pixel(int(x), int(y), col)
+
+        def virt_line(x0,y0,x1,y1):
+            virt_l_tab = []
+            dx = abs(x1 - x0)
+            dy = abs(y1 - y0)
+            x, y = x0, y0
+            sx = -1 if x0 > x1 else 1
+            sy = -1 if y0 > y1 else 1
+            if dx > dy:
+                err = dx / 2.0
+                while x != x1:
+                    virt_l_tab.append([int(x), int(y)])
+                    err -= dy
+                    if err < 0:
+                        y += sy
+                        err += dx
+                    x += sx
+            else:
+                err = dy / 2.0
+                while y != y1:
+                    virt_l_tab.append([int(x), int(y)])
+                    err -= dx
+                    if err < 0:
+                        x += sx
+                        err += dy
+                    y += sy
+                virt_l_tab.append([int(x), int(y)])
+            return virt_l_tab
+
         def rect(x0,y0,x1,y1,col,modee):
             if (modee == "border"):
                 if (x0 < x1):
