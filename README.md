@@ -1,5 +1,5 @@
 # ljinux
-A "linux" written in python, for the pi pico.
+A "linux" written in python, for the Raspberry Pi Pico.
 
 Important note:
 
