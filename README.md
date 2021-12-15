@@ -134,4 +134,4 @@ VIEW THE TIME, OR SET IT
 VALID FORMAT "time set dd mm yyyy hr mm ss"
 ```
 
-More stuff will be added later as the project progresses spirals into chaos.
+More stuff will be added later as the project spirals into chaos.
