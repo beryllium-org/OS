@@ -1,18 +1,32 @@
+# -----------------
+# ljinux by bill88t
+# -----------------
+
+#basic libs
 import board
 import pwmio
 import digitalio
 import analogio
 import busio
-import adafruit_sdcard
 import time
-import adafruit_ssd1306
 import supervisor
 import storage
 import gc
 import os
 import sys
+import math
 
-# https://github.com/afaonline/DS1302_CircuitPython
+# sd card
+import adafruit_sdcard
+
+# display
+import adafruit_ssd1306
+
+# password input
+from getpass import getpass
+
+# for rtc
+# based off of https://github.com/afaonline/DS1302_CircuitPython
 import rtc
 import ds1302
 
@@ -25,6 +39,9 @@ Version = "0.0.3"
 Exit = False
 Exit_code = 0
 sdcard_fs = False
+
+# default password, aka the password if no /ljinux/etc/passwd is found
+dfpasswd = "Ljinux"
 
 # rtc stuff @ init cuz otherwise system fails to access it
 #the pins to connect it to
@@ -382,67 +399,100 @@ class ljinux():
             def display(inpt, objectss):
                 try:
                     typee = inpt[1] # "text / pixel / rectangle / line / circle / triangle / fill"
-                    if (typee == "text"): # x, y, text in "", color
-                        xi = inpt[2]
-                        yi = inpt[3]
-                        txt = inpt[4]
-                        col = inpt[5]
-                        if ((xi > 0) and (xi < (ljinux.farland.width()-5)) and (yi > 0) and (yi < (ljinux.farland.height()-8)) and ((col == "false") or (col == "true"))):
-                            pass
-                        else:
-                            print("based: Input error")
-                    elif (typee == "dot"): # x,y,col
+                    if (typee == "text"): # x, y, color, text in ""
                         xi = int(inpt[2])
                         yi = int(inpt[3])
-                        if (int(inpt[4]) == 1):
-                            col = True
-                        else:
-                            col = False
-                        if ((xi > 0) and (xi < (ljinux.farland.width())) and (yi > 0) and (yi < (ljinux.farland.height()))):
-                            ljinux.farland.pixel(xi,yi,col)
+                        txt = "" #inpt[5]
+                        col = int(inpt[4])
+                        if (inpt[5].startswith("\"")): # let's do some string proccessing!
+                            countt = len(inpt) # get the numb of args
+                            if (countt > 6):
+                                txt += str(inpt[5])[1:] + " " # get the first word, remove last char (")
+                                if (inpt[countt - 1].endswith("\"")):
+                                    for i in range(6,countt-1): # make all the words one thicc string
+                                        txt += str(inpt[i]) + " "
+                                    txt += str(inpt[countt-1])[:-1] # last word without last char (")
+                                else:
+                                    # oh cmon wtfrick
+                                    print("based: Input error")
+                            else:
+                                txt += str(inpt[5])[1:-1]
                         else:
                             print("based: Input error")
+                        ljinux.farland.text(txt,xi,yi,col)
+                    elif (typee == "dot"): # x,y,col
+                        try:
+                            xi = int(inpt[2])
+                            yi = int(inpt[3])
+                            col = int(inpt[4])
+                            ljinux.farland.pixel(xi,yi,col)
+                        except ValueError: # if he sends chars instead of numb
+                            print("based: Input error")
                     elif (typee == "rectangle"): # x start, y start, x stop, y stop, color, mode (fill / border)
-                        xi = inpt[2]
-                        yi = inpt[3]
-                        xe = inpt[4]
-                        ye = inpt[5]
-                        col = inpt[6]
-                        modd = inpt[7]
+                        try:
+                            xi = int(inpt[2])
+                            yi = int(inpt[3])
+                            xe = int(inpt[4])
+                            ye = int(inpt[5])
+                            col = int(inpt[6])
+                            modd = inpt[7]
+                            ljinux.farland.rect(xi,yi,xe,ye,col,modd)
+                        except ValueError:
+                            print("based: Input error")
                     elif (typee == "line"): # x start, y start, x stop, y stop, color
-                        xi = inpt[2]
-                        yi = inpt[3]
-                        xe = inpt[4]
-                        ye = inpt[5]
-                        col = inpt[6]
+                        try:
+                            xi = int(inpt[2])
+                            yi = int(inpt[3])
+                            xe = int(inpt[4])
+                            ye = int(inpt[5])
+                            col = int(inpt[6])
+                            ljinux.farland.line(xi,yi,xe,ye,col)
+                        except ValueError:
+                            print("based: Input error")
                     elif (typee == "circle"): # x start, y start, x stop, y stop, color, mode (fill/ border / template)
-                        xi = inpt[2]
-                        yi = inpt[3]
-                        xe = inpt[4]
-                        ye = inpt[5]
-                        col = inpt[6]
-                        modd = inpt[7]
+                        try:
+                            xi = inpt[2]
+                            yi = inpt[3]
+                            xe = inpt[4]
+                            ye = inpt[5]
+                            col = inpt[6]
+                            modd = inpt[7]
+                        except ValueError:
+                            print("based: Input error")
                     elif (typee == "triangle"): # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
-                        xi = inpt[2]
-                        yi = inpt[3]
-                        xe = inpt[4]
-                        ye = inpt[5]
-                        xz = inpt[6]
-                        yz = inpt[7]
-                        col = inpt[8]
-                        modd = inpt[9]
+                        try:
+                            xi = inpt[2]
+                            yi = inpt[3]
+                            xe = inpt[4]
+                            ye = inpt[5]
+                            xz = inpt[6]
+                            yz = inpt[7]
+                            col = inpt[8]
+                            modd = inpt[9]
+                        except ValueError:
+                            print("based: Input error")
                     elif (typee == "fill"): # color
-                        col = inpt[2]
+                        try:
+                            col = int(inpt[2])
+                            ljinux.farland.fill(col)
+                        except ValueError:
+                            print("based: Input error")
                     elif (typee == "rhombus"): # todo
                         pass
                     elif (typee == "move"): # todo
                         pass
-                    elif (typee == "delete"): #todo
-                        pass
+                    elif (typee == "delete"): #todo more
+                        optt = inpt[2]
+                        if (optt == "all"):
+                            ljinux.farland.clear()
+                        else:
+                            print("based: Syntax error")
                     elif (typee == "refresh"):
                         ljinux.farland.frame()
+                    else:
+                        print("based: Syntax error")
                 except IndexError:
-                    print("based: Input error")
+                    print("based: Syntax error")
 
             def timme(inpt):
                 try:
@@ -456,9 +506,17 @@ class ljinux():
                     tt = time.localtime()
                     print("Current time: " + str(tt.tm_mday) + "/" + str(tt.tm_mon) + "/" + str(tt.tm_year) + " " + str(tt.tm_hour) + ":" + str(tt.tm_min) + ":" + str(tt.tm_sec))
 
+            def suuu(inpt,system_vars):
+                global dfpasswd
+                if (dfpasswd == getpass()):
+                    system_vars["security"] = "off"
+                    print("Authentication successful. Security disabled.")
+                else:
+                    print("Authentication unsuccessful.")
+
         def shell(inp=None):
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu}
             command_input = False
             if not Exit:
                 while ((command_input == False) or (command_input == " ")):
@@ -477,12 +535,14 @@ class ljinux():
                                 function_dict["exec"](command_split)
                             else:
                                 print("Error: No file specified")
-                        elif ((command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help", "display"])):
+                        elif ((command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help", "display", "su"])):
                             function_dict[command_split[0]](command_split)
                         elif (command_split[0] == "help"):
                             function_dict["help"](function_dict)
                         elif (command_split[0] == "display"):
                             function_dict["display"](command_split,ljinux.farland.entities)
+                        elif (command_split[0] == "su"):
+                            function_dict["su"](command_split,ljinux.based.system_vars)
                         elif ((command_split[1] == "=") or (command_split[0] == "var")):
                             function_dict["var"](command_split, ljinux.based.user_vars, ljinux.based.system_vars)
                         else:
@@ -529,6 +589,9 @@ class ljinux():
         
         def pixel(x,y,col):
             ljinux.farland.oled.pixel(x, y, col)
+
+        def fill(col):
+            ljinux.farland.oled.fill(col)
         
         def text(strr,x,y,col):
             ljinux.farland.oled.text(strr,x,y,col)
@@ -541,9 +604,6 @@ class ljinux():
             return int(ljinux.farland.oled.width)
         
         # privitive graphics
-        def draw_line(x,y,l,col):
-            print("nothing yet")
-        
         def draw_circle(xpos0, ypos0, rad, col=1):
             x = rad - 1
             y = 0
@@ -572,6 +632,71 @@ class ljinux():
             for i in range(128):
                 for j in range (11):
                     ljinux.farland.oled.pixel(i,j, True)
+        
+        def line(x0,y0,x1,y1,col):
+            dx = abs(x1 - x0)
+            dy = abs(y1 - y0)
+            x, y = x0, y0
+            sx = -1 if x0 > x1 else 1
+            sy = -1 if y0 > y1 else 1
+            if dx > dy:
+                err = dx / 2.0
+                while x != x1:
+                    ljinux.farland.oled.pixel(int(x), int(y), col)
+                    err -= dy
+                    if err < 0:
+                        y += sy
+                        err += dx
+                    x += sx
+            else:
+                err = dy / 2.0
+                while y != y1:
+                    ljinux.farland.oled.pixel(int(x), int(y), col)
+                    err -= dx
+                    if err < 0:
+                        x += sx
+                        err += dy
+                    y += sy
+                ljinux.farland.oled.pixel(int(x), int(y), col)
+        def rect(x0,y0,x1,y1,col,modee):
+            if (modee == "border"):
+                if (x0 < x1):
+                    for i in range(x0,x1):
+                        ljinux.farland.oled.pixel(i, y0, col)
+                        ljinux.farland.oled.pixel(i, y1, col)
+                else:
+                    for i in range(x1,x0):
+                        ljinux.farland.oled.pixel(i, y0, col)
+                        ljinux.farland.oled.pixel(i, y1, col)
+                if (y0 < y1):
+                    for i in range(y0,y1):
+                        ljinux.farland.oled.pixel(x0, i, col)
+                        ljinux.farland.oled.pixel(x1, i, col)
+                else:
+                    for i in range(x1,x0):
+                        ljinux.farland.oled.pixel(x0, i, col)
+                        ljinux.farland.oled.pixel(x1, i, col)
+            elif (modee == "fill"):
+                if ((x0<x1) and (y0<y1)):
+                    for i in range(x0,x1):
+                        for j in range(y0,y1):
+                            ljinux.farland.oled.pixel(i, j, col)
+                elif ((x0<x1) and (y1>y0)):
+                    for i in range(x0,x1):
+                        for j in range(y0,y1,-1):
+                            ljinux.farland.oled.pixel(i, j, col)
+                elif ((x0>x1) and (y1<y0)):
+                    for i in range(x0,x1,-1):
+                        for j in range(y0,y1):
+                            ljinux.farland.oled.pixel(i, j, col)
+                elif ((x0>x1) and (y1>y0)):
+                    for i in range(x0,x1,-1):
+                        for j in range(y0,y1,-1):
+                            ljinux.farland.oled.pixel(i, j, col)
+                else:
+                    print("based: syntax error")
+
+
         
         #clock functions, to be made part of hs
         
@@ -936,7 +1061,7 @@ try:
         #oss.farland.draw_circle(center_x, center_y, radius)
         # show all the changes we just made
         #oss.farland.draw_clock()
-        oss.farland.frame()
+        #oss.farland.frame()
         #oss.farland.fps()
         gc.collect()
         print("Shell exited with exit code ", end='')

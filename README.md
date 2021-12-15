@@ -1,19 +1,20 @@
 # ljinux
-A "linux" written in 🅱️ython, for the pi pico.
+A "linux" written in python, for the pi pico.
 
-Disclaimer: 
+Important note:
 
-Do not take this project seriously. Code contains UwU's and Awooo's.
-I know it's not a linux, or an os, or anything in that regard, but.. making it look like one, makes it funnier.
+Do not take this project seriously.
+I know it's not a linux, or an os, or anything in that regard, but here we are.
 
-Also, it's wip.
+Also, it's quality is alpha-stage at best.
 
 <h3>Anyways, since you are still reading let's start with the basics.</h3>
 It runs on the rpi pico, circuitpython.
 As for the display I use a SSD1306 over I2C, it's optional tho.
+You can attach an rtc, I used a ds1302. If you don't attach one, expect borked timestamps, nothing else.
+It expects to find a /ljinux folder which uses as it's root. It can be on the built in fs, or an sd card, more details at Configuration.
 
 It's basics:
-there are no basics, this project is a dumpster fire.
 
 It's shell which is named <b>based</b>, is the only programming language it has.
 You can execute commands over serial to it, or by feeding them from a Init.lja
@@ -24,9 +25,12 @@ The Init.lja has to be at /ljinux/boot/ of the pi pico, or on /boot/ of the atta
 Install Circuitpython version 7.x,  
 and unzip this repo onto the CIRCUITPY drive
 
-<b>GPIO PINS:</b> GP0,GP1 for usb drive access - rtc GP6(clk),GP7(data),GP8(ce) - button left GP12 - button right GP12 - button enter GP11 - buzzer GP15 - sdcard GP2(clk),GP3(mosi),GP4(miso)GP
+<h3>Configuration</h3>
+
+<b>GPIO PINS:</b> GP0,GP1 for usb drive access - rtc GP6(clk),GP7(data),GP8(ce) - button left GP12 - button right GP12 - button enter GP11 - buzzer GP15 - sdcard GP2(clk),GP3(mosi),GP4(miso)
 
 <b>IMPORTANT NOTE: unless the GP0 and GP1 pins are connected the drive will no longer appear after a powercycle.</b>
+That needs to be done for the os to have rw access to the built in fs.
 
 based commands:
 ```
@@ -130,4 +134,4 @@ VIEW THE TIME, OR SET IT
 VALID FORMAT "time set dd mm yyyy hr mm ss"
 ```
 
-More stuff will be added later as the project progresses into complete mayhem.
+More stuff will be added later as the project progresses spirals into chaos.
