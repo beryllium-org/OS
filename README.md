@@ -132,6 +132,16 @@ time [set]...
 
 VIEW THE TIME, OR SET IT
 VALID FORMAT "time set dd mm yyyy hr mm ss"
+
+su
+
+DISABLE SECURITY, ASKS FOR PASSWORD
+DEFAULT PASSWORD == Ljinux
+
+
+picofetch
+
+NEOFETCH FOR THE PICO OFC
 ```
 
 More stuff will be added later as the project spirals into chaos.

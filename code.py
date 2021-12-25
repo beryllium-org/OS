@@ -2,6 +2,8 @@
 # ljinux by bill88t
 # -----------------
 
+print("Libraries loading")
+
 #basic libs
 import board
 import pwmio
@@ -15,26 +17,34 @@ import gc
 import os
 import sys
 import math
+print("Basic libraries loaded")
 
 # audio
 import audiomp3
 import audiopwmio
 import audiocore
 import audiomixer
+print("Audio libraries loaded")
 
 # sd card
 import adafruit_sdcard
+print("Sdcard libraries loaded")
 
 # display
 import adafruit_ssd1306
+print("Display libraries loaded")
 
 # password input
 from getpass import getpass
+print("Getpass library loaded")
 
 # for rtc
 # based off of https://github.com/afaonline/DS1302_CircuitPython
 import rtc
 import ds1302
+print("RTC library loaded")
+
+print("Imports complete")
 
 # to anyone that actually knows python, feel free to pr
 # i'm just making it with wht I know.. I don't understand how to __init__ or how to self
@@ -55,6 +65,10 @@ rtcclk = digitalio.DigitalInOut(board.GP6)
 rtcdata = digitalio.DigitalInOut(board.GP7)
 rtcce = digitalio.DigitalInOut(board.GP8)
 
+# get the startup time
+timezero = time.localtime()
+print("Got time zero")
+
 # to make it suitable for system
 class RTC(object):
     @property
@@ -68,6 +82,8 @@ try:
 
 except OSError: # not sure how to catch if it's not available, TODO
     pass
+
+print("System clock init done")
 
 def isInteger(N):
     # Convert float value
@@ -139,12 +155,13 @@ class ljinux():
             global Version
             print("\nWelcome to ljinux wanna-be kernel " + Version + "\n\n", end='')
             try:
+                print("[ Starting ] Mount /ljinux")
                 ljinux.io.start_sdcard()
-                print("sd card mount complete\nljinux partition mounted to /ljinux")
+                print("[ OK ] Mount /ljinux")
             except OSError:
-                print("sd card not available, assuming built in fs")
+                print("[ Failed ] Mount /ljinux\nError: sd card not available, assuming built in fs")
             ljinux.io.led.value = True
-            print("Attempting to open /ljinux/boot/Init.lja..")
+            print("[ Starting ] Running Init Script\nAttempting to open /ljinux/boot/Init.lja..")
             try:
                 ljinux.io.led.value = False
                 f = open("/ljinux/boot/Init.lja", 'r')
@@ -159,14 +176,16 @@ class ljinux():
                 for commandd in lines:
                     ljinux.based.shell(commandd)
                 f.close()
-                print("Init complete. Press any key to drop to shell..\n")
+                print("[ OK ] Running Init Script\n")
             except OSError:
-                print("Init does not exist, Press any key to drop to shell..\n")
+                print("[ Failed ] Running Init Script\n")
+            print("based: Init complete. Press any key to drop to shell..\n")
             ljinux.io.led.value = True
             sys.stdin.read(1)
             while not Exit:
                 try:
                     ljinux.based.shell()
+                    gc.collect()
                 except KeyboardInterrupt:
                     ljinux.io.led.value = False
                     print("^C\n",end='')
@@ -576,10 +595,56 @@ class ljinux():
                 except OSError:
                     print("Based: File not found")
 
+            def neofetch(inpt):
+                global Version
+                print("    `.::///+:/-.        --///+//-:``    ",end="")
+                print(ljinux.based.system_vars["user"],end="")
+                print("@pico")
+                print("   `+oooooooooooo:   `+oooooooooooo:    ---------                        ")
+                print("    /oooo++//ooooo:  ooooo+//+ooooo.    OS: Ljinux",end=" ")
+                print(Version)
+                print("    `+ooooooo:-:oo-  +o+::/ooooooo:     Host: Raspberry Pi Pico v1.0     ")
+                print("     `:oooooooo+``    `.oooooooo+-      Kernel:",end=" ")
+                print(Version)
+                print("       `:++ooo/.        :+ooo+/.`       Uptime:",end=" ")
+                neofetch_time = int(time.monotonic())
+                uptimestr = ""
+                hours = neofetch_time // 3600 # Take out the hours
+                neofetch_time -= hours * 3600 #
+                minutes = neofetch_time // 60 # Take out the minutes
+                neofetch_time -= minutes * 60 #
+                if (hours > 0):
+                    uptimestr += str(hours) + " hours, "
+                if (minutes > 0):
+                    uptimestr += str(minutes) + " minutes, "
+                if (neofetch_time > 0):
+                    uptimestr += str(neofetch_time) + " seconds"
+                else:
+                    uptimestr = uptimestr[:-2]
+                print(uptimestr)
+                print("          ...`  `.----.` ``..           Packages: 0 ()")
+                print("       .::::-``:::::::::.`-:::-`        Shell: based 0.0.1")
+                print("      -:::-`   .:::::::-`  `-:::-       WM: Farland")
+                print("     `::.  `.--.`  `` `.---.``.::`      Terminal: TTYACM0")
+                print("         .::::::::`  -::::::::` `       CPU: RP2040 (1) @ 133MHz")
+                print("   .::` .:::::::::- `::::::::::``::.    Memory: " + str(int(264 - int(gc.mem_free())/1000)) + "KiB / 264KiB          ")
+                print("  -:::` ::::::::::.  ::::::::::.`:::-")
+                print("  ::::  -::::::::.   `-::::::::  ::::")
+                print("  -::-   .-:::-.``....``.-::-.   -::-")
+                print("   .. ``       .::::::::.     `..`..")
+                print("     -:::-`   -::::::::::`  .:::::`")
+                print("     :::::::` -::::::::::` :::::::.")
+                print("     .:::::::  -::::::::. ::::::::")
+                print("      `-:::::`   ..--.`   ::::::.")
+                print("        `...`  `...--..`  `...`")
+                print("              .::::::::::")
+                print("               `.-::::-`")
+
+
 
         def shell(inp=None):
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'picofetch':ljinux.based.command.neofetch}
             command_input = False
             if not Exit:
                 while ((command_input == False) or (command_input == " ")):
@@ -1152,9 +1217,11 @@ def lock(it_is): # to be made part of hs app
         oss.farland.pixel(3, 3, False)
         oss.farland.pixel(3, 4, False)
         oss.farland.pixel(3, 5, False)
-
+print("Func loads complete")
 oss = ljinux()
+print("OS object created")
 oss.farland.setup()
+print("Display object created")
 #oss.farland.draw_top()
 #oss.farland.draw_init_clock()
 
@@ -1169,18 +1236,19 @@ oss.farland.frame()
 time.sleep(.4)
 
 # initial center of the circle
-center_x = 64
-center_y = 40
+#center_x = 64
+#center_y = 40
 # how fast does it move in each direction
-x_inc = 1
-y_inc = 1
+#x_inc = 1
+#y_inc = 1
 # what is the starting radius of the circle
-radius = 8
+#radius = 8
 frame_time_old = time.monotonic()
 frame_time_new = None
 
 try:
     while not Exit:
+        print("Running autorun")
         oss.based.autorun()
         ## undraw the previous circle
         #oss.farland.draw_circle(center_x, center_y, radius, col=0)
@@ -1214,43 +1282,27 @@ try:
         #oss.farland.frame()
         #oss.farland.fps()
         gc.collect()
-        print("Shell exited with exit code ", end='')
-        print(Exit_code)
+        print("Shell exited with exit code ", end="")
+        print(Exit_code,end="\n\n")
 except EOFError:
-    print("\nSerial Ctrl + D caught, exiting")
-ljinux.farland.clear()
-os.chdir("/")
+    print("\nAlert: Serial Ctrl + D caught, exiting\n")
 ljinux.io.led.value = False
+ljinux.farland.clear()
+print("[ OK ] Cleared display")
+os.chdir("/")
+print("[ OK ] Switched to Picofs")
 gc.collect()
+print("[ OK ] Cleared garbage")
 os.sync()
+print("[ OK ] Sync all volumes")
 ljinux.io.led.value = True
 try:
+    ljinux.io.led.value = False
     storage.umount("/ljinux")
+    print("[ OK ] Unmount /ljinux")
+    ljinux.io.led.value = True
 except OSError:
     pass
+print("[ OK ] Reached target: Quit")
 ljinux.io.led.value = False
 sys.exit(Exit_code)
-
-#      `.::///+:/-.        --///+//-:``    pi@pico
-#     `+oooooooooooo:   `+oooooooooooo:    ---------
-#      /oooo++//ooooo:  ooooo+//+ooooo.    OS: Ljinux Zero
-#      `+ooooooo:-:oo-  +o+::/ooooooo:     Host: Raspberry Pi Pico
-#       `:oooooooo+``    `.oooooooo+-      Kernel: 0.0.3
-#         `:++ooo/.        :+ooo+/.`       Uptime: 2 days, 15 hours, 35 mins
-#            ...`  `.----.` ``..           Packages: 998 (dpkg)
-#         .::::-``:::::::::.`-:::-`        Shell: based 0.0.1
-#        -:::-`   .:::::::-`  `-:::-       Terminal: TTYACM0
-#       `::.  `.--.`  `` `.---.``.::`      CPU: RP2040
-#           .::::::::`  -::::::::` `       Memory: 200MiB / 430MiB
-#     .::` .:::::::::- `::::::::::``::.
-#    -:::` ::::::::::.  ::::::::::.`:::-
-#    ::::  -::::::::.   `-::::::::  ::::
-#    -::-   .-:::-.``....``.-::-.   -::-
-#     .. ``       .::::::::.     `..`..
-#       -:::-`   -::::::::::`  .:::::`
-#       :::::::` -::::::::::` :::::::.
-#       .:::::::  -::::::::. ::::::::
-#        `-:::::`   ..--.`   ::::::.
-#          `...`  `...--..`  `...`
-#                .::::::::::
-#                 `.-::::-`
