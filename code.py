@@ -52,6 +52,7 @@ print("Imports complete")
 
 Version = "0.0.3"
 
+display_availability = False
 Exit = False
 Exit_code = 0
 sdcard_fs = False
@@ -668,7 +669,11 @@ class ljinux():
                         elif (command_split[0] == "help"):
                             function_dict["help"](function_dict)
                         elif (command_split[0] == "display"):
-                            function_dict["display"](command_split,ljinux.farland.entities)
+                            global display_availability
+                            if display_availability:
+                                function_dict["display"](command_split,ljinux.farland.entities)
+                            else:
+                                print("based: Display not attached")
                         elif (command_split[0] == "su"):
                             function_dict["su"](command_split,ljinux.based.system_vars)
                         elif ((command_split[1] == "=") or (command_split[0] == "var")):
@@ -699,21 +704,30 @@ class ljinux():
         # ---
         
         def setup():
+            global display_availability
             ljinux.io.led.value = False
-            i2c = busio.I2C(board.GP17, board.GP16)  # SCL, SDA
-            ljinux.farland.oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c) # I use the i2c cuz it ez
-            ljinux.farland.oled.fill(0) # cuz why not
-            ljinux.farland.oled.show()
+            try:
+                i2c = busio.I2C(board.GP17, board.GP16)  # SCL, SDA
+                ljinux.farland.oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c) # I use the i2c cuz it ez
+                ljinux.farland.oled.fill(0) # cuz why not
+                ljinux.farland.oled.show()
+                display_availability = True
+            except RuntimeError:
+                print("Failed to create display object, display functions will be unavailable")
             ljinux.io.led.value = True
         
         def frame():
-            ljinux.farland.oled.show()
+            global display_availability
+            if display_availability:
+                ljinux.farland.oled.show()
         
         def clear():
-            ljinux.io.led.value = False
-            ljinux.farland.oled.fill(0)
-            ljinux.farland.oled.show()
-            ljinux.io.led.value = True
+            global display_availability
+            if display_availability:
+                ljinux.io.led.value = False
+                ljinux.farland.oled.fill(0)
+                ljinux.farland.oled.show()
+                ljinux.io.led.value = True
         
         def pixel(x,y,col):
             ljinux.farland.oled.pixel(x, y, col)
