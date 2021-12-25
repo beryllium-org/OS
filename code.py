@@ -16,6 +16,12 @@ import os
 import sys
 import math
 
+# audio
+import audiomp3
+import audiopwmio
+import audiocore
+import audiomixer
+
 # sd card
 import adafruit_sdcard
 
@@ -63,6 +69,17 @@ try:
 except OSError: # not sure how to catch if it's not available, TODO
     pass
 
+def isInteger(N):
+    # Convert float value
+    # of N to integer
+    X = int(N)
+    temp2 = N - X
+    # If N is not equivalent
+    # to any integer
+    if (temp2 > 0):
+        return False
+    return True
+
 class ljinux():
     class io(object):
         # activity led
@@ -78,7 +95,7 @@ class ljinux():
         buttone = digitalio.DigitalInOut(board.GP11)
         buttone.switch_to_input(pull=digitalio.Pull.DOWN)
         # pc puzzer
-        buzzer = pwmio.PWMOut(board.GP15, variable_frequency=True, frequency = 200, duty_cycle = 0)
+        #buzzer = pwmio.PWMOut(board.GP15, variable_frequency=True, frequency = 200, duty_cycle = 0)
 
         def start_sdcard():
             global sdcard_fs
@@ -456,7 +473,11 @@ class ljinux():
                             radd = int(inpt[4])
                             col = int(inpt[5])
                             modd = inpt[6]
-                            ljinux.farland.draw_circle(xi,yi,radd,col,modd)
+                            if (modd != "fill"):
+                                ljinux.farland.draw_circle(xi,yi,radd,col)
+                            else:
+                                ljinux.farland.f_draw_circle(xi,yi,radd,col)
+                            #ljinux.farland.entities{""}
                         except ValueError:
                             print("based: Input error")
                     elif (typee == "triangle"): # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
@@ -475,7 +496,7 @@ class ljinux():
                             if (modd == "fill"):
                                 templ = ljinux.farland.virt_line(xi,yi,xe,ye)
                                 for i in templ:
-                                    ljinux.farland.line(xz,yz,i[0],i[1],col)
+                                    ljinux.farland.ext_line(xz,yz,i[0],i[1],col)
 
                         except ValueError:
                             print("based: Input error")
@@ -522,9 +543,43 @@ class ljinux():
                 else:
                     print("Authentication unsuccessful.")
 
+            def playmp3(inpt):
+                try:
+                    with open(inpt[1], "rb") as data:
+                        mp3 = audiomp3.MP3Decoder(data)
+                        a = audiopwmio.PWMAudioOut(board.GP15)
+
+                        print("Playing")
+                        try:
+                            a.play(mp3)
+                            while a.playing:
+                                time.sleep(.2)
+                                if (ljinux.io.buttone.value == True):
+                                    if a.playing:
+                                        a.pause()
+                                        print("Paused")
+                                        time.sleep(.5)
+                                        while a.paused:
+                                            if (ljinux.io.buttone.value == True):
+                                                a.resume()
+                                                print("Resumed")
+                                                time.sleep(.5)
+                                            else:
+                                                time.sleep(.1)
+
+
+                        except KeyboardInterrupt:
+                            a.stop()
+                        a.deinit()
+                        mp3.deinit()
+                        print("Stopped")
+                except OSError:
+                    print("Based: File not found")
+
+
         def shell(inp=None):
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3}
             command_input = False
             if not Exit:
                 while ((command_input == False) or (command_input == " ")):
@@ -612,7 +667,7 @@ class ljinux():
             return int(ljinux.farland.oled.width)
         
         # privitive graphics
-        def draw_circle(xpos0, ypos0, rad, col, modee): # TODO fix empty pixels
+        def draw_circle(xpos0, ypos0, rad, col):
             x = rad - 1
             top_l = None
             top_r = None
@@ -639,10 +694,18 @@ class ljinux():
                     x -= 1
                     dx += 2
                     err += dx - (rad << 1)
-            if ((modee == "fill") and (rad >2)):
-                for i in range(rad, 1, -1):
-                    ljinux.farland.draw_circle(xpos0,ypos0,i,col,"border")
 
+        def f_draw_circle(xpos0, ypos0, rad, col):
+            rad -= 1
+            y = -rad
+            while (y<=rad):
+                x=-rad
+                while (x<=rad):
+                    if ((x*x+y*y) < (rad*rad + rad*0.8)):
+                        ljinux.farland.oled.pixel(xpos0+x, ypos0+y, col)
+                        #setpixel(origin.x+x, origin.y+y)
+                    x += 1
+                y += 1
         
         def draw_top(): # to be made into an app
             for i in range(128):
@@ -674,6 +737,48 @@ class ljinux():
                         err += dy
                     y += sy
                 ljinux.farland.oled.pixel(int(x), int(y), col)
+
+        def ext_line(x0,y0,x1,y1,col):
+            dx = abs(x1 - x0)
+            dy = abs(y1 - y0)
+            x, y = x0, y0
+            sx = -1 if x0 > x1 else 1
+            sy = -1 if y0 > y1 else 1
+            if dx > dy:
+                err = dx / 2.0
+                while x != x1:
+                    ljinux.farland.oled.pixel(int(x), int(y), col)
+                    ljinux.farland.oled.pixel(int(x)+1, int(y), col)
+                    ljinux.farland.oled.pixel(int(x)-1, int(y), col)
+                    ljinux.farland.oled.pixel(int(x), int(y)+1, col)
+                    ljinux.farland.oled.pixel(int(x), int(y)-1, col)
+                    err -= dy
+                    if err < 0:
+                        y += sy
+                        err += dx
+                    x += sx
+            else:
+                err = dy / 2.0
+                while y != y1:
+                    ljinux.farland.oled.pixel(int(x), int(y), col)
+                    if not isInteger(x):
+                        ljinux.farland.oled.pixel(int(x)+1, int(y), col)
+                        ljinux.farland.oled.pixel(int(x)-1, int(y), col)
+                    if not isInteger(y):
+                        ljinux.farland.oled.pixel(int(x), int(y)+1, col)
+                        ljinux.farland.oled.pixel(int(x), int(y)-1, col)
+                    err -= dx
+                    if err < 0:
+                        x += sx
+                        err += dy
+                    y += sy
+                ljinux.farland.oled.pixel(int(x), int(y), col)
+                if not isInteger(x):
+                    ljinux.farland.oled.pixel(int(x)+1, int(y), col)
+                    ljinux.farland.oled.pixel(int(x)-1, int(y), col)
+                if not isInteger(y):
+                    ljinux.farland.oled.pixel(int(x), int(y)+1, col)
+                    ljinux.farland.oled.pixel(int(x), int(y)-1, col)
 
         def virt_line(x0,y0,x1,y1):
             virt_l_tab = []
@@ -1118,8 +1223,34 @@ os.chdir("/")
 ljinux.io.led.value = False
 gc.collect()
 os.sync()
+ljinux.io.led.value = True
 try:
     storage.umount("/ljinux")
 except OSError:
     pass
+ljinux.io.led.value = False
 sys.exit(Exit_code)
+
+#      `.::///+:/-.        --///+//-:``    pi@pico
+#     `+oooooooooooo:   `+oooooooooooo:    ---------
+#      /oooo++//ooooo:  ooooo+//+ooooo.    OS: Ljinux Zero
+#      `+ooooooo:-:oo-  +o+::/ooooooo:     Host: Raspberry Pi Pico
+#       `:oooooooo+``    `.oooooooo+-      Kernel: 0.0.3
+#         `:++ooo/.        :+ooo+/.`       Uptime: 2 days, 15 hours, 35 mins
+#            ...`  `.----.` ``..           Packages: 998 (dpkg)
+#         .::::-``:::::::::.`-:::-`        Shell: based 0.0.1
+#        -:::-`   .:::::::-`  `-:::-       Terminal: TTYACM0
+#       `::.  `.--.`  `` `.---.``.::`      CPU: RP2040
+#           .::::::::`  -::::::::` `       Memory: 200MiB / 430MiB
+#     .::` .:::::::::- `::::::::::``::.
+#    -:::` ::::::::::.  ::::::::::.`:::-
+#    ::::  -::::::::.   `-::::::::  ::::
+#    -::-   .-:::-.``....``.-::-.   -::-
+#     .. ``       .::::::::.     `..`..
+#       -:::-`   -::::::::::`  .:::::`
+#       :::::::` -::::::::::` :::::::.
+#       .:::::::  -::::::::. ::::::::
+#        `-:::::`   ..--.`   ::::::.
+#          `...`  `...--..`  `...`
+#                .::::::::::
+#                 `.-::::-`
