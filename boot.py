@@ -10,6 +10,11 @@ securityPin.switch_to_input(pull=digitalio.Pull.DOWN)
 powerpin.switch_to_output()
 powerpin.value = True
 
+storage.remount("/", readonly=False)
+m = storage.getmount("/")
+m.label = "Ljinux"
+storage.remount("/", readonly=True)
+
 if(securityPin.value != True):
     storage.disable_usb_drive()
     #usb_cdc.disable()

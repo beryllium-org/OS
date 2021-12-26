@@ -5,13 +5,15 @@
 print("Libraries loading")
 
 #basic libs
+import sys
+import supervisor
 import board
 import pwmio
 import digitalio
 import analogio
 import busio
 import time
-import supervisor
+import microcontroller
 import storage
 import gc
 import os
@@ -23,7 +25,6 @@ print("Basic libraries loaded")
 import audiomp3
 import audiopwmio
 import audiocore
-import audiomixer
 print("Audio libraries loaded")
 
 # sd card
@@ -86,6 +87,37 @@ except OSError: # not sure how to catch if it's not available, TODO
 
 print("System clock init done")
 
+class USBSerialReader: # based off of https://github.com/todbot/circuitpython-tricks#rename-circuitpy-drive-to-something-new, thanks a lot dude this shiet is awesome!
+    """ Read a line from USB Serial (up to end_char), non-blocking, with optional echo """
+    def __init__(self):
+        self.s = ''
+    def read(self,end_char='\n', echo=True):
+        n = supervisor.runtime.serial_bytes_available
+        if n > 0:                    # we got bytes!
+            s = sys.stdin.read(n)    # actually read it in
+            hexed = str(hex(ord(s)))
+            #print(hexed)
+            if (hexed == "0x4"):
+                print("^D")
+                global Exit
+                Exit = True
+                return None
+            elif (hexed == "0x7f"):
+                if (len(self.s)>0):
+                    self.s = self.s[:-1]
+                    sys.stdout.write('\010')
+                    sys.stdout.write(' ')
+                    sys.stdout.write('\010')
+            if echo: sys.stdout.write(s)  # echo back to human
+            self.s = self.s + s      # keep building the string up
+            if s.endswith(end_char): # got our end_char!
+                rstr = self.s        # save for return
+                self.s = ''          # reset str to beginning
+                return rstr
+        return None                  # no end_char yet
+
+usb_reader = USBSerialReader()
+
 def isInteger(N):
     # Convert float value
     # of N to integer
@@ -146,7 +178,7 @@ class ljinux():
 
     class based(object):
         user_vars = {}
-        system_vars = {'user': "root", 'security': "off"}
+        system_vars = {'user': "root", 'security': "off", 'Init-type': "oneshot"}
         inputt = None
 
         def autorun():
@@ -163,10 +195,12 @@ class ljinux():
                 print("[ Failed ] Mount /ljinux\nError: sd card not available, assuming built in fs")
             ljinux.io.led.value = True
             print("[ Starting ] Running Init Script\nAttempting to open /ljinux/boot/Init.lja..")
+            lines = None
             try:
                 ljinux.io.led.value = False
                 f = open("/ljinux/boot/Init.lja", 'r')
                 lines = f.readlines()
+                f.close()
                 count = 0
                 ljinux.io.led.value = True
                 for line in lines:
@@ -176,13 +210,72 @@ class ljinux():
                     ljinux.io.led.value = True
                 for commandd in lines:
                     ljinux.based.shell(commandd)
-                f.close()
                 print("[ OK ] Running Init Script\n")
             except OSError:
                 print("[ Failed ] Running Init Script\n")
-            print("based: Init complete. Press any key to drop to shell..\n")
+            if (ljinux.based.system_vars["Init-type"] == "oneshot"):
+                print("based: Init complete. Press any key to drop to shell..\n")
+            elif (ljinux.based.system_vars["Init-type"] == "reboot-repeat"):
+                global Exit
+                global Exit_code
+                Exit = True
+                Exit_code = 245
+                print("based: Init complete. Restarting")
+            elif (ljinux.based.system_vars["Init-type"] == "delayed-reboot-repeat"):
+                try:
+                    time.sleep(float(ljinux.based.user_vars["repeat-delay"]))
+                except IndexError:
+                    print("based: No delay specified! Waiting 60s.")
+                    time.sleep(60)
+                    global Exit
+                    global Exit_code
+                    Exit = True
+                    Exit_code = 245
+                    print("based: Init complete and delay finished. Restarting")
+            elif (ljinux.based.system_vars["Init-type"] == "oneshot-quit"):
+                global Exit
+                global Exit_code
+                Exit = True
+                Exit_code = 244
+                print("based: Init complete. Halting")
+            elif (ljinux.based.system_vars["Init-type"] == "repeat"):
+                try:
+                    while not Exit:
+                        for commandd in lines:
+                            ljinux.based.shell(commandd)
+                        if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True)):
+                            time.sleep(.5)
+                            if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True)):
+                                global Exit
+                                global Exit_code
+                                Exit = True
+                                Exit_code = 244
+                except KeyboardInterrupt:
+                    print("based: Caught Ctrl + C, press any key to drop to shell..")
+            elif (ljinux.based.system_vars["Init-type"] == "delayed-repeat"):
+                try:
+                    time.sleep(float(ljinux.based.user_vars["repeat-delay"]))
+                except IndexError:
+                    print("based: No delay specified! Waiting 60s.")
+                    time.sleep(60)
+                try:
+                    while not Exit:
+                        for commandd in lines:
+                            ljinux.based.shell(commandd)
+                        if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True)):
+                            time.sleep(.5)
+                            if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True)):
+                                global Exit
+                                global Exit_code
+                                Exit = True
+                                Exit_code = 244
+                except KeyboardInterrupt:
+                    print("based: Caught Ctrl + C, press any key to drop to shell..")
+            else:
+                print("based: Init-type specified incorrectly, assuming oneshot")
             ljinux.io.led.value = True
-            sys.stdin.read(1)
+            if not Exit:
+                sys.stdin.read(1)
             while not Exit:
                 try:
                     ljinux.based.shell()
@@ -394,7 +487,7 @@ class ljinux():
                         inpt.append(temp[i+1])
                 try:
                     for chh in inpt[0]:
-                        if not (chh.islower() or chh.isupper()):
+                        if not (chh.islower() or chh.isupper() or chh == "-"):
                             valid = False
                     if (inpt[1] == '='):
                         if not (inpt[2].startswith('"')):
@@ -414,12 +507,12 @@ class ljinux():
                                     new_var += (inpt[i] + ' ')
                                 new_var += (str(inpt[countt-1])[:-1])
                             else:
-                                print("based: invalid syntax")
+                                print("based: invalid syntax: 1")
                                 valid = False
                         else:
                             new_var += str(inpt[2])
                     else:
-                        print("based: invalid syntax")
+                        print("based: invalid syntax: 2")
                         valid = False
                     if valid:
                         if (inpt[0] in system_vars):
@@ -430,7 +523,7 @@ class ljinux():
                         else:
                             user_vars[inpt[0]] = new_var
                 except IndexError:
-                    print("based: invalid syntax")
+                    print("based: invalid syntax: 3")
                 ljinux.io.led.value = True
 
             def display(inpt, objectss):
@@ -568,7 +661,6 @@ class ljinux():
                     with open(inpt[1], "rb") as data:
                         mp3 = audiomp3.MP3Decoder(data)
                         a = audiopwmio.PWMAudioOut(board.GP15)
-
                         print("Playing")
                         try:
                             a.play(mp3)
@@ -580,18 +672,50 @@ class ljinux():
                                         print("Paused")
                                         time.sleep(.5)
                                         while a.paused:
-                                            if (ljinux.io.buttone.value == True):
+                                            if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True) and not (ljinux.io.buttone.value == True)):
+                                                a.stop()
+                                            elif (ljinux.io.buttone.value == True):
                                                 a.resume()
                                                 print("Resumed")
                                                 time.sleep(.5)
                                             else:
                                                 time.sleep(.1)
-
-
                         except KeyboardInterrupt:
                             a.stop()
                         a.deinit()
                         mp3.deinit()
+                        print("Stopped")
+                except OSError:
+                    print("Based: File not found")
+
+            def playwav(inpt):
+                try:
+                    with open(inpt[1], "rb") as data:
+                        wav = audiocore.WaveFile(data)
+                        a = audiopwmio.PWMAudioOut(board.GP15)
+                        print("Playing")
+                        try:
+                            a.play(wav)
+                            while a.playing:
+                                time.sleep(.2)
+                                if (ljinux.io.buttone.value == True):
+                                    if a.playing:
+                                        a.pause()
+                                        print("Paused")
+                                        time.sleep(.5)
+                                        while a.paused:
+                                            if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True) and not (ljinux.io.buttone.value == True)):
+                                                a.stop()
+                                            elif (ljinux.io.buttone.value == True):
+                                                a.resume()
+                                                print("Resumed")
+                                                time.sleep(.5)
+                                            else:
+                                                time.sleep(.1)
+                        except KeyboardInterrupt:
+                            a.stop()
+                        a.deinit()
+                        wav.deinit()
                         print("Stopped")
                 except OSError:
                     print("Based: File not found")
@@ -641,48 +765,61 @@ class ljinux():
                 print("              .::::::::::")
                 print("               `.-::::-`")
 
+            def rebooto(inpt):
+                global Exit
+                global Exit_code
+                Exit = True
+                Exit_code = 245
 
+            def sensors(inpt):
+                pass
 
         def shell(inp=None):
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'picofetch':ljinux.based.command.neofetch}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors}
             command_input = False
             if not Exit:
-                while ((command_input == False) or (command_input == " ")):
+                while ((command_input == False) or (command_input == "\n")):
                     if (inp == None):
                         print("[" + ljinux.based.system_vars["user"] + "@pico | " + os.getcwd() + "]> ", end='')
-                        command_input = ljinux.get_input.serial()
+                        command_input = False
+                        while (((not command_input) or (command_input == "")) and not Exit):
+                            command_input = usb_reader.read()  # read until newline, echo back chars
+                            #mystr = usb_reader.read(end_char='\t', echo=False) # trigger on tab, no echo
+                            gc.collect()
+                            time.sleep(.03)
                     else:
                         command_input = inp
-                command_split = command_input.split()
-                ljinux.io.led.value = False
-                if not (command_input == ""):
-                    try:
-                        if (str(command_split[0])[:2] == "./"):
-                            command_split[0] = str(command_split[0])[2:]
-                            if (command_split[0] != ''):
-                                function_dict["exec"](command_split)
+                if not Exit:
+                    command_split = command_input.split()
+                    ljinux.io.led.value = False
+                    if not (command_input == ""):
+                        try:
+                            if (str(command_split[0])[:2] == "./"):
+                                command_split[0] = str(command_split[0])[2:]
+                                if (command_split[0] != ''):
+                                    function_dict["exec"](command_split)
+                                else:
+                                    print("Error: No file specified")
+                            elif ((command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help", "display", "su"])):
+                                function_dict[command_split[0]](command_split)
+                            elif (command_split[0] == "help"):
+                                function_dict["help"](function_dict)
+                            elif (command_split[0] == "display"):
+                                global display_availability
+                                if display_availability:
+                                    function_dict["display"](command_split,ljinux.farland.entities)
+                                else:
+                                    print("based: Display not attached")
+                            elif (command_split[0] == "su"):
+                                function_dict["su"](command_split,ljinux.based.system_vars)
+                            elif ((command_split[1] == "=") or (command_split[0] == "var")):
+                                function_dict["var"](command_split, ljinux.based.user_vars, ljinux.based.system_vars)
                             else:
-                                print("Error: No file specified")
-                        elif ((command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help", "display", "su"])):
-                            function_dict[command_split[0]](command_split)
-                        elif (command_split[0] == "help"):
-                            function_dict["help"](function_dict)
-                        elif (command_split[0] == "display"):
-                            global display_availability
-                            if display_availability:
-                                function_dict["display"](command_split,ljinux.farland.entities)
-                            else:
-                                print("based: Display not attached")
-                        elif (command_split[0] == "su"):
-                            function_dict["su"](command_split,ljinux.based.system_vars)
-                        elif ((command_split[1] == "=") or (command_split[0] == "var")):
-                            function_dict["var"](command_split, ljinux.based.user_vars, ljinux.based.system_vars)
-                        else:
+                                function_dict["error"](command_split)
+                        except IndexError:
                             function_dict["error"](command_split)
-                    except IndexError:
-                        function_dict["error"](command_split)
-                ljinux.io.led.value = True
+                    ljinux.io.led.value = True
 
     class farland(object):
         # the screen holder
@@ -1319,4 +1456,11 @@ except OSError:
     pass
 print("[ OK ] Reached target: Quit")
 ljinux.io.led.value = False
-sys.exit(Exit_code)
+if (Exit_code == 245):
+    microcontroller.reset()
+elif (Exit_code == 244):
+    print("[ OK ] Reached target: Halt")
+    while True:
+        time.sleep(3600)
+else:
+    sys.exit(Exit_code)
