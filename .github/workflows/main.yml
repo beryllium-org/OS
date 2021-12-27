@@ -26,3 +26,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - uses: shadowmoose/GHA-LoC-Badge@1.0.0
+        with:
+          directory: ./
+          badge: ./output/badge.svg
+          patterns: '*.py'  # Patterns in the format of a '.gitignore' file, separated by pipes.
