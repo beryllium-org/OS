@@ -49,10 +49,11 @@ print("Imports complete")
 
 # to anyone that actually knows python, feel free to pr
 # i'm just making it with wht I know.. I don't understand how to __init__ or how to self
-# it works terribly diffrent from "this->"
+# it works terribly different from "this->"
 
 Version = "0.0.3"
 
+ljdebug = False
 display_availability = False
 Exit = False
 Exit_code = 0
@@ -88,32 +89,40 @@ except OSError: # not sure how to catch if it's not available, TODO
 print("System clock init done")
 
 class USBSerialReader: # based off of https://github.com/todbot/circuitpython-tricks#rename-circuitpy-drive-to-something-new, thanks a lot dude this shiet is awesome!
-    """ Read a line from USB Serial (up to end_char), non-blocking, with optional echo """
     def __init__(self):
         self.s = ''
-    def read(self,end_char='\n', echo=True):
+        self.scount = 0
+    def read(self,end_char='\n', echo=True): # you can call it with a custom end_char or no echo
+        global ljdebug
         n = supervisor.runtime.serial_bytes_available
-        if n > 0:                    # we got bytes!
-            s = sys.stdin.read(n)    # actually read it in
-            hexed = str(hex(ord(s)))
-            #print(hexed)
-            if (hexed == "0x4"):
-                print("^D")
-                global Exit
-                Exit = True
-                return None
-            elif (hexed == "0x7f"):
-                if (len(self.s)>0):
+        if n > 0:
+            i = sys.stdin.read(n) # it's now a char, read from stdin
+            for s in i:
+                hexed = str(hex(ord(s))) # I tried to fix this 3 times. Watch this number go up.
+                if ljdebug:
+                    print(hexed) #use this to get it's hex form
+                if (hexed == "0x4"):
+                    print("^D")
+                    global Exit
+                    Exit = True
+                    return None
+                elif ((hexed == "0x7f") and (self.scount > 0)):
+                    if ljdebug:
+                        print("|"+str(self.scount)+"|")
                     self.s = self.s[:-1]
+                    self.scount -= 1
                     sys.stdout.write('\010')
                     sys.stdout.write(' ')
                     sys.stdout.write('\010')
-            if echo: sys.stdout.write(s)  # echo back to human
-            self.s = self.s + s      # keep building the string up
-            if s.endswith(end_char): # got our end_char!
-                rstr = self.s        # save for return
-                self.s = ''          # reset str to beginning
-                return rstr
+                else:
+                    if echo: sys.stdout.write(s)  # echo back to human
+                    if not (hexed == "0x7f"):
+                        self.s = self.s + s      # keep building the string up
+                        self.scount += 1
+                    if s.endswith(end_char): # got our end_char!
+                        rstr = self.s        # save for return
+                        self.s = ''          # reset str to beginning
+                        return rstr
         return None                  # no end_char yet
 
 usb_reader = USBSerialReader()
@@ -666,6 +675,7 @@ class ljinux():
                             a.play(mp3)
                             while a.playing:
                                 time.sleep(.2)
+                                gc.collect()
                                 if (ljinux.io.buttone.value == True):
                                     if a.playing:
                                         a.pause()
@@ -698,6 +708,7 @@ class ljinux():
                             a.play(wav)
                             while a.playing:
                                 time.sleep(.2)
+                                gc.collect()
                                 if (ljinux.io.buttone.value == True):
                                     if a.playing:
                                         a.pause()
