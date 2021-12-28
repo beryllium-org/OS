@@ -143,7 +143,7 @@ class ljinux():
                     ljinux.io.led.value = True
                     print("based: "+ filen +": No such file or directory\n")
 
-        def appen(itemm):
+        def appen(itemm): # add to history, but don't save to file
             ljinux.history.historyy.append(itemm)
             ljinux.history.historyitems += 1
 
@@ -164,7 +164,7 @@ class ljinux():
                     print("based: "+ filen +": No such file or directory\n")
             ljinux.io.led.value = True
 
-        def clear(filen):
+        def clear(filen): # deletes all history, from ram and storage
             try:
                 ljinux.io.led.value = False
                 a = open(filen, 'r')
@@ -177,11 +177,10 @@ class ljinux():
                     print("based: "+ filen +": No such file or directory\n")
             ljinux.io.led.value = True
 
+        def gett(whichh): # get a specific history item, from loaded history
+            return str(ljinux.history.historyy[whichh])
 
-        def gett(whichh):
-            pass
-
-        def getall():
+        def getall(): # get the whole history, numbered, line by line
             for i in range(ljinux.history.historyitems):
                 print(str(i+1) + ": " + str(ljinux.history.historyy[i]))
 
@@ -204,20 +203,33 @@ class ljinux():
                     hexed = str(hex(ord(s))) # I tried to fix this 3 times. Watch this number go up.
                     if ljdebug:
                         print(hexed) #use this to get it's hex form
-                    if (hexed == "0x4"):
+                    if (hexed == "0x4"): # catch Ctrl + D
                         print("^D")
                         global Exit
                         Exit = True
                         return None
-                    elif (hexed == "0x7f"):
-                        if (self.scount > 0):
-                            self.s = self.s[:-1]
-                            self.scount -= 1
-                            sys.stdout.write('\010')
-                            sys.stdout.write(' ')
-                            sys.stdout.write('\010')
+                    elif (hexed == "0x7f"): # catch Backspace
+                        if (self.scount - self.pos > 0):
+                            if (self.pos == 0):
+                                self.s = self.s[:-1]
+                                self.scount -= 1
+                                sys.stdout.write('\010')
+                                sys.stdout.write(' ')
+                                sys.stdout.write('\010')
+                            else:
+                                # oh come on whyyyyyyy
+                                sys.stdout.write('\010')
+                                insertion_pos = self.scount - self.pos - 1
+                                self.s = self.s[:insertion_pos] + self.s[insertion_pos+1:] # backend insertion
+                                self.scount -= 1
+                                steps_in = 0
+                                for i in self.s[insertion_pos:]: # frontend insertion
+                                    sys.stdout.write(i)
+                                    steps_in +=1
+                                sys.stdout.write(' ')
+                                sys.stdout.write('\x1b[{}D'.format(steps_in+1)) # go back to pos
                         badchar = True
-                    elif ((hexed == "0x1b") or (self.capture_step > 0)):
+                    elif ((hexed == "0x1b") or (self.capture_step > 0)): # catch arrow keys
                         if (self.capture_step < 2): # we need to get the char that specifies it's an arrow key, the useless char and then the one we need
                             self.capture_step += 1
                         else:
@@ -243,11 +255,28 @@ class ljinux():
                                 pass
                             self.capture_step = 0
                         badchar = True
+                    elif ((hexed == "0xf") and ljdebug): # Catch Ctrl + O on debug
+                        print("\n------------")
+                        print("self.pos = " + str(self.pos))
+                        print("self.s = " + str(self.s))
+                        print("self.scount = " + str(self.scount))
+                        print("self.capture_step = " + str(self.capture_step))
+                        print("self.temp_s = " + str(self.temp_s))
                     else:
                         if echo: sys.stdout.write(s)  # echo back to hooman
                         if not (badchar):
-                            self.s = self.s + s      # keep building the string up
-                            self.scount += 1
+                            if ((self.pos == 0) or (s == end_char)):
+                                self.s = self.s + s      # keep building the string up
+                                self.scount += 1
+                            else:
+                                insertion_pos = self.scount - self.pos
+                                self.s = self.s[:insertion_pos] + s + self.s[insertion_pos:] # backend insertion
+                                self.scount += 1
+                                steps_in = 0
+                                for i in self.s[insertion_pos+1:]: # frontend insertion
+                                    sys.stdout.write(i)
+                                    steps_in +=1
+                                sys.stdout.write('\x1b[{}D'.format(steps_in)) # go back to pos
                         if s.endswith(end_char): # got our end_char!
                             rstr = self.s        # save for return
                             self.s = ''          # reset everything
