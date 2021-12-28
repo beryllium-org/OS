@@ -2,7 +2,42 @@
 # ljinux by bill88t
 # -----------------
 
-print("Libraries loading")
+# immutable vars
+Version = "0.0.3"
+# debug prints
+ljdebug = False
+
+# default password, aka the password if no /ljinux/etc/passwd is found
+dfpasswd = "Ljinux"
+#exit code holder, has to be global
+Exit = False
+Exit_code = 0
+
+#hardware autodetect vars
+sdcard_fs = False
+display_availability = False
+
+import time
+print("[    0.00000] Timing libraries done")
+uptimee = -time.monotonic()
+def dmtex(texx=None):
+    try:
+        ct = uptimee+time.monotonic() # current time since ljinux start
+        if (ct < 10):
+            print("[    ",end="")
+        elif (ct < 100):
+            print("[   ",end="")
+        elif (ct < 1000):
+            print("[  ",end="")
+        else:
+            print("[ ",end="")
+        print("%.5f" % ct + "] " + texx)
+    except TypeError:
+        pass
+
+print("[    0.00000] Timings reset")
+
+dmtex("Libraries loading")
 
 #basic libs
 import sys
@@ -12,65 +47,49 @@ import pwmio
 import digitalio
 import analogio
 import busio
-import time
 import microcontroller
 import storage
 import gc
 import os
 import sys
 import math
-print("Basic libraries loaded")
+dmtex("Basic libraries loaded")
 
 # audio
 import audiomp3
 import audiopwmio
 import audiocore
-print("Audio libraries loaded")
+dmtex("Audio libraries loaded")
 
 # sd card
 import adafruit_sdcard
-print("Sdcard libraries loaded")
+dmtex("Sdcard libraries loaded")
 
 # display
 import adafruit_ssd1306
-print("Display libraries loaded")
+dmtex("Display libraries loaded")
 
 # password input
 from getpass import getpass
-print("Getpass library loaded")
+dmtex("Getpass library loaded")
 
 # for rtc
 # based off of https://github.com/afaonline/DS1302_CircuitPython
 import rtc
 import ds1302
-print("RTC library loaded")
+dmtex("RTC library loaded")
 
-print("Imports complete")
+dmtex("Imports complete")
 
 # to anyone that actually knows python, feel free to pr
 # i'm just making it with wht I know.. I don't understand how to __init__ or how to self
 # it works terribly different from "this->"
-
-Version = "0.0.3"
-
-ljdebug = False
-display_availability = False
-Exit = False
-Exit_code = 0
-sdcard_fs = False
-
-# default password, aka the password if no /ljinux/etc/passwd is found
-dfpasswd = "Ljinux"
 
 # rtc stuff @ init cuz otherwise system fails to access it
 #the pins to connect it to
 rtcclk = digitalio.DigitalInOut(board.GP6)
 rtcdata = digitalio.DigitalInOut(board.GP7)
 rtcce = digitalio.DigitalInOut(board.GP8)
-
-# get the startup time
-timezero = time.localtime()
-print("Got time zero")
 
 # to make it suitable for system
 class RTC(object):
@@ -86,46 +105,7 @@ try:
 except OSError: # not sure how to catch if it's not available, TODO
     pass
 
-print("System clock init done")
-
-class USBSerialReader: # based off of https://github.com/todbot/circuitpython-tricks#rename-circuitpy-drive-to-something-new, thanks a lot dude this shiet is awesome!
-    def __init__(self):
-        self.s = ''
-        self.scount = 0
-    def read(self,end_char='\n', echo=True): # you can call it with a custom end_char or no echo
-        global ljdebug
-        n = supervisor.runtime.serial_bytes_available
-        if n > 0:
-            i = sys.stdin.read(n) # it's now a char, read from stdin
-            for s in i:
-                hexed = str(hex(ord(s))) # I tried to fix this 3 times. Watch this number go up.
-                if ljdebug:
-                    print(hexed) #use this to get it's hex form
-                if (hexed == "0x4"):
-                    print("^D")
-                    global Exit
-                    Exit = True
-                    return None
-                elif ((hexed == "0x7f") and (self.scount > 0)):
-                    if ljdebug:
-                        print("|"+str(self.scount)+"|")
-                    self.s = self.s[:-1]
-                    self.scount -= 1
-                    sys.stdout.write('\010')
-                    sys.stdout.write(' ')
-                    sys.stdout.write('\010')
-                else:
-                    if echo: sys.stdout.write(s)  # echo back to human
-                    if not (hexed == "0x7f"):
-                        self.s = self.s + s      # keep building the string up
-                        self.scount += 1
-                    if s.endswith(end_char): # got our end_char!
-                        rstr = self.s        # save for return
-                        self.s = ''          # reset str to beginning
-                        return rstr
-        return None                  # no end_char yet
-
-usb_reader = USBSerialReader()
+dmtex("RTC clock init done")
 
 def isInteger(N):
     # Convert float value
@@ -139,6 +119,140 @@ def isInteger(N):
     return True
 
 class ljinux():
+    class history:
+        historyy = []
+        historyitems = 0
+
+        def load(filen):
+            ljinux.history.historyy = []
+            ljinux.history.historyitems = 0
+            try:
+                with open(filen, 'r') as historyfile:
+                    ljinux.io.led.value = False
+                    lines = historyfile.readlines()
+                    ljinux.io.led.value = True
+                    for line in lines:
+                        ljinux.io.led.value = False
+                        ljinux.history.historyy.append(line.strip())
+                        ljinux.history.historyitems += 1
+                        ljinux.io.led.value = True
+            except OSError:
+                    ljinux.io.led.value = True
+                    print("based: "+ filen +": No such file or directory\n")
+
+        def appen(itemm):
+            ljinux.history.historyy.append(itemm)
+            ljinux.history.historyitems += 1
+
+        def save(filen):
+            ljinux.io.led.value = False
+            try:
+                a = open(filen, 'r')
+                a.close()
+                with open(filen, 'w') as historyfile:
+                    ljinux.io.led.value = True
+                    for i in range(ljinux.history.historyitems):
+                        ljinux.io.led.value = False
+                        historyfile.write(ljinux.history.historyy[i] + "\n")
+                        ljinux.io.led.value = True
+                    ljinux.io.led.value = False
+                    historyfile.flush()
+            except OSError:
+                    print("based: "+ filen +": No such file or directory\n")
+            ljinux.io.led.value = True
+
+        def clear(filen):
+            try:
+                ljinux.io.led.value = False
+                a = open(filen, 'r')
+                a.close()
+                with open(filen, 'w') as historyfile:
+                    historyfile.flush()
+                ljinux.history.historyitems = 0
+                ljinux.history.historyy = []
+            except OSError:
+                    print("based: "+ filen +": No such file or directory\n")
+            ljinux.io.led.value = True
+
+
+        def gett(whichh):
+            pass
+
+        def getall():
+            for i in range(ljinux.history.historyitems):
+                print(str(i+1) + ": " + str(ljinux.history.historyy[i]))
+
+    class SerialReader: # based off of https://github.com/todbot/circuitpython-tricks#rename-circuitpy-drive-to-something-new, thanks a lot dude this shiet is awesome!
+        global ljdebug
+        def __init__(self):
+            self.s = ''
+            self.scount = 0 # how many are in the array, just for speed
+            self.capture_step = 0 # var to hold status of capturing multi-byte chars
+            self.pos = 0 # where is the cursor, and to be more precise, how many steps left it is.
+            self.temp_s = '' # holds current command, while you are browsing the history
+            self.historypos = 0
+        def read(self,end_char='\n', echo= not ljdebug): # you can call it with a custom end_char or no echo
+            global ljdebug
+            badchar = False # don't pass char to str
+            n = supervisor.runtime.serial_bytes_available
+            if n > 0:
+                i = sys.stdin.read(n) # it's now a char, read from stdin
+                for s in i:
+                    hexed = str(hex(ord(s))) # I tried to fix this 3 times. Watch this number go up.
+                    if ljdebug:
+                        print(hexed) #use this to get it's hex form
+                    if (hexed == "0x4"):
+                        print("^D")
+                        global Exit
+                        Exit = True
+                        return None
+                    elif (hexed == "0x7f"):
+                        if (self.scount > 0):
+                            self.s = self.s[:-1]
+                            self.scount -= 1
+                            sys.stdout.write('\010')
+                            sys.stdout.write(' ')
+                            sys.stdout.write('\010')
+                        badchar = True
+                    elif ((hexed == "0x1b") or (self.capture_step > 0)):
+                        if (self.capture_step < 2):
+                            self.capture_step += 1
+                        else:
+
+                            # up: \x1b[{n}A
+                            # down: \x1b[{n}B
+                            # right: \x1b[{n}C
+                            # left: \x1b[{n}D
+
+                            if (hexed == "0x41"): # Up arrow key
+                                pass
+                            elif (hexed == "0x44"): # Left arrow key
+                                if (self.pos < self.scount):
+                                    self.pos += 1
+                                    sys.stdout.write('\x1b[1D')
+                            elif (hexed == "0x43"): # Right arrow key
+                                if (self.pos > 0):
+                                    self.pos -= 1
+                                    sys.stdout.write('\x1b[1C')
+                            elif (hexed == "0x42"): # Down arrow key
+                                pass
+                            self.capture_step = 0
+                        badchar = True
+                    else:
+                        if echo: sys.stdout.write(s)  # echo back to hooman
+                        if not (badchar):
+                            self.s = self.s + s      # keep building the string up
+                            self.scount += 1
+                        if s.endswith(end_char): # got our end_char!
+                            rstr = self.s        # save for return
+                            self.s = ''          # reset everything
+                            self.scount = 0
+                            self.pos = 0
+                            self.capture_step = 0
+                            self.historypos = 0
+                            return rstr
+            return None                  # no end_char yet
+
     class io(object):
         # activity led
         led = digitalio.DigitalInOut(board.LED)
@@ -186,10 +300,9 @@ class ljinux():
             return input()
 
     class based(object):
-        user_vars = {}
+        user_vars = {'history-file': "/ljinux/home/pi/.history"}
         system_vars = {'user': "root", 'security': "off", 'Init-type': "oneshot"}
         inputt = None
-
         def autorun():
             ljinux.io.led.value = False
             global Exit
@@ -219,9 +332,11 @@ class ljinux():
                     ljinux.io.led.value = True
                 for commandd in lines:
                     ljinux.based.shell(commandd)
-                print("[ OK ] Running Init Script\n")
+                print("[ OK ] Running Init Script")
             except OSError:
                 print("[ Failed ] Running Init Script\n")
+            ljinux.history.load(ljinux.based.user_vars["history-file"])
+            print("[ OK ] History Reload\n")
             if (ljinux.based.system_vars["Init-type"] == "oneshot"):
                 print("based: Init complete. Press any key to drop to shell..\n")
             elif (ljinux.based.system_vars["Init-type"] == "reboot-repeat"):
@@ -347,10 +462,10 @@ class ljinux():
                     rett += ("\n")
                 return rett
 
-            def not_found(errr):
+            def not_found(errr): # command not found
                 print("based: " + errr[0] + ": command not found")
 
-            def execc(whatt):
+            def execc(whatt): # exec a file
                 global Exit
                 global Exit_code
                 if (whatt[0] == "exec"):
@@ -375,14 +490,14 @@ class ljinux():
                     ljinux.io.led.value = True
                     print("based: "+ whatt[0] +": No such file or directory\n")
 
-            def pwd(dirr):
+            def pwd(dirr): # print working directory
                 print(os.getcwd())
 
-            def helpp(dictt):
+            def helpp(dictt): # help
                 for i in dictt.keys():
                     print(i)
 
-            def echoo(what):
+            def echoo(what): # echo command
                 try:
                     if (what[1].startswith("\"")):
                         if (what[1].endswith("\"")):
@@ -408,7 +523,7 @@ class ljinux():
                 except IndexError:
                     pass
 
-            def read(datatypee):
+            def read(datatypee): # read value of device
                 dataa = None
                 readopts = {'left_key': ljinux.get_input.left_key, 'right_key': ljinux.get_input.right_key, 'enter_key': ljinux.get_input.enter_key, 'serial_input': ljinux.get_input.serial}
                 try:
@@ -418,7 +533,7 @@ class ljinux():
                     print("Available read options: left_key, right_key, enter_key, serial_input")
                 return dataa
 
-            def exitt(returncode):
+            def exitt(returncode): # exit
                 global Exit
                 global Exit_code
                 print("Bye")
@@ -428,7 +543,7 @@ class ljinux():
                 except IndexError:
                     pass
 
-            def unamee(optt):
+            def unamee(optt): # uname
                 ljinux.io.led.value = False
                 global Version
                 try:
@@ -439,7 +554,7 @@ class ljinux():
                     print("Ljinux")
                 ljinux.io.led.value = True
 
-            def cdd(optt):
+            def cdd(optt): # cd
                 ljinux.io.led.value = False
                 try:
                     os.chdir(optt[1])
@@ -449,7 +564,7 @@ class ljinux():
                     pass
                 ljinux.io.led.value = True
 
-            def mkdiir(dirr):
+            def mkdiir(dirr): # mkdir
                 global sdcard_fs
                 ljinux.io.led.value = False
                 try:
@@ -467,7 +582,7 @@ class ljinux():
                     pass
                 ljinux.io.led.value = True
 
-            def rmdiir(dirr):
+            def rmdiir(dirr): # rmdir
                 global sdcard_fs
                 ljinux.io.led.value = False
                 try:
@@ -485,7 +600,7 @@ class ljinux():
                     pass
                 ljinux.io.led.value = True
 
-            def var(inpt, user_vars, system_vars):
+            def var(inpt, user_vars, system_vars): # system & user variables setter
                 ljinux.io.led.value = False
                 valid = True
                 if (inpt[0] == "var"):
@@ -535,7 +650,7 @@ class ljinux():
                     print("based: invalid syntax: 3")
                 ljinux.io.led.value = True
 
-            def display(inpt, objectss):
+            def display(inpt, objectss): # the graphics drawing stuff
                 try:
                     typee = inpt[1] # "text / pixel / rectangle / line / circle / triangle / fill"
                     if (typee == "text"): # x, y, color, text in ""
@@ -645,7 +760,7 @@ class ljinux():
                 except IndexError:
                     print("based: Syntax error")
 
-            def timme(inpt):
+            def timme(inpt): # time command
                 try:
                     if (inpt[1] == "set"):
                         try:
@@ -657,7 +772,7 @@ class ljinux():
                     tt = time.localtime()
                     print("Current time: " + str(tt.tm_mday) + "/" + str(tt.tm_mon) + "/" + str(tt.tm_year) + " " + str(tt.tm_hour) + ":" + str(tt.tm_min) + ":" + str(tt.tm_sec))
 
-            def suuu(inpt,system_vars):
+            def suuu(inpt,system_vars): # su command but worse
                 global dfpasswd
                 if (dfpasswd == getpass()):
                     system_vars["security"] = "off"
@@ -665,7 +780,7 @@ class ljinux():
                 else:
                     print("Authentication unsuccessful.")
 
-            def playmp3(inpt):
+            def playmp3(inpt): # play mp3
                 try:
                     with open(inpt[1], "rb") as data:
                         mp3 = audiomp3.MP3Decoder(data)
@@ -698,7 +813,7 @@ class ljinux():
                 except OSError:
                     print("Based: File not found")
 
-            def playwav(inpt):
+            def playwav(inpt): # play wav file
                 try:
                     with open(inpt[1], "rb") as data:
                         wav = audiocore.WaveFile(data)
@@ -731,8 +846,9 @@ class ljinux():
                 except OSError:
                     print("Based: File not found")
 
-            def neofetch(inpt):
+            def neofetch(inpt): # picofetch / neofetch
                 global Version
+                global uptimee
                 print("    `.::///+:/-.        --///+//-:``    ",end="")
                 print(ljinux.based.system_vars["user"],end="")
                 print("@pico")
@@ -743,7 +859,7 @@ class ljinux():
                 print("     `:oooooooo+``    `.oooooooo+-      Kernel:",end=" ")
                 print(Version)
                 print("       `:++ooo/.        :+ooo+/.`       Uptime:",end=" ")
-                neofetch_time = int(time.monotonic())
+                neofetch_time = int(uptimee + time.monotonic())
                 uptimestr = ""
                 hours = neofetch_time // 3600 # Take out the hours
                 neofetch_time -= hours * 3600 #
@@ -762,7 +878,7 @@ class ljinux():
                 print("       .::::-``:::::::::.`-:::-`        Shell: based 0.0.1")
                 print("      -:::-`   .:::::::-`  `-:::-       WM: Farland")
                 print("     `::.  `.--.`  `` `.---.``.::`      Terminal: TTYACM0")
-                print("         .::::::::`  -::::::::` `       CPU: RP2040 (1) @ 133MHz")
+                print("         .::::::::`  -::::::::` `       CPU: RP2040 (2) @ 133MHz")
                 print("   .::` .:::::::::- `::::::::::``::.    Memory: " + str(int(264 - int(gc.mem_free())/1000)) + "KiB / 264KiB          ")
                 print("  -:::` ::::::::::.  ::::::::::.`:::-")
                 print("  ::::  -::::::::.   `-::::::::  ::::")
@@ -776,29 +892,49 @@ class ljinux():
                 print("              .::::::::::")
                 print("               `.-::::-`")
 
-            def rebooto(inpt):
+            def rebooto(inpt): # reboot the whole microcontroller
                 global Exit
                 global Exit_code
                 Exit = True
                 Exit_code = 245
 
-            def sensors(inpt):
-                pass
+            def sensors(inpt): # lm-sensors
+                print("%.2f" % microcontroller.cpu.temperature,end="")
+                print("°C")
+
+            def historgf(inpt): # history get full list
+                try:
+                    if (inpt[1] == "clear"):
+                        ljinux.history.clear(ljinux.based.user_vars["history-file"])
+                    elif (inpt[1] == "load"):
+                        ljinux.history.load(ljinux.based.user_vars["history-file"])
+                    elif (inpt[1] == "save"):
+                        ljinux.history.save(ljinux.based.user_vars["history-file"])
+                    else:
+                        print("based: Invalid option")
+                except IndexError:
+                    ljinux.history.getall()
 
         def shell(inp=None):
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf}
             command_input = False
+            input_obj = ljinux.SerialReader()
             if not Exit:
                 while ((command_input == False) or (command_input == "\n")):
                     if (inp == None):
                         print("[" + ljinux.based.system_vars["user"] + "@pico | " + os.getcwd() + "]> ", end='')
                         command_input = False
                         while (((not command_input) or (command_input == "")) and not Exit):
-                            command_input = usb_reader.read()  # read until newline, echo back chars
+                            command_input = input_obj.read()  # read until newline, echo back chars
                             #mystr = usb_reader.read(end_char='\t', echo=False) # trigger on tab, no echo
                             gc.collect()
-                            time.sleep(.03)
+                            #time.sleep(.03)
+                            try:
+                                if (command_input[:1] != " "):
+                                    ljinux.history.appen(command_input.strip())
+                            except (AttributeError, TypeError):
+                                pass
                     else:
                         command_input = inp
                 if not Exit:
@@ -1146,129 +1282,6 @@ class ljinux():
                 average = 1/ (average / 10)
             print(average)
 
-        tones = {
-            'C0':16,
-            'C#0':17,
-            'D0':18,
-            'D#0':19,
-            'E0':21,
-            'F0':22,
-            'F#0':23,
-            'G0':24,
-            'G#0':26,
-            'A0':28,
-            'A#0':29,
-            'B0':31,
-            'C1':33,
-            'C#1':35,
-            'D1':37,
-            'D#1':39,
-            'E1':41,
-            'F1':44,
-            'F#1':46,
-            'G1':49,
-            'G#1':52,
-            'A1':55,
-            'A#1':58,
-            'B1':62,
-            'C2':65,
-            'C#2':69,
-            'D2':73,
-            'D#2':78,
-            'E2':82,
-            'F2':87,
-            'F#2':92,
-            'G2':98,
-            'G#2':104,
-            'A2':110,
-            'A#2':117,
-            'B2':123,
-            'C3':131,
-            'C#3':139,
-            'D3':147,
-            'D#3':156,
-            'E3':165,
-            'F3':175,
-            'F#3':185,
-            'G3':196,
-            'G#3':208,
-            'A3':220,
-            'A#3':233,
-            'B3':247,
-            'C4':262,
-            'C#4':277,
-            'D4':294,
-            'D#4':311,
-            'E4':330,
-            'F4':349,
-            'F#4':370,
-            'G4':392,
-            'G#4':415,
-            'A4':440,
-            'A#4':466,
-            'B4':494,
-            'C5':523,
-            'C#5':554,
-            'D5':587,
-            'D#5':622,
-            'E5':659,
-            'F5':698,
-            'F#5':740,
-            'G5':784,
-            'G#5':831,
-            'A5':880,
-            'A#5':932,
-            'B5':988,
-            'C6':1047,
-            'C#6':1109,
-            'D6':1175,
-            'D#6':1245,
-            'E6':1319,
-            'F6':1397,
-            'F#6':1480,
-            'G6':1568,
-            'G#6':1661,
-            'A6':1760,
-            'A#6':1865,
-            'B6':1976,
-            'C7':2093,
-            'C#7':2217,
-            'D7':2349,
-            'D#7':2489,
-            'E7':2637,
-            'F7':2794,
-            'F#7':2960,
-            'G7':3136,
-            'G#7':3322,
-            'A7':3520,
-            'A#7':3729,
-            'B7':3951,
-            'C8':4186,
-            'C#8':4435,
-            'D8':4699,
-            'D#8':4978,
-            'E8':5274,
-            'F8':5588,
-            'F#8':5920,
-            'G8':6272,
-            'G#8':6645,
-            'A8':7040,
-            'A#8':7459,
-            'B8':7902,
-            'C9':8372,
-            'C#9':8870,
-            'D9':9397,
-            'D#9':9956,
-            'E9':10548,
-            'F9':11175,
-            'F#9':11840,
-            'G9':12544,
-            'G#9':13290,
-            'A9':14080,
-            'A#9':14917,
-            'B9':15804
-        }
-
     class get_input(object):
         def left_key():
             if (ljinux.io.buttonl.value == True):
@@ -1379,11 +1392,11 @@ def lock(it_is): # to be made part of hs app
         oss.farland.pixel(3, 3, False)
         oss.farland.pixel(3, 4, False)
         oss.farland.pixel(3, 5, False)
-print("Func loads complete")
+dmtex("Func loads complete")
 oss = ljinux()
-print("OS object created")
+dmtex("OS object created")
 oss.farland.setup()
-print("Display object created")
+dmtex("Display object created")
 #oss.farland.draw_top()
 #oss.farland.draw_init_clock()
 
@@ -1396,6 +1409,7 @@ print("Display object created")
 
 oss.farland.frame()
 time.sleep(.4)
+dmtex("System init done")
 
 # initial center of the circle
 #center_x = 64
@@ -1410,7 +1424,7 @@ frame_time_new = None
 
 try:
     while not Exit:
-        print("Running autorun")
+        dmtex("Running autorun")
         oss.based.autorun()
         ## undraw the previous circle
         #oss.farland.draw_circle(center_x, center_y, radius, col=0)
@@ -1451,6 +1465,8 @@ except EOFError:
 ljinux.io.led.value = False
 ljinux.farland.clear()
 print("[ OK ] Cleared display")
+ljinux.history.save(ljinux.based.user_vars["history-file"])
+print("[ OK ] History flush")
 os.chdir("/")
 print("[ OK ] Switched to Picofs")
 gc.collect()
