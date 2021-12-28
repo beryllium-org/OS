@@ -1,5 +1,7 @@
 # -----------------
-# ljinux by bill88t
+# Ljinux by bill88t
+# Coded on a Raspberry Pi 400
+# Ma'am I swear this project is real
 # -----------------
 
 # immutable vars
@@ -7,29 +9,32 @@ Version = "0.0.3"
 # debug prints
 ljdebug = False
 
-# default password, aka the password if no /ljinux/etc/passwd is found
+# default password, aka the password if no /ljinux/etc/passwd is found TODO ADD THIS FUNCTIONALITY
 dfpasswd = "Ljinux"
 #exit code holder, has to be global
 Exit = False
 Exit_code = 0
 
-#hardware autodetect vars
+#hardware autodetect vars, starts assuming everything is missing
 sdcard_fs = False
 display_availability = False
+print("[    0.00000] Sys vars loaded")
 
 import time
 print("[    0.00000] Timing libraries done")
 uptimee = -time.monotonic()
+print("[    0.00000] Got time zero")
+
 def dmtex(texx=None):
     try:
         ct = uptimee+time.monotonic() # current time since ljinux start
-        if (ct < 10):
+        if (ct < 10): # this all just moves it to the left to accomodate for thicc uptimes
             print("[    ",end="")
         elif (ct < 100):
             print("[   ",end="")
         elif (ct < 1000):
             print("[  ",end="")
-        else:
+        else: # THICCC
             print("[ ",end="")
         print("%.5f" % ct + "] " + texx)
     except TypeError:
@@ -37,7 +42,8 @@ def dmtex(texx=None):
 
 print("[    0.00000] Timings reset")
 
-dmtex("Libraries loading")
+# now we can use this function to get a timing
+dmtex("Basic Libraries loading")
 
 #basic libs
 import sys
@@ -80,10 +86,7 @@ import ds1302
 dmtex("RTC library loaded")
 
 dmtex("Imports complete")
-
-# to anyone that actually knows python, feel free to pr
-# i'm just making it with wht I know.. I don't understand how to __init__ or how to self
-# it works terribly different from "this->"
+# trust me, all of em are necessary
 
 # rtc stuff @ init cuz otherwise system fails to access it
 #the pins to connect it to
@@ -215,17 +218,19 @@ class ljinux():
                             sys.stdout.write('\010')
                         badchar = True
                     elif ((hexed == "0x1b") or (self.capture_step > 0)):
-                        if (self.capture_step < 2):
+                        if (self.capture_step < 2): # we need to get the char that specifies it's an arrow key, the useless char and then the one we need
                             self.capture_step += 1
                         else:
-
                             # up: \x1b[{n}A
                             # down: \x1b[{n}B
                             # right: \x1b[{n}C
                             # left: \x1b[{n}D
-
+                            # where n = number of steps
                             if (hexed == "0x41"): # Up arrow key
-                                pass
+                                try:
+                                    pass
+                                except IndexError:
+                                    pass
                             elif (hexed == "0x44"): # Left arrow key
                                 if (self.pos < self.scount):
                                     self.pos += 1
