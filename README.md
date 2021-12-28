@@ -1,4 +1,4 @@
-# ljinux ![Lines of code](https://img.shields.io/tokei/lines/github/bill88t/ljinux)
+# ljinux ![Lines of code](https://img.shields.io/tokei/lines/github/bill88t/ljinux) ![GitHub repo size](https://img.shields.io/github/repo-size/bill88t/ljinux)
 A "linux" written in python, for the Raspberry Pi Pico.
 
 Important note:
