@@ -1,4 +1,4 @@
-# ljinux [![CI](https://github.com/bill88t/ljinux/actions/workflows/main.yml/output/badge.svg)](https://github.com/bill88t/ljinux/actions/workflows/main.yml)
+# ljinux ![](https://tokei.rs/b1/github/bill88t/ljinux)
 A "linux" written in python, for the Raspberry Pi Pico.
 
 Important note:
