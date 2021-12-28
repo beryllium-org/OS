@@ -1,4 +1,4 @@
-# ljinux ![](https://tokei.rs/b1/github/bill88t/ljinux)
+# ljinux [![](https://tokei.rs/b1/github/XAMPPRocky/tokei?category=lines)](https://github.com/XAMPPRocky/tokei).
 A "linux" written in python, for the Raspberry Pi Pico.
 
 Important note:
@@ -6,19 +6,18 @@ Important note:
 Do not take this project seriously.
 I know it's not a linux, or an os, or anything in that regard, but here we are.
 
-Also, it's quality is alpha-stage at best.
-
 <h3>Anyways, since you are still reading let's start with the basics.</h3>
 It runs on the rpi pico, circuitpython.
 As for the display I use a SSD1306 over I2C, it's optional tho.
-You can attach an rtc, I used a ds1302. If you don't attach one, expect borked timestamps, nothing else.
+If the display is not available, all graphics functions will be disabled.
+You can attach an rtc, I used a ds1302. If you don't attach one, expect borked timestamps, nothing else. The timings will work correctly though.
 It expects to find a /ljinux folder which uses as it's root. It can be on the built in fs, or an sd card, more details at Configuration.
 
-It's basics:
+It's structure:
 
 It's shell which is named <b>based</b>, is the only programming language it has.
 You can execute commands over serial to it, or by feeding them from a Init.lja
-The Init.lja has to be at /ljinux/boot/ of the pi pico, or on /boot/ of the attached sd card.
+The Init.lja has to be at /ljinux/boot/ of the pi pico or on the /boot/ of the attached sd card.
 
 <h2>Installation to a fresh pi pico:</h2>
 
@@ -142,6 +141,11 @@ DEFAULT PASSWORD == Ljinux
 picofetch
 
 NEOFETCH FOR THE PICO OFC
+
+
+history [save/load/clear]
+
+DISPLAYS THE HISTORY
 ```
 
 More stuff will be added later as the project spirals into chaos.
