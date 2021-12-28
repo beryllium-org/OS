@@ -25,8 +25,25 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - uses: shadowmoose/GHA-LoC-Badge@1.0.0
+      - name: Launch the local action
+        uses: ./ # Uses an action in the root directory
+        id: badge
         with:
+          debug: true
           directory: ./
           badge: ./output/badge.svg
-          patterns: '*.py'  # Patterns in the format of a '.gitignore' file, separated by pipes.
+          ignore: 'node_modules/|README'
+
+      - name: Print the output
+        run: |
+          echo "Scanned: ${{ steps.badge.outputs.counted_files }}";
+          echo "Line Count: ${{ steps.badge.outputs.total_lines }}";
+        
+      - name: Deploy to image-data branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_dir: ./output
+          publish_branch: image-data
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
