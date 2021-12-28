@@ -5,7 +5,8 @@
 # -----------------
 
 # immutable vars
-Version = "0.0.4"
+Version = "0.0.5"
+Circuitpython_supported_version = (7, 1, 0)
 # debug prints
 ljdebug = False
 
@@ -59,7 +60,28 @@ import gc
 import os
 import sys
 import math
+import usb_cdc
 dmtex("Basic libraries loaded")
+
+#basic checks
+if (sys.implementation.version == Circuitpython_supported_version):
+    dmtex("Running on supported implementation")
+else:
+    dmtex("Unsupported CircuitPython version, Halting")
+    while True:
+        time.sleep(3600)
+        gc.collect()
+
+temp = microcontroller.cpu.temperature
+tempcheck = True
+if ((temp > 0) and (temp < 60)):
+    dmtex("Temperature OK: " + str(temp) + " Celcius")
+else:
+    dmtex("Temperature is unsafe: " + str(temp) + " Celcius. Halting!")
+
+del temp
+del tempcheck
+dmtex("Basic checks done")
 
 # audio
 import audiomp3
@@ -178,7 +200,7 @@ class ljinux():
             ljinux.io.led.value = True
 
         def gett(whichh): # get a specific history item, from loaded history
-            return str(ljinux.history.historyy[whichh])
+            return str(ljinux.history.historyy[ljinux.history.historyitems - whichh])
 
         def getall(): # get the whole history, numbered, line by line
             for i in range(ljinux.history.historyitems):
@@ -192,6 +214,7 @@ class ljinux():
             self.capture_step = 0 # var to hold status of capturing multi-byte chars
             self.pos = 0 # where is the cursor, and to be more precise, how many steps left it is.
             self.temp_s = '' # holds current command, while you are browsing the history
+            self.temp_scount = 0 # holds current command, while you are browsing the history
             self.historypos = 0
         def read(self,end_char='\n', echo= not ljdebug): # you can call it with a custom end_char or no echo
             global ljdebug
@@ -240,7 +263,21 @@ class ljinux():
                             # where n = number of steps
                             if (hexed == "0x41"): # Up arrow key
                                 try:
-                                    pass
+                                    historyitemm = ljinux.history.gett(self.historypos + 1)
+                                    if (self.pos > 0):
+                                        sys.stdout.write('\x1b[{}C'.format(self.pos)) # go to end of line
+                                        self.pos = 0
+                                    for i in range(self.scount): # clear the line
+                                        sys.stdout.write('\010')
+                                        sys.stdout.write(' ')
+                                        sys.stdout.write('\010')
+                                    if (self.historypos == 0):
+                                        self.temp_scount = self.scount # save inputed
+                                        self.temp_s = self.s
+                                    self.s = historyitemm # backend
+                                    self.scount = len(historyitemm) # backend
+                                    self.historypos += 1
+                                    sys.stdout.write(self.s)
                                 except IndexError:
                                     pass
                             elif (hexed == "0x44"): # Left arrow key
@@ -252,7 +289,26 @@ class ljinux():
                                     self.pos -= 1
                                     sys.stdout.write('\x1b[1C')
                             elif (hexed == "0x42"): # Down arrow key
-                                pass
+                                if (self.historypos > 0):
+                                    if (self.pos > 0):
+                                        sys.stdout.write('\x1b[{}C'.format(self.pos)) # go to end of line
+                                        self.pos = 0
+                                    for i in range(self.scount): # clear the line
+                                        sys.stdout.write('\010')
+                                        sys.stdout.write(' ')
+                                        sys.stdout.write('\010')
+                                    if (self.historypos > 1):
+                                        historyitemm = ljinux.history.gett(self.historypos - 1)
+                                        self.s = historyitemm # backend
+                                        self.scount = len(historyitemm) # backend
+                                        sys.stdout.write(self.s) # write it out
+                                        self.historypos -= 1
+                                    else:
+                                        # have to give back the temporarily stored one
+                                        self.s = self.temp_s
+                                        self.scount = self.temp_scount
+                                        historypos = 0
+                                        sys.stdout.write(self.s)
                             self.capture_step = 0
                         badchar = True
                     elif ((hexed == "0xf") and ljdebug): # Catch Ctrl + O on debug
@@ -263,10 +319,10 @@ class ljinux():
                         print("self.capture_step = " + str(self.capture_step))
                         print("self.temp_s = " + str(self.temp_s))
                     else:
-                        if echo: sys.stdout.write(s)  # echo back to hooman
+                        if echo: sys.stdout.write(s) # echo back to hooman
                         if not (badchar):
                             if ((self.pos == 0) or (s == end_char)):
-                                self.s = self.s + s      # keep building the string up
+                                self.s = self.s + s # keep building the string up
                                 self.scount += 1
                             else:
                                 insertion_pos = self.scount - self.pos
@@ -278,14 +334,16 @@ class ljinux():
                                     steps_in +=1
                                 sys.stdout.write('\x1b[{}D'.format(steps_in)) # go back to pos
                         if s.endswith(end_char): # got our end_char!
-                            rstr = self.s        # save for return
-                            self.s = ''          # reset everything
+                            rstr = self.s # save for return
+                            self.s = '' # reset everything
                             self.scount = 0
                             self.pos = 0
                             self.capture_step = 0
                             self.historypos = 0
+                            self.temp_s = ''
+                            self.temp_scount = 0
                             return rstr
-            return None                  # no end_char yet
+            return None # no end_char yet
 
     class io(object):
         # activity led
@@ -344,13 +402,13 @@ class ljinux():
             global Version
             print("\nWelcome to ljinux wanna-be kernel " + Version + "\n\n", end='')
             try:
-                print("[ Starting ] Mount /ljinux")
+                print("[ .. ] Mount /ljinux")
                 ljinux.io.start_sdcard()
                 print("[ OK ] Mount /ljinux")
             except OSError:
                 print("[ Failed ] Mount /ljinux\nError: sd card not available, assuming built in fs")
             ljinux.io.led.value = True
-            print("[ Starting ] Running Init Script\nAttempting to open /ljinux/boot/Init.lja..")
+            print("[ .. ] Running Init Script\nAttempting to open /ljinux/boot/Init.lja..")
             lines = None
             try:
                 ljinux.io.led.value = False
@@ -372,7 +430,10 @@ class ljinux():
             ljinux.history.load(ljinux.based.user_vars["history-file"])
             print("[ OK ] History Reload\n")
             if (ljinux.based.system_vars["Init-type"] == "oneshot"):
-                print("based: Init complete. Press any key to drop to shell..\n")
+                print("[ OK ] Init complete\n[ .. ] Awaiting serial interface connection")
+                while not usb_cdc.console.connected:
+                    time.sleep(1)
+                print("[ OK ] Serial is connected\n")
             elif (ljinux.based.system_vars["Init-type"] == "reboot-repeat"):
                 global Exit
                 global Exit_code
@@ -409,7 +470,7 @@ class ljinux():
                                 Exit = True
                                 Exit_code = 244
                 except KeyboardInterrupt:
-                    print("based: Caught Ctrl + C, press any key to drop to shell..")
+                    print("based: Caught Ctrl + C")
             elif (ljinux.based.system_vars["Init-type"] == "delayed-repeat"):
                 try:
                     time.sleep(float(ljinux.based.user_vars["repeat-delay"]))
@@ -428,12 +489,10 @@ class ljinux():
                                 Exit = True
                                 Exit_code = 244
                 except KeyboardInterrupt:
-                    print("based: Caught Ctrl + C, press any key to drop to shell..")
+                    print("based: Caught Ctrl + C")
             else:
                 print("based: Init-type specified incorrectly, assuming oneshot")
             ljinux.io.led.value = True
-            if not Exit:
-                sys.stdin.read(1)
             while not Exit:
                 try:
                     ljinux.based.shell()
