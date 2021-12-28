@@ -5,7 +5,7 @@
 # -----------------
 
 # immutable vars
-Version = "0.0.3"
+Version = "0.0.4"
 # debug prints
 ljdebug = False
 
@@ -886,12 +886,15 @@ class ljinux():
                 print("    `.::///+:/-.        --///+//-:``    ",end="")
                 print(ljinux.based.system_vars["user"],end="")
                 print("@pico")
-                print("   `+oooooooooooo:   `+oooooooooooo:    ---------                        ")
+                print("   `+oooooooooooo:   `+oooooooooooo:    ---------")
                 print("    /oooo++//ooooo:  ooooo+//+ooooo.    OS: Ljinux",end=" ")
                 print(Version)
-                print("    `+ooooooo:-:oo-  +o+::/ooooooo:     Host: Raspberry Pi Pico v1.0     ")
-                print("     `:oooooooo+``    `.oooooooo+-      Kernel:",end=" ")
-                print(Version)
+                print("    `+ooooooo:-:oo-  +o+::/ooooooo:     Host: ",end="")
+                for s in board.board_id.replace('_',' ').split():
+                    print(s[0].upper() + s[1:],end=" ")
+                print(" ")
+                print("     `:oooooooo+``    `.oooooooo+-      CircuitPython:",end=" ")
+                print(str(sys.implementation.version[0]),str(sys.implementation.version[1]),str(sys.implementation.version[2]), sep=".")
                 print("       `:++ooo/.        :+ooo+/.`       Uptime:",end=" ")
                 neofetch_time = int(uptimee + time.monotonic())
                 uptimestr = ""
@@ -909,10 +912,11 @@ class ljinux():
                     uptimestr = uptimestr[:-2]
                 print(uptimestr)
                 print("          ...`  `.----.` ``..           Packages: 0 ()")
-                print("       .::::-``:::::::::.`-:::-`        Shell: based 0.0.1")
+                print("       .::::-``:::::::::.`-:::-`        Shell: Based")
                 print("      -:::-`   .:::::::-`  `-:::-       WM: Farland")
                 print("     `::.  `.--.`  `` `.---.``.::`      Terminal: TTYACM0")
-                print("         .::::::::`  -::::::::` `       CPU: RP2040 (2) @ 133MHz")
+                print("         .::::::::`  -::::::::` `       CPU: ",end="")
+                print(sys.platform + " (" + str(len((microcontroller.cpus))) + ") @ " + str(int(microcontroller.cpu.frequency/1000000)) + "MHz")
                 print("   .::` .:::::::::- `::::::::::``::.    Memory: " + str(int(264 - int(gc.mem_free())/1000)) + "KiB / 264KiB          ")
                 print("  -:::` ::::::::::.  ::::::::::.`:::-")
                 print("  ::::  -::::::::.   `-::::::::  ::::")

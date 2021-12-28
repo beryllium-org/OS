@@ -10,12 +10,13 @@ I know it's not a linux, or an os, or anything in that regard, but here we are.
 It runs on the rpi pico, circuitpython.
 As for the display I use a SSD1306 over I2C, it's optional tho.
 If the display is not available, all graphics functions will be disabled.
-You can attach an rtc, I used a ds1302. If you don't attach one, expect borked timestamps, nothing else. The timings will work correctly though.
+You can attach an rtc, I used a ds1302. If you don't attach one, expect borked timestamps, nothing else.
+The timings will work correctly though.
 It expects to find a /ljinux folder which uses as it's root. It can be on the built in fs, or an sd card, more details at Configuration.
 
 It's structure:
 
-It's shell which is named <b>based</b>, is the only programming language it has.
+It's shell which is named <b>based</b>, is the only thing available to use with it. You will be able to use python too with it in the future.
 You can execute commands over serial to it, or by feeding them from a Init.lja
 The Init.lja has to be at /ljinux/boot/ of the pi pico or on the /boot/ of the attached sd card.
 
