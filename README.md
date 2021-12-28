@@ -1,4 +1,4 @@
-# ljinux [![](https://tokei.rs/b1/github/XAMPPRocky/tokei?category=lines)](https://github.com/XAMPPRocky/tokei).
+# ljinux [![](https://img.shields.io/tokei/lines/github/bill88t/ljinux]
 A "linux" written in python, for the Raspberry Pi Pico.
 
 Important note:
