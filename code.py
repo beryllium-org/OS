@@ -78,6 +78,9 @@ if ((temp > 0) and (temp < 60)):
     dmtex("Temperature OK: " + str(temp) + " Celcius")
 else:
     dmtex("Temperature is unsafe: " + str(temp) + " Celcius. Halting!")
+    while True:
+        time.sleep(3600)
+        gc.collect()
 
 del temp
 del tempcheck
@@ -406,9 +409,9 @@ class ljinux():
                 ljinux.io.start_sdcard()
                 print("[ OK ] Mount /ljinux")
             except OSError:
-                print("[ Failed ] Mount /ljinux\nError: sd card not available, assuming built in fs")
+                print("[ Failed ] Mount /ljinux\n           -> Error: sd card not available, assuming built in fs")
             ljinux.io.led.value = True
-            print("[ .. ] Running Init Script\nAttempting to open /ljinux/boot/Init.lja..")
+            print("[ .. ] Running Init Script\n       -> Attempting to open /ljinux/boot/Init.lja..")
             lines = None
             try:
                 ljinux.io.led.value = False
@@ -428,7 +431,7 @@ class ljinux():
             except OSError:
                 print("[ Failed ] Running Init Script\n")
             ljinux.history.load(ljinux.based.user_vars["history-file"])
-            print("[ OK ] History Reload\n")
+            print("[ OK ] History Reload")
             if (ljinux.based.system_vars["Init-type"] == "oneshot"):
                 print("[ OK ] Init complete\n[ .. ] Awaiting serial interface connection")
                 while not usb_cdc.console.connected:
@@ -996,8 +999,7 @@ class ljinux():
                 Exit_code = 245
 
             def sensors(inpt): # lm-sensors
-                print("%.2f" % microcontroller.cpu.temperature,end="")
-                print("°C")
+                print("cpu_thermal\nAdapter: Cpu device\ntemp1:     +%.2f°C" % microcontroller.cpu.temperature)
 
             def historgf(inpt): # history get full list
                 try:
