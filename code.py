@@ -7,8 +7,6 @@
 # immutable vars
 Version = "0.0.5"
 Circuitpython_supported_version = (7, 1, 0)
-# debug prints
-ljdebug = False
 
 # default password, aka the password if no /ljinux/etc/passwd is found TODO ADD THIS FUNCTIONALITY
 dfpasswd = "Ljinux"
@@ -210,7 +208,6 @@ class ljinux():
                 print(str(i+1) + ": " + str(ljinux.history.historyy[i]))
 
     class SerialReader: # based off of https://github.com/todbot/circuitpython-tricks#rename-circuitpy-drive-to-something-new, thanks a lot dude this shiet is awesome!
-        global ljdebug
         def __init__(self):
             self.s = ''
             self.scount = 0 # how many are in the array, just for speed
@@ -219,16 +216,14 @@ class ljinux():
             self.temp_s = '' # holds current command, while you are browsing the history
             self.temp_scount = 0 # holds current command, while you are browsing the history
             self.historypos = 0
-        def read(self,end_char='\n', echo= not ljdebug): # you can call it with a custom end_char or no echo
-            global ljdebug
+        def read(self,end_char='\n', echo= True): # you can call it with a custom end_char or no echo
             badchar = False # don't pass char to str
             n = supervisor.runtime.serial_bytes_available
             if n > 0:
                 i = sys.stdin.read(n) # it's now a char, read from stdin
                 for s in i:
                     hexed = str(hex(ord(s))) # I tried to fix this 3 times. Watch this number go up.
-                    if ljdebug:
-                        print(hexed) #use this to get it's hex form
+                    #print(hexed) #use this to get it's hex form
                     if (hexed == "0x4"): # catch Ctrl + D
                         print("^D")
                         global Exit
@@ -314,7 +309,7 @@ class ljinux():
                                         sys.stdout.write(self.s)
                             self.capture_step = 0
                         badchar = True
-                    elif ((hexed == "0xf") and ljdebug): # Catch Ctrl + O on debug
+                    elif (hexed == "0xf"): # Catch Ctrl + O
                         print("\n------------")
                         print("self.pos = " + str(self.pos))
                         print("self.s = " + str(self.s))
@@ -1014,9 +1009,18 @@ class ljinux():
                 except IndexError:
                     ljinux.history.getall()
 
+            def clearr(inpt):
+                print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") # yea, I can't do much more than that in serial..
+
+            def haltt(inpt):
+                global Exit
+                global Exit_code
+                Exit_code = 244
+                Exit = True
+
         def shell(inp=None):
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt}
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:
