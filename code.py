@@ -8,7 +8,7 @@
 Version = "0.0.5"
 Circuitpython_supported_version = (7, 1, 0)
 
-# default password, aka the password if no /ljinux/etc/passwd is found TODO ADD THIS FUNCTIONALITY
+# default password, aka the password if no /ljinux/etc/passwd is found
 dfpasswd = "Ljinux"
 #exit code holder, has to be global
 Exit = False
@@ -25,19 +25,9 @@ uptimee = -time.monotonic()
 print("[    0.00000] Got time zero")
 
 def dmtex(texx=None):
-    try:
-        ct = uptimee+time.monotonic() # current time since ljinux start
-        if (ct < 10): # this all just moves it to the left to accomodate for thicc uptimes
-            print("[    ",end="")
-        elif (ct < 100):
-            print("[   ",end="")
-        elif (ct < 1000):
-            print("[  ",end="")
-        else: # THICCC
-            print("[ ",end="")
-        print("%.5f" % ct + "] " + texx)
-    except TypeError:
-        pass
+    global uptimme
+    ct = "%.5f" % (uptimee+time.monotonic()) # current time since ljinux start rounded to 5 digits
+    print("[{u}{upt}] {tx}".format(u="           ".replace(" ", "",len(ct)), upt=str(ct), tx=texx)) # credits for this clusterfuck go to the python mele, our dear @C̴̝͌h̶̰̑r̷̖̓o̶̦̊n̸̻͌ö̷̧́s̷̜͊#2188
 
 print("[    0.00000] Timings reset")
 
@@ -865,11 +855,29 @@ class ljinux():
 
             def suuu(inpt,system_vars): # su command but worse
                 global dfpasswd
-                if (dfpasswd == getpass()):
-                    system_vars["security"] = "off"
-                    print("Authentication successful. Security disabled.")
-                else:
-                    print("Authentication unsuccessful.")
+                passwordarr = {}
+                try:
+                    try:
+                        with open("/ljinux/etc/passwd", "r") as data:
+                            lines = data.readlines()
+                            for line in lines:
+                                dt = line.split()
+                                passwordarr[dt[0]] = dt[1]
+                    except OSError:
+                        pass
+                    if (passwordarr["root"] == getpass()):
+                        system_vars["security"] = "off"
+                        print("Authentication successful. Security disabled.")
+                    else:
+                        print("Authentication unsuccessful.")
+                    del passwordarr
+                except (KeyboardInterrupt, KeyError): # I betya some cve's cover this
+                    del passwordarr
+                    if (dfpasswd == getpass()):
+                        system_vars["security"] = "off"
+                        print("Authentication successful. Security disabled.")
+                    else:
+                        print("Authentication unsuccessful.")
 
             def playmp3(inpt): # play mp3
                 try:
