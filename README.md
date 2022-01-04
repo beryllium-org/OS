@@ -1,38 +1,39 @@
 # ljinux [![](https://tokei.rs/b1/github/bill88t/ljinux)](https://github.com/bill88t/ljinux)
-A "linux" written in python, for the Raspberry Pi Pico.
+A "linux" written in python, for the Raspberry Pi Pico.<br />
 
-Important note:
+Important note:<br />
 
-Do not take this project seriously.
-I know it's not a linux, or an os, or anything in that regard, but here we are.
+Do not take this project seriously.<br />
+I know it's not a linux, or an os, or anything in that regard, but here we are.<br />
 
 <h3>Anyways, since you are still reading let's start with the basics.</h3>
-It runs on the rpi pico, circuitpython.
-As for the display I use a SSD1306 over I2C, it's optional tho.
-If the display is not available, all graphics functions will be disabled.
-You can attach an rtc, I used a ds1302. If you don't attach one, expect borked timestamps, nothing else.
-The timings will work correctly though.
-It expects to find a /ljinux folder which uses as it's root. It can be on the built in fs, or an sd card, more details at Configuration.
+It runs on the rpi pico, circuitpython.<br />
+As for the display I use a SSD1306 over I2C, it's optional tho.<br />
+If the display is not available, all graphics functions will be disabled.<br />
+You can attach an rtc, I used a ds1302.<br />
+If you don't attach one, expect borked timestamps, nothing else.
+The timings will work correctly though.<br />
+It expects to find a /ljinux folder which uses as it's root. It can be on the built in fs, or an sd card, more details at Configuration.<br />
 
-It's structure:
+It's structure:<br />
 
-It's shell which is named <b>based</b>, is the only thing available to use with it. You will be able to use python too with it in the future.
-You can execute commands over serial to it, or by feeding them from a Init.lja
-The Init.lja has to be at /ljinux/boot/ of the pi pico or on the /boot/ of the attached sd card.
+It's shell which is named <b>based</b>, is the only thing available to use with it. You will be able to use python too with it in the future.<br />
+You can execute commands over serial to it, or by feeding them from a Init.lja<br />
+The Init.lja has to be at /ljinux/boot/ of the pi pico or on the /boot/ of the attached sd card.<br />
 
-<h2>Installation to a fresh pi pico:</h2>
+<h2>Installation to a fresh pi pico:</h2><br />
 
-Install Circuitpython version 7.x,  
-and unzip this repo onto the CIRCUITPY drive
+Install Circuitpython version 7.1.0,<br />
+and unzip this repo onto the CIRCUITPY drive.<br />
+Then eject it and fully disconnect it from the pc. (It is important to power cycle the pi.)<br />
 
 <h3>Configuration</h3>
 
-<b>GPIO PINS:</b> GP0,GP1 for usb drive access - rtc GP6(clk),GP7(data),GP8(ce) - button left GP12 - button right GP12 - button enter GP11 - buzzer GP15 - sdcard GP2(clk),GP3(mosi),GP4(miso)
+<b>GPIO PINS:</b> GP0,GP1 for usb drive access - rtc GP6(clk),GP7(data),GP8(ce) - button left GP12 - button right GP12 - button enter GP11 - buzzer GP15 - sdcard GP2(clk),GP3(mosi),GP4(miso)<br />
 
-<b>IMPORTANT NOTE: unless the GP0 and GP1 pins are connected the drive will no longer appear after a powercycle.</b>
-That needs to be done for the os to have rw access to the built in fs.
+<b>IMPORTANT NOTE: To make the pi appear as a usb device, connect the pins GP0 and GP1.</b><br />
 
-based commands:
+Based shell commands:<br />
 ```
 help [COMMAND]
 
