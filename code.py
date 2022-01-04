@@ -4,12 +4,13 @@
 # Ma'am I swear this project is real
 # -----------------
 
-# immutable vars
+# Some important vars
 Version = "0.0.5"
 Circuitpython_supported_version = (7, 1, 0)
 
 # default password, aka the password if no /ljinux/etc/passwd is found
 dfpasswd = "Ljinux"
+
 #exit code holder, has to be global
 Exit = False
 Exit_code = 0
@@ -72,6 +73,7 @@ else:
 
 del temp
 del tempcheck
+dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
 dmtex("Basic checks done")
 
 # audio
@@ -102,7 +104,7 @@ dmtex("Imports complete")
 # trust me, all of em are necessary
 
 # rtc stuff @ init cuz otherwise system fails to access it
-#the pins to connect it to
+# the pins to connect it to:
 rtcclk = digitalio.DigitalInOut(board.GP6)
 rtcdata = digitalio.DigitalInOut(board.GP7)
 rtcce = digitalio.DigitalInOut(board.GP8)
@@ -122,17 +124,6 @@ except OSError: # not sure how to catch if it's not available, TODO
     pass
 
 dmtex("RTC clock init done")
-
-def isInteger(N):
-    # Convert float value
-    # of N to integer
-    X = int(N)
-    temp2 = N - X
-    # If N is not equivalent
-    # to any integer
-    if (temp2 > 0):
-        return False
-    return True
 
 class ljinux():
     class history:
@@ -198,6 +189,7 @@ class ljinux():
                 print(str(i+1) + ": " + str(ljinux.history.historyy[i]))
 
     class SerialReader: # based off of https://github.com/todbot/circuitpython-tricks#rename-circuitpy-drive-to-something-new, thanks a lot dude this shiet is awesome!
+        # at this point tho, this function is nothing like the original
         def __init__(self):
             self.s = ''
             self.scount = 0 # how many are in the array, just for speed
@@ -205,6 +197,7 @@ class ljinux():
             self.pos = 0 # where is the cursor, and to be more precise, how many steps left it is.
             self.temp_s = '' # holds current command, while you are browsing the history
             self.temp_scount = 0 # holds current command, while you are browsing the history
+            self.temp_pos = 0 # holds the current command position if you browsing the history.
             self.historypos = 0
         def read(self,end_char='\n', echo= True): # you can call it with a custom end_char or no echo
             badchar = False # don't pass char to str
@@ -251,8 +244,10 @@ class ljinux():
                             # where n = number of steps
                             if (hexed == "0x41"): # Up arrow key
                                 try:
+                                    temp_temp_pos = 0
                                     historyitemm = ljinux.history.gett(self.historypos + 1)
                                     if (self.pos > 0):
+                                        temp_temp_pos = self.pos
                                         sys.stdout.write('\x1b[{}C'.format(self.pos)) # go to end of line
                                         self.pos = 0
                                     for i in range(self.scount): # clear the line
@@ -262,6 +257,7 @@ class ljinux():
                                     if (self.historypos == 0):
                                         self.temp_scount = self.scount # save inputed
                                         self.temp_s = self.s
+                                        self.temp_pos = temp_temp_pos
                                     self.s = historyitemm # backend
                                     self.scount = len(historyitemm) # backend
                                     self.historypos += 1
@@ -295,17 +291,22 @@ class ljinux():
                                         # have to give back the temporarily stored one
                                         self.s = self.temp_s
                                         self.scount = self.temp_scount
-                                        historypos = 0
+                                        self.pos = self.temp_pos
+                                        self.historypos = 0
                                         sys.stdout.write(self.s)
+                                        if (self.pos > 0):
+                                            sys.stdout.write('\x1b[{}D'.format(self.pos))
                             self.capture_step = 0
                         badchar = True
-                    elif (hexed == "0xf"): # Catch Ctrl + O
+                    elif (hexed == "0xf"): # Catch Ctrl + O for debug
                         print("\n------------")
                         print("self.pos = " + str(self.pos))
                         print("self.s = " + str(self.s))
                         print("self.scount = " + str(self.scount))
                         print("self.capture_step = " + str(self.capture_step))
                         print("self.temp_s = " + str(self.temp_s))
+                        print("self.temp_pos = " + str(self.temp_pos))
+                        print("self.historypos = " + str(self.historypos))
                     else:
                         if echo: sys.stdout.write(s) # echo back to hooman
                         if not (badchar):
@@ -346,8 +347,6 @@ class ljinux():
         buttonr.switch_to_input(pull=digitalio.Pull.DOWN)
         buttone = digitalio.DigitalInOut(board.GP11)
         buttone.switch_to_input(pull=digitalio.Pull.DOWN)
-        # pc puzzer
-        #buzzer = pwmio.PWMOut(board.GP15, variable_frequency=True, frequency = 200, duty_cycle = 0)
 
         def start_sdcard():
             global sdcard_fs
@@ -359,36 +358,30 @@ class ljinux():
             sdcard_fs = True
 
         def left_key():
-            if (ljinux.io.buttonl.value == True):
-                return True
-            else:
-                return False
+            return ljinux.io.buttonl.value
 
         def right_key():
-            if (ljinux.io.buttonr.value == True):
-                return True
-            else:
-                return False
+            return ljinux.io.buttonr.value
 
         def enter_key():
-            if (ljinux.io.buttone.value == True):
-                return True
-            else:
-                return False
+            return ljinux.io.buttone.value
 
         def serial():
             return input()
 
     class based(object):
-        user_vars = {'history-file': "/ljinux/home/pi/.history"}
-        system_vars = {'user': "root", 'security': "off", 'Init-type': "oneshot"}
+        user_vars = {'history-file': "/ljinux/home/pi/.history"} # the variables defined and modified by the user
+        system_vars = {'user': "root", 'security': "off", 'Init-type': "oneshot"} # the variables defined and modified by the system
+        pipe = "" # this is a pipe
         inputt = None
         def autorun():
             ljinux.io.led.value = False
             global Exit
             global Exit_code
             global Version
-            print("\nWelcome to ljinux wanna-be kernel " + Version + "\n\n", end='')
+            ljinux.based.system_vars["Version"] = Version
+            ljinux.based.system_vars["ImplementationVersion"] = str(sys.implementation.version[0]) + "." + str(sys.implementation.version[1]) + "." + str(sys.implementation.version[2])
+            print("\nWelcome to ljinux wanna-be kernel " + ljinux.based.system_vars["Version"] + "\n\n", end='')
             try:
                 print("[ .. ] Mount /ljinux")
                 ljinux.io.start_sdcard()
@@ -597,8 +590,10 @@ class ljinux():
                         act_dict = {'left_key': ljinux.io.left_key, 'right_key': ljinux.io.right_key, 'enter_key': ljinux.io.enter_key, 'serial_input': ljinux.io.serial}
                         if (what[1] in ljinux.based.user_vars):
                             print(ljinux.based.user_vars[what[1]])
+                        elif (what[1] in ljinux.based.system_vars):
+                            print(ljinux.based.system_vars[what[1]])
                         elif (what[1] in act_dict):
-                            print(act_dict[what[1]]())
+                            print(str(act_dict[what[1]]()))
                         else:
                             pass
                 except IndexError:
@@ -626,11 +621,10 @@ class ljinux():
 
             def unamee(optt): # uname
                 ljinux.io.led.value = False
-                global Version
                 try:
                     if (optt[1] == "-a"):
                         tt = time.localtime()
-                        print("Ljinux Raspberry Pi Pico " + Version + " " + str(tt.tm_mday) + "/" + str(tt.tm_mon) + "/" + str(tt.tm_year) + " " + str(tt.tm_hour) + ":" + str(tt.tm_min) + ":" + str(tt.tm_sec) + " circuitpython Ljinux")
+                        print("Ljinux Raspberry Pi Pico " + ljinux.based.system_vars["Version"] + " " + str(tt.tm_mday) + "/" + str(tt.tm_mon) + "/" + str(tt.tm_year) + " " + str(tt.tm_hour) + ":" + str(tt.tm_min) + ":" + str(tt.tm_sec) + " circuitpython Ljinux")
                 except IndexError:
                     print("Ljinux")
                 ljinux.io.led.value = True
@@ -946,14 +940,13 @@ class ljinux():
                     print("Based: File not found")
 
             def neofetch(inpt): # picofetch / neofetch
-                global Version
                 global uptimee
                 print("    `.::///+:/-.        --///+//-:``    ",end="")
                 print(ljinux.based.system_vars["user"],end="")
                 print("@pico")
                 print("   `+oooooooooooo:   `+oooooooooooo:    ---------")
                 print("    /oooo++//ooooo:  ooooo+//+ooooo.    OS: Ljinux",end=" ")
-                print(Version)
+                print(ljinux.based.system_vars["Version"])
                 print("    `+ooooooo:-:oo-  +o+::/ooooooo:     Host: ",end="")
                 for s in board.board_id.replace('_',' ').split():
                     print(s[0].upper() + s[1:],end=" ")
@@ -1026,9 +1019,27 @@ class ljinux():
                 Exit_code = 244
                 Exit = True
 
+            def iff(inpt):
+                condition = []
+                complete = False
+                if (inpt[1] == "["):
+                    for i in range(2,len(inpt)):
+                        if (inpt[i] == "]"):
+                            break;
+                            complete = True
+                        else:
+                            condition.append(inpt[i])
+                    if complete:
+                        print(str(condition))
+                    else:
+                        print("based: Incomplete condition")
+                else:
+                    print("based: Invalid syntax")
+
+
         def shell(inp=None):
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff}
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:
@@ -1503,6 +1514,7 @@ def lock(it_is): # to be made part of hs app
         oss.farland.pixel(3, 3, False)
         oss.farland.pixel(3, 4, False)
         oss.farland.pixel(3, 5, False)
+
 dmtex("Func loads complete")
 oss = ljinux()
 dmtex("OS object created")
@@ -1521,56 +1533,15 @@ dmtex("Display object created")
 oss.farland.frame()
 time.sleep(.4)
 dmtex("System init done")
-
-# initial center of the circle
-#center_x = 64
-#center_y = 40
-# how fast does it move in each direction
-#x_inc = 1
-#y_inc = 1
-# what is the starting radius of the circle
-#radius = 8
 frame_time_old = time.monotonic()
 frame_time_new = None
 
 try:
-    while not Exit:
-        dmtex("Running autorun")
-        oss.based.autorun()
-        ## undraw the previous circle
-        #oss.farland.draw_circle(center_x, center_y, radius, col=0)
-        #
-        ## if bouncing off right
-        #if center_x + radius >= oss.farland.width():
-        #    # start moving to the left
-        #    x_inc = -1
-        ## if bouncing off left
-        #elif center_x - radius < 0:
-        #    # start moving to the right
-        #    x_inc = 1
-        #
-        ## if bouncing off top
-        #if center_y + radius >= oss.farland.height():
-        #    # start moving down
-        #    y_inc = -1
-        ## if bouncing off bottom
-        #elif center_y - radius < 0 + 12:
-        #    # start moving up
-        #    y_inc = 1
-        #
-        ## go more in the current direction
-        #center_x += x_inc
-        #center_y += y_inc
-        #
-        ## draw the new circle
-        #oss.farland.draw_circle(center_x, center_y, radius)
-        # show all the changes we just made
-        #oss.farland.draw_clock()
-        #oss.farland.frame()
-        #oss.farland.fps()
-        gc.collect()
-        print("Shell exited with exit code ", end="")
-        print(Exit_code,end="\n\n")
+    dmtex("Running autorun")
+    oss.based.autorun()
+    gc.collect()
+    print("Shell exited with exit code ", end="")
+    print(Exit_code,end="\n\n")
 except EOFError:
     print("\nAlert: Serial Ctrl + D caught, exiting\n")
 ljinux.io.led.value = False
@@ -1602,3 +1573,46 @@ elif (Exit_code == 244):
         time.sleep(3600)
 else:
     sys.exit(Exit_code)
+
+## old circle code
+
+# initial center of the circle
+#center_x = 64
+#center_y = 40
+# how fast does it move in each direction
+#x_inc = 1
+#y_inc = 1
+# what is the starting radius of the circle
+#radius = 8
+
+## undraw the previous circle
+    #oss.farland.draw_circle(center_x, center_y, radius, col=0)
+    #
+    ## if bouncing off right
+    #if center_x + radius >= oss.farland.width():
+    #    # start moving to the left
+    #    x_inc = -1
+    ## if bouncing off left
+    #elif center_x - radius < 0:
+    #    # start moving to the right
+    #    x_inc = 1
+    #
+    ## if bouncing off top
+    #if center_y + radius >= oss.farland.height():
+    #    # start moving down
+    #    y_inc = -1
+    ## if bouncing off bottom
+    #elif center_y - radius < 0 + 12:
+    #    # start moving up
+    #    y_inc = 1
+    #
+    ## go more in the current direction
+    #center_x += x_inc
+    #center_y += y_inc
+    #
+    ## draw the new circle
+    #oss.farland.draw_circle(center_x, center_y, radius)
+    # show all the changes we just made
+    #oss.farland.draw_clock()
+    #oss.farland.frame()
+    #oss.farland.fps()
