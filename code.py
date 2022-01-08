@@ -1121,7 +1121,7 @@ class ljinux():
                 res = ljinux.based.user_vars[whatever]
             elif whatever in ljinux.based.system_vars:
                 res = ljinux.based.system_vars[whatever]
-            elif whatever in ljinux.io.sys_getters:
+            elif whatever in ljinux.based.sys_getters:
                 res = ljinux.based.sys_getters[whatever]
             else:
                 raise ValueError("Could not be found in Ljinux lists")
