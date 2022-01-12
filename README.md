@@ -29,7 +29,7 @@ Then eject it and fully disconnect it from the pc. (It is important to power cyc
 
 <h3>Configuration</h3>
 
-<b>GPIO PINS:</b> GP0,GP1 for usb drive access - rtc GP6(clk),GP7(data),GP8(ce) - button left GP12 - button right GP12 - button enter GP11 - buzzer GP15 - sdcard GP2(clk),GP3(mosi),GP4(miso)<br />
+<b>GPIO PINS:</b><br />GP0,GP1 for usb drive access<br />For rtc GP6(clk),GP7(data),GP8(ce)<br />button left GP12 - button right GP12 - button enter GP11<br />For buzzer GP15<br />For sdcard GP2(clk),GP3(mosi),GP4(miso)<br />
 
 <b>IMPORTANT NOTE: To make the pi appear as a usb device, connect the pins GP0 and GP1.</b><br />
 
