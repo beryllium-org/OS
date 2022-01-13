@@ -24,12 +24,13 @@ The Init.lja has to be at /ljinux/boot/ of the pi pico or on the /boot/ of the a
 <h2>Installation to a fresh pi pico:</h2><br />
 
 Install Circuitpython version 7.1.0,<br />
-and unzip this repo onto the CIRCUITPY drive.<br />
+And unzip this entire repo, except for the "source" folder onto the CIRCUITPY drive.<br />
 Then eject it and fully disconnect it from the pc. (It is important to power cycle the pi.)<br />
+When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)
 
 <h3>Configuration</h3>
 
-<b>GPIO PINS:</b><br />GP0,GP1 for usb drive access<br />For rtc GP6(clk),GP7(data),GP8(ce)<br />button left GP12 - button right GP13 - button enter GP11<br />For buzzer GP15<br />For sdcard GP2(clk),GP3(mosi),GP4(miso)<br />
+<b>GPIO PINS:</b><br />GP0,GP1 for usb drive access<br />For rtc GP6(clk),GP7(data),GP8(ce)<br />button left GP19 - button right GP18 - button enter GP20<br />For buzzer GP15<br />For sdcard GP2(clk),GP3(mosi),GP4(miso)<br />For ethernet GP10(clk), GP13(cs), GP11(mosi), GP12(miso),<br />
 
 <b>IMPORTANT NOTE: To make the pi appear as a usb device, connect the pins GP0 and GP1.</b><br />
 
