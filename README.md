@@ -149,6 +149,12 @@ NEOFETCH FOR THE PICO OFC
 history [save/load/clear]
 
 DISPLAYS THE HISTORY
+
+webserver [time] [root]
+
+A INTEGRATED WEBSERVER
+YOU CAN SET THE TIME TO inf IN ORDER TO MAKE IT WORK IN THE BACKROUND
+UNLESS SET OTHERWISE IT WILL TRY TO SERVE /ljinux/var/www/default/
 ```
 
 More stuff will be added later as the project spirals into chaos.
