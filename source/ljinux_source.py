@@ -8,6 +8,7 @@
 Version = "0.0.6"
 Circuitpython_supported_version = (7, 1, 0)
 dmesg = []
+access_log = []
 
 # default password, aka the password if no /ljinux/etc/passwd is found
 dfpasswd = "Ljinux"
@@ -57,6 +58,7 @@ import os
 import sys
 import math
 import usb_cdc
+import json
 dmtex("Basic libraries loaded")
 
 #enable gc
@@ -131,8 +133,10 @@ dmtex("Display libraries loaded")
 
 # networking
 import adafruit_requests as requests
-from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
+from adafruit_wiznet5k.adafruit_wiznet5k import *
 import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
+from adafruit_wsgi.wsgi_app import WSGIApp
+import adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver as server
 dmtex("Networking libraries loaded")
 
 # password input
@@ -378,6 +382,21 @@ class ljinux():
                             self.temp_scount = 0
                             return rstr
             return None # no end_char yet
+    
+    class backrounding(object):
+        webserver = False
+        def main_tick(loud=False):
+            if ljinux.backrounding.webserver:
+                try:
+                    ljinux.networking.wsgiServer.update_poll()
+                except AttributeError:
+                    global access_log
+                    print("Error:\n" + str(access_log))
+                server.socket.gc.collect()
+            if loud:
+                print(str(gc.mem_free()))
+            gc.collect()
+                
 
     class io(object):
         # activity led
@@ -416,6 +435,8 @@ class ljinux():
                     dmtex("IP address: " + ljinux.io.network.pretty_ip(ljinux.io.network.ip_address))
                     dmtex("Neworking init successful")
                     ljinux.io.network_online = True
+                    server.set_interface(ljinux.io.network)
+                    server.socket.gc.enable()
                 else:
                     dmtex("DHCP failed")
             else:
@@ -468,11 +489,69 @@ class ljinux():
         sys_getters = {'sdcard': get_sdcard_fs, 'uptime': get_uptime, 'temperature': get_temp, 'display-attached': get_display_status, 'mem': get_mem_free, 'implementation_version': get_implementation_version, 'implementation': get_implementation}
 
     class networking(object):
+        wsgiServer = None
+        
+        def get_static_file(filename):
+            "Static file generator"
+            try:
+                with open(filename, "rb") as f:
+                    b = None
+                    while b is None or len(b) == 2048:
+                        b = f.read(2048)
+                        yield b
+            except OSError:
+                with open("/ljinux/var/www/default/errors/404.html", "rb") as f:
+                    b = None
+                    while b is None or len(b) == 2048:
+                        b = f.read(2048)
+                        yield b
+        
+        def get_content_type(filee):
+            ext = filee.split(".")[-1]
+            if ext in ("html", "htm"):
+                return "text/html"
+            if ext == "js":
+                return "application/javascript"
+            if ext == "css":
+                return "text/css"
+            if ext in ("jpg", "jpeg"):
+                return "image/jpeg"
+            if ext == "png":
+                return "image/png"
+            return "text/plain"
+        
+        def serve_file(file_path):
+            return ("200 OK", [("Content-Type", ljinux.networking.get_content_type(file_path))], ljinux.networking.get_static_file(file_path))
+        
+        def timeset():
+            if ljinux.networking.test():
+                try:
+                    dmtex("IP lookup worldtimeapi.org: %s" % ljinux.io.network.pretty_ip(ljinux.io.network.get_host_by_name("worldtimeapi.org")))
+                    r = requests.get("http://worldtimeapi.org/api/timezone/Europe/Athens")
+                    dat = r.json()
+                    dmtex("Public IP: " + dat["client_ip"])
+                    if (dat["dst"] == "True"):
+                        dst = 1
+                    else:
+                        dst = 0
+                    nettime = time.struct_time((int(dat["datetime"][:4]),int(dat["datetime"][5:7]),int(dat["datetime"][8:10]),int(dat["datetime"][11:13]),int(dat["datetime"][14:16]),int(dat["datetime"][17:19]),int(dat["day_of_week"]),int(dat["day_of_year"]),dst))
+                    rtcc.write_datetime(nettime)
+                    del nettime
+                    dmtex("Network time set for " + dat["abbreviation"])
+                    del dat
+                    r.close()
+                except (ValueError, AssertionError):
+                    dmtex("Failed to fetch time data")
+            else:
+                dmtex("Network unavailable")
+        
         def test():
             if (ljinux.io.network_online):
                 if not (ljinux.io.network.link_status):
                     ljinux.io.network_online = False
-                dmtex("Network connection lost")
+                    dmtex("Network connection lost")
+                    return False
+            return True
             pass
         
         def resolve():
@@ -1174,7 +1253,64 @@ class ljinux():
             
             def ping(inpt):
                 print("Ping google.com: %d ms" % ljinux.io.network.ping("google.com"))
-        
+                
+            def webs(inpt):
+                ljinux.networking.test()
+                if ljinux.io.network_online:
+                    try:
+                        if inpt[1].isdigit():
+                            timee = int(inpt[1])*10
+                        elif (inpt[1] == "inf"):
+                            timee = -1
+                        else:
+                            print("based: Invalid syntax")
+                            return
+                    except IndexError:
+                        timee = 600
+                    
+                    try:
+                        pathh = inpt[2]
+                    except IndexError:
+                        pathh = "/ljinux/var/www/default/"
+                        
+                    print("Ljinux Web Server")
+                    web_app = WSGIApp()
+                    
+                    @web_app.route("/")
+                    def root(request):
+                        global access_log
+                        access_log.append("Root accessed")
+                        return ("200 OK", [], ljinux.networking.get_static_file(pathh + "default.html"))
+                    
+                    @web_app.route("/access_log")
+                    def root(request):
+                        global access_log
+                        access_log.append("Accessed log")
+                        return ("200 OK", [], [str(access_log)])
+                    
+                    @web_app.route("/<pagee>")
+                    def led_on(request, pagee):
+                        global access_log
+                        access_log.append("Accessed " + pagee)
+                        return ljinux.networking.serve_file(str(pathh + pagee))
+                    
+                    try:
+                        ljinux.networking.wsgiServer = server.WSGIServer(80, application=web_app)
+                        ljinux.networking.wsgiServer.start()
+                    except RuntimeError:
+                        print("Out of sockets, please reboot")
+                        return
+                    
+                    if (timee != -1):
+                        for i in range(0, timee):
+                            ljinux.networking.wsgiServer.update_poll()
+                            server.socket.gc.collect()
+                            gc.collect()
+                            time.sleep(.1)
+                    else:
+                        ljinux.backrounding.webserver = True
+                else:
+                    print("Network unavailable")
         def adv_input(whatever, typee):
             res = None
             if whatever.isdigit():
@@ -1194,7 +1330,7 @@ class ljinux():
         
         def shell(inp=None, suppress=False): # the shell function, warning do not touch, it has feelings
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs}
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:
@@ -1204,9 +1340,8 @@ class ljinux():
                         command_input = False
                         while (((not command_input) or (command_input == "")) and not Exit):
                             command_input = input_obj.read()  # read until newline, echo back chars
-                            #mystr = usb_reader.read(end_char='\t', echo=False) # trigger on tab, no echo
-                            gc.collect()
-                            #time.sleep(.03)
+                            # an alternative: command_input = input_obj.read(end_char='\t', echo=False) # trigger on tab, no echo
+                            ljinux.backrounding.main_tick()
                             try:
                                 if (command_input[:1] != " "):
                                     ljinux.history.appen(command_input.strip())

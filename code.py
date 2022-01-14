@@ -22,6 +22,8 @@ oss.io.init_net()
 jrub("Net init complete")
 if oss.io.network_online:
     jrub("Network up")
+    oss.networking.timeset()
+    jrub("Time set complete")
 else:
     jrub("Network down")
 oss.farland.frame()
