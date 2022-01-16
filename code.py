@@ -4,11 +4,12 @@
 # Ma'am I swear this project is real
 # -----------------
 
-import os
-import storage
-import microcontroller
-import time
-import sys
+from os import chdir
+from os import sync
+from storage import umount
+from microcontroller import reset
+from sys import exit
+from gc import collect
 def jrub(texx=None):
     print("jrub> ", texx)
 jrub("Basic loading complete")
@@ -28,7 +29,6 @@ else:
     jrub("Network down")
 oss.farland.frame()
 jrub("Running Ljinux autorun..")
-time.sleep(.4)
 try:
     Exit_code = oss.based.autorun()
     jrub("Shell exited with exit code " + str(Exit_code))
@@ -40,25 +40,27 @@ oss.farland.clear()
 jrub("Cleared display")
 oss.history.save(ljinux.based.user_vars["history-file"])
 jrub("History flushed")
-os.chdir("/")
+chdir("/")
 jrub("Switched to Picofs")
-os.sync()
+sync()
 jrub("Synced all volumes")
 oss.io.led.value = True
 try:
     oss.io.led.value = False
-    storage.umount("/ljinux")
+    umount("/ljinux")
     jrub("Unmounted /ljinux")
     oss.io.led.value = True
 except OSError:
     pass
 jrub("Reached target: Quit")
 oss.io.led.value = False
+del oss
+collect()
 if (Exit_code == 245):
-    microcontroller.reset()
+    reset()
 elif (Exit_code == 244):
     print("[ OK ] Reached target: Halt")
     while True:
         time.sleep(3600)
 else:
-    sys.exit(Exit_code)
+    exit(Exit_code)

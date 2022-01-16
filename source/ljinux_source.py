@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.0.6"
+Version = "0.0.7"
 Circuitpython_supported_version = (7, 1, 0)
 dmesg = []
 access_log = []
@@ -30,12 +30,18 @@ uptimee = -time.monotonic()
 print("[    0.00000] Got time zero")
 dmesg.append("[    0.00000] Got time zero")
 
+import gc
+gc.enable()
+print("[    0.00000] Garbage collector loaded and enabled")
+
+
 def dmtex(texx=None):
     global uptimme
     ct = "%.5f" % (uptimee+time.monotonic()) # current time since ljinux start rounded to 5 digits
     strr = "[{u}{upt}] {tx}".format(u="           ".replace(" ", "",len(ct)), upt=str(ct), tx=texx)
     print(strr) # credits for this clusterfuck go to the python mele, our dear @C̴̝͌h̶̰̑r̷̖̓o̶̦̊n̸̻͌ö̷̧́s̷̜͊#2188
     dmesg.append(strr)
+    gc.collect()
 
 print("[    0.00000] Timings reset")
 dmesg.append("[    0.00000] Timings reset")
@@ -44,29 +50,31 @@ dmesg.append("[    0.00000] Timings reset")
 dmtex("Basic Libraries loading")
 
 #basic libs
-import sys
-import supervisor
+from sys import stdin
+from sys import stdout
+from sys import implementation
+from sys import platform
+from supervisor import runtime
 import board
-import pwmio
 import digitalio
-import analogio
 import busio
-import microcontroller
-import storage
-import gc
-import os
-import sys
-import math
-import usb_cdc
+from microcontroller import cpu
+from microcontroller import cpus
+from storage import remount
+from storage import VfsFat
+from storage import mount
+from os import chdir
+from os import rmdir
+from os import mkdir
+from os import sync
+from os import getcwd
+from os import listdir
+from usb_cdc import console
 import json
 dmtex("Basic libraries loaded")
 
-#enable gc
-gc.enable()
-dmtex("Garbage collector enabled")
-
 #basic checks
-if (sys.implementation.version == Circuitpython_supported_version):
+if (implementation.version == Circuitpython_supported_version):
     dmtex("Running on supported implementation")
 else:
     dmtex("Unsupported CircuitPython version, Halting")
@@ -88,7 +96,7 @@ else:
         time.sleep(3)
         gc.collect()
 
-temp = microcontroller.cpu.temperature
+temp = cpu.temperature
 tempcheck = True
 if ((temp > 0) and (temp < 60)):
     dmtex("Temperature OK: " + str(temp) + " Celcius")
@@ -118,9 +126,9 @@ dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
 dmtex("Basic checks done")
 
 # audio
-import audiomp3
-import audiopwmio
-import audiocore
+from audiomp3 import MP3Decoder
+from audiopwmio import PWMAudioOut
+from audiocore import WaveFile
 dmtex("Audio libraries loaded")
 
 # sd card
@@ -133,7 +141,7 @@ dmtex("Display libraries loaded")
 
 # networking
 import adafruit_requests as requests
-from adafruit_wiznet5k.adafruit_wiznet5k import *
+from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
 import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
 from adafruit_wsgi.wsgi_app import WSGIApp
 import adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver as server
@@ -168,7 +176,9 @@ try:
     rtcc = ds1302.DS1302(rtcclk,rtcdata,rtcce) # muh rtc object
     r = RTC() # now in a good format
     rtc.set_time_source(r)
-
+    del rtcclk
+    del rtcdata
+    del rtcce
 except OSError: # not sure how to catch if it's not available, TODO
     pass
 
@@ -250,9 +260,9 @@ class ljinux():
             self.historypos = 0
         def read(self,end_char='\n', echo= True): # you can call it with a custom end_char or no echo
             badchar = False # don't pass char to str
-            n = supervisor.runtime.serial_bytes_available
+            n = runtime.serial_bytes_available
             if n > 0:
-                i = sys.stdin.read(n) # it's now a char, read from stdin :)
+                i = stdin.read(n) # it's now a char, read from stdin :)
                 for s in i:
                     hexed = str(hex(ord(s))) # I tried to fix this 3 times. Watch this number go up.
                     #print(hexed) #use this to get it's hex form
@@ -266,21 +276,21 @@ class ljinux():
                             if (self.pos == 0):
                                 self.s = self.s[:-1]
                                 self.scount -= 1
-                                sys.stdout.write('\010')
-                                sys.stdout.write(' ')
-                                sys.stdout.write('\010')
+                                stdout.write('\010')
+                                stdout.write(' ')
+                                stdout.write('\010')
                             else:
                                 # oh come on whyyyyyyy
-                                sys.stdout.write('\010')
+                                stdout.write('\010')
                                 insertion_pos = self.scount - self.pos - 1
                                 self.s = self.s[:insertion_pos] + self.s[insertion_pos+1:] # backend insertion
                                 self.scount -= 1
                                 steps_in = 0
                                 for i in self.s[insertion_pos:]: # frontend insertion
-                                    sys.stdout.write(i)
+                                    stdout.write(i)
                                     steps_in +=1
-                                sys.stdout.write(' ')
-                                sys.stdout.write('\x1b[{}D'.format(steps_in+1)) # go back to pos
+                                stdout.write(' ')
+                                stdout.write('\x1b[{}D'.format(steps_in+1)) # go back to pos
                         badchar = True
                     elif ((hexed == "0x1b") or (self.capture_step > 0)): # catch arrow keys
                         if (self.capture_step < 2): # we need to get the char that specifies it's an arrow key, the useless char and then the one we need
@@ -297,12 +307,12 @@ class ljinux():
                                     historyitemm = ljinux.history.gett(self.historypos + 1)
                                     if (self.pos > 0):
                                         temp_temp_pos = self.pos
-                                        sys.stdout.write('\x1b[{}C'.format(self.pos)) # go to end of line
+                                        stdout.write('\x1b[{}C'.format(self.pos)) # go to end of line
                                         self.pos = 0
                                     for i in range(self.scount): # clear the line
-                                        sys.stdout.write('\010')
-                                        sys.stdout.write(' ')
-                                        sys.stdout.write('\010')
+                                        stdout.write('\010')
+                                        stdout.write(' ')
+                                        stdout.write('\010')
                                     if (self.historypos == 0):
                                         self.temp_scount = self.scount # save inputed
                                         self.temp_s = self.s
@@ -310,31 +320,31 @@ class ljinux():
                                     self.s = historyitemm # backend
                                     self.scount = len(historyitemm) # backend
                                     self.historypos += 1
-                                    sys.stdout.write(self.s)
+                                    stdout.write(self.s)
                                 except IndexError:
                                     pass
                             elif (hexed == "0x44"): # Left arrow key
                                 if (self.pos < self.scount):
                                     self.pos += 1
-                                    sys.stdout.write('\x1b[1D')
+                                    stdout.write('\x1b[1D')
                             elif (hexed == "0x43"): # Right arrow key
                                 if (self.pos > 0):
                                     self.pos -= 1
-                                    sys.stdout.write('\x1b[1C')
+                                    stdout.write('\x1b[1C')
                             elif (hexed == "0x42"): # Down arrow key
                                 if (self.historypos > 0):
                                     if (self.pos > 0):
-                                        sys.stdout.write('\x1b[{}C'.format(self.pos)) # go to end of line
+                                        stdout.write('\x1b[{}C'.format(self.pos)) # go to end of line
                                         self.pos = 0
                                     for i in range(self.scount): # clear the line
-                                        sys.stdout.write('\010')
-                                        sys.stdout.write(' ')
-                                        sys.stdout.write('\010')
+                                        stdout.write('\010')
+                                        stdout.write(' ')
+                                        stdout.write('\010')
                                     if (self.historypos > 1):
                                         historyitemm = ljinux.history.gett(self.historypos - 1)
                                         self.s = historyitemm # backend
                                         self.scount = len(historyitemm) # backend
-                                        sys.stdout.write(self.s) # write it out
+                                        stdout.write(self.s) # write it out
                                         self.historypos -= 1
                                     else:
                                         # have to give back the temporarily stored one
@@ -342,9 +352,9 @@ class ljinux():
                                         self.scount = self.temp_scount
                                         self.pos = self.temp_pos
                                         self.historypos = 0
-                                        sys.stdout.write(self.s)
+                                        stdout.write(self.s)
                                         if (self.pos > 0):
-                                            sys.stdout.write('\x1b[{}D'.format(self.pos))
+                                            stdout.write('\x1b[{}D'.format(self.pos))
                             self.capture_step = 0
                         badchar = True
                     elif (hexed == "0xf"): # Catch Ctrl + O for debug
@@ -357,7 +367,7 @@ class ljinux():
                         print("self.temp_pos = " + str(self.temp_pos))
                         print("self.historypos = " + str(self.historypos))
                     else:
-                        if echo: sys.stdout.write(s) # echo back to hooman
+                        if echo: stdout.write(s) # echo back to hooman
                         if not (badchar):
                             if ((self.pos == 0) or (s == end_char)):
                                 self.s = self.s + s # keep building the string up
@@ -368,9 +378,9 @@ class ljinux():
                                 self.scount += 1
                                 steps_in = 0
                                 for i in self.s[insertion_pos+1:]: # frontend insertion
-                                    sys.stdout.write(i)
+                                    stdout.write(i)
                                     steps_in +=1
-                                sys.stdout.write('\x1b[{}D'.format(steps_in)) # go back to pos
+                                stdout.write('\x1b[{}D'.format(steps_in)) # go back to pos
                         if s.endswith(end_char): # got our end_char!
                             rstr = self.s # save for return
                             self.s = '' # reset everything
@@ -386,13 +396,13 @@ class ljinux():
     class backrounding(object):
         webserver = False
         def main_tick(loud=False):
+            gc.collect()
             if ljinux.backrounding.webserver:
                 try:
                     ljinux.networking.wsgiServer.update_poll()
                 except AttributeError:
                     global access_log
                     print("Error:\n" + str(access_log))
-                server.socket.gc.collect()
             if loud:
                 print(str(gc.mem_free()))
             gc.collect()
@@ -413,8 +423,10 @@ class ljinux():
         buttone.switch_to_input(pull=digitalio.Pull.DOWN)
         network = None
         network_online = False
+        network_name = "Offiline"
         
         def init_net():
+            gc.collect()
             cs = digitalio.DigitalInOut(board.GP13)
             spi = busio.SPI(board.GP10, MOSI=board.GP11, MISO=board.GP12)
             dmtex("Network bus ready")
@@ -434,6 +446,7 @@ class ljinux():
                     dmtex("MAC eth0: " + macc[:-1])
                     dmtex("IP address: " + ljinux.io.network.pretty_ip(ljinux.io.network.ip_address))
                     dmtex("Neworking init successful")
+                    ljinux.io.network_name = "eth0"
                     ljinux.io.network_online = True
                     server.set_interface(ljinux.io.network)
                     server.socket.gc.enable()
@@ -443,15 +456,21 @@ class ljinux():
                 dmtex("Ethernet cable not connected, interface unavailable")
         
         def start_sdcard():
+            gc.collect()
             global sdcard_fs
             spi = busio.SPI(board.GP2, MOSI=board.GP3, MISO=board.GP4)
             cs = digitalio.DigitalInOut(board.GP5)
             dmtex("SD bus ready")
             sdcard = adafruit_sdcard.SDCard(spi, cs)
-            vfs = storage.VfsFat(sdcard)
+            vfs = VfsFat(sdcard)
             dmtex("SD mount attempted")
-            storage.mount(vfs, "/ljinux")
+            mount(vfs, "/ljinux")
             sdcard_fs = True
+            del spi
+            del cs
+            del vfs
+            del sdcard
+            gc.collect()
         
         def left_key():
             return ljinux.io.buttonl.value
@@ -472,7 +491,7 @@ class ljinux():
             return str("%.5f" % (uptimee+time.monotonic()))
         
         def get_temp():
-            return str("%.2f" % microcontroller.cpu.temperature)
+            return str("%.2f" % cpu.temperature)
         
         def get_display_status():
             return str(display_availability)
@@ -480,13 +499,16 @@ class ljinux():
         def get_mem_free():
             return str(gc.mem_free())
         
+        def get_freq():
+            return str(cpu.frequency)
+        
         def get_implementation_version():
-            return (str(sys.implementation.version[0]) + "." + str(sys.implementation.version[1]) + "." + str(sys.implementation.version[2]))
+            return (str(implementation.version[0]) + "." + str(implementation.version[1]) + "." + str(implementation.version[2]))
         
         def get_implementation():
-            return sys.implementation.name
+            return implementation.name
         
-        sys_getters = {'sdcard': get_sdcard_fs, 'uptime': get_uptime, 'temperature': get_temp, 'display-attached': get_display_status, 'mem': get_mem_free, 'implementation_version': get_implementation_version, 'implementation': get_implementation}
+        sys_getters = {'sdcard': get_sdcard_fs, 'uptime': get_uptime, 'temperature': get_temp, 'display-attached': get_display_status, 'mem': get_mem_free, 'implementation_version': get_implementation_version, 'implementation': get_implementation, 'frequency': get_freq}
 
     class networking(object):
         wsgiServer = None
@@ -549,6 +571,7 @@ class ljinux():
             if (ljinux.io.network_online):
                 if not (ljinux.io.network.link_status):
                     ljinux.io.network_online = False
+                    ljinux.io.network_name = "Offiline"
                     dmtex("Network connection lost")
                     return False
             return True
@@ -569,19 +592,16 @@ class ljinux():
                 print("based: Network unavailable")
 
     class based(object):
-        splitpart = ""
-        splitout = ""
+        silent = False
         user_vars = {'history-file': "/ljinux/home/pi/.history"} # the variables defined and modified by the user
         system_vars = {'user': "root", 'security': "off", 'Init-type': "oneshot"} # the variables defined and modified by the system
-        pipe = "" # this is a pipe
-        
         def autorun():
             ljinux.io.led.value = False
             global Exit
             global Exit_code
             global Version
             ljinux.based.system_vars["Version"] = Version
-            ljinux.based.system_vars["ImplementationVersion"] = str(sys.implementation.version[0]) + "." + str(sys.implementation.version[1]) + "." + str(sys.implementation.version[2])
+            ljinux.based.system_vars["ImplementationVersion"] = str(implementation.version[0]) + "." + str(implementation.version[1]) + "." + str(implementation.version[2])
             print("\nWelcome to ljinux wanna-be kernel " + ljinux.based.system_vars["Version"] + "\n\n", end='')
             try:
                 print("[ .. ] Mount /ljinux")
@@ -613,7 +633,7 @@ class ljinux():
             print("[ OK ] History Reload")
             if (ljinux.based.system_vars["Init-type"] == "oneshot"):
                 print("[ OK ] Init complete\n[ .. ] Awaiting serial interface connection")
-                while not usb_cdc.console.connected:
+                while not console.connected:
                     time.sleep(1)
                 print("[ OK ] Serial is connected\n")
             elif (ljinux.based.system_vars["Init-type"] == "reboot-repeat"):
@@ -692,7 +712,7 @@ class ljinux():
                 aa = False
                 ll = False
                 rett = ""
-                directory_listing = os.listdir()
+                directory_listing = listdir()
                 try:
                     if ("-" == str(dirr[1])[:1]):
                         argss_in = list(str(dirr[1])[1:])
@@ -767,7 +787,7 @@ class ljinux():
                     print("based: "+ whatt[0] +": No such file or directory\n")
 
             def pwd(dirr): # print working directory
-                print(os.getcwd())
+                print(getcwd())
 
             def helpp(dictt): # help
                 print("LNL based\nThese shell commands are defined internally. Type `help' to see this list.")
@@ -786,39 +806,32 @@ class ljinux():
                 try:
                     if (what[1].startswith("\"")):
                         if (what[1].endswith("\"")):
-                            print(str(what[1])[1:-1])
+                            if not ljinux.based.silent:
+                                print(str(what[1])[1:-1])
+                            return (str(what[1])[1:-1])
                         else:
                             countt = len(what)
                             if (countt > 2):
                                 if (what[countt-1].endswith("\"")):
-                                    print(str(what[1])[1:],end=' ')
+                                    res = str(what[1])[1:] + " "
                                     for i in range(2, countt-1):
-                                        print(what[i],end=' ')
-                                    print(str(what[countt-1])[:-1])
+                                        res += what[i] + " "
+                                    res += str(what[countt-1])[:-1]
+                                    if not ljinux.based.silent:
+                                        print(res)
+                                    return res
                                 else:
                                     pass
                     else:
-                        act_dict = {'left_key': ljinux.io.left_key, 'right_key': ljinux.io.right_key, 'enter_key': ljinux.io.enter_key, 'serial_input': ljinux.io.serial}
-                        if (what[1] in ljinux.based.user_vars):
-                            print(ljinux.based.user_vars[what[1]])
-                        elif (what[1] in ljinux.based.system_vars):
-                            print(ljinux.based.system_vars[what[1]])
-                        elif (what[1] in act_dict):
-                            print(str(act_dict[what[1]]()))
-                        else:
-                            pass
+                        try:
+                            res = ljinux.based.adv_input(what[1],str)
+                            if not ljinux.based.silent:
+                                print(res)
+                            return res
+                        except ValueError:
+                            print("based: Error: Variable not found!")
                 except IndexError:
                     pass
-
-            def read(datatypee): # read value of device
-                dataa = None
-                readopts = {'left_key': ljinux.get_input.left_key, 'right_key': ljinux.get_input.right_key, 'enter_key': ljinux.get_input.enter_key, 'serial_input': ljinux.get_input.serial}
-                try:
-                    if (datatypee[1] in readopts):
-                        dataa = readopts[datatypee[1]]()
-                except IndexError:
-                    print("Available read options: left_key, right_key, enter_key, serial_input")
-                return dataa
 
             def exitt(returncode): # exit
                 global Exit
@@ -836,6 +849,8 @@ class ljinux():
                     if (optt[1] == "-a"):
                         tt = time.localtime()
                         print("Ljinux Raspberry Pi Pico " + ljinux.based.system_vars["Version"] + " " + str(tt.tm_mday) + "/" + str(tt.tm_mon) + "/" + str(tt.tm_year) + " " + str(tt.tm_hour) + ":" + str(tt.tm_min) + ":" + str(tt.tm_sec) + " circuitpython Ljinux")
+                        del tt
+                        gc.collect()
                 except IndexError:
                     print("Ljinux")
                 ljinux.io.led.value = True
@@ -843,7 +858,7 @@ class ljinux():
             def cdd(optt): # cd
                 ljinux.io.led.value = False
                 try:
-                    os.chdir(optt[1])
+                    chdir(optt[1])
                 except OSError:
                     print("Error: Directory does not exist")
                 except IndexError:
@@ -855,10 +870,10 @@ class ljinux():
                 ljinux.io.led.value = False
                 try:
                     if not sdcard_fs:
-                        storage.remount("/",False)
-                    os.mkdir(dirr[1])
+                        remount("/",False)
+                    mkdir(dirr[1])
                     if not sdcard_fs:
-                        storage.remount("/",True)
+                        remount("/",True)
                 except OSError as errr:
                     if (str(errr) == "[Errno 17] File exists"):
                         print("mkdir: cannot create directory ‘" + dirr[1] + "’: File exists")
@@ -873,10 +888,10 @@ class ljinux():
                 ljinux.io.led.value = False
                 try:
                     if not sdcard_fs:
-                        storage.remount("/",False)
-                    os.rmdir(dirr[1])
+                        remount("/",False)
+                    rmdir(dirr[1])
                     if not sdcard_fs:
-                        storage.remount("/",True)
+                        remount("/",True)
                 except OSError as errr:
                     if (str(errr) == "[Errno 2] No such file/directory"):
                         print("rmdir: failed to remove ‘" + dirr[1] + "’: No such file or directory")
@@ -1082,12 +1097,13 @@ class ljinux():
                         print("Authentication successful. Security disabled.")
                     else:
                         print("Authentication unsuccessful.")
+                del passwordarr
 
             def playmp3(inpt): # play mp3
                 try:
                     with open(inpt[1], "rb") as data:
-                        mp3 = audiomp3.MP3Decoder(data)
-                        a = audiopwmio.PWMAudioOut(board.GP15)
+                        mp3 = MP3Decoder(data)
+                        a = PWMAudioOut(board.GP15)
                         print("Playing")
                         try:
                             a.play(mp3)
@@ -1119,8 +1135,8 @@ class ljinux():
             def playwav(inpt): # play wav file
                 try:
                     with open(inpt[1], "rb") as data:
-                        wav = audiocore.WaveFile(data)
-                        a = audiopwmio.PWMAudioOut(board.GP15)
+                        wav = WaveFile(data)
+                        a = PWMAudioOut(board.GP15)
                         print("Playing")
                         try:
                             a.play(wav)
@@ -1162,7 +1178,7 @@ class ljinux():
                     print(s[0].upper() + s[1:],end=" ")
                 print(" ")
                 print("     `:oooooooo+``    `.oooooooo+-      CircuitPython:",end=" ")
-                print(str(sys.implementation.version[0]),str(sys.implementation.version[1]),str(sys.implementation.version[2]), sep=".")
+                print(str(implementation.version[0]) + "." + str(implementation.version[1]) + "." + str(implementation.version[2]))
                 print("       `:++ooo/.        :+ooo+/.`       Uptime:",end=" ")
                 neofetch_time = int(uptimee + time.monotonic())
                 uptimestr = ""
@@ -1179,12 +1195,17 @@ class ljinux():
                 else:
                     uptimestr = uptimestr[:-2]
                 print(uptimestr)
+                del uptimestr
+                del neofetch_time
+                del hours
+                del minutes
+                gc.collect()
                 print("          ...`  `.----.` ``..           Packages: 0 ()")
                 print("       .::::-``:::::::::.`-:::-`        Shell: Based")
                 print("      -:::-`   .:::::::-`  `-:::-       WM: Farland")
                 print("     `::.  `.--.`  `` `.---.``.::`      Terminal: TTYACM0")
                 print("         .::::::::`  -::::::::` `       CPU: ",end="")
-                print(sys.platform + " (" + str(len((microcontroller.cpus))) + ") @ " + str(int(microcontroller.cpu.frequency/1000000)) + "MHz")
+                print(platform + " (" + str(len((cpus))) + ") @ " + str(int(cpu.frequency/1000000)) + "MHz")
                 print("   .::` .:::::::::- `::::::::::``::.    Memory: " + str(int(264 - int(gc.mem_free())/1000)) + "KiB / 264KiB          ")
                 print("  -:::` ::::::::::.  ::::::::::.`:::-")
                 print("  ::::  -::::::::.   `-::::::::  ::::")
@@ -1205,7 +1226,7 @@ class ljinux():
                 Exit_code = 245
 
             def sensors(inpt): # lm-sensors
-                print("cpu_thermal\nAdapter: Cpu device\ntemp1:     +%.2f°C" % microcontroller.cpu.temperature)
+                print("cpu_thermal\nAdapter: Cpu device\ntemp1:     +%.2f°C" % cpu.temperature)
 
             def historgf(inpt): # history get full list
                 try:
@@ -1311,32 +1332,33 @@ class ljinux():
                         ljinux.backrounding.webserver = True
                 else:
                     print("Network unavailable")
-        def adv_input(whatever, typee):
+                    
+        def adv_input(whatever, _type):
             res = None
+            act_dict = {'left_key': ljinux.io.left_key, 'right_key': ljinux.io.right_key, 'enter_key': ljinux.io.enter_key, 'serial_input': ljinux.io.serial}
             if whatever.isdigit():
                 res = int(whatever)
             elif whatever in ljinux.based.user_vars:
                 res = ljinux.based.user_vars[whatever]
             elif whatever in ljinux.based.system_vars:
                 res = ljinux.based.system_vars[whatever]
-            elif whatever in ljinux.based.sys_getters:
-                res = ljinux.based.sys_getters[whatever]
+            elif whatever in ljinux.io.sys_getters:
+                res = ljinux.io.sys_getters[whatever]()
+            elif whatever in act_dict:
+                res = act_dict[whatever]()
             else:
                 raise ValueError("Could not be found in Ljinux lists")
-            if (typee == "str"):
-                return str(res)
-            elif (typee == "int"):
-                return int(res)
+            return _type(res)
         
-        def shell(inp=None, suppress=False): # the shell function, warning do not touch, it has feelings
+        def shell(inp=None): # the shell function, warning do not touch, it has feelings
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'read':ljinux.based.command.read, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs}
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:
                 while ((command_input == False) or (command_input == "\n")):
                     if (inp == None):
-                        print("[" + ljinux.based.system_vars["user"] + "@pico | " + os.getcwd() + "]> ", end='')
+                        print("[" + ljinux.based.system_vars["user"] + "@pico | " + getcwd() + "]> ", end='')
                         command_input = False
                         while (((not command_input) or (command_input == "")) and not Exit):
                             command_input = input_obj.read()  # read until newline, echo back chars
@@ -1350,40 +1372,49 @@ class ljinux():
                     else:
                         command_input = inp
                 if not Exit:
-                    command_split = command_input.split() # making it an arr of words
+                    res = ""
                     ljinux.io.led.value = False
                     if not (command_input == ""):
-                        if "|" in command_input:
-                            the_pipe_pos = command_input.find("|",0)
-                            ljinux.based.shell(command_input[:the_pipe_pos-1], True)
-                            ljinux.based.shell(command_input[the_pipe_pos+2:], True)
-                        else:
+                        if ((not "|" in command_input) and (not "&&" in command_input)):
+                            command_split = command_input.split() # making it an arr of words
                             try:
                                 if (str(command_split[0])[:2] == "./"):
                                     command_split[0] = str(command_split[0])[2:]
                                     if (command_split[0] != ''):
-                                        function_dict["exec"](command_split)
+                                        res = function_dict["exec"](command_split)
                                     else:
                                         print("Error: No file specified")
                                 elif ((command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help", "display", "su"])): # those are special bois, they will not be special when I make the api great
-                                    function_dict[command_split[0]](command_split)
+                                    res = function_dict[command_split[0]](command_split)
                                 elif (command_split[0] == "help"):
-                                    function_dict["help"](function_dict)
+                                    res = function_dict["help"](function_dict)
                                 elif (command_split[0] == "display"):
                                     global display_availability
                                     if display_availability:
-                                        function_dict["display"](command_split,ljinux.farland.entities)
+                                        res = function_dict["display"](command_split,ljinux.farland.entities)
                                     else:
-                                        print("based: Display not attached")
+                                        res = print("based: Display not attached")
                                 elif (command_split[0] == "su"):
-                                    function_dict["su"](command_split,ljinux.based.system_vars)
+                                    res = function_dict["su"](command_split,ljinux.based.system_vars)
                                 elif ((command_split[1] == "=") or (command_split[0] == "var")):
-                                    function_dict["var"](command_split, ljinux.based.user_vars, ljinux.based.system_vars)
+                                    res = function_dict["var"](command_split, ljinux.based.user_vars, ljinux.based.system_vars)
                                 else:
-                                    function_dict["error"](command_split)
+                                    res = function_dict["error"](command_split)
                             except IndexError:
-                                function_dict["error"](command_split)
+                                res = function_dict["error"](command_split)
+                        elif (("|" in command_input) and not ("&&" in command_input)): # this is a pipe  :)
+                            ljinux.based.silent = True
+                            the_pipe_pos = command_input.find("|",0)
+                            partt = ljinux.based.shell(command_input[:the_pipe_pos-1])
+                            ljinux.based.silent = False
+                            ljinux.based.shell(command_input[the_pipe_pos+2:] + " " + partt)
+                        elif (("&&" in command_input) and not ("|" in command_input)): # this is a dirty pipe  :)
+                            ljinux.based.shell(command_input[:the_pipe_pos-1])
+                            ljinux.based.shell(command_input[the_pipe_pos+2:])
+                        else: # oh frick you
+                            pass
                     ljinux.io.led.value = True
+                    return res
 
     class farland(object): # wayland, but like a farfetched dream
         # the screen holder

@@ -45,11 +45,6 @@ cd [DIR]...
 CHANGES TO SPECIFIED DIRECTORY
 
 
-read [left_key / right_key / enter_key / serial_input]...
-
-READ DATA FROM SPECIFIED SOURCE AND RETURN THEM
-
-
 echo [DATA]...
 
 PRINT SOME VARIABLES OR TEXT ONTO SERIAL OUT
@@ -153,8 +148,8 @@ DISPLAYS THE HISTORY
 webserver [time] [root]
 
 A INTEGRATED WEBSERVER
-YOU CAN SET THE TIME TO inf IN ORDER TO MAKE IT WORK IN THE BACKROUND
-UNLESS SET OTHERWISE IT WILL TRY TO SERVE /ljinux/var/www/default/
+YOU CAN SET THE TIME TO "inf" IN ORDER TO MAKE IT WORK IN THE BACKROUND
+UNLESS root SET OTHERWISE IT WILL TRY TO SERVE /ljinux/var/www/default/
 ```
 
 More stuff will be added later as the project spirals into chaos.
