@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.0.7"
+Version = "0.0.8"
 Circuitpython_supported_version = (7, 1, 0)
 dmesg = []
 access_log = []
@@ -430,9 +430,17 @@ class ljinux():
             cs = digitalio.DigitalInOut(board.GP13)
             spi = busio.SPI(board.GP10, MOSI=board.GP11, MISO=board.GP12)
             dmtex("Network bus ready")
-            ljinux.io.network = WIZNET5K(spi, cs, is_dhcp=False)
-            dmtex("Eth interface created")
-            if ljinux.io.network.link_status:
+            ca = True
+            try:
+                ljinux.io.network = WIZNET5K(spi, cs, is_dhcp=False)
+                dmtex("Eth interface created")
+            except AssertionError:
+                dmtex("Eth interface creation failed")
+                ca = False
+            del spi
+            del cs
+            gc.collect()
+            if ca and ljinux.io.network.link_status:
                 dhcp_status = ljinux.io.network.set_dhcp(hostname="Ljinux", response_timeout=10)
                 dmtex("Ran dhcp")
                 if (dhcp_status == 0):
@@ -453,7 +461,9 @@ class ljinux():
                 else:
                     dmtex("DHCP failed")
             else:
-                dmtex("Ethernet cable not connected, interface unavailable")
+                dmtex("Ethernet cable not connecte / interface unavailable")
+            del ca
+            gc.collect()
         
         def start_sdcard():
             gc.collect()

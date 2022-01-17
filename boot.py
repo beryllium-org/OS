@@ -1,24 +1,32 @@
-import usb_cdc
 import board
-import digitalio
-import storage
-import supervisor
+from digitalio import DigitalInOut
+from digitalio import Pull
+from storage import disable_usb_drive
+from storage import getmount
+from storage import remount
+from supervisor import disable_autoreload
+from gc import collect
 
-securityPin = digitalio.DigitalInOut(board.GP0)
-powerpin = digitalio.DigitalInOut(board.GP1)
-securityPin.switch_to_input(pull=digitalio.Pull.DOWN)
+securityPin = DigitalInOut(board.GP0)
+powerpin = DigitalInOut(board.GP1)
+securityPin.switch_to_input(pull=Pull.DOWN)
 powerpin.switch_to_output()
 powerpin.value = True
 
-storage.remount("/", readonly=False)
-m = storage.getmount("/")
+remount("/", readonly=False)
+m = getmount("/")
 m.label = "Ljinux"
-storage.remount("/", readonly=True)
+remount("/", readonly=True)
 
 if(securityPin.value != True):
-    storage.disable_usb_drive()
-    #usb_cdc.disable()
+    disable_usb_drive()
     print("Locked")
 else:
     print("Unlocked")
-supervisor.disable_autoreload()
+disable_autoreload()
+
+securityPin.deinit()
+powerpin.deinit()
+del securityPin
+del powerpin
+collect()
