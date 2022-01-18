@@ -13,7 +13,7 @@ If the display is not available, all graphics functions will be disabled.<br />
 You can attach an rtc, I used a ds1302.<br />
 If you don't attach one, expect borked timestamps, nothing else.
 The timings will work correctly though.<br />
-Networking can be achieven by attaching a w5500 breakout board.<br />
+Networking can be achieved by attaching a w5500 breakout board.<br />
 It expects to find a /ljinux folder which uses as it's root. It can be on the built in fs, or an sd card, more details at Configuration.<br />
 
 It's structure:<br />
@@ -151,6 +151,12 @@ webserver [time] [root]
 A INTEGRATED WEBSERVER
 YOU CAN SET THE TIME TO "inf" IN ORDER TO MAKE IT WORK IN THE BACKROUND
 UNLESS root SET OTHERWISE IT WILL TRY TO SERVE /ljinux/var/www/default/
+
+
+devmode
+
+ENABLES USB ACCESS AND OTHER DEVELOPMENT FEATURES
+THIS PROHIBITS WRITE ACCESS TO THE BUILT IN FILESYSTEM
 ```
 
 More stuff will be added later as the project spirals into chaos.
