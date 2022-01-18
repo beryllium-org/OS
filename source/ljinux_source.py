@@ -69,6 +69,7 @@ from os import mkdir
 from os import sync
 from os import getcwd
 from os import listdir
+from os import remove
 from usb_cdc import console
 import json
 dmtex("Basic libraries loaded")
@@ -618,7 +619,7 @@ class ljinux():
                 ljinux.io.start_sdcard()
                 print("[ OK ] Mount /ljinux")
             except OSError:
-                print("[ Failed ] Mount /ljinux\n           -> Error: sd card not available, assuming built in fs")
+                print("[ Failed ] Mount /ljinux\n       -> Error: sd card not available, assuming built in fs")
             ljinux.io.led.value = True
             print("[ .. ] Running Init Script\n       -> Attempting to open /ljinux/boot/Init.lja..")
             lines = None
@@ -1342,6 +1343,41 @@ class ljinux():
                         ljinux.backrounding.webserver = True
                 else:
                     print("Network unavailable")
+                
+            def touchh(inpt):
+                try:
+                    f = open(inpt[1],'r')
+                    f.close()
+                    print("based: Error: file exists")
+                except OSError:
+                    global sdcard_fs
+                    if not sdcard_fs:
+                        try:
+                            remount("/",False)
+                        except RuntimeError:
+                            print("Cannot remount built in fs in development mode")
+                            return
+                    f = open(inpt[1],'w')
+                    f.close()
+                    if not sdcard_fs:
+                        remount("/",True)
+            
+            def devv(inpt):
+                print("Enabling ljinux developer mode..\nKeep in mind the pico will restart automatically, after it's enabled.")
+                time.sleep(5)
+                try:
+                    f = open("/devm",'r')
+                    f.close()
+                    print("based: Error: file exists\nIf you want to disable developer mode, delete the file \"devm\" from the pico's built in filesystem and powercycle it.")
+                except OSError:
+                    remount("/",False)
+                    f = open("/devm",'w')
+                    f.close()
+                    remount("/",True)
+                    global Exit
+                    global Exit_code
+                    Exit = True
+                    Exit_code = 245
                     
         def adv_input(whatever, _type):
             res = None
@@ -1362,7 +1398,7 @@ class ljinux():
         
         def shell(inp=None): # the shell function, warning do not touch, it has feelings
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv}
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:
