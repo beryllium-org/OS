@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.0.8"
+Version = "0.0.10"
 Circuitpython_supported_version = (7, 1, 0)
 dmesg = []
 access_log = []
@@ -33,7 +33,7 @@ dmesg.append("[    0.00000] Got time zero")
 import gc
 gc.enable()
 print("[    0.00000] Garbage collector loaded and enabled")
-
+dmesg.append("[    0.00000] Garbage collector loaded and enabled")
 
 def dmtex(texx=None):
     global uptimme
@@ -79,11 +79,10 @@ dmtex("Basic libraries loaded")
 if (implementation.version == Circuitpython_supported_version):
     dmtex("Running on supported implementation")
 else:
-    dmtex("Unsupported CircuitPython version, Halting")
+    dmtex("-----------------------------------\n              WARNING: Unsupported CircuitPython version\n              -----------------------------------\n              Continuing after led alert..")
     led = digitalio.DigitalInOut(board.LED)
     led.direction = digitalio.Direction.OUTPUT
-    led.value = False
-    while True:
+    for i in range(3):
         led.value = True
         time.sleep(.5)
         led.value = False
@@ -96,7 +95,9 @@ else:
         time.sleep(.5)
         led.value = False
         time.sleep(3)
-        gc.collect()
+    led.deinit()
+    del led
+    gc.collect()
 
 temp = cpu.temperature
 tempcheck = True
@@ -124,6 +125,7 @@ else:
 
 del temp
 del tempcheck
+gc.collect()
 dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
 dmtex("Basic checks done")
 
