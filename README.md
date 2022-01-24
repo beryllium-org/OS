@@ -157,6 +157,11 @@ devmode
 
 ENABLES USB ACCESS AND OTHER DEVELOPMENT FEATURES
 THIS PROHIBITS WRITE ACCESS TO THE BUILT IN FILESYSTEM
+
+
+pexec [python commands]
+
+RUNS PYTHON COMMANDS -- EXPERIMENTAL
 ```
 
 More stuff will be added later as the project spirals into chaos.

@@ -70,6 +70,7 @@ from os import sync
 from os import getcwd
 from os import listdir
 from os import remove
+from io import StringIO
 from usb_cdc import console
 import json
 dmtex("Basic libraries loaded")
@@ -1378,7 +1379,29 @@ class ljinux():
                     global Exit_code
                     Exit = True
                     Exit_code = 245
-                    
+            
+            def pexecc(inpt):
+                try:
+                    pcomm = inpt[1]
+                except IndexError:
+                    print("based: missing arguments")
+                    return
+                try:
+                    i = 2
+                    while True:
+                        pcomm += " " + inpt[i]
+                        i +=1
+                except IndexError:
+                    del i
+                    gc.collect()
+                print(">>> " + pcomm)
+                buffer = StringIO()
+                temp_stdout = stdout
+                stdout = buffer
+                exec(pcomm)
+                stdout = temp_stdout
+                del pcomm
+                
         def adv_input(whatever, _type):
             res = None
             act_dict = {'left_key': ljinux.io.left_key, 'right_key': ljinux.io.right_key, 'enter_key': ljinux.io.enter_key, 'serial_input': ljinux.io.serial}
@@ -1398,7 +1421,7 @@ class ljinux():
         
         def shell(inp=None): # the shell function, warning do not touch, it has feelings
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc}
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:
