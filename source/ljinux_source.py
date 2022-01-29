@@ -6,7 +6,7 @@
 
 # Some important vars
 Version = "0.0.10"
-Circuitpython_supported_version = (7, 1, 0)
+Circuitpython_supported_version = (7, 1, 1)
 dmesg = []
 access_log = []
 
@@ -465,7 +465,7 @@ class ljinux():
                 else:
                     dmtex("DHCP failed")
             else:
-                dmtex("Ethernet cable not connecte / interface unavailable")
+                dmtex("Ethernet cable not connected / interface unavailable")
             del ca
             gc.collect()
         
