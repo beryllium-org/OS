@@ -165,3 +165,8 @@ RUNS PYTHON COMMANDS -- EXPERIMENTAL
 ```
 
 More stuff will be added later as the project spirals into chaos.
+
+<h3>Build instructions for linux:</h3>
+
+In order to build & upload a binary different than the one provided to the pico, enable developer mode on the pico and from within the "source" folder, run make.<br />
+The binary will be automatically uploaded to the pico and be used upon the next reload/reboot of the device.
