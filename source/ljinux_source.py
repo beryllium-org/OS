@@ -970,10 +970,10 @@ class ljinux():
                 if (typee == "text"): # x, y, color, text in ""
                     try:
                         xi = 0
-                        xi = ljinux.based.adv_input(inpt[2], "int")
-                        yi = ljinux.based.adv_input(inpt[3], "int")
+                        xi = ljinux.based.adv_input(inpt[2], int)
+                        yi = ljinux.based.adv_input(inpt[3], int)
                         txt = "" #inpt[5]
-                        col = ljinux.based.adv_input(inpt[4], "int")
+                        col = ljinux.based.adv_input(inpt[4], int)
                         if (inpt[5].startswith("\"")): # let's do some string proccessing!
                             countt = len(inpt) # get the numb of args
                             if (countt > 6):
@@ -994,40 +994,40 @@ class ljinux():
                         print("based: Input error")
                 elif (typee == "dot"): # x,y,col
                     try:
-                        xi = ljinux.based.adv_input(inpt[2], "int")
-                        yi = ljinux.based.adv_input(inpt[3], "int")
-                        col = ljinux.based.adv_input(inpt[4], "int")
+                        xi = ljinux.based.adv_input(inpt[2], int)
+                        yi = ljinux.based.adv_input(inpt[3], int)
+                        col = ljinux.based.adv_input(inpt[4], int)
                         ljinux.farland.pixel(xi,yi,col)
                     except ValueError:
                         print("based: Input error")
                 elif (typee == "rectangle"): # x start, y start, x stop, y stop, color, mode (fill / border)
                     try:
-                        xi = ljinux.based.adv_input(inpt[2], "int")
-                        yi = ljinux.based.adv_input(inpt[3], "int")
-                        xe = ljinux.based.adv_input(inpt[4], "int")
-                        ye = ljinux.based.adv_input(inpt[5], "int")
-                        col = ljinux.based.adv_input(inpt[6], "int")
-                        modd = ljinux.based.adv_input(inpt[7], "str")
+                        xi = ljinux.based.adv_input(inpt[2], int)
+                        yi = ljinux.based.adv_input(inpt[3], int)
+                        xe = ljinux.based.adv_input(inpt[4], int)
+                        ye = ljinux.based.adv_input(inpt[5], int)
+                        col = ljinux.based.adv_input(inpt[6], int)
+                        modd = ljinux.based.adv_input(inpt[7], str)
                         ljinux.farland.rect(xi,yi,xe,ye,col,modd)
                     except ValueError:
                         print("based: Input error")
                 elif (typee == "line"): # x start, y start, x stop, y stop, color
                     try:
-                        xi = ljinux.based.adv_input(inpt[2], "int")
-                        yi = ljinux.based.adv_input(inpt[3], "int")
-                        xe = ljinux.based.adv_input(inpt[4], "int")
-                        ye = ljinux.based.adv_input(inpt[5], "int")
-                        col = ljinux.based.adv_input(inpt[6], "int")
+                        xi = ljinux.based.adv_input(inpt[2], int)
+                        yi = ljinux.based.adv_input(inpt[3], int)
+                        xe = ljinux.based.adv_input(inpt[4], int)
+                        ye = ljinux.based.adv_input(inpt[5], int)
+                        col = ljinux.based.adv_input(inpt[6], int)
                         ljinux.farland.line(xi,yi,xe,ye,col)
                     except ValueError:
                         print("based: Input error")
                 elif (typee == "circle"): # x center, y center, rad, color, mode (fill/ border / template) TODO fix fill and do template
                     try:
-                        xi = ljinux.based.adv_input(inpt[2], "int")
-                        yi = ljinux.based.adv_input(inpt[3], "int")
-                        radd = ljinux.based.adv_input(inpt[4], "int")
-                        col = ljinux.based.adv_input(inpt[5], "int")
-                        modd = ljinux.based.adv_input(inpt[6], "int")
+                        xi = ljinux.based.adv_input(inpt[2], int)
+                        yi = ljinux.based.adv_input(inpt[3], int)
+                        radd = ljinux.based.adv_input(inpt[4], int)
+                        col = ljinux.based.adv_input(inpt[5], int)
+                        modd = ljinux.based.adv_input(inpt[6], int)
                         if (modd != "fill"):
                             ljinux.farland.draw_circle(xi,yi,radd,col)
                         else:
@@ -1036,14 +1036,14 @@ class ljinux():
                         print("based: Input error")
                 elif (typee == "triangle"): # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
                     try:
-                        xi = ljinux.based.adv_input(inpt[2], "int")
-                        yi = ljinux.based.adv_input(inpt[3], "int")
-                        xe = ljinux.based.adv_input(inpt[4], "int")
-                        ye = ljinux.based.adv_input(inpt[5], "int")
-                        xz = ljinux.based.adv_input(inpt[6], "int")
-                        yz = ljinux.based.adv_input(inpt[7], "int")
-                        col = ljinux.based.adv_input(inpt[8], "int")
-                        modd = ljinux.based.adv_input(inpt[9], "str")
+                        xi = ljinux.based.adv_input(inpt[2], int)
+                        yi = ljinux.based.adv_input(inpt[3], int)
+                        xe = ljinux.based.adv_input(inpt[4], int)
+                        ye = ljinux.based.adv_input(inpt[5], int)
+                        xz = ljinux.based.adv_input(inpt[6], int)
+                        yz = ljinux.based.adv_input(inpt[7], int)
+                        col = ljinux.based.adv_input(inpt[8], int)
+                        modd = ljinux.based.adv_input(inpt[9], str)
                         ljinux.farland.line(xi,yi,xe,ye,col)
                         ljinux.farland.line(xi,yi,xz,yz,col)
                         ljinux.farland.line(xz,yz,xe,ye,col)
@@ -1055,7 +1055,7 @@ class ljinux():
                         print("based: Input error")
                 elif (typee == "fill"): # color
                     try:
-                        col = ljinux.based.adv_input(inpt[2], "int")
+                        col = ljinux.based.adv_input(inpt[2], int)
                         ljinux.farland.fill(col)
                     except ValueError:
                         print("based: Input error")
@@ -1064,7 +1064,7 @@ class ljinux():
                 elif (typee == "move"): # todo
                     pass
                 elif (typee == "delete"): #todo more
-                    optt = ljinux.based.adv_input(inpt[2], "int")
+                    optt = ljinux.based.adv_input(inpt[2], int)
                     if (optt == "all"):
                         ljinux.farland.clear()
                     else:

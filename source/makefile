@@ -1,6 +1,8 @@
+# I HAAAATE MAKE
+SHELL = bash
 all: clean program.run
 
 program.run: 
-	./mpy-cross-$$(uname -m) ./ljinux_source.py -s Ljinux -v -O150 -o /media/$$USER/LJINUX/ljinux.mpy
+	./mpy-cross-$(shell uname -m) ./ljinux_source.py -s Ljinux -v -O150 -o /media/$(shell whoami)/LJINUX/ljinux.mpy
 clean:
-	if (test -f /media/$$USER/LJINUX/ljinux.mpy); then rm /media/$$USER/LJINUX/ljinux.mpy; fi 
+	if (test -f /media/$(shell whoami)/LJINUX/ljinux.mpy); then rm /media/$(shell whoami)/LJINUX/ljinux.mpy; fi
