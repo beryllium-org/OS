@@ -24,7 +24,7 @@ The Init.lja has to be at /ljinux/boot/ of the pi pico or on the /boot/ of the a
 
 <h2>Installation to a fresh pi pico:</h2><br />
 
-Install Circuitpython version 7.1.0,<br />
+Install Circuitpython version 7.1.1,<br />
 And unzip this entire repo, except for the "source" folder onto the CIRCUITPY drive.<br />
 Then eject it and fully disconnect it from the pc. (It is important to power cycle the pi.)<br />
 When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)
