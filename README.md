@@ -31,7 +31,7 @@ When it's plugged back in, it should run automatically and you can connect to it
 
 <h3>Configuration</h3>
 
-<b>GPIO PINS:</b><br />For rtc GP6(clk),GP7(data),GP8(ce)<br />button left GP19 - button right GP18 - button enter GP20<br />For buzzer GP15<br />For sdcard GP2(clk),GP3(mosi),GP4(miso)<br />For ethernet GP10(clk), GP13(cs), GP11(mosi), GP12(miso),<br />
+<b>GPIO PINS:</b><br />For display GP17 SCL, GP16 SDA<br />For rtc GP6(clk),GP7(data),GP8(ce)<br />button left GP19 - button right GP18 - button enter GP20<br />For buzzer GP15<br />For sdcard GP2(clk),GP3(mosi),GP4(miso)<br />For ethernet GP10(clk), GP13(cs), GP11(mosi), GP12(miso),<br />
 
 <b>IMPORTANT NOTE: To make the pi appear as a usb device, connect the pins GP0 and GP1.</b><br />
 
