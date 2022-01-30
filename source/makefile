@@ -3,6 +3,7 @@ SHELL = bash
 all: clean program.run
 
 program.run: 
-	./mpy-cross-$(shell uname -m) ./ljinux_source.py -s Ljinux -v -O150 -o /media/$(shell whoami)/LJINUX/ljinux.mpy
+	./mpy-cross-$(shell uname -m) ./ljinux_source.py -s Ljinux -v -O150 -o ../ljinux.mpy
+	cp ../ljinux.mpy /media/$(shell whoami)/LJINUX/ljinux.mpy
 clean:
 	if (test -f /media/$(shell whoami)/LJINUX/ljinux.mpy); then rm /media/$(shell whoami)/LJINUX/ljinux.mpy; fi

@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.0.10"
+Version = "0.1.0"
 Circuitpython_supported_version = (7, 1, 1)
 dmesg = []
 access_log = []
@@ -54,6 +54,7 @@ from sys import stdin
 from sys import stdout
 from sys import implementation
 from sys import platform
+from sys import modules
 from supervisor import runtime
 import board
 import digitalio
@@ -162,7 +163,6 @@ import ds1302
 dmtex("RTC library loaded")
 
 dmtex("Imports complete")
-# trust me, all of em are necessary
 
 # rtc stuff @ init cuz otherwise system fails to access it
 # the pins to connect it to:
@@ -183,6 +183,7 @@ try:
     del rtcclk
     del rtcdata
     del rtcce
+    gc.collect()
 except OSError: # not sure how to catch if it's not available, TODO
     pass
 
@@ -447,6 +448,7 @@ class ljinux():
             if ca and ljinux.io.network.link_status:
                 dhcp_status = ljinux.io.network.set_dhcp(hostname="Ljinux", response_timeout=10)
                 dmtex("Ran dhcp")
+                gc.collect()
                 if (dhcp_status == 0):
                     dmtex("Hostname set to \"Ljinux\"")
                     requests.set_socket(socket, ljinux.io.network)
@@ -456,16 +458,32 @@ class ljinux():
                     for i in ljinux.io.network.mac_address:
                         macc += str(hex(i))[2:] + ":"
                     dmtex("MAC eth0: " + macc[:-1])
+                    del macc
+                    gc.collect()
                     dmtex("IP address: " + ljinux.io.network.pretty_ip(ljinux.io.network.ip_address))
                     dmtex("Neworking init successful")
                     ljinux.io.network_name = "eth0"
                     ljinux.io.network_online = True
                     server.set_interface(ljinux.io.network)
                     server.socket.gc.enable()
+                    gc.collect()
                 else:
                     dmtex("DHCP failed")
+                    gc.collect()
             else:
                 dmtex("Ethernet cable not connected / interface unavailable")
+                del modules["adafruit_wiznet5k.adafruit_wiznet5k_dhcp"]
+                del modules["adafruit_wiznet5k.adafruit_wiznet5k_socket"]
+                del modules["adafruit_wiznet5k.adafruit_wiznet5k_dns"]
+                del modules["adafruit_wiznet5k.adafruit_wiznet5k"]
+                del modules["adafruit_wiznet5k"]
+                del modules["adafruit_wsgi.wsgi_app"]
+                del modules["adafruit_requests"]
+                del modules["adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver"]
+                del modules["adafruit_wsgi"]
+                del modules["adafruit_wsgi.request"]
+                gc.collect()
+                dmtex("Unloaded networking libraries")
             del ca
             gc.collect()
         
@@ -623,6 +641,9 @@ class ljinux():
                 print("[ OK ] Mount /ljinux")
             except OSError:
                 print("[ Failed ] Mount /ljinux\n       -> Error: sd card not available, assuming built in fs")
+                del modules["adafruit_sdcard"]
+                dmtex("Unloaded sdio libraries")
+                gc.collect()
             ljinux.io.led.value = True
             print("[ .. ] Running Init Script\n       -> Attempting to open /ljinux/boot/Init.lja..")
             lines = None
@@ -1512,11 +1533,16 @@ class ljinux():
             try:
                 i2c = busio.I2C(board.GP17, board.GP16)  # SCL, SDA
                 ljinux.farland.oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c) # I use the i2c cuz it ez
+                del i2c
                 ljinux.farland.oled.fill(0) # cuz why not
                 ljinux.farland.oled.show()
                 display_availability = True
             except RuntimeError:
                 print("Failed to create display object, display functions will be unavailable")
+                del modules["adafruit_ssd1306"]
+                del modules["adafruit_framebuf"]
+                gc.collect()
+                dmtex("Unloaded display libraries")
             ljinux.io.led.value = True
         
         def frame():
@@ -1823,95 +1849,95 @@ class ljinux():
         def serial():
             return input()
 
-def lock(it_is): # to be made part of hs app
-    if (it_is):
-        oss.farland.pixel(2, 9, False)
-        oss.farland.pixel(3, 9, False)
-        oss.farland.pixel(4, 9, False)
-        oss.farland.pixel(5, 9, False)
-        oss.farland.pixel(6, 9, False)
-        oss.farland.pixel(7, 9, False)
-        oss.farland.pixel(8, 9, False)
-        oss.farland.pixel(2, 8, False)
-        oss.farland.pixel(3, 8, False)
-        oss.farland.pixel(4, 8, False)
-        oss.farland.pixel(5, 8, False)
-        oss.farland.pixel(6, 8, False)
-        oss.farland.pixel(7, 8, False)
-        oss.farland.pixel(8, 8, False)
-        oss.farland.pixel(2, 7, False)
-        oss.farland.pixel(3, 7, False)
-        oss.farland.pixel(4, 7, False)
-        oss.farland.pixel(6, 7, False)
-        oss.farland.pixel(7, 7, False)
-        oss.farland.pixel(8, 7, False)
-        oss.farland.pixel(2, 6, False)
-        oss.farland.pixel(3, 6, False)
-        oss.farland.pixel(4, 6, False)
-        oss.farland.pixel(5, 6, False)
-        oss.farland.pixel(6, 6, False)
-        oss.farland.pixel(7, 6, False)
-        oss.farland.pixel(8, 6, False)
-        oss.farland.pixel(2, 5, False)
-        oss.farland.pixel(3, 5, False)
-        oss.farland.pixel(4, 5, False)
-        oss.farland.pixel(5, 5, False)
-        oss.farland.pixel(6, 5, False)
-        oss.farland.pixel(7, 5, False)
-        oss.farland.pixel(8, 5, False)
-        #the hinge thing
-        oss.farland.pixel(7, 4, False)
-        oss.farland.pixel(7, 3, False)
-        oss.farland.pixel(6, 2, False)
-        oss.farland.pixel(5, 2, False)
-        oss.farland.pixel(4, 2, False)
-        oss.farland.pixel(3, 3, False)
-        oss.farland.pixel(3, 4, False)
-        oss.farland.pixel(3, 5, False)
-    else:
-        oss.farland.pixel(2, 9, False)
-        oss.farland.pixel(3, 9, False)
-        oss.farland.pixel(4, 9, False)
-        oss.farland.pixel(5, 9, False)
-        oss.farland.pixel(6, 9, False)
-        oss.farland.pixel(7, 9, False)
-        oss.farland.pixel(8, 9, False)
-        oss.farland.pixel(2, 8, False)
-        oss.farland.pixel(3, 8, False)
-        oss.farland.pixel(4, 8, False)
-        oss.farland.pixel(5, 8, False)
-        oss.farland.pixel(6, 8, False)
-        oss.farland.pixel(7, 8, False)
-        oss.farland.pixel(8, 8, False)
-        oss.farland.pixel(2, 7, False)
-        oss.farland.pixel(3, 7, False)
-        oss.farland.pixel(4, 7, False)
-        oss.farland.pixel(6, 7, False)
-        oss.farland.pixel(7, 7, False)
-        oss.farland.pixel(8, 7, False)
-        oss.farland.pixel(2, 6, False)
-        oss.farland.pixel(3, 6, False)
-        oss.farland.pixel(4, 6, False)
-        oss.farland.pixel(5, 6, False)
-        oss.farland.pixel(6, 6, False)
-        oss.farland.pixel(7, 6, False)
-        oss.farland.pixel(8, 6, False)
-        oss.farland.pixel(2, 5, False)
-        oss.farland.pixel(3, 5, False)
-        oss.farland.pixel(4, 5, False)
-        oss.farland.pixel(5, 5, False)
-        oss.farland.pixel(6, 5, False)
-        oss.farland.pixel(7, 5, False)
-        oss.farland.pixel(8, 5, False)
-        #the hinge thing
-        oss.farland.pixel(7, 3, False)
-        oss.farland.pixel(6, 2, False)
-        oss.farland.pixel(5, 2, False)
-        oss.farland.pixel(4, 2, False)
-        oss.farland.pixel(3, 3, False)
-        oss.farland.pixel(3, 4, False)
-        oss.farland.pixel(3, 5, False)
-
+#def lock(it_is): # to be made part of hs app
+#    if (it_is):
+#        oss.farland.pixel(2, 9, False)
+#        oss.farland.pixel(3, 9, False)
+#        oss.farland.pixel(4, 9, False)
+#        oss.farland.pixel(5, 9, False)
+#        oss.farland.pixel(6, 9, False)
+#        oss.farland.pixel(7, 9, False)
+#        oss.farland.pixel(8, 9, False)
+#        oss.farland.pixel(2, 8, False)
+#        oss.farland.pixel(3, 8, False)
+#        oss.farland.pixel(4, 8, False)
+#        oss.farland.pixel(5, 8, False)
+#        oss.farland.pixel(6, 8, False)
+#        oss.farland.pixel(7, 8, False)
+#        oss.farland.pixel(8, 8, False)
+#        oss.farland.pixel(2, 7, False)
+#        oss.farland.pixel(3, 7, False)
+#        oss.farland.pixel(4, 7, False)
+#        oss.farland.pixel(6, 7, False)
+#        oss.farland.pixel(7, 7, False)
+#        oss.farland.pixel(8, 7, False)
+#        oss.farland.pixel(2, 6, False)
+#        oss.farland.pixel(3, 6, False)
+#        oss.farland.pixel(4, 6, False)
+#        oss.farland.pixel(5, 6, False)
+#        oss.farland.pixel(6, 6, False)
+#        oss.farland.pixel(7, 6, False)
+#        oss.farland.pixel(8, 6, False)
+#        oss.farland.pixel(2, 5, False)
+#        oss.farland.pixel(3, 5, False)
+#        oss.farland.pixel(4, 5, False)
+#        oss.farland.pixel(5, 5, False)
+#        oss.farland.pixel(6, 5, False)
+#        oss.farland.pixel(7, 5, False)
+#        oss.farland.pixel(8, 5, False)
+#        #the hinge thing
+#        oss.farland.pixel(7, 4, False)
+#        oss.farland.pixel(7, 3, False)
+#        oss.farland.pixel(6, 2, False)
+#        oss.farland.pixel(5, 2, False)
+#        oss.farland.pixel(4, 2, False)
+#        oss.farland.pixel(3, 3, False)
+#        oss.farland.pixel(3, 4, False)
+#        oss.farland.pixel(3, 5, False)
+#    else:
+#        oss.farland.pixel(2, 9, False)
+#        oss.farland.pixel(3, 9, False)
+#        oss.farland.pixel(4, 9, False)
+#        oss.farland.pixel(5, 9, False)
+#        oss.farland.pixel(6, 9, False)
+#        oss.farland.pixel(7, 9, False)
+#        oss.farland.pixel(8, 9, False)
+#        oss.farland.pixel(2, 8, False)
+#        oss.farland.pixel(3, 8, False)
+#        oss.farland.pixel(4, 8, False)
+#        oss.farland.pixel(5, 8, False)
+#        oss.farland.pixel(6, 8, False)
+#        oss.farland.pixel(7, 8, False)
+#        oss.farland.pixel(8, 8, False)
+#        oss.farland.pixel(2, 7, False)
+#        oss.farland.pixel(3, 7, False)
+#        oss.farland.pixel(4, 7, False)
+#        oss.farland.pixel(6, 7, False)
+#        oss.farland.pixel(7, 7, False)
+#        oss.farland.pixel(8, 7, False)
+#        oss.farland.pixel(2, 6, False)
+#        oss.farland.pixel(3, 6, False)
+#        oss.farland.pixel(4, 6, False)
+#        oss.farland.pixel(5, 6, False)
+#        oss.farland.pixel(6, 6, False)
+#        oss.farland.pixel(7, 6, False)
+#        oss.farland.pixel(8, 6, False)
+#        oss.farland.pixel(2, 5, False)
+#        oss.farland.pixel(3, 5, False)
+#        oss.farland.pixel(4, 5, False)
+#        oss.farland.pixel(5, 5, False)
+#        oss.farland.pixel(6, 5, False)
+#        oss.farland.pixel(7, 5, False)
+#        oss.farland.pixel(8, 5, False)
+#        #the hinge thing
+#        oss.farland.pixel(7, 3, False)
+#        oss.farland.pixel(6, 2, False)
+#        oss.farland.pixel(5, 2, False)
+#        oss.farland.pixel(4, 2, False)
+#        oss.farland.pixel(3, 3, False)
+#        oss.farland.pixel(3, 4, False)
+#        oss.farland.pixel(3, 5, False)
+#
 ## old circle code
 
 # initial center of the circle
