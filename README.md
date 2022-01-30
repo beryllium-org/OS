@@ -121,6 +121,7 @@ goto [LINE]
 
 GOTO INTERPRETED LINE AND RERUN FROM THERE
 
+
 exit [CODE]
 
 EXIT THE CURRENT PROCESS WITH AN EXIT CODE, DEFAULT = 0
@@ -130,6 +131,7 @@ time [set]...
 
 VIEW THE TIME, OR SET IT
 VALID FORMAT "time set dd mm yyyy hr mm ss"
+
 
 su
 
@@ -146,11 +148,12 @@ history [save/load/clear]
 
 DISPLAYS THE HISTORY
 
+
 webserver [time] [root]
 
 A INTEGRATED WEBSERVER
 YOU CAN SET THE TIME TO "inf" IN ORDER TO MAKE IT WORK IN THE BACKROUND
-UNLESS root SET OTHERWISE IT WILL TRY TO SERVE /ljinux/var/www/default/
+UNLESS A PATH IS GIVEN AS AN ARGUMENT, IT WILL TRY TO SERVE /ljinux/var/www/default/
 
 
 devmode
