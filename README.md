@@ -11,7 +11,7 @@ It runs on the rpi pico, circuitpython.<br />
 As for the display I use a SSD1306 over I2C, it's optional tho.<br />
 If the display is not available, all graphics functions will be disabled.<br />
 You can attach an rtc, I used a ds1302.<br />
-If you don't attach one, expect borked timestamps, nothing else.
+If you attach one, remove "fixrtc" from the cmdline.txt during deployment, or from the development mode.<br />
 The timings will work correctly though.<br />
 Networking can be achieved by attaching a w5500 breakout board.<br />
 It expects to find a /ljinux folder which uses as it's root. It can be on the built in fs, or an sd card, more details at Configuration.<br />
@@ -31,7 +31,7 @@ When it's plugged back in, it should run automatically and you can connect to it
 
 <h3>Configuration</h3>
 
-<b>GPIO PINS:</b><br />For display GP17(scl), GP16(sda)<br />For rtc GP6(clk), GP7(data), GP8(ce)<br />button left GP19 - button right GP18 - button enter GP20<br />For buzzer GP15<br />For sdcard GP2(clk),GP3(mosi),GP4(miso)<br />For ethernet GP10(clk), GP13(cs), GP11(mosi), GP12(miso),<br />
+<b>GPIO PINS:</b><br />For display GP17(scl), GP16(sda)<br />For rtc GP6(clk), GP7(data), GP8(ce)<br />button left GP19 - button right GP18 - button enter GP20<br />For buzzer GP15<br />For sdcard GP2(clk),GP3(mosi),GP4(miso), GP5(cs)<br />For ethernet GP10(clk), GP13(cs), GP11(mosi), GP12(miso),<br />
 
 <b>IMPORTANT NOTE: To make the pi appear as a usb device, run the command "devmode".</b><br />
 

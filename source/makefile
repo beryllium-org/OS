@@ -6,4 +6,5 @@ program.run:
 	./mpy-cross-$(shell uname -m) ./ljinux_source.py -s Ljinux -v -O150 -o ../ljinux.mpy
 	cp ../ljinux.mpy /media/$(shell whoami)/LJINUX/ljinux.mpy
 clean:
+	if (test -f ../ljinux.mpy); then rm ../ljinux.mpy; fi
 	if (test -f /media/$(shell whoami)/LJINUX/ljinux.mpy); then rm /media/$(shell whoami)/LJINUX/ljinux.mpy; fi

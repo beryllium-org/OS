@@ -35,13 +35,25 @@ gc.enable()
 print("[    0.00000] Garbage collector loaded and enabled")
 dmesg.append("[    0.00000] Garbage collector loaded and enabled")
 
-def dmtex(texx=None):
+# dmtex previous end holder
+oend = "\n"
+
+def dmtex(texx=None,end="\n",timing=True):
     global uptimme
+    global oend
     ct = "%.5f" % (uptimee+time.monotonic()) # current time since ljinux start rounded to 5 digits
-    strr = "[{u}{upt}] {tx}".format(u="           ".replace(" ", "",len(ct)), upt=str(ct), tx=texx)
-    print(strr) # credits for this clusterfuck go to the python mele, our dear @C̴̝͌h̶̰̑r̷̖̓o̶̦̊n̸̻͌ö̷̧́s̷̜͊#2188
-    dmesg.append(strr)
-    gc.collect()
+    if timing:
+        strr = "[{u}{upt}] {tx}".format(u="           ".replace(" ", "",len(ct)), upt=str(ct), tx=texx)# credits for this clusterfuck go to the python mele, our dear @C̴̝͌h̶̰̑r̷̖̓o̶̦̊n̸̻͌ö̷̧́s̷̜͊#2188
+    else:
+        strr = texx # the message as is
+    print(strr,end=end)
+    if ("\n" in oend):
+        dmesg.append(strr)
+    else: # append to the last entry
+        a = len(dmesg) - 1 # the last entry
+        dmesg[a] += oend + strr # with the ending ofc
+    oend = end
+    gc.collect() # :)
 
 print("[    0.00000] Timings reset")
 dmesg.append("[    0.00000] Timings reset")
@@ -75,6 +87,25 @@ from io import StringIO
 from usb_cdc import console
 import json
 dmtex("Basic libraries loaded")
+
+#kernel cmdline.txt
+options = {"RTC":True}
+cmdline = "None"
+try:
+    with open("/cmdline.txt",'r') as f:
+        cmdline = f.readline()
+        cmdline += "\n"
+        f.close()
+    gc.collect()
+    dmtex("cmdline.txt: " + cmdline.replace("\n",""))
+    dmtex("Options understood:",end=" ")
+    if ("fixrtc" in cmdline):
+        options["RTC"] = False
+        dmtex("fixrtc",end="",timing=False)
+    dmtex("",timing=False)
+    gc.collect()
+except OSError:
+    dmtex("Kernel cmdline not found, assuming no capabilities")
 
 #basic checks
 if (implementation.version == Circuitpython_supported_version):
@@ -164,30 +195,31 @@ dmtex("RTC library loaded")
 
 dmtex("Imports complete")
 
-# rtc stuff @ init cuz otherwise system fails to access it
-# the pins to connect it to:
-rtcclk = digitalio.DigitalInOut(board.GP6)
-rtcdata = digitalio.DigitalInOut(board.GP7)
-rtcce = digitalio.DigitalInOut(board.GP8)
+if options["RTC"]:
+    # rtc stuff @ init cuz otherwise system fails to access it
+    # the pins to connect it to:
+    rtcclk = digitalio.DigitalInOut(board.GP6)
+    rtcdata = digitalio.DigitalInOut(board.GP7)
+    rtcce = digitalio.DigitalInOut(board.GP8)
 
-# to make it suitable for system
-class RTC(object):
-    @property
-    def datetime(self):
-        return rtcc.read_datetime()
+    # to make it suitable for system
+    class RTC(object):
+        @property
+        def datetime(self):
+            return rtcc.read_datetime()
 
-try:
-    rtcc = ds1302.DS1302(rtcclk,rtcdata,rtcce) # muh rtc object
-    r = RTC() # now in a good format
-    rtc.set_time_source(r)
-    del rtcclk
-    del rtcdata
-    del rtcce
-    gc.collect()
-except OSError: # not sure how to catch if it's not available, TODO
-    pass
-
-dmtex("RTC clock init done")
+    try:
+        rtcc = ds1302.DS1302(rtcclk,rtcdata,rtcce) # muh rtc object
+        r = RTC() # now in a good format
+        rtc.set_time_source(r)
+        del rtcclk
+        del rtcdata
+        del rtcce
+        gc.collect()
+    except OSError: # not sure how to catch if it's not available, TODO
+        pass
+    
+    dmtex("RTC clock init done")
 
 class ljinux():
     class history:
@@ -554,11 +586,14 @@ class ljinux():
                         b = f.read(2048)
                         yield b
             except OSError:
-                with open("/ljinux/var/www/default/errors/404.html", "rb") as f:
-                    b = None
-                    while b is None or len(b) == 2048:
-                        b = f.read(2048)
-                        yield b
+                try:
+                    with open("/ljinux/var/www/default/errors/404.html", "rb") as f:
+                        b = None
+                        while b is None or len(b) == 2048:
+                            b = f.read(2048)
+                            yield b
+                except OSError:
+                    yield "404 File Not Found"
         
         def get_content_type(filee):
             ext = filee.split(".")[-1]
@@ -909,11 +944,11 @@ class ljinux():
                     mkdir(dirr[1])
                     if not sdcard_fs:
                         remount("/",True)
-                except OSError as errr:
+                except (OSError, RuntimeError) as errr:
                     if (str(errr) == "[Errno 17] File exists"):
                         print("mkdir: cannot create directory ‘" + dirr[1] + "’: File exists")
                     else:
-                        print("rmdir: cannot create directory ‘" + dirr[1] + "’: Cannot write, the pi pico is in read only mode!\nMake sure to disable to usb drive to be able to access these functions!")
+                        print("mmdir: cannot create directory ‘" + dirr[1] + "’: Cannot write, the pi pico is in read only mode! Make sure you have disabled developer mode!")
                 except IndexError:
                     pass
                 ljinux.io.led.value = True
@@ -927,11 +962,31 @@ class ljinux():
                     rmdir(dirr[1])
                     if not sdcard_fs:
                         remount("/",True)
-                except OSError as errr:
+                except (OSError, RuntimeError) as errr:
                     if (str(errr) == "[Errno 2] No such file/directory"):
                         print("rmdir: failed to remove ‘" + dirr[1] + "’: No such file or directory")
                     else:
                         print("rmdir: failed to remove ‘" + dirr[1] + "’: Cannot write, the pi pico is in read only mode!\nMake sure to disable to usb drive to be able to access these functions!")
+                except IndexError:
+                    pass
+                ljinux.io.led.value = True
+                
+            def rmm(dirr): # rm
+                global sdcard_fs
+                ljinux.io.led.value = False
+                try:
+                    if not sdcard_fs:
+                        remount("/",False)
+                    remove(dirr[1])
+                    if not sdcard_fs:
+                        remount("/",True)
+                except (OSError, RuntimeError) as errr:
+                    if (str(errr) == "[Errno 2] No such file/directory"):
+                        print("rm: failed to remove ‘" + dirr[1] + "’: No such file or directory")
+                    elif (str(errr) == "[Errno 21] EISDIR"):
+                        print("rm: Is directory")
+                    else:
+                        print("rm: failed to remove ‘" + dirr[1] + "’: Cannot write, the pi pico is in read only mode!\nMake sure to disable to usb drive to be able to access these functions!")
                 except IndexError:
                     pass
                 ljinux.io.led.value = True
@@ -1258,7 +1313,17 @@ class ljinux():
                 global Exit
                 global Exit_code
                 Exit = True
-                Exit_code = 245
+                try:
+                    if (inpt[1] == "bootloader"):
+                        Exit_code = 243
+                    elif (inpt[1] == "safemode"):
+                        Exit_code = 242
+                    elif (inpt[1] == "uf2"):
+                        Exit_code = 241
+                    else:
+                        Exit_code = 245
+                except IndexError:
+                    Exit_code = 245
 
             def sensors(inpt): # lm-sensors
                 print("cpu_thermal\nAdapter: Cpu device\ntemp1:     +%.2f°C" % cpu.temperature)
@@ -1306,6 +1371,7 @@ class ljinux():
                 global dmesg
                 for i in dmesg:
                     print(i)
+                    gc.collect()
             
             def ping(inpt):
                 print("Ping google.com: %d ms" % ljinux.io.network.ping("google.com"))
@@ -1314,57 +1380,51 @@ class ljinux():
                 ljinux.networking.test()
                 if ljinux.io.network_online:
                     try:
-                        if inpt[1].isdigit():
-                            timee = int(inpt[1])*10
-                        elif (inpt[1] == "inf"):
-                            timee = -1
-                        else:
-                            print("based: Invalid syntax")
-                            return
-                    except IndexError:
-                        timee = 600
-                    
-                    try:
-                        pathh = inpt[2]
+                        pathh = inpt[1]
                     except IndexError:
                         pathh = "/ljinux/var/www/default/"
                         
                     print("Ljinux Web Server")
-                    web_app = WSGIApp()
-                    
-                    @web_app.route("/")
-                    def root(request):
-                        global access_log
-                        access_log.append("Root accessed")
-                        return ("200 OK", [], ljinux.networking.get_static_file(pathh + "default.html"))
-                    
-                    @web_app.route("/access_log")
-                    def root(request):
-                        global access_log
-                        access_log.append("Accessed log")
-                        return ("200 OK", [], [str(access_log)])
-                    
-                    @web_app.route("/<pagee>")
-                    def led_on(request, pagee):
-                        global access_log
-                        access_log.append("Accessed " + pagee)
-                        return ljinux.networking.serve_file(str(pathh + pagee))
-                    
                     try:
-                        ljinux.networking.wsgiServer = server.WSGIServer(80, application=web_app)
-                        ljinux.networking.wsgiServer.start()
-                    except RuntimeError:
-                        print("Out of sockets, please reboot")
-                        return
+                        arg = inpt[1]
+                    except IndexError:
+                        arg = ""
+                    if (arg != "-k"):
+                        print("Starting in the backround, send webserver -k to kill.")
+                        web_app = WSGIApp()
                     
-                    if (timee != -1):
-                        for i in range(0, timee):
-                            ljinux.networking.wsgiServer.update_poll()
-                            server.socket.gc.collect()
-                            gc.collect()
-                            time.sleep(.1)
+                        @web_app.route("/")
+                        def root(request):
+                            global access_log
+                            access_log.append("Root accessed")
+                            return ("200 OK", [], ljinux.networking.get_static_file(pathh + "default.html"))
+                        
+                        @web_app.route("/access_log")
+                        def root(request):
+                            global access_log
+                            access_log.append("Accessed log")
+                            return ("200 OK", [], [str(access_log)])
+                        
+                        @web_app.route("/<pagee>")
+                        def led_on(request, pagee):
+                            global access_log
+                            access_log.append("Accessed " + pagee)
+                            return ljinux.networking.serve_file(str(pathh + pagee))
+                        
+                        try:
+                            ljinux.networking.wsgiServer = server.WSGIServer(80, application=web_app)
+                            ljinux.networking.wsgiServer.start()
+                            ljinux.backrounding.webserver = True
+                        except RuntimeError:
+                            print("Out of sockets, please reboot")
+                            return
+                    elif (ljinux.backrounding.webserver == True):
+                        ljinux.backrounding.webserver = False
+                        del ljinux.networking.wsgiServer
+                        ljinux.networking.wsgiServer = None
+                        print("Webserver unloaded, keep in mind sockets cannot be reused in the current implementation, and you might have to reboot to restart the webserver.")
                     else:
-                        ljinux.backrounding.webserver = True
+                        print("Error: Webserver not running")
                 else:
                     print("Network unavailable")
                 
@@ -1379,7 +1439,7 @@ class ljinux():
                         try:
                             remount("/",False)
                         except RuntimeError:
-                            print("Cannot remount built in fs in development mode")
+                            print("based: Cannot remount built in fs in development mode")
                             return
                     f = open(inpt[1],'w')
                     f.close()
@@ -1444,7 +1504,7 @@ class ljinux():
         
         def shell(inp=None): # the shell function, warning do not touch, it has feelings
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc, 'rm':ljinux.based.command.rmm}
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:

@@ -13,6 +13,8 @@ from os import chdir
 from os import sync
 from storage import umount
 from microcontroller import reset
+from microcontroller import RunMode
+from microcontroller import on_next_reset
 from sys import exit
 from gc import collect
 from time import sleep
@@ -84,5 +86,14 @@ elif (Exit_code == 244):
     print("[ OK ] Reached target: Halt")
     while True:
         sleep(3600)
+elif (Exit_code == 243):
+    on_next_reset(RunMode.BOOTLOADER)
+    reset()
+elif (Exit_code == 242):
+    on_next_reset(RunMode.SAFE_MODE)
+    reset()
+elif (Exit_code == 241):
+    on_next_reset(RunMode.UF2)
+    reset()
 else:
     exit(Exit_code)
