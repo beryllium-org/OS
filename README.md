@@ -10,7 +10,7 @@ I know it's not a linux, or an os, or anything in that regard, but here we are.<
 It runs on the rpi pico, circuitpython.<br />
 As for the display I use a SSD1306 over I2C, it's optional tho.<br />
 If the display is not available, all graphics functions will be disabled.<br />
-You can attach an rtc, I used a ds1302.<br />
+You can attach an ds1302 rtc.<br />
 If you attach one, remove "fixrtc" from the cmdline.txt during deployment, or from the development mode.<br />
 The timings will work correctly though.<br />
 Networking can be achieved by attaching a w5500 breakout board.<br />

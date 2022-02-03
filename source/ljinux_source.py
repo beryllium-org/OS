@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.1.0"
+Version = "0.1.1"
 Circuitpython_supported_version = (7, 1, 1)
 dmesg = []
 access_log = []
@@ -106,6 +106,8 @@ try:
     gc.collect()
 except OSError:
     dmtex("Kernel cmdline not found, assuming no capabilities")
+del cmdline
+gc.collect()
 
 #basic checks
 if (implementation.version == Circuitpython_supported_version):
@@ -187,15 +189,15 @@ dmtex("Networking libraries loaded")
 from getpass import getpass
 dmtex("Getpass library loaded")
 
-# for rtc
-# based off of https://github.com/afaonline/DS1302_CircuitPython
-import rtc
-import ds1302
-dmtex("RTC library loaded")
-
-dmtex("Imports complete")
-
 if options["RTC"]:
+    # for rtc
+    # based off of https://github.com/afaonline/DS1302_CircuitPython
+    import rtc
+    import ds1302
+    dmtex("RTC library loaded")
+
+    dmtex("Imports complete")
+
     # rtc stuff @ init cuz otherwise system fails to access it
     # the pins to connect it to:
     rtcclk = digitalio.DigitalInOut(board.GP6)
