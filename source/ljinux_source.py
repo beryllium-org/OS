@@ -10,6 +10,19 @@ Circuitpython_supported_version = (7, 1, 1)
 dmesg = []
 access_log = []
 
+#core board libs
+import board
+import digitalio
+print("[    0.00000] Core libs loaded")
+dmesg.append("[    0.00000] Core libs loaded")
+led = digitalio.DigitalInOut(board.LED)
+led.direction = digitalio.Direction.OUTPUT
+led.value = True
+led.value = False
+
+# Pin allocation stuff
+pin_alloc = []
+
 # default password, aka the password if no /ljinux/etc/passwd is found
 dfpasswd = "Ljinux"
 
@@ -68,8 +81,6 @@ from sys import implementation
 from sys import platform
 from sys import modules
 from supervisor import runtime
-import board
-import digitalio
 import busio
 from microcontroller import cpu
 from microcontroller import cpus
@@ -88,25 +99,81 @@ from usb_cdc import console
 import json
 dmtex("Basic libraries loaded")
 
+led.value = True
 #kernel cmdline.txt
-options = {"RTC":True}
-cmdline = "None"
 try:
-    with open("/cmdline.txt",'r') as f:
-        cmdline = f.readline()
-        cmdline += "\n"
+    led.value = False
+    with open("/config.json",'r') as f:
+        configg = json.load(f)
+        led.value = True
         f.close()
     gc.collect()
-    dmtex("cmdline.txt: " + cmdline.replace("\n",""))
     dmtex("Options understood:",end=" ")
-    if ("fixrtc" in cmdline):
-        options["RTC"] = False
-        dmtex("fixrtc",end="",timing=False)
+    led.value = False
+    for optt in ["fixrtc", "SKIPTEMP", "SKIPCP", "DEBUG"]: # the true/false ones
+        try:
+            if (configg[optt] == True):
+                dmtex(optt,end=" ",timing=False)
+            else:
+                configg[optt] = False
+        except KeyError:
+            itt = {str(optt): False}
+            configg.update(itt)
+            del itt
+            gc.collect()
+    pintab = {
+        1:board.GP1,
+        2:board.GP2,
+        3:board.GP3,
+        4:board.GP4,
+        5:board.GP5,
+        6:board.GP6,
+        7:board.GP7,
+        8:board.GP8,
+        9:board.GP9,
+        10:board.GP10,
+        11:board.GP11,
+        12:board.GP12,
+        13:board.GP13,
+        14:board.GP14,
+        15:board.GP15,
+        16:board.GP16,
+        17:board.GP17,
+        18:board.GP18,
+        19:board.GP19,
+        20:board.GP20,
+        21:board.GP21,
+        22:board.GP22,
+        23:board.GP23,
+        24:board.GP24,
+        25:board.GP25,
+        26:board.GP26,
+        27:board.GP27,
+        28:board.GP28,
+    }
+    for optt in ["displaySCL", "displaySDA"]:
+        try:
+            a = configg[optt]
+            if a in pin_alloc:
+                dmtex("PIN ALLOCATED, EXITING")
+                from sys import exit
+                exit(0)
+            del a
+            gc.collect()
+            dmtex(optt,end=" ",timing=False)
+        except KeyError:
+            gc.collect()
+    del pintab
+    led.value = True
     dmtex("",timing=False)
     gc.collect()
 except OSError:
-    dmtex("Kernel cmdline not found, assuming no capabilities")
-del cmdline
+    led.value = True
+    dmtex("Kernel config not found, assuming nothing")
+except ValueError:
+    dmtex("Kernel config syntax error, exiting")
+    from sys import exit
+    exit(0)
 gc.collect()
 
 #basic checks
@@ -114,8 +181,6 @@ if (implementation.version == Circuitpython_supported_version):
     dmtex("Running on supported implementation")
 else:
     dmtex("-----------------------------------\n              WARNING: Unsupported CircuitPython version\n              -----------------------------------\n              Continuing after led alert..")
-    led = digitalio.DigitalInOut(board.LED)
-    led.direction = digitalio.Direction.OUTPUT
     for i in range(3):
         led.value = True
         time.sleep(.5)
@@ -129,8 +194,6 @@ else:
         time.sleep(.5)
         led.value = False
         time.sleep(3)
-    led.deinit()
-    del led
     gc.collect()
 
 temp = cpu.temperature
@@ -139,8 +202,6 @@ if ((temp > 0) and (temp < 60)):
     dmtex("Temperature OK: " + str(temp) + " Celcius")
 else:
     dmtex("Temperature is unsafe: " + str(temp) + " Celcius. Halting!")
-    led = digitalio.DigitalInOut(board.LED)
-    led.direction = digitalio.Direction.OUTPUT
     led.value = False
     while True:
         led.value = True
@@ -161,7 +222,10 @@ del temp
 del tempcheck
 gc.collect()
 dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
+led.deinit()
+del led
 dmtex("Basic checks done")
+gc.collect()
 
 # audio
 from audiomp3 import MP3Decoder
@@ -189,7 +253,7 @@ dmtex("Networking libraries loaded")
 from getpass import getpass
 dmtex("Getpass library loaded")
 
-if options["RTC"]:
+if not configg["fixrtc"]:
     # for rtc
     # based off of https://github.com/afaonline/DS1302_CircuitPython
     import rtc
@@ -1256,6 +1320,8 @@ class ljinux():
                         print("Stopped")
                 except OSError:
                     print("Based: File not found")
+            def pinning(inpt): # pinout
+                print("                                       ,-------------.\n[UART0 TX|I2C0 SDA|SPI0 RX ] GP0  (1)  |1 0  ==   0 o|  (40) VBUS      [        |        |        ]\n[UART0 RX|I2C0 SCL|SPI0 CSn] GP1  (2)  |o =  usb    o|  (39) VSYS      [        |        |        ]\n[        |        |        ] GND  (3)  |o led       o|  (38) GND       [        |        |        ]\n[        |I2C1 SDA|SPI0 SCK] GP2  (4)  |o           o|  (37) 3V3_EN    [        |        |        ]\n[        |I2C1 SCL|SPI0 TX ] GP3  (5)  |o           o|  (36) 3V3(OUT)  [        |        |        ]\n[UART1 TX|I2C0 SDA|SPI0 RX ] GP4  (6)  |o           o|  (35) ADC_VREF  [        |        |        ]\n[UART1 RX|I2C0 SCL|SPI0 CSn] GP5  (7)  |o           o|  (34) GP28      [  ADC2  |        |        ]\n[        |        |        ] GND  (8)  |o           o|  (33) GND       [  AGND  |        |        ]\n[        |I2C1 SDA|SPI0 SCK] GP6  (9)  |o   +---+   o|  (32) GP27      [  ADC1  |I2C1 SCL|        ]\n[        |I2C1 SCL|SPI0 TX ] GP7  (10) |o   |RP2|   o|  (31) GP26      [  ADC0  |I2C1 SDA|        ]\n[UART1 TX|I2C0 SDA|SPI1 RX ] GP8  (11) |o   |040|   o|  (30) RUN       [        |        |        ]\n[UART1 RX|I2C0 SCL|SPI1 CSn] GP9  (12) |o   +---+   o|  (29) GP22      [                          ]\n[        |        |        ] GND  (13) |o           o|  (28) GND       [        |        |        ]\n[        |I2C1 SDA|SPI1 SCK] GP10 (14) |o           o|  (27) GP21      [        |I2C0 SCL|        ]\n[        |I2C1 SCL|SPI1 TX ] GP11 (15) |o           o|  (26) GP20      [        |I2C0 SDA|        ]\n[UART0 TX|I2C0 SDA|SPI1 RX ] GP12 (16) |o           o|  (25) GP19      [SPI0 TX |I2C1 SCL|        ]\n[UART0 RX|I2C0 SCL|SPI1 CSn] GP13 (17) |o           o|  (24) GP18      [SPI0 SCK|I2C1 SDA|        ]\n[        |        |        ] GND  (18) |o           o|  (23) GND       [        |        |        ]\n[        |I2C1 SDA|SPI1 SCK] GP14 (19) |o   DEBUG   o|  (22) GP17      [SPI0 CSn|I2C0 SCL|UART0 RX]\n[        |I2C1 SCL|SPI1 TX ] GP15 (20) |o 0  ooo  0 o|  (21) GP16      [SPI0 RX |I2C0 SDA|UART0 TX]\n                                       `-------------'\n                                             ^^^\n                                       SWCLK ||| SWDIO\n                                         GND  |\nRaspberry Pi Pico Rev 1.0\n\nRevision           : 1.0\nSoC                : RP2040\nRAM                : 264KB\nStorage            : MicroSD\nUSB ports          : 1 (of which 0 USB3)\nEthernet ports     : 1 (10Mbps max. speed)\nWi-fi              : False\nBluetooth          : False\nCamera ports (CSI) : 0\nDisplay ports (DSI): 0\n\nFor further information, please refer to http://ljinux.cf/")
 
             def neofetch(inpt): # picofetch / neofetch
                 global uptimee
@@ -1506,7 +1572,7 @@ class ljinux():
         
         def shell(inp=None): # the shell function, warning do not touch, it has feelings
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc, 'rm':ljinux.based.command.rmm}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc, 'rm':ljinux.based.command.rmm,'pinout':ljinux.based.command.pinning}
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:
