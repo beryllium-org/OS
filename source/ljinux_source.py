@@ -23,7 +23,7 @@ led.value = False
 # Pin allocation stuff
 pin_alloc = []
 
-# default password, aka the password if no /ljinux/etc/passwd is found
+# default password, aka the password if no /LjinuxRoot/etc/passwd is found
 dfpasswd = "Ljinux"
 
 #exit code holder, has to be global
@@ -307,7 +307,7 @@ class ljinux():
                         ljinux.io.led.value = True
             except OSError:
                     ljinux.io.led.value = True
-                    print("based: "+ filen +": No such file or directory\n")
+                    ljinux.based.error(4,filen)
 
         def appen(itemm): # add to history, but don't save to file
             ljinux.history.historyy.append(itemm)
@@ -327,7 +327,7 @@ class ljinux():
                     ljinux.io.led.value = False
                     historyfile.flush()
             except OSError:
-                    print("based: "+ filen +": No such file or directory\n")
+                    ljinux.based.error(4,filen)
             ljinux.io.led.value = True
 
         def clear(filen): # deletes all history, from ram and storage
@@ -340,7 +340,7 @@ class ljinux():
                 ljinux.history.historyitems = 0
                 ljinux.history.historyy = []
             except OSError:
-                    print("based: "+ filen +": No such file or directory\n")
+                    ljinux.based.error(4,filen)
             ljinux.io.led.value = True
 
         def gett(whichh): # get a specific history item, from loaded history
@@ -528,6 +528,17 @@ class ljinux():
         network_online = False
         network_name = "Offiline"
         
+        def get_static_file(filename,m="rb"):
+            "Static file generator"
+            try:
+                with open(filename, m) as f:
+                    b = None
+                    while b is None or len(b) == 2048:
+                        b = f.read(2048)
+                        yield b
+            except OSError:
+                yield "CRITICAL: File Not Found"
+        
         def init_net():
             gc.collect()
             cs = digitalio.DigitalInOut(board.GP13)
@@ -594,7 +605,7 @@ class ljinux():
             sdcard = adafruit_sdcard.SDCard(spi, cs)
             vfs = VfsFat(sdcard)
             dmtex("SD mount attempted")
-            mount(vfs, "/ljinux")
+            mount(vfs, "/LjinuxRoot")
             sdcard_fs = True
             del spi
             del cs
@@ -643,24 +654,6 @@ class ljinux():
     class networking(object):
         wsgiServer = None
         
-        def get_static_file(filename):
-            "Static file generator"
-            try:
-                with open(filename, "rb") as f:
-                    b = None
-                    while b is None or len(b) == 2048:
-                        b = f.read(2048)
-                        yield b
-            except OSError:
-                try:
-                    with open("/ljinux/var/www/default/errors/404.html", "rb") as f:
-                        b = None
-                        while b is None or len(b) == 2048:
-                            b = f.read(2048)
-                            yield b
-                except OSError:
-                    yield "404 File Not Found"
-        
         def get_content_type(filee):
             ext = filee.split(".")[-1]
             if ext in ("html", "htm"):
@@ -676,7 +669,7 @@ class ljinux():
             return "text/plain"
         
         def serve_file(file_path):
-            return ("200 OK", [("Content-Type", ljinux.networking.get_content_type(file_path))], ljinux.networking.get_static_file(file_path))
+            return ("200 OK", [("Content-Type", ljinux.networking.get_content_type(file_path))], ljinux.io.get_static_file(file_path))
         
         def timeset():
             if ljinux.networking.test():
@@ -715,19 +708,36 @@ class ljinux():
             if (ljinux.io.network_online):
                 pass
             else:
-                print("based: Network unavailable")
+                ljinux.based.error(5)
         
         def packet(data):
             ljinux.networking.test()
             if (ljinux.io.network_online):
                 pass
             else:
-                print("based: Network unavailable")
+                ljinux.based.error(5)
 
     class based(object):
         silent = False
-        user_vars = {'history-file': "/ljinux/home/pi/.history"} # the variables defined and modified by the user
+        user_vars = {'history-file': "/LjinuxRoot/home/pi/.history"} # the variables defined and modified by the user
         system_vars = {'user': "root", 'security': "off", 'Init-type': "oneshot"} # the variables defined and modified by the system
+        
+        def error(wh=3, f=None):
+            print("based: ",end='')
+            if wh == 1:
+                print("Syntax Error")
+            elif wh == 2:
+                print("Input Error")
+            elif wh == 3:
+                print("Error")
+            elif wh == 4:
+                print(str(f) + ": No such file or directory")
+            elif wh == 5:
+                print("Network unavailable")
+            elif wh == 6:
+                print("Display not attached")
+            
+        
         def autorun():
             ljinux.io.led.value = False
             global Exit
@@ -737,20 +747,20 @@ class ljinux():
             ljinux.based.system_vars["ImplementationVersion"] = str(implementation.version[0]) + "." + str(implementation.version[1]) + "." + str(implementation.version[2])
             print("\nWelcome to ljinux wanna-be kernel " + ljinux.based.system_vars["Version"] + "\n\n", end='')
             try:
-                print("[ .. ] Mount /ljinux")
+                print("[ .. ] Mount /LjinuxRoot")
                 ljinux.io.start_sdcard()
-                print("[ OK ] Mount /ljinux")
+                print("[ OK ] Mount /LjinuxRoot")
             except OSError:
-                print("[ Failed ] Mount /ljinux\n       -> Error: sd card not available, assuming built in fs")
+                print("[ Failed ] Mount /LjinuxRoot\n       -> Error: sd card not available, assuming built in fs")
                 del modules["adafruit_sdcard"]
                 dmtex("Unloaded sdio libraries")
                 gc.collect()
             ljinux.io.led.value = True
-            print("[ .. ] Running Init Script\n       -> Attempting to open /ljinux/boot/Init.lja..")
+            print("[ .. ] Running Init Script\n       -> Attempting to open /LjinuxRoot/boot/Init.lja..")
             lines = None
             try:
                 ljinux.io.led.value = False
-                f = open("/ljinux/boot/Init.lja", 'r')
+                f = open("/LjinuxRoot/boot/Init.lja", 'r')
                 lines = f.readlines()
                 f.close()
                 count = 0
@@ -924,6 +934,7 @@ class ljinux():
 
             def pwd(dirr): # print working directory
                 print(getcwd())
+                return getcwd()
 
             def helpp(dictt): # help
                 print("LNL based\nThese shell commands are defined internally. Type `help' to see this list.")
@@ -1071,8 +1082,7 @@ class ljinux():
                         if not (chh.islower() or chh.isupper() or chh == "-"):
                             valid = False
                     if (inpt[1] == '='):
-                        if not (inpt[2].startswith('"')):
-                            if not (inpt[2].isdigit()):
+                        if not (inpt[2].startswith('"') or inpt[2].isdigit() or inpt[2].startswith('/')):
                                 valid = False
                     else:
                         valid = False
@@ -1088,12 +1098,12 @@ class ljinux():
                                     new_var += (inpt[i] + ' ')
                                 new_var += (str(inpt[countt-1])[:-1])
                             else:
-                                print("based: invalid syntax")
+                                ljinux.based.error(1)
                                 valid = False
                         else:
                             new_var += str(inpt[2])
                     else:
-                        print("based: invalid syntax")
+                        ljinux.based.error(1)
                         valid = False
                     if valid:
                         if (inpt[0] in system_vars):
@@ -1104,7 +1114,7 @@ class ljinux():
                         else:
                             user_vars[inpt[0]] = new_var
                 except IndexError:
-                    print("based: invalid syntax")
+                    ljinux.based.error(1)
                 ljinux.io.led.value = True
 
             def display(inpt, objectss): # the graphics drawing stuff
@@ -1210,11 +1220,11 @@ class ljinux():
                     if (optt == "all"):
                         ljinux.farland.clear()
                     else:
-                        print("based: Syntax error")
+                        ljinux.based.error(1)
                 elif (typee == "refresh"):
                     ljinux.farland.frame()
                 else:
-                    print("based: Syntax error")
+                    ljinux.based.error(1)
 
             def timme(inpt): # time command
                 try:
@@ -1223,7 +1233,7 @@ class ljinux():
                             the_time = time.struct_time((int(inpt[4]),int(inpt[3]),int(inpt[2]),int(inpt[5]),int(inpt[6]),int(inpt[7]),1,-1,-1)) # yr, mon, d, hr, m, s, ss, shit,shit,shit
                             rtcc.write_datetime(the_time)
                         except IndexError:
-                            print("based: Syntax error")
+                            ljinux.based.error(1)
                 except IndexError:
                     tt = time.localtime()
                     print("Current time: " + str(tt.tm_mday) + "/" + str(tt.tm_mon) + "/" + str(tt.tm_year) + " " + str(tt.tm_hour) + ":" + str(tt.tm_min) + ":" + str(tt.tm_sec))
@@ -1233,7 +1243,7 @@ class ljinux():
                 passwordarr = {}
                 try:
                     try:
-                        with open("/ljinux/etc/passwd", "r") as data:
+                        with open("/LjinuxRoot/etc/passwd", "r") as data:
                             lines = data.readlines()
                             for line in lines:
                                 dt = line.split()
@@ -1286,7 +1296,7 @@ class ljinux():
                         mp3.deinit()
                         print("Stopped")
                 except OSError:
-                    print("Based: File not found")
+                    ljinux.based.error(4)
 
             def playwav(inpt): # play wav file
                 try:
@@ -1319,9 +1329,45 @@ class ljinux():
                         wav.deinit()
                         print("Stopped")
                 except OSError:
-                    print("Based: File not found")
-            def pinning(inpt): # pinout
-                print("                                       ,-------------.\n[UART0 TX|I2C0 SDA|SPI0 RX ] GP0  (1)  |1 0  ==   0 o|  (40) VBUS      [        |        |        ]\n[UART0 RX|I2C0 SCL|SPI0 CSn] GP1  (2)  |o =  usb    o|  (39) VSYS      [        |        |        ]\n[        |        |        ] GND  (3)  |o led       o|  (38) GND       [        |        |        ]\n[        |I2C1 SDA|SPI0 SCK] GP2  (4)  |o           o|  (37) 3V3_EN    [        |        |        ]\n[        |I2C1 SCL|SPI0 TX ] GP3  (5)  |o           o|  (36) 3V3(OUT)  [        |        |        ]\n[UART1 TX|I2C0 SDA|SPI0 RX ] GP4  (6)  |o           o|  (35) ADC_VREF  [        |        |        ]\n[UART1 RX|I2C0 SCL|SPI0 CSn] GP5  (7)  |o           o|  (34) GP28      [  ADC2  |        |        ]\n[        |        |        ] GND  (8)  |o           o|  (33) GND       [  AGND  |        |        ]\n[        |I2C1 SDA|SPI0 SCK] GP6  (9)  |o   +---+   o|  (32) GP27      [  ADC1  |I2C1 SCL|        ]\n[        |I2C1 SCL|SPI0 TX ] GP7  (10) |o   |RP2|   o|  (31) GP26      [  ADC0  |I2C1 SDA|        ]\n[UART1 TX|I2C0 SDA|SPI1 RX ] GP8  (11) |o   |040|   o|  (30) RUN       [        |        |        ]\n[UART1 RX|I2C0 SCL|SPI1 CSn] GP9  (12) |o   +---+   o|  (29) GP22      [                          ]\n[        |        |        ] GND  (13) |o           o|  (28) GND       [        |        |        ]\n[        |I2C1 SDA|SPI1 SCK] GP10 (14) |o           o|  (27) GP21      [        |I2C0 SCL|        ]\n[        |I2C1 SCL|SPI1 TX ] GP11 (15) |o           o|  (26) GP20      [        |I2C0 SDA|        ]\n[UART0 TX|I2C0 SDA|SPI1 RX ] GP12 (16) |o           o|  (25) GP19      [SPI0 TX |I2C1 SCL|        ]\n[UART0 RX|I2C0 SCL|SPI1 CSn] GP13 (17) |o           o|  (24) GP18      [SPI0 SCK|I2C1 SDA|        ]\n[        |        |        ] GND  (18) |o           o|  (23) GND       [        |        |        ]\n[        |I2C1 SDA|SPI1 SCK] GP14 (19) |o   DEBUG   o|  (22) GP17      [SPI0 CSn|I2C0 SCL|UART0 RX]\n[        |I2C1 SCL|SPI1 TX ] GP15 (20) |o 0  ooo  0 o|  (21) GP16      [SPI0 RX |I2C0 SDA|UART0 TX]\n                                       `-------------'\n                                             ^^^\n                                       SWCLK ||| SWDIO\n                                         GND  |\nRaspberry Pi Pico Rev 1.0\n\nRevision           : 1.0\nSoC                : RP2040\nRAM                : 264KB\nStorage            : MicroSD\nUSB ports          : 1 (of which 0 USB3)\nEthernet ports     : 1 (10Mbps max. speed)\nWi-fi              : False\nBluetooth          : False\nCamera ports (CSI) : 0\nDisplay ports (DSI): 0\n\nFor further information, please refer to http://ljinux.cf/")
+                    ljinux.based.error(4)
+            
+            def catt(inpt): # kot
+                res = ""
+                try:
+                    for i in list(ljinux.io.get_static_file(inpt[1],m="r")):
+                        print(str(i),end="")
+                        res += str(i)
+                        gc.collect()
+                        return res
+                except OSError:
+                    ljinux.based.error(4)
+            
+            def headd(inpt): #givin head
+                res = ""
+                try:
+                    if (int(inpt[1]) >= 1):
+                        try:
+                            with open(inpt[2],'r') as f:
+                                lines = f.readlines()
+                                try:
+                                    for i in range (0,int(inpt[1])):
+                                        print(lines[i],end='')
+                                        res += lines[i-1] 
+                                except IndexError:
+                                    pass
+                                f.close()
+                                del lines
+                                gc.collect()
+                                return res
+                        except OSError:
+                            ljinux.based.error(4,inpt[2])
+                            gc.collect()
+                    else:
+                        ljinux.based.error(1)
+                        gc.collect()
+                except IndexError:
+                    ljinux.based.error(1)
+                    gc.collect()
 
             def neofetch(inpt): # picofetch / neofetch
                 global uptimee
@@ -1433,7 +1479,7 @@ class ljinux():
                     else:
                         print("based: Incomplete condition")
                 else:
-                    print("based: Invalid syntax")
+                    ljinux.based.error(1)
             
             def dmesgg(inpt):
                 global dmesg
@@ -1450,7 +1496,7 @@ class ljinux():
                     try:
                         pathh = inpt[1]
                     except IndexError:
-                        pathh = "/ljinux/var/www/default/"
+                        pathh = "/LjinuxRoot/var/www/default/"
                         
                     print("Ljinux Web Server")
                     try:
@@ -1465,7 +1511,7 @@ class ljinux():
                         def root(request):
                             global access_log
                             access_log.append("Root accessed")
-                            return ("200 OK", [], ljinux.networking.get_static_file(pathh + "default.html"))
+                            return ("200 OK", [], ljinux.io.get_static_file(pathh + "default.html"))
                         
                         @web_app.route("/access_log")
                         def root(request):
@@ -1572,7 +1618,7 @@ class ljinux():
         
         def shell(inp=None): # the shell function, warning do not touch, it has feelings
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc, 'rm':ljinux.based.command.rmm,'pinout':ljinux.based.command.pinning}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc, 'rm':ljinux.based.command.rmm,'cat':ljinux.based.command.catt, 'head':ljinux.based.command.headd}
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:
@@ -1613,15 +1659,28 @@ class ljinux():
                                     if display_availability:
                                         res = function_dict["display"](command_split,ljinux.farland.entities)
                                     else:
-                                        res = print("based: Display not attached")
+                                        ljinux.based.error(6)
                                 elif (command_split[0] == "su"):
                                     res = function_dict["su"](command_split,ljinux.based.system_vars)
                                 elif ((command_split[1] == "=") or (command_split[0] == "var")):
                                     res = function_dict["var"](command_split, ljinux.based.user_vars, ljinux.based.system_vars)
+                            except IndexError:
+                                bins = listdir("/LjinuxRoot/bin")
+                                certain = False
+                                for i in bins:
+                                    if (i.endswith(".lja") and (command_split[0] == i[:-4])):
+                                        command_split[0] = ("/LjinuxRoot/bin/" + i)
+                                        certain = True
+                                del bins
+                                gc.collect()
+                                if certain:
+                                    res = function_dict["exec"](command_split)
+                                    gc.collect()
                                 else:
                                     res = function_dict["error"](command_split)
-                            except IndexError:
-                                res = function_dict["error"](command_split)
+                                    gc.collect()
+                                del certain
+                                gc.collect()
                         elif (("|" in command_input) and not ("&&" in command_input)): # this is a pipe  :)
                             ljinux.based.silent = True
                             the_pipe_pos = command_input.find("|",0)
@@ -1880,7 +1939,7 @@ class ljinux():
                         for j in range(y0,y1,-1):
                             ljinux.farland.oled.pixel(i, j, col)
                 else:
-                    print("based: syntax error")
+                    ljinux.based.error(1)
 
 
         
