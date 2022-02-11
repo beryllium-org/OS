@@ -11,10 +11,10 @@ It runs on the rpi pico, circuitpython.<br />
 As for the display I use a SSD1306 over I2C, it's optional tho.<br />
 If the display is not available, all graphics functions will be disabled.<br />
 You can attach an ds1302 rtc.<br />
-If you attach one, remove "fixrtc" from the cmdline.txt during deployment, or from the development mode.<br />
+If you attach one, remove "fixrtc" from the config.txt during deployment, or from the development mode.<br />
 The timings will work correctly though.<br />
 Networking can be achieved by attaching a w5500 breakout board.<br />
-It expects to find a /ljinux folder which uses as it's root. It can be on the built in fs, or an sd card, more details at Configuration.<br />
+It expects to find a /LjinuxRoot folder which uses as it's root. It can be on the built in fs, or an sd card, more details at Configuration.<br />
 
 It's structure:<br />
 
