@@ -1,4 +1,3 @@
-# ljinux [![](https://tokei.rs/b1/github/bill88t/ljinux)](https://github.com/bill88t/ljinux)
 A "linux" written in python, for the Raspberry Pi Pico.<br />
 
 Important note:<br />
