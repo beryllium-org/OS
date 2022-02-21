@@ -1334,11 +1334,14 @@ class ljinux():
             def catt(inpt): # kot
                 res = ""
                 try:
-                    for i in list(ljinux.io.get_static_file(inpt[1],m="r")):
-                        print(str(i),end="")
-                        res += str(i)
+                    with open(inpt[1],'r') as f:
+                        lines = f.readlines()
+                        for i in lines:
+                            print(i,end="")
+                            res += i
+                        f.close()
                         gc.collect()
-                        return res
+                    return res
                 except OSError:
                     ljinux.based.error(4)
             
