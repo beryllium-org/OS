@@ -228,26 +228,40 @@ dmtex("Basic checks done")
 gc.collect()
 
 # audio
-from audiomp3 import MP3Decoder
-from audiopwmio import PWMAudioOut
-from audiocore import WaveFile
-dmtex("Audio libraries loaded")
+NoAudio = False # used to ensure audio will NOT be used in case of libs missing
+try:
+    from audiomp3 import MP3Decoder
+    from audiopwmio import PWMAudioOut
+    from audiocore import WaveFile
+    dmtex("Audio libraries loaded")
+except ImportError:
+    NoAudio = True
+    dmtex("CRITICAL: AUDIO LIBRARIES LOADING FAILED")
 
 # sd card
-import adafruit_sdcard
-dmtex("Sdcard libraries loaded")
+try:
+    import adafruit_sdcard
+    dmtex("Sdcard libraries loaded")
+except ImportError:
+    dmtex("CRITICAL: SDCARD LIBRARIES LOADING FAILED")
 
 # display
-import adafruit_ssd1306
-dmtex("Display libraries loaded")
+try:
+    import adafruit_ssd1306
+    dmtex("Display libraries loaded")
+except ImportError:
+    dmtex("CRITICAL: DISPLAY LIBRARIES LOADING FAILED")
 
 # networking
-import adafruit_requests as requests
-from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
-import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
-from adafruit_wsgi.wsgi_app import WSGIApp
-import adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver as server
-dmtex("Networking libraries loaded")
+try:
+    import adafruit_requests as requests
+    from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
+    import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
+    from adafruit_wsgi.wsgi_app import WSGIApp
+    import adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver as server
+    dmtex("Networking libraries loaded")
+except ImportError:
+    dmtex("CRITICAL: NETWORKING LIBRARIES LOADING FAILED")
 
 # password input
 from getpass import getpass
@@ -256,36 +270,37 @@ dmtex("Getpass library loaded")
 if not configg["fixrtc"]:
     # for rtc
     # based off of https://github.com/afaonline/DS1302_CircuitPython
-    import rtc
-    import ds1302
-    dmtex("RTC library loaded")
-
-    dmtex("Imports complete")
-
-    # rtc stuff @ init cuz otherwise system fails to access it
-    # the pins to connect it to:
-    rtcclk = digitalio.DigitalInOut(board.GP6)
-    rtcdata = digitalio.DigitalInOut(board.GP7)
-    rtcce = digitalio.DigitalInOut(board.GP8)
-
-    # to make it suitable for system
-    class RTC(object):
-        @property
-        def datetime(self):
-            return rtcc.read_datetime()
-
     try:
-        rtcc = ds1302.DS1302(rtcclk,rtcdata,rtcce) # muh rtc object
-        r = RTC() # now in a good format
-        rtc.set_time_source(r)
-        del rtcclk
-        del rtcdata
-        del rtcce
-        gc.collect()
-    except OSError: # not sure how to catch if it's not available, TODO
-        pass
-    
-    dmtex("RTC clock init done")
+        import rtc
+        import ds1302
+        dmtex("RTC library loaded")
+        # rtc stuff @ init cuz otherwise system fails to access it
+        # the pins to connect it to:
+        rtcclk = digitalio.DigitalInOut(board.GP6)
+        rtcdata = digitalio.DigitalInOut(board.GP7)
+        rtcce = digitalio.DigitalInOut(board.GP8)
+
+        # to make it suitable for system
+        class RTC(object):
+            @property
+            def datetime(self):
+                return rtcc.read_datetime()
+
+        try:
+            rtcc = ds1302.DS1302(rtcclk,rtcdata,rtcce) # muh rtc object
+            r = RTC() # now in a good format
+            rtc.set_time_source(r)
+            del rtcclk
+            del rtcdata
+            del rtcce
+            gc.collect()
+        except OSError: # not sure how to catch if it's not available, TODO
+            pass
+        
+        dmtex("RTC clock init done")
+    except ImportError:
+        dmtex("CRITICAL: RTC LIBRARIES LOADING FAILED")
+dmtex("Imports complete")
 
 class ljinux():
     class history:
@@ -548,7 +563,7 @@ class ljinux():
             try:
                 ljinux.io.network = WIZNET5K(spi, cs, is_dhcp=False)
                 dmtex("Eth interface created")
-            except AssertionError:
+            except (AssertionError, NameError):
                 dmtex("Eth interface creation failed")
                 ca = False
             del spi
@@ -581,16 +596,19 @@ class ljinux():
                     gc.collect()
             else:
                 dmtex("Ethernet cable not connected / interface unavailable")
-                del modules["adafruit_wiznet5k.adafruit_wiznet5k_dhcp"]
-                del modules["adafruit_wiznet5k.adafruit_wiznet5k_socket"]
-                del modules["adafruit_wiznet5k.adafruit_wiznet5k_dns"]
-                del modules["adafruit_wiznet5k.adafruit_wiznet5k"]
-                del modules["adafruit_wiznet5k"]
-                del modules["adafruit_wsgi.wsgi_app"]
-                del modules["adafruit_requests"]
-                del modules["adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver"]
-                del modules["adafruit_wsgi"]
-                del modules["adafruit_wsgi.request"]
+                try:
+                    del modules["adafruit_wiznet5k.adafruit_wiznet5k_dhcp"]
+                    del modules["adafruit_wiznet5k.adafruit_wiznet5k_socket"]
+                    del modules["adafruit_wiznet5k.adafruit_wiznet5k_dns"]
+                    del modules["adafruit_wiznet5k.adafruit_wiznet5k"]
+                    del modules["adafruit_wiznet5k"]
+                    del modules["adafruit_wsgi.wsgi_app"]
+                    del modules["adafruit_requests"]
+                    del modules["adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver"]
+                    del modules["adafruit_wsgi"]
+                    del modules["adafruit_wsgi.request"]
+                except KeyError:
+                    pass
                 gc.collect()
                 dmtex("Unloaded networking libraries")
             del ca
@@ -602,15 +620,21 @@ class ljinux():
             spi = busio.SPI(board.GP2, MOSI=board.GP3, MISO=board.GP4)
             cs = digitalio.DigitalInOut(board.GP5)
             dmtex("SD bus ready")
-            sdcard = adafruit_sdcard.SDCard(spi, cs)
-            vfs = VfsFat(sdcard)
-            dmtex("SD mount attempted")
-            mount(vfs, "/LjinuxRoot")
-            sdcard_fs = True
-            del spi
-            del cs
-            del vfs
-            del sdcard
+            try:
+                sdcard = adafruit_sdcard.SDCard(spi, cs)
+                vfs = VfsFat(sdcard)
+                dmtex("SD mount attempted")
+                mount(vfs, "/LjinuxRoot")
+                sdcard_fs = True
+            except NameError:
+                pass
+            try:
+                del spi
+                del cs
+                del vfs
+                del sdcard
+            except NameError:
+                pass
             gc.collect()
         
         def left_key():
@@ -1266,70 +1290,78 @@ class ljinux():
                 del passwordarr
 
             def playmp3(inpt): # play mp3
-                try:
-                    with open(inpt[1], "rb") as data:
-                        mp3 = MP3Decoder(data)
-                        a = PWMAudioOut(board.GP15)
-                        print("Playing")
-                        try:
-                            a.play(mp3)
-                            while a.playing:
-                                time.sleep(.2)
-                                gc.collect()
-                                if (ljinux.io.buttone.value == True):
-                                    if a.playing:
-                                        a.pause()
-                                        print("Paused")
-                                        time.sleep(.5)
-                                        while a.paused:
-                                            if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True) and not (ljinux.io.buttone.value == True)):
-                                                a.stop()
-                                            elif (ljinux.io.buttone.value == True):
-                                                a.resume()
-                                                print("Resumed")
-                                                time.sleep(.5)
-                                            else:
-                                                time.sleep(.1)
-                        except KeyboardInterrupt:
-                            a.stop()
-                        a.deinit()
-                        mp3.deinit()
-                        print("Stopped")
-                except OSError:
-                    ljinux.based.error(4)
+                global NoAudio
+                if not NoAudio:
+                    try:
+                        with open(inpt[1], "rb") as data:
+                            mp3 = MP3Decoder(data)
+                            a = PWMAudioOut(board.GP15)
+                            print("Playing")
+                            try:
+                                a.play(mp3)
+                                while a.playing:
+                                    time.sleep(.2)
+                                    gc.collect()
+                                    if (ljinux.io.buttone.value == True):
+                                        if a.playing:
+                                            a.pause()
+                                            print("Paused")
+                                            time.sleep(.5)
+                                            while a.paused:
+                                                if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True) and not (ljinux.io.buttone.value == True)):
+                                                    a.stop()
+                                                elif (ljinux.io.buttone.value == True):
+                                                    a.resume()
+                                                    print("Resumed")
+                                                    time.sleep(.5)
+                                                else:
+                                                    time.sleep(.1)
+                            except KeyboardInterrupt:
+                                a.stop()
+                            a.deinit()
+                            mp3.deinit()
+                            print("Stopped")
+                    except OSError:
+                        ljinux.based.error(4)
+                else:
+                    print("No audio libraries loaded")
 
             def playwav(inpt): # play wav file
-                try:
-                    with open(inpt[1], "rb") as data:
-                        wav = WaveFile(data)
-                        a = PWMAudioOut(board.GP15)
-                        print("Playing")
-                        try:
-                            a.play(wav)
-                            while a.playing:
-                                time.sleep(.2)
-                                gc.collect()
-                                if (ljinux.io.buttone.value == True):
-                                    if a.playing:
-                                        a.pause()
-                                        print("Paused")
-                                        time.sleep(.5)
-                                        while a.paused:
-                                            if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True) and not (ljinux.io.buttone.value == True)):
-                                                a.stop()
-                                            elif (ljinux.io.buttone.value == True):
-                                                a.resume()
-                                                print("Resumed")
-                                                time.sleep(.5)
-                                            else:
-                                                time.sleep(.1)
-                        except KeyboardInterrupt:
-                            a.stop()
-                        a.deinit()
-                        wav.deinit()
-                        print("Stopped")
-                except OSError:
-                    ljinux.based.error(4)
+                global NoAudio
+                if not NoAudio:
+                    try:
+                        with open(inpt[1], "rb") as data:
+                            wav = WaveFile(data)
+                            a = PWMAudioOut(board.GP15)
+                            print("Playing")
+                            try:
+                                a.play(wav)
+                                while a.playing:
+                                    time.sleep(.2)
+                                    gc.collect()
+                                    if (ljinux.io.buttone.value == True):
+                                        if a.playing:
+                                            a.pause()
+                                            print("Paused")
+                                            time.sleep(.5)
+                                            while a.paused:
+                                                if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True) and not (ljinux.io.buttone.value == True)):
+                                                    a.stop()
+                                                elif (ljinux.io.buttone.value == True):
+                                                    a.resume()
+                                                    print("Resumed")
+                                                    time.sleep(.5)
+                                                else:
+                                                    time.sleep(.1)
+                            except KeyboardInterrupt:
+                                a.stop()
+                            a.deinit()
+                            wav.deinit()
+                            print("Stopped")
+                    except OSError:
+                        ljinux.based.error(4)
+                else:
+                    print("No audio libraries loaded")
             
             def catt(inpt): # kot
                 res = ""
@@ -1727,10 +1759,13 @@ class ljinux():
                 ljinux.farland.oled.fill(0) # cuz why not
                 ljinux.farland.oled.show()
                 display_availability = True
-            except RuntimeError:
+            except (RuntimeError, KeyError):
                 print("Failed to create display object, display functions will be unavailable")
-                del modules["adafruit_ssd1306"]
-                del modules["adafruit_framebuf"]
+                try:
+                    del modules["adafruit_ssd1306"]
+                    del modules["adafruit_framebuf"]
+                except KeyError:
+                    pass
                 gc.collect()
                 dmtex("Unloaded display libraries")
             ljinux.io.led.value = True
@@ -2038,135 +2073,3 @@ class ljinux():
 
         def serial():
             return input()
-
-#def lock(it_is): # to be made part of hs app
-#    if (it_is):
-#        oss.farland.pixel(2, 9, False)
-#        oss.farland.pixel(3, 9, False)
-#        oss.farland.pixel(4, 9, False)
-#        oss.farland.pixel(5, 9, False)
-#        oss.farland.pixel(6, 9, False)
-#        oss.farland.pixel(7, 9, False)
-#        oss.farland.pixel(8, 9, False)
-#        oss.farland.pixel(2, 8, False)
-#        oss.farland.pixel(3, 8, False)
-#        oss.farland.pixel(4, 8, False)
-#        oss.farland.pixel(5, 8, False)
-#        oss.farland.pixel(6, 8, False)
-#        oss.farland.pixel(7, 8, False)
-#        oss.farland.pixel(8, 8, False)
-#        oss.farland.pixel(2, 7, False)
-#        oss.farland.pixel(3, 7, False)
-#        oss.farland.pixel(4, 7, False)
-#        oss.farland.pixel(6, 7, False)
-#        oss.farland.pixel(7, 7, False)
-#        oss.farland.pixel(8, 7, False)
-#        oss.farland.pixel(2, 6, False)
-#        oss.farland.pixel(3, 6, False)
-#        oss.farland.pixel(4, 6, False)
-#        oss.farland.pixel(5, 6, False)
-#        oss.farland.pixel(6, 6, False)
-#        oss.farland.pixel(7, 6, False)
-#        oss.farland.pixel(8, 6, False)
-#        oss.farland.pixel(2, 5, False)
-#        oss.farland.pixel(3, 5, False)
-#        oss.farland.pixel(4, 5, False)
-#        oss.farland.pixel(5, 5, False)
-#        oss.farland.pixel(6, 5, False)
-#        oss.farland.pixel(7, 5, False)
-#        oss.farland.pixel(8, 5, False)
-#        #the hinge thing
-#        oss.farland.pixel(7, 4, False)
-#        oss.farland.pixel(7, 3, False)
-#        oss.farland.pixel(6, 2, False)
-#        oss.farland.pixel(5, 2, False)
-#        oss.farland.pixel(4, 2, False)
-#        oss.farland.pixel(3, 3, False)
-#        oss.farland.pixel(3, 4, False)
-#        oss.farland.pixel(3, 5, False)
-#    else:
-#        oss.farland.pixel(2, 9, False)
-#        oss.farland.pixel(3, 9, False)
-#        oss.farland.pixel(4, 9, False)
-#        oss.farland.pixel(5, 9, False)
-#        oss.farland.pixel(6, 9, False)
-#        oss.farland.pixel(7, 9, False)
-#        oss.farland.pixel(8, 9, False)
-#        oss.farland.pixel(2, 8, False)
-#        oss.farland.pixel(3, 8, False)
-#        oss.farland.pixel(4, 8, False)
-#        oss.farland.pixel(5, 8, False)
-#        oss.farland.pixel(6, 8, False)
-#        oss.farland.pixel(7, 8, False)
-#        oss.farland.pixel(8, 8, False)
-#        oss.farland.pixel(2, 7, False)
-#        oss.farland.pixel(3, 7, False)
-#        oss.farland.pixel(4, 7, False)
-#        oss.farland.pixel(6, 7, False)
-#        oss.farland.pixel(7, 7, False)
-#        oss.farland.pixel(8, 7, False)
-#        oss.farland.pixel(2, 6, False)
-#        oss.farland.pixel(3, 6, False)
-#        oss.farland.pixel(4, 6, False)
-#        oss.farland.pixel(5, 6, False)
-#        oss.farland.pixel(6, 6, False)
-#        oss.farland.pixel(7, 6, False)
-#        oss.farland.pixel(8, 6, False)
-#        oss.farland.pixel(2, 5, False)
-#        oss.farland.pixel(3, 5, False)
-#        oss.farland.pixel(4, 5, False)
-#        oss.farland.pixel(5, 5, False)
-#        oss.farland.pixel(6, 5, False)
-#        oss.farland.pixel(7, 5, False)
-#        oss.farland.pixel(8, 5, False)
-#        #the hinge thing
-#        oss.farland.pixel(7, 3, False)
-#        oss.farland.pixel(6, 2, False)
-#        oss.farland.pixel(5, 2, False)
-#        oss.farland.pixel(4, 2, False)
-#        oss.farland.pixel(3, 3, False)
-#        oss.farland.pixel(3, 4, False)
-#        oss.farland.pixel(3, 5, False)
-#
-## old circle code
-
-# initial center of the circle
-#center_x = 64
-#center_y = 40
-# how fast does it move in each direction
-#x_inc = 1
-#y_inc = 1
-# what is the starting radius of the circle
-#radius = 8
-
-## undraw the previous circle
-    #oss.farland.draw_circle(center_x, center_y, radius, col=0)
-    #
-    ## if bouncing off right
-    #if center_x + radius >= oss.farland.width():
-    #    # start moving to the left
-    #    x_inc = -1
-    ## if bouncing off left
-    #elif center_x - radius < 0:
-    #    # start moving to the right
-    #    x_inc = 1
-    #
-    ## if bouncing off top
-    #if center_y + radius >= oss.farland.height():
-    #    # start moving down
-    #    y_inc = -1
-    ## if bouncing off bottom
-    #elif center_y - radius < 0 + 12:
-    #    # start moving up
-    #    y_inc = 1
-    #
-    ## go more in the current direction
-    #center_x += x_inc
-    #center_y += y_inc
-    #
-    ## draw the new circle
-    #oss.farland.draw_circle(center_x, center_y, radius)
-    # show all the changes we just made
-    #oss.farland.draw_clock()
-    #oss.farland.frame()
-    #oss.farland.fps()
