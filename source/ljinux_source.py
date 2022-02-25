@@ -5,14 +5,19 @@
 # -----------------
 
 # Some important vars
-Version = "0.1.1"
-Circuitpython_supported_version = (7, 1, 1)
+Version = "0.2.0"
+Circuitpython_supported_version = 7
 dmesg = []
 access_log = []
 
 #core board libs
-import board
-import digitalio
+try:
+    import board
+    import digitalio
+except ImportError:
+    print("O_O nope, i'm out")
+    from sys import exit
+    exit(0)
 print("[    0.00000] Core libs loaded")
 dmesg.append("[    0.00000] Core libs loaded")
 led = digitalio.DigitalInOut(board.LED)
@@ -75,30 +80,36 @@ dmesg.append("[    0.00000] Timings reset")
 dmtex("Basic Libraries loading")
 
 #basic libs
-from sys import stdin
-from sys import stdout
-from sys import implementation
-from sys import platform
-from sys import modules
-from supervisor import runtime
-import busio
-from microcontroller import cpu
-from microcontroller import cpus
-from storage import remount
-from storage import VfsFat
-from storage import mount
-from os import chdir
-from os import rmdir
-from os import mkdir
-from os import sync
-from os import getcwd
-from os import listdir
-from os import remove
-from io import StringIO
-from usb_cdc import console
-import json
-dmtex("Basic libraries loaded")
-
+#these are absolutely needed
+try:
+    from sys import stdin
+    from sys import stdout
+    from sys import implementation
+    from sys import platform
+    from sys import modules
+    from supervisor import runtime
+    import busio
+    from microcontroller import cpu
+    from microcontroller import cpus
+    from storage import remount
+    from storage import VfsFat
+    from storage import mount
+    from os import chdir
+    from os import rmdir
+    from os import mkdir
+    from os import sync
+    from os import getcwd
+    from os import listdir
+    from os import remove
+    from io import StringIO
+    from usb_cdc import console
+    from getpass import getpass
+    import json
+    dmtex("Basic libraries loaded")
+except ImportError:
+    from sys import exit
+    dmtex("FATAL: CRITICAL LIBRARY LOAD FAILED")
+    exit(0)
 led.value = True
 #kernel cmdline.txt
 try:
@@ -110,7 +121,7 @@ try:
     gc.collect()
     dmtex("Options understood:",end=" ")
     led.value = False
-    for optt in ["fixrtc", "SKIPTEMP", "SKIPCP", "DEBUG"]: # the true/false ones
+    for optt in ["fixrtc", "SKIPTEMP", "SKIPCP", "DEBUG", "DISPLAYONLYMODE"]: # the true/false ones
         try:
             if (configg[optt] == True):
                 dmtex(optt,end=" ",timing=False)
@@ -121,7 +132,8 @@ try:
             configg.update(itt)
             del itt
             gc.collect()
-    pintab = {
+    pintab = { # used for pin identification
+        0:None,
         1:board.GP1,
         2:board.GP2,
         3:board.GP3,
@@ -151,6 +163,7 @@ try:
         27:board.GP27,
         28:board.GP28,
     }
+    # Hardware pin allocations
     for optt in ["displaySCL", "displaySDA"]:
         try:
             a = configg[optt]
@@ -158,69 +171,76 @@ try:
                 dmtex("PIN ALLOCATED, EXITING")
                 from sys import exit
                 exit(0)
+            else:
+                pin_alloc.append(a)
+            dmtex(optt+"="+str(a),end=" ",timing=False)
             del a
             gc.collect()
-            dmtex(optt,end=" ",timing=False)
         except KeyError:
             gc.collect()
     del pintab
     led.value = True
     dmtex("",timing=False)
     gc.collect()
-except OSError:
-    led.value = True
-    dmtex("Kernel config not found, assuming nothing")
-except ValueError:
-    dmtex("Kernel config syntax error, exiting")
+    dmtex("Total pin alloc: ",end="")
+    for i in pin_alloc:
+        dmtex(str(i),timing=False,end=" ")
+    dmtex("",timing=False)
+    gc.collect()
+except (ValueError, OSError):
+    led.value = False
+    dmtex("Kernel config error, cannot continue")
     from sys import exit
     exit(0)
 gc.collect()
 
 #basic checks
-if (implementation.version == Circuitpython_supported_version):
-    dmtex("Running on supported implementation")
-else:
-    dmtex("-----------------------------------\n              WARNING: Unsupported CircuitPython version\n              -----------------------------------\n              Continuing after led alert..")
-    for i in range(3):
-        led.value = True
-        time.sleep(.5)
-        led.value = False
-        time.sleep(.5)
-        led.value = True
-        time.sleep(.5)
-        led.value = False
-        time.sleep(.5)
-        led.value = True
-        time.sleep(.5)
-        led.value = False
-        time.sleep(3)
-    gc.collect()
-
-temp = cpu.temperature
-tempcheck = True
-if ((temp > 0) and (temp < 60)):
-    dmtex("Temperature OK: " + str(temp) + " Celcius")
-else:
-    dmtex("Temperature is unsafe: " + str(temp) + " Celcius. Halting!")
-    led.value = False
-    while True:
-        led.value = True
-        time.sleep(.3)
-        led.value = False
-        time.sleep(.3)
-        led.value = True
-        time.sleep(.3)
-        led.value = False
-        time.sleep(.5)
-        led.value = True
-        time.sleep(.5)
-        led.value = False
-        time.sleep(3)
+if not configg["SKIPCP"]:
+    if (implementation.version[0] == Circuitpython_supported_version):
+        dmtex("Running on supported implementation")
+    else:
+        dmtex("-----------------------------------\n              WARNING: Unsupported CircuitPython version\n              -----------------------------------\n              Continuing after led alert..")
+        for i in range(3):
+            led.value = True
+            time.sleep(.5)
+            led.value = False
+            time.sleep(.5)
+            led.value = True
+            time.sleep(.5)
+            led.value = False
+            time.sleep(.5)
+            led.value = True
+            time.sleep(.5)
+            led.value = False
+            time.sleep(3)
         gc.collect()
 
-del temp
-del tempcheck
-gc.collect()
+if not configg["SKIPTEMP"]:
+    temp = cpu.temperature
+    tempcheck = True
+    if ((temp > 0) and (temp < 60)):
+        dmtex("Temperature OK: " + str(temp) + " Celcius")
+    else:
+        dmtex("Temperature is unsafe: " + str(temp) + " Celcius. Halting!")
+        led.value = False
+        while True:
+            led.value = True
+            time.sleep(.3)
+            led.value = False
+            time.sleep(.3)
+            led.value = True
+            time.sleep(.3)
+            led.value = False
+            time.sleep(.5)
+            led.value = True
+            time.sleep(.5)
+            led.value = False
+            time.sleep(3)
+            gc.collect()
+    del temp
+    del tempcheck
+    gc.collect()
+
 dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
 led.deinit()
 del led
@@ -262,10 +282,6 @@ try:
     dmtex("Networking libraries loaded")
 except ImportError:
     dmtex("CRITICAL: NETWORKING LIBRARIES LOADING FAILED")
-
-# password input
-from getpass import getpass
-dmtex("Getpass library loaded")
 
 if not configg["fixrtc"]:
     # for rtc

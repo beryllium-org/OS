@@ -3,26 +3,33 @@ from storage import getmount
 from storage import remount
 from supervisor import disable_autoreload
 from gc import collect
-
+print("----------------\nL",end="")
 devf = False
-
+stash = ""
 try:
     f = open('/devm','r')
-    print("Development mode file detected")
+    stash += "Development mode file detected\n"
     f.close()
     devf = True
 except OSError:
     pass
-
-remount("/", readonly=False)
-m = getmount("/")
-m.label = "Ljinux"
-remount("/", readonly=True)
-
+collect()
+print("J",end="")
 if(devf != True):
     disable_usb_drive()
-    print("Locked")
+    print("IN",end="")
 else:
-    print("Unlocked")
+    remount("/", readonly=False)
+    print("I",end="")
+    m = getmount("/")
+    m.label = "Ljinux"
+    remount("/", readonly=True)
+    collect()
+    print("N",end="")
+collect()
+print("UX",end="")
 disable_autoreload()
+print(" boot core\n----------------")
+print("Output:\n"+stash)
+del stash
 collect()

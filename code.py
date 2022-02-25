@@ -9,15 +9,20 @@
 # does basic init and holds the ljinux object
 #
 
-from os import chdir
-from os import sync
-from storage import umount
-from microcontroller import reset
-from microcontroller import RunMode
-from microcontroller import on_next_reset
-from sys import exit
-from gc import collect
-from time import sleep
+try:
+    from os import chdir
+    from os import sync
+    from storage import umount
+    from microcontroller import reset
+    from microcontroller import RunMode
+    from microcontroller import on_next_reset
+    from sys import exit
+    from gc import collect
+    from time import sleep
+except ImportError:
+    print("bootloader failure")
+    from sys import exit
+    exit(0)
 
 def jrub(texx=None): #basic logging for the launcher
     print("jrub> ", texx)
