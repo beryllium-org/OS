@@ -1629,25 +1629,36 @@ class ljinux():
                     Exit_code = 245
             
             def pexecc(inpt):
+                global Version
+                nl = False
                 try:
                     pcomm = inpt[1]
+                    if str(pcomm) == "nl":
+                        nl = True
+                        pcomm = inpt[2]
                 except IndexError:
                     print("based: missing arguments")
                     return
                 try:
-                    i = 2
+                    if not nl:
+                        i = 2
+                    else:
+                        i = 3
                     while True:
-                        pcomm += " " + inpt[i]
+                        pcomm += " " + inpt[i] # it's the only safe way
                         i +=1
                 except IndexError:
                     del i
                     gc.collect()
+                if not nl:
+                    print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040")
                 print(">>> " + pcomm)
-                buffer = StringIO()
-                temp_stdout = stdout
-                stdout = buffer
-                exec(pcomm)
-                stdout = temp_stdout
+                try:
+                    exec(pcomm)
+                    gc.collect()
+                except Exception as err:
+                    print("Traceback (most recent call last):\n\t"+str(type(err))[8:-2]+": "+str(err))
+                    gc.collect()
                 del pcomm
                 
         def adv_input(whatever, _type):
