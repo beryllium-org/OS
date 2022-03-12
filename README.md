@@ -27,7 +27,7 @@ When it's plugged back in, it should run automatically and you can connect to it
 <h3>Configuration</h3>
 
 <b>GPIO PINS:</b><br />
-For the SSD1306 display: GP17(scl), GP16(sda) - libraries needed: <code>adafruit_ssd1306 adafruit_framebuf adafruit_bus_device</code><br />
+For the SSD1306 display: GP17(scl), GP16(sda) - libraries needed: <code>adafruit_ssd1306 adafruit_framebuf</code><br />
 For the ds1302 RTC: GP6(clk), GP7(data), GP8(ce) - libraries needed: <code>ds1302 adafruit_bus_device</code><br />
 Left button GP19 - Right Button GP18 - Enter Button GP20<br />
 Piezo buzzer: GP15<br />
@@ -133,6 +133,11 @@ pexec [-n] [python commands]
 
 RUNS PYTHON COMMANDS
 with -n DOES NOT PRINT THE CIRUITPY TEXT
+
+
+fpexec [-n] [file]
+
+SAME AS pexec BUT USES A FILE INSTEAD
 
 
 wait [TIME]
