@@ -993,22 +993,25 @@ class ljinux():
                     else:
                         print(i) # this gives us \n
                         j = 0
-                bins = listdir("/LjinuxRoot/bin") # now we print the things found in /bin
-                l = []
-                for i in bins:
-                    if (i.endswith(".lja")): # only bother w/ files with this extension
-                        l.append(i[:-4])
-                del bins
-                gc.collect()
-                for i in l:
-                    if (j < 2):
-                        print(i,end="                 ".replace(" ", "",len(i))) # basically the 3 wide collumn
-                        j += 1
-                    else:
-                        print(i) # this gives us a very needed\n
-                        j = 0
-                del l
-                print("\n",end="")
+                try:
+                    bins = listdir("/LjinuxRoot/bin") # now we print the things found in /bin
+                    l = []
+                    for i in bins:
+                        if (i.endswith(".lja")): # only bother w/ files with this extension
+                            l.append(i[:-4])
+                    del bins
+                    gc.collect()
+                    for i in l:
+                        if (j < 2):
+                            print(i,end="                 ".replace(" ", "",len(i))) # basically the 3 wide collumn
+                            j += 1
+                        else:
+                            print(i) # this gives us a very needed \n
+                            j = 0
+                    del l
+                    print("\n",end="")
+                except OSError: # Yea no root, we cope
+                    pass
                 gc.collect()
 
             def echoo(what): # echo command
