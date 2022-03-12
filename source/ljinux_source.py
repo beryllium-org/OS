@@ -44,7 +44,7 @@ dmesg.append("[    0.00000] Sys vars loaded")
 import time
 print("[    0.00000] Timing libraries done")
 dmesg.append("[    0.00000] Timing libraries done")
-uptimee = -time.monotonic()
+uptimee = -time.monotonic() # using uptimee as an offset, this way uptime + time.monotonic = 0 at this very moment and it goes + from here on out
 print("[    0.00000] Got time zero")
 dmesg.append("[    0.00000] Got time zero")
 
@@ -54,23 +54,27 @@ print("[    0.00000] Garbage collector loaded and enabled")
 dmesg.append("[    0.00000] Garbage collector loaded and enabled")
 
 # dmtex previous end holder
-oend = "\n"
+oend = "\n" # needed to mask print
 
 def dmtex(texx=None,end="\n",timing=True):
-    global uptimme
-    global oend
+    global uptimme # persistent offset
+    global oend # needs to be preserved for next run
     ct = "%.5f" % (uptimee+time.monotonic()) # current time since ljinux start rounded to 5 digits
-    if timing:
+    if timing: # timing is used to disable the time print in case you want to make a print(blah,end='')
         strr = "[{u}{upt}] {tx}".format(u="           ".replace(" ", "",len(ct)), upt=str(ct), tx=texx)# credits for this clusterfuck go to the python mele, our dear @C̴̝͌h̶̰̑r̷̖̓o̶̦̊n̸̻͌ö̷̧́s̷̜͊#2188
     else:
         strr = texx # the message as is
-    print(strr,end=end)
-    if ("\n" in oend):
+    print(strr,end=end) # using the provided end
+    if ("\n" == oend): # if the oend of the last print is a newline we add a new entry, otherwise we go to the last one and we add it along with the old oend
         dmesg.append(strr)
+    elif ((len(oend.replace("\n", "")) > 0) and ("\n" in oend)): # special case, there is hanging text in old oend 
+        a = len(dmesg) - 1 # the last entry
+        dmesg[a] += oend.replace("\n", "") # add the spare text
+        dmesg.append(strr) # do the new entry now
     else: # append to the last entry
         a = len(dmesg) - 1 # the last entry
         dmesg[a] += oend + strr # with the ending ofc
-    oend = end
+    oend = end # then we save the new oend for the next go
     gc.collect() # :)
 
 print("[    0.00000] Timings reset")
@@ -195,7 +199,7 @@ except (ValueError, OSError):
 gc.collect()
 
 #basic checks
-if not configg["SKIPCP"]:
+if not configg["SKIPCP"]: # beta testing :)
     if (implementation.version[0] == Circuitpython_supported_version):
         dmtex("Running on supported implementation")
     else:
@@ -215,7 +219,7 @@ if not configg["SKIPCP"]:
             time.sleep(3)
         gc.collect()
 
-if not configg["SKIPTEMP"]:
+if not configg["SKIPTEMP"]: # this exists cuz in rare instances the pico temperature probe may be broken, it has happended to me once
     temp = cpu.temperature
     tempcheck = True
     if ((temp > 0) and (temp < 60)):
@@ -689,7 +693,10 @@ class ljinux():
         def get_implementation():
             return implementation.name
         
-        sys_getters = {'sdcard': get_sdcard_fs, 'uptime': get_uptime, 'temperature': get_temp, 'display-attached': get_display_status, 'mem': get_mem_free, 'implementation_version': get_implementation_version, 'implementation': get_implementation, 'frequency': get_freq}
+        def get_volt():
+            return str(cpu.voltage)
+        
+        sys_getters = {'sdcard': get_sdcard_fs, 'uptime': get_uptime, 'temperature': get_temp, 'display-attached': get_display_status, 'memory': get_mem_free, 'implementation_version': get_implementation_version, 'implementation': get_implementation, 'frequency': get_freq, 'voltage': get_volt}
 
     class networking(object):
         wsgiServer = None
@@ -977,17 +984,32 @@ class ljinux():
                 return getcwd()
 
             def helpp(dictt): # help
-                print("LNL based\nThese shell commands are defined internally. Type `help' to see this list.")
+                print("LNL based\nThese shell commands are defined internally or are in PATH. Type `help' to see this list.") # shameless
                 j = 0
-                for i in dictt.keys():
+                for i in dictt.keys(): # the passed dict keys is the list of based internal keys
                     if (j < 2):
-                        print(i,end="                 ".replace(" ", "",len(i)))
+                        print(i,end="                 ".replace(" ", "",len(i))) # basically the 3 wide collumn
                         j += 1
                     else:
-                        print(i)
+                        print(i) # this gives us \n
                         j = 0
-                if (j != 2):
-                    print("\n",end="")
+                bins = listdir("/LjinuxRoot/bin") # now we print the things found in /bin
+                l = []
+                for i in bins:
+                    if (i.endswith(".lja")): # only bother w/ files with this extension
+                        l.append(i[:-4])
+                del bins
+                gc.collect()
+                for i in l:
+                    if (j < 2):
+                        print(i,end="                 ".replace(" ", "",len(i))) # basically the 3 wide collumn
+                        j += 1
+                    else:
+                        print(i) # this gives us a very needed\n
+                        j = 0
+                del l
+                print("\n",end="")
+                gc.collect()
 
             def echoo(what): # echo command
                 try:
@@ -1490,9 +1512,6 @@ class ljinux():
                 except IndexError:
                     Exit_code = 245
 
-            def sensors(inpt): # lm-sensors
-                print("cpu_thermal\nAdapter: Cpu device\ntemp1:     +%.2f°C" % cpu.temperature)
-
             def historgf(inpt): # history get full list
                 try:
                     if (inpt[1] == "clear"):
@@ -1627,13 +1646,16 @@ class ljinux():
                     global Exit_code
                     Exit = True
                     Exit_code = 245
+                    
+            def do_nothin(inpt):
+                pass # really this is needed
             
             def pexecc(inpt):
                 global Version
                 nl = False
                 try:
                     pcomm = inpt[1]
-                    if str(pcomm) == "nl":
+                    if str(pcomm) == "-n":
                         nl = True
                         pcomm = inpt[2]
                 except IndexError:
@@ -1651,8 +1673,7 @@ class ljinux():
                     del i
                     gc.collect()
                 if not nl:
-                    print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040")
-                print(">>> " + pcomm)
+                    print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040\n>>> " + pcomm)
                 try:
                     exec(pcomm)
                     gc.collect()
@@ -1680,7 +1701,7 @@ class ljinux():
         
         def shell(inp=None): # the shell function, warning do not touch, it has feelings
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'sensors':ljinux.based.command.sensors, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc, 'rm':ljinux.based.command.rmm,'cat':ljinux.based.command.catt, 'head':ljinux.based.command.headd}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc, 'rm':ljinux.based.command.rmm,'cat':ljinux.based.command.catt, 'head':ljinux.based.command.headd, 'COMMENT':ljinux.based.command.do_nothin}
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:

@@ -129,10 +129,10 @@ exec [FILE]
 LOADS AN .lja FILE AND EXECUTES IT'S COMMANDS
 
 
-pexec [nl] [python commands]
+pexec [-n] [python commands]
 
 RUNS PYTHON COMMANDS
-nl DOES NOT PRINT THE CIRUITPY TEXT
+with -n DOES NOT PRINT THE CIRUITPY TEXT
 
 
 wait [TIME]
