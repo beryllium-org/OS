@@ -15,7 +15,7 @@ It expects to find a <code>/LjinuxRoot</code> folder which uses as it's root. It
 It's structure:<br />
 
 It's shell which is named <b>based</b>, is equivelant to gnu bash.<br />Python can also be used with the pexec command.<br />
-You can execute commands over serial to it, or by feeding them from a <code>Init.lja<code> file.<br />
+You can execute commands over serial to it, or by feeding them from a <code>Init.lja</code> file.<br />
 The <code>Init.lja</code> has to be at <code>/LjinuxRoot/boot/</code> of the pico's internal storage or on the <code>/boot/</code> of the attached sd card.<br />
 
 <h2>Installation to a fresh pi pico:</h2><br />
@@ -36,7 +36,7 @@ Ethernet: GP10(clk), GP13(cs), GP11(mosi), GP12(miso) - libraries needed: <code>
 The neccessary libraries can be found [here](https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases)<br />
 Preferably use .mpy's to reduce storage & ram usage.<br /><br />
 
-<b>IMPORTANT NOTE: To make the pi appear as a usb device, run the command "devmode".</b><br />
+<b>IMPORTANT NOTE: To make the pi appear as a usb device, run the command <code>devmode</code>.</b><br />
 
 <h3>Build instructions for linux:</h3>
 
