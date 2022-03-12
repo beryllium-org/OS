@@ -28,7 +28,7 @@ When it's plugged back in, it should run automatically and you can connect to it
 
 <b>GPIO PINS:</b><br />
 For the SSD1306 display: GP17(scl), GP16(sda) - libraries needed: <code>adafruit_ssd1306 adafruit_framebuf</code><br />
-For the ds1302 RTC: GP6(clk), GP7(data), GP8(ce) - libraries needed: <code>ds1302 adafruit_bus_device</code><br />
+For the ds1302 RTC: GP6(clk), GP7(data), GP8(ce) - libraries needed: <code>ds1302</code><br />
 Left button GP19 - Right Button GP18 - Enter Button GP20<br />
 Piezo buzzer: GP15<br />
 Sdcard: GP2(clk),GP3(mosi),GP4(miso), GP5(cs) - libraries needed: <code>adafruit_sdcard adafruit_bus_device</code><br />
