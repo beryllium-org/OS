@@ -1442,60 +1442,6 @@ class ljinux():
                     ljinux.based.error(1)
                     gc.collect()
 
-            def neofetch(inpt): # picofetch / neofetch
-                global uptimee
-                print("    `.::///+:/-.        --///+//-:``    ",end="")
-                print(ljinux.based.system_vars["user"],end="")
-                print("@pico")
-                print("   `+oooooooooooo:   `+oooooooooooo:    ---------")
-                print("    /oooo++//ooooo:  ooooo+//+ooooo.    OS: Ljinux",end=" ")
-                print(ljinux.based.system_vars["Version"])
-                print("    `+ooooooo:-:oo-  +o+::/ooooooo:     Host: ",end="")
-                for s in board.board_id.replace('_',' ').split():
-                    print(s[0].upper() + s[1:],end=" ")
-                print(" ")
-                print("     `:oooooooo+``    `.oooooooo+-      CircuitPython:",end=" ")
-                print(str(implementation.version[0]) + "." + str(implementation.version[1]) + "." + str(implementation.version[2]))
-                print("       `:++ooo/.        :+ooo+/.`       Uptime:",end=" ")
-                neofetch_time = int(uptimee + time.monotonic())
-                uptimestr = ""
-                hours = neofetch_time // 3600 # Take out the hours
-                neofetch_time -= hours * 3600 #
-                minutes = neofetch_time // 60 # Take out the minutes
-                neofetch_time -= minutes * 60 #
-                if (hours > 0):
-                    uptimestr += str(hours) + " hours, "
-                if (minutes > 0):
-                    uptimestr += str(minutes) + " minutes, "
-                if (neofetch_time > 0):
-                    uptimestr += str(neofetch_time) + " seconds"
-                else:
-                    uptimestr = uptimestr[:-2]
-                print(uptimestr)
-                del uptimestr
-                del neofetch_time
-                del hours
-                del minutes
-                gc.collect()
-                print("          ...`  `.----.` ``..           Packages: 0 ()")
-                print("       .::::-``:::::::::.`-:::-`        Shell: Based")
-                print("      -:::-`   .:::::::-`  `-:::-       WM: Farland")
-                print("     `::.  `.--.`  `` `.---.``.::`      Terminal: TTYACM0")
-                print("         .::::::::`  -::::::::` `       CPU: ",end="")
-                print(platform + " (" + str(len((cpus))) + ") @ " + str(int(cpu.frequency/1000000)) + "MHz")
-                print("   .::` .:::::::::- `::::::::::``::.    Memory: " + str(int(264 - int(gc.mem_free())/1000)) + "KiB / 264KiB          ")
-                print("  -:::` ::::::::::.  ::::::::::.`:::-")
-                print("  ::::  -::::::::.   `-::::::::  ::::")
-                print("  -::-   .-:::-.``....``.-::-.   -::-")
-                print("   .. ``       .::::::::.     `..`..")
-                print("     -:::-`   -::::::::::`  .:::::`")
-                print("     :::::::` -::::::::::` :::::::.")
-                print("     .:::::::  -::::::::. ::::::::")
-                print("      `-:::::`   ..--.`   ::::::.")
-                print("        `...`  `...--..`  `...`")
-                print("              .::::::::::")
-                print("               `.-::::-`")
-
             def rebooto(inpt): # reboot the whole microcontroller
                 global Exit
                 global Exit_code
@@ -1650,37 +1596,53 @@ class ljinux():
             def do_nothin(inpt):
                 pass # really this is needed
             
-            def pexecc(inpt):
+            def pexecc(inpt,rc): #filtered & true source
                 global Version
+                pcomm = rc.lstrip(rc.split()[0]).replace(" ", "", 1)
                 nl = False
                 try:
-                    pcomm = inpt[1]
-                    if str(pcomm) == "-n":
+                    argss = str(inpt[1])
+                    if "-n" in argss:
                         nl = True
-                        pcomm = inpt[2]
+                        pcomm = pcomm.lstrip(rc.split()[1]).replace(" ", "", 1)
                 except IndexError:
                     print("based: missing arguments")
                     return
-                try:
-                    if not nl:
-                        i = 2
-                    else:
-                        i = 3
-                    while True:
-                        pcomm += " " + inpt[i] # it's the only safe way
-                        i +=1
-                except IndexError:
-                    del i
-                    gc.collect()
                 if not nl:
-                    print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040\n>>> " + pcomm)
+                    print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040\n>>> " + pcomm, end="")
                 try:
                     exec(pcomm)
                     gc.collect()
                 except Exception as err:
                     print("Traceback (most recent call last):\n\t"+str(type(err))[8:-2]+": "+str(err))
+                    del err
                     gc.collect()
                 del pcomm
+                del nl
+            
+            def fpexecc(inpt): #file pexec
+                global Version
+                nl = False
+                offs = 1
+                try:
+                    if "-n" in inpt[1]:
+                        nl = True
+                        offs = 2
+                except IndexError:
+                    print("based: missing arguments")
+                    return
+                if not nl:
+                    print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040\nRunning file: " + inpt[offs])
+                try:
+                    exec(open(inpt[offs]).read())
+                    gc.collect()
+                except Exception as err:
+                    print("Traceback (most recent call last):\n\t"+str(type(err))[8:-2]+": "+str(err))
+                    del err
+                    gc.collect()
+                del nl
+                del offs
+                gc.collect()
                 
         def adv_input(whatever, _type):
             res = None
@@ -1701,7 +1663,7 @@ class ljinux():
         
         def shell(inp=None): # the shell function, warning do not touch, it has feelings
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'picofetch':ljinux.based.command.neofetch, 'reboot':ljinux.based.command.rebooto, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc, 'rm':ljinux.based.command.rmm,'cat':ljinux.based.command.catt, 'head':ljinux.based.command.headd, 'COMMENT':ljinux.based.command.do_nothin}
+            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'reboot':ljinux.based.command.rebooto, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc, 'rm':ljinux.based.command.rmm,'cat':ljinux.based.command.catt, 'head':ljinux.based.command.headd, 'COMMENT':ljinux.based.command.do_nothin, 'fpexec':ljinux.based.command.fpexecc}
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:
@@ -1733,8 +1695,10 @@ class ljinux():
                                         res = function_dict["exec"](command_split)
                                     else:
                                         print("Error: No file specified")
-                                elif ((command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help", "display", "su"])): # those are special bois, they will not be special when I make the api great
+                                elif ((command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help", "display", "su", "pexec"])): # those are special bois, they will not be special when I make the api great
                                     res = function_dict[command_split[0]](command_split)
+                                elif (command_split[0] == "pexec"):
+                                    res = function_dict["pexec"](command_split,command_input)
                                 elif (command_split[0] == "help"):
                                     res = function_dict["help"](function_dict)
                                 elif (command_split[0] == "display"):
@@ -1807,7 +1771,7 @@ class ljinux():
                 ljinux.farland.oled.fill(0) # cuz why not
                 ljinux.farland.oled.show()
                 display_availability = True
-            except (RuntimeError, KeyError):
+            except (RuntimeError, KeyError, NameError):
                 print("Failed to create display object, display functions will be unavailable")
                 try:
                     del modules["adafruit_ssd1306"]
