@@ -48,7 +48,7 @@ In order for it to complete successfully you need to have the pico mounted to <c
 
 based built-in commands:<br />
 
-<code>
+```
 help [COMMAND]
 
 OUTPUTS A BASIC LIST OF COMMANDS TO SERIAL OUT
@@ -209,18 +209,18 @@ PRINT THE FIRST n LINES OF A FILE
 tail [n] [file]
 
 SAME AS HEAD, BUT PRINT THE LAST INSTEAD OF THE FIST n LINES OF A FILE
-</code>
+```
 
 <h3>Config.json</h3>
 It is equivelant to the config.txt of a raspi, however much more janky.<br /><br />
 
 example config:<br />
-<code>
+```
 {
 "fixrtc": true
 "displaySCL": 17
 "displaySDA": 16
 }
-</code>
+```
 <br />
 More stuff will be added later as the project spirals into chaos.<br />
