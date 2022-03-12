@@ -10,7 +10,7 @@ Circuitpython_supported_version = 7
 dmesg = []
 access_log = []
 
-#core board libs
+# Core board libs
 try:
     import board
     import digitalio
@@ -28,14 +28,14 @@ led.value = False
 # Pin allocation stuff
 pin_alloc = []
 
-# default password, aka the password if no /LjinuxRoot/etc/passwd is found
+# Default password, aka the password if no /LjinuxRoot/etc/passwd is found
 dfpasswd = "Ljinux"
 
-#exit code holder, has to be global
+# Exit code holder, has to be global
 Exit = False
 Exit_code = 0
 
-#hardware autodetect vars, starts assuming everything is missing
+# Hardware autodetect vars, starts assuming everything is missing
 sdcard_fs = False
 display_availability = False
 print("[    0.00000] Sys vars loaded")
@@ -80,11 +80,11 @@ def dmtex(texx=None,end="\n",timing=True):
 print("[    0.00000] Timings reset")
 dmesg.append("[    0.00000] Timings reset")
 
-# now we can use this function to get a timing
+# Now we can use this function to get a timing
 dmtex("Basic Libraries loading")
 
-#basic libs
-#these are absolutely needed
+# Basic libs
+# These are absolutely needed
 try:
     from sys import stdin
     from sys import stdout
@@ -115,7 +115,7 @@ except ImportError:
     dmtex("FATAL: CRITICAL LIBRARY LOAD FAILED")
     exit(0)
 led.value = True
-#kernel cmdline.txt
+# Kernel cmdline.txt
 try:
     led.value = False
     with open("/config.json",'r') as f:
@@ -954,30 +954,38 @@ class ljinux():
             def not_found(errr): # command not found
                 print("based: " + errr[0] + ": command not found")
 
-            def execc(whatt): # exec a file
+            def execc(argj): # exec a based script
                 global Exit
                 global Exit_code
-                if (whatt[0] == "exec"):
-                    for i in range(len(whatt)-1):
-                        whatt[i] = whatt[i+1]
-
+                if (argj[0] == "exec"):
+                    argj = argj[1:] # we don't want to carry on the exec command itself
                 try:
                     ljinux.io.led.value = False
-                    f = open(whatt[0], 'r')
-                    lines = f.readlines()
+                    f = open(argj[0], 'r') # open the file to run
+                    lines = f.readlines() # get all lines
                     count = 0
                     ljinux.io.led.value = True
                     for line in lines:
                         ljinux.io.led.value = False
-                        lines[count] = line.strip()
+                        lines[count] = line.strip() # command_split
                         count += 1
                         ljinux.io.led.value = True
+                    simplif = ""
+                    for i in argj:
+                        simplif += i + " "
+                    simplif = simplif[:-1]
+                    ljinux.based.shell("argj = " + simplif) # provide arguments
                     for commandd in lines:
-                        ljinux.based.shell(commandd)
+                        ljinux.based.shell(commandd) # yes stonks
                     f.close()
+                    try:
+                        del ljinux.based.user_vars["argj"]
+                    except KeyError:
+                        pass
+                    gc.collect()
                 except OSError:
                     ljinux.io.led.value = True
-                    print("based: "+ whatt[0] +": No such file or directory\n")
+                    print("based: "+ argj[0] +": No such file or directory\n")
 
             def pwd(dirr): # print working directory
                 print(getcwd())
@@ -1500,16 +1508,16 @@ class ljinux():
                 else:
                     ljinux.based.error(1)
             
-            def dmesgg(inpt):
+            def dmesgg(inpt): # print the dmesg
                 global dmesg
                 for i in dmesg:
                     print(i)
                     gc.collect()
             
-            def ping(inpt):
+            def ping(inpt): # brok
                 print("Ping google.com: %d ms" % ljinux.io.network.ping("google.com"))
                 
-            def webs(inpt):
+            def webs(inpt): # not nginx, more like njinx
                 ljinux.networking.test()
                 if ljinux.io.network_online:
                     try:
@@ -1561,7 +1569,7 @@ class ljinux():
                 else:
                     print("Network unavailable")
                 
-            def touchh(inpt):
+            def touchh(inpt): # equivelant to linux "touch"
                 try:
                     f = open(inpt[1],'r')
                     f.close()
@@ -1579,7 +1587,7 @@ class ljinux():
                     if not sdcard_fs:
                         remount("/",True)
             
-            def devv(inpt):
+            def devv(inpt): # Developer mode enabler, basedically "touch devm"
                 print("Enabling ljinux developer mode..\nKeep in mind the pico will restart automatically, after it's enabled.")
                 time.sleep(5)
                 try:
@@ -1714,6 +1722,10 @@ class ljinux():
                                     res = function_dict["su"](command_split,ljinux.based.system_vars)
                                 elif ((command_split[1] == "=") or (command_split[0] == "var")):
                                     res = function_dict["var"](command_split, ljinux.based.user_vars, ljinux.based.system_vars)
+                                else:
+                                    raise IndexError # quick & dirty fix, but makes sense
+                                    # & this took me like 20 minutes to debug
+                                    # shit gets lost real ez when it comes to input
                             except IndexError:
                                 bins = listdir("/LjinuxRoot/bin")
                                 certain = False
