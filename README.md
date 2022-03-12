@@ -7,8 +7,8 @@ This is not a real os / linux distrubution, but here we are.<br />
 
 <h3>Anyways, since you are still reading let's start with the basics.</h3>
 It runs on the rpi pico, circuitpython 7.<br />
-You can optionally attach a SSD1306 display for output, a ds1302 RTC (make sure to set `fixrtc` to false from `config.json`) for persistent time or a w5500 networking breakout board for networking.<br />
-For the missing hardware the functions will be automatically deactivated. (The hardware will also be deactivated in case of missing libraries.)<br />
+You can optionally attach a SSD1306 display for output, a ds1302 RTC \(make sure to set `fixrtc` to false from `config.json`\) for persistent time or a w5500 networking breakout board for networking.<br />
+For the missing hardware the functions will be automatically deactivated. \(The hardware will also be deactivated in case of missing libraries.\)<br />
 More info in Configuration.<br />
 It expects to find a `/LjinuxRoot` folder which uses as it's root. It can be on the built in fs, or an sd card, more details at Configuration.<br />
 
@@ -20,20 +20,20 @@ The `Init.lja` has to be at `/LjinuxRoot/boot/` of the pico's internal storage o
 
 <h2>Installation to a fresh pi pico:</h2><br />
 
-Install Circuitpython 7.X.X onto the pico, and unzip this entire repo (or a release), except for the "source" folder onto the CIRCUITPY drive.<br />
-Then eject it and fully disconnect it from the pc. (It is important to power cycle the pi.)<br />
-When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)
+Install Circuitpython 7.X.X onto the pico, and unzip this entire repo \(or a release\), except for the "source" folder onto the CIRCUITPY drive.<br />
+Then eject it and fully disconnect it from the pc. \(It is important to power cycle the pi.\)<br />
+When it's plugged back in, it should run automatically and you can connect to it via serial. \(You can use putty on windows, or gnu/screen on gnu/linux\)
 
 <h3>Configuration</h3>
 
 <b>GPIO PINS:</b><br />
-For the SSD1306 display: GP17(scl), GP16(sda) - libraries needed: `adafruit_ssd1306 adafruit_framebuf adafruit_bus_device`<br />
-For the ds1302 RTC: GP6(clk), GP7(data), GP8(ce) - libraries needed: `ds1302 adafruit_bus_device`<br />
+For the SSD1306 display: GP17\(scl\), GP16\(sda\) - libraries needed: `adafruit_ssd1306 adafruit_framebuf adafruit_bus_device`<br />
+For the ds1302 RTC: GP6\(clk\), GP7\(data\), GP8\(ce\) - libraries needed: `ds1302 adafruit_bus_device`<br />
 Left button GP19 - Right Button GP18 - Enter Button GP20<br />
 Piezo buzzer: GP15<br />
-Sdcard: GP2(clk),GP3(mosi),GP4(miso), GP5(cs) - libraries needed: `adafruit_sdcard adafruit_bus_device`<br />
-Ethernet: GP10(clk), GP13(cs), GP11(mosi), GP12(miso) - libraries needed: `adafruit_wiznet5k adafruit_wsgi adafruit_requests adafruit_bus_device`<br /><br />
-The neccessary libraries can be found [here](https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases)<br />
+Sdcard: GP2\(clk\),GP3\(mosi\),GP4\(miso\), GP5\(cs\) - libraries needed: `adafruit_sdcard adafruit_bus_device`<br />
+Ethernet: GP10\(clk\), GP13\(cs\), GP11\(mosi\), GP12\(miso\) - libraries needed: `adafruit_wiznet5k adafruit_wsgi adafruit_requests adafruit_bus_device`<br /><br />
+The neccessary libraries can be found [here]\(https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases\)<br />
 Preferably use .mpy's to reduce storage & ram usage.<br /><br />
 
 <b>IMPORTANT NOTE: To make the pi appear as a usb device, run the command "devmode".</b><br />
@@ -42,7 +42,7 @@ Preferably use .mpy's to reduce storage & ram usage.<br /><br />
 
 In order to build & upload a binary different than the one provided to the pico, enable developer mode on the pico and from within the "source" folder, run make.<br />
 The binary will be automatically uploaded to the pico and be used upon the next reload/reboot of the device.<br />
-In order for it to complete successfully you need to have the pico mounted to `/media/$(shell whoami)/LJINUX/`.
+In order for it to complete successfully you need to have the pico mounted to `/media/$\(shell whoami\)/LJINUX/`.
 
 <h3>Ljinux Manual:</h3>
 
@@ -67,7 +67,7 @@ var [DATA]...
 
 CREATE A NEW VARIABLE. SYNTAX: var a = "ok"
 NUMBERS DO NOT NEED BRACKETS.
-THE COMMAND ITSELF IS OPTIONAL (a = "is also valid")
+THE COMMAND ITSELF IS OPTIONAL \(a = "is also valid"\)
 
 
 uname [-a]
@@ -188,7 +188,7 @@ THIS PROHIBITS WRITE ACCESS TO THE BUILT IN FILESYSTEM
 reboot [mode]
 
 REBOOTS THE MICROCONTROLLER
-OPTIONALLY YOU CAN PASS A REBOOT MODE (safemode, uf2, bootloader)
+OPTIONALLY YOU CAN PASS A REBOOT MODE \(safemode, uf2, bootloader\)
 
 
 dmesg
