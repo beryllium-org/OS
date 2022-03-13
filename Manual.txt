@@ -1,0 +1,231 @@
+ /======================================\
+/-Ljinux standalone documentation sheet--\
+\-----| bill88t |------------------------/
+ \======================================/
+
+      /---------------|
+----<| Basic commands |
+      \---------------|
+
+help [COMMAND]
+
+OUTPUTS A BASIC LIST OF COMMANDS TO SERIAL OUT
+
+cd [DIR]...
+
+CHANGES TO SPECIFIED DIRECTORY
+
+
+echo [DATA]...
+
+PRINT SOME VARIABLES OR TEXT ONTO SERIAL OUT
+
+
+var [DATA]...
+
+CREATE A NEW VARIABLE. SYNTAX: var a = "ok"
+NUMBERS DO NOT NEED BRACKETS.
+THE COMMAND ITSELF IS OPTIONAL (a = "is also valid")
+
+
+uname [-a]
+
+OUTPUTS THE INFO ABOUT THE DEVICE TO SERIAL OUT
+
+
+mkdir [DIR]...
+
+MAKE A NEW DIRECTORY
+
+
+rmdir [DIR]...
+
+DELETE A DIRECTORY
+
+
+rm [FILE]...
+
+DELETE A FILE
+
+
+ls [OPTIONS]... [DIR]...
+
+OUTPUTS THE DIRECTORY LISTING TO SERIAL OUT
+
+
+pwd
+
+OUTPUTS THE CURRENT DIRECTORY TO SERIAL OUT
+
+
+display [OPERATION] [OPERATION DATA]
+
+DISPLAYS SOMETHING ON THE I2C DISPLAY
+RETURNS OBJECT ID, DO NOT LOSE IT
+BUDGET DIDNT ALLOW PORTING WAYLAND, SO I MADE FARLAND
+OPERATIONS:
+
+text
+
+dot
+
+line
+
+rectangle
+
+square
+
+circle
+
+rhombus
+
+move
+
+delete
+
+
+exec [FILE]
+
+LOADS AN .lja FILE AND EXECUTES IT'S COMMANDS
+
+
+pexec [-n] [python commands]
+
+RUNS PYTHON COMMANDS
+with -n DOES NOT PRINT THE CIRUITPY TEXT
+
+
+fpexec [-n] [file]
+
+SAME AS pexec BUT USES A FILE INSTEAD
+
+
+wait [TIME]
+
+IN SECONDS
+
+
+goto [LINE]
+
+GOTO INTERPRETED LINE AND RERUN FROM THERE
+
+
+exit [CODE]
+
+EXIT THE CURRENT PROCESS WITH AN EXIT CODE, DEFAULT = 0
+
+
+time [set]...
+
+VIEW THE TIME, OR SET IT
+VALID FORMAT "time set dd mm yyyy hr mm ss"
+
+
+su
+
+DISABLE SECURITY, ASKS FOR PASSWORD
+DEFAULT PASSWORD == Ljinux
+
+
+*(external) picofetch
+
+NEOFETCH FOR THE PICO OFC
+
+
+history [save/load/clear]
+
+DISPLAYS THE HISTORY
+
+
+webserver [args]
+
+A INTEGRATED WEBSERVER
+UNLESS A PATH IS GIVEN AS AN ARGUMENT, IT WILL TRY TO SERVE /ljinux/var/www/default/
+SEND "webserver -k" TO KILL
+
+
+devmode
+
+ENABLES USB ACCESS AND OTHER DEVELOPMENT FEATURES
+THIS PROHIBITS WRITE ACCESS TO THE BUILT IN FILESYSTEM
+
+
+reboot [mode]
+
+REBOOTS THE MICROCONTROLLER
+OPTIONALLY YOU CAN PASS A REBOOT MODE (safemode, uf2, bootloader)
+
+
+dmesg
+
+PRINTS OUT THE DMESG LOG
+
+
+cat [file]
+
+PRINTS THE CONTENTS OF A FILE
+
+
+head [n] [file]
+
+PRINT THE FIRST n LINES OF A FILE
+
+
+tail [n] [file]
+
+SAME AS HEAD, BUT PRINT THE LAST INSTEAD OF THE FIST n LINES OF A FILE
+
+
+*(external) sensors
+
+PRINTS THE CURRENT SYSTEM SENSORS DATA
+
+
+---------------------------------
+*(external) commands are those that are not hard-coded into the ljinux binary, but instead provided within /LjinuxRoot/bin
+
+      /------------|
+----<| Config.json |
+      \------------|
+
+example config:
+
+{
+"fixrtc": true
+"displaySCL": 17
+"displaySDA": 16
+}
+
+unused keys:
+Later
+
+      /----------|
+----<| Scripting |
+      \----------|
+      
+Based script files need to have the .lja file extension. All internal or external commands can be used in scripts.
+To have a script appear as a command, put it in /LjinuxRoot/bin/ or in the /bin of the sdcard.
+To create a comment, simply write COMMENT in the beginning of the line.
+
+To execute python code, you are advised to use pexec & fpexec.
+The scope is the same as the one of ljinux and you can call & alter ljinux data freely. Security is not important when you don't have internet or usb.
+
+      /---------------|
+----<| Repo & Mirrors |
+      \---------------|
+
+The source & releases of Ljinux are primarily being made available to Github at: https://github.com/bill88t/ljinux
+However it is also mirrored to my self-hosted Gitea instance at: https://git.port1.cf/bill88t/ljinux
+
+      /-----------|
+----<| Deployment |
+      \-----------|
+
+The bare minimum of files needed for ljinux to run is:
+ - boot.py
+ - code.py
+ - config.json
+ - ljinux.mpy
+
+Without them Ljinux cannot function at all.
+However it's highly recommended to have a root folder ("LjinuxRoot" or an sdcard) present.

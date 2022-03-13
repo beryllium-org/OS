@@ -1491,22 +1491,97 @@ class ljinux():
                 Exit_code = 244
                 Exit = True
 
-            def iff(inpt): # the if, the pinnacle of ai
+            def iff(inpt): # the if, the pinnacle of ai WIP
                 condition = []
                 complete = False
+                next_part = None
                 if (inpt[1] == "["):
                     for i in range(2,len(inpt)):
                         if (inpt[i] == "]"):
-                            break;
                             complete = True
+                            next_part = i+1
+                            break
                         else:
                             condition.append(inpt[i])
                     if complete:
-                        print(str(condition))
+                        try:
+                            val = False
+                            need_new_cond = False
+                            i = 0
+                            while (i < len(condition)-1):
+                                if condition[i] == "argj": # this is an argument check
+                                    i += 1 # we can move on as we know of the current situation
+                                    if condition[i] == "has": # check if condition is present
+                                        gc.collect()
+                                        i += 1 # we have to keep moving
+                                        if condition[i] in ljinux.based.user_vars["argj"]: # it's in!
+                                            val = True
+                                            need_new_cond = True
+                                        else:
+                                            val = False
+                                            need_new_cond = True
+                                    elif (condition[i].startswith("\"") and condition[i].endswith("\"")) and ((condition[i+1] == "is") or (condition[i+1] == "==") or (condition[i+1] == "=")): # check next arg for name and the one ahead of it for value
+                                        gc.collect() # "high" mem usage
+                                        namee = condition[i][1:-1] # remove ""
+                                        i += 2
+                                        try:
+                                            if namee in ljinux.based.user_vars["argj"]: # it's in!
+                                                pos = ljinux.based.user_vars["argj"].find(namee)
+                                                sz = len(namee)
+                                                nextt = ljinux.based.user_vars["argj"][pos+sz+1:]
+                                                cut = nextt.find(" ")+1
+                                                del sz
+                                                del pos
+                                                if cut != 0:
+                                                    nextt = nextt[:nextt.find(" ")+1]
+                                                del cut
+                                                if nextt == condition[i][1:-1]:
+                                                    val = True
+                                                    need_new_cond = True
+                                                else:
+                                                    val = False
+                                                    need_new_cond = True
+                                                i += 1
+                                            else:
+                                                raise KeyError
+                                            del namee
+                                            gc.collect()
+                                        except KeyError:
+                                            print("based: Arg not in argj")
+                                elif condition[i] == "and": # and what
+                                    i += 1 # just read the argj, i'm not gonna copy the comments
+                                    if val == 0: # no need to keep goin, just break;
+                                        break
+                                    else:
+                                        need_new_cond = False
+                                elif condition[i] == "or": # or what
+                                    i += 1
+                                    if val == 1: # no need to keep goin, just break;
+                                        break
+                                    else:
+                                        need_new_cond = False
+                                elif condition[i].isdigit(): # meth
+                                    i += 1 # todo
+                                else:
+                                    print("based: Invalid action type: " + condition[i])
+                                    break
+                            if val == 1:
+                                ljinux.based.shell(' '.join(inpt[next_part:]))
+                            del next_part
+                            del val
+                            gc.collect()
+                        except KeyError:
+                            gc.collect()
+                            print("based: Invalid condition type")
+                        gc.collect()
                     else:
                         print("based: Incomplete condition")
                 else:
                     ljinux.based.error(1)
+                del need_new_cond
+                del complete
+                del condition
+                gc.collect()
             
             def dmesgg(inpt): # print the dmesg
                 global dmesg
@@ -1612,8 +1687,7 @@ class ljinux():
                 pcomm = rc.lstrip(rc.split()[0]).replace(" ", "", 1)
                 nl = False
                 try:
-                    argss = str(inpt[1])
-                    if "-n" in argss:
+                    if "-n" in inpt[1]:
                         nl = True
                         pcomm = pcomm.lstrip(rc.split()[1]).replace(" ", "", 1)
                 except IndexError:
@@ -1623,13 +1697,14 @@ class ljinux():
                     print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040\n>>> " + pcomm, end="")
                 try:
                     exec(pcomm)
+                    del pcomm
                     gc.collect()
                 except Exception as err:
                     print("Traceback (most recent call last):\n\t"+str(type(err))[8:-2]+": "+str(err))
                     del err
                     gc.collect()
-                del pcomm
                 del nl
+                gc.collect()
             
             def fpexecc(inpt): #file pexec
                 global Version
@@ -1645,7 +1720,9 @@ class ljinux():
                 if not nl:
                     print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040\nRunning file: " + inpt[offs])
                 try:
-                    exec(open(inpt[offs]).read())
+                    a = open(inpt[offs]).read()
+                    exec(a)
+                    del a
                     gc.collect()
                 except Exception as err:
                     print("Traceback (most recent call last):\n\t"+str(type(err))[8:-2]+": "+str(err))
