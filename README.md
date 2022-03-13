@@ -44,6 +44,6 @@ In order to build & upload a binary different than the one provided to the pico,
 The binary will be automatically uploaded to the pico and be used upon the next reload/reboot of the device.<br />
 In order for it to complete successfully you need to have the pico mounted to <code>/media/$(shell whoami)/LJINUX/</code>.
 
-<h3>A complete Ljinux manual can also be found at [Manual.txt](https://github.com/bill88t/ljinux/blob/main/Manual.txt)</h3>
+<h3>A complete Ljinux manual can also be found at [Manual](https://github.com/bill88t/ljinux/blob/main/Manual.txt)</h3>
 
 More stuff will be added later as the project spirals into chaos.<br />
