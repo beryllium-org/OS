@@ -295,7 +295,7 @@ if not configg["fixrtc"]:
         rtcce = digitalio.DigitalInOut(board.GP8)
 
         # to make it suitable for system
-        class RTC(object):
+        class RTC:
             @property
             def datetime(self):
                 return rtcc.read_datetime()
@@ -525,10 +525,9 @@ class ljinux():
                             return rstr
             return None # no end_char yet
     
-    class backrounding(object):
+    class backrounding:
         webserver = False
-        def main_tick(loud=False):
-            gc.collect()
+        def main_tick(loud=False): # this run in between of shell character captures
             if ljinux.backrounding.webserver:
                 try:
                     ljinux.networking.wsgiServer.update_poll()
@@ -537,9 +536,8 @@ class ljinux():
                     print("Error:\n" + str(access_log))
             if loud:
                 print(str(gc.mem_free()))
-            gc.collect()
 
-    class io(object):
+    class io:
         # activity led
         led = digitalio.DigitalInOut(board.LED)
         led.direction = digitalio.Direction.OUTPUT
@@ -691,7 +689,7 @@ class ljinux():
         
         sys_getters = {'sdcard': get_sdcard_fs, 'uptime': get_uptime, 'temperature': get_temp, 'display-attached': get_display_status, 'memory': get_mem_free, 'implementation_version': get_implementation_version, 'implementation': get_implementation, 'frequency': get_freq, 'voltage': get_volt}
 
-    class networking(object):
+    class networking:
         wsgiServer = None
         
         def get_content_type(filee):
@@ -757,7 +755,7 @@ class ljinux():
             else:
                 ljinux.based.error(5)
 
-    class based(object):
+    class based:
         silent = False
         user_vars = {'history-file': "/LjinuxRoot/home/pi/.history"} # the variables defined and modified by the user
         system_vars = {'user': "root", 'security': "off", 'Init-type': "oneshot"} # the variables defined and modified by the system
@@ -1476,7 +1474,7 @@ class ljinux():
                     ljinux.history.getall()
 
             def clearr(inpt): # try to clear the screen
-                print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") # yea, I can't do much more than that in serial.. :(
+                print("\n" * 100) # yea, I can't do much more than that in serial.. :(
 
             def haltt(inpt):
                 global Exit
@@ -1509,12 +1507,10 @@ class ljinux():
                                         i += 1 # we have to keep moving
                                         if condition[i] in ljinux.based.user_vars["argj"]: # it's in!
                                             val = True
-                                            need_new_cond = True
                                         else:
                                             val = False
-                                            need_new_cond = True
+                                        need_new_cond = True
                                     elif (condition[i].startswith("\"") and condition[i].endswith("\"")) and ((condition[i+1] == "is") or (condition[i+1] == "==") or (condition[i+1] == "=")): # check next arg for name and the one ahead of it for value
-                                        gc.collect() # "high" mem usage
                                         namee = condition[i][1:-1] # remove ""
                                         i += 2
                                         try:
@@ -1525,7 +1521,7 @@ class ljinux():
                                                 cut = nextt.find(" ")+1
                                                 del sz
                                                 del pos
-                                                if cut != 0:
+                                                if cut is not 0:
                                                     nextt = nextt[:nextt.find(" ")+1]
                                                 del cut
                                                 if nextt == condition[i][1:-1]:
@@ -1538,7 +1534,6 @@ class ljinux():
                                             else:
                                                 raise KeyError
                                             del namee
-                                            gc.collect()
                                         except KeyError:
                                             print("based: Arg not in argj")
                                 elif condition[i] == "and": # and what
@@ -1562,9 +1557,7 @@ class ljinux():
                                 ljinux.based.shell(' '.join(inpt[next_part:]))
                             del next_part
                             del val
-                            gc.collect()
                         except KeyError:
-                            gc.collect()
                             print("based: Invalid condition type")
                         gc.collect()
                     else:
@@ -1827,7 +1820,7 @@ class ljinux():
                     ljinux.io.led.value = True
                     return res
 
-    class farland(object): # wayland, but like a farfetched dream
+    class farland: # wayland, but like a farfetched dream
         # the screen holder
         oled = None
         # the time variables
@@ -2143,30 +2136,18 @@ class ljinux():
                 ljinux.farland.frame_poi = 0
         
         def frames_av():
-            average = 0
-            for i in range(10):
-                average += ljinux.farland.frames[i]
-                average = 1/ (average / 10)
+            average = sum([1/(ljinux.farland.frames[i]/10) for i in range(10)])
             print(average)
 
-    class get_input(object):
+    class get_input:
         def left_key():
-            if (ljinux.io.buttonl.value == True):
-                return True
-            else:
-                return False
+            return ljinux.io.buttonl.value
 
         def right_key():
-            if (ljinux.io.buttonr.value == True):
-                return True
-            else:
-                return False
+            return ljinux.io.buttonr.value
 
         def enter_key():
-            if (ljinux.io.buttone.value == True):
-                return True
-            else:
-                return False
+            return ljinux.io.buttone.value
 
         def serial():
             return input()
