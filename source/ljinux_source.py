@@ -203,7 +203,7 @@ if not configg["SKIPCP"]: # beta testing :)
     if (implementation.version[0] == Circuitpython_supported_version):
         dmtex("Running on supported implementation")
     else:
-        dmtex("-----------------------------------\n              WARNING: Unsupported CircuitPython version\n              -----------------------------------\n              Continuing after led alert..")
+        dmtex('-' * 42 + "\n" + " " * 14 + "WARNING: Unsupported CircuitPython version\n" + " " * 14 + "Continuing after led alert..\n" + " " * 14  + '-' * 42) # mariospapaz#2188 was the reason
         for i in range(3):
             led.value = True
             time.sleep(.5)
@@ -228,17 +228,10 @@ if not configg["SKIPTEMP"]: # this exists cuz in rare instances the pico tempera
         dmtex("Temperature is unsafe: " + str(temp) + " Celcius. Halting!")
         led.value = False
         while True:
-            led.value = True
-            time.sleep(.3)
-            led.value = False
-            time.sleep(.3)
-            led.value = True
-            time.sleep(.3)
-            led.value = False
-            time.sleep(.5)
-            led.value = True
-            time.sleep(.5)
-            led.value = False
+            for i in range(3): # mariospapaz#2188 was the reason
+                for j in range(5):
+                    led.value = not led.value
+                    time.sleep(.5)
             time.sleep(3)
             gc.collect()
     del temp
