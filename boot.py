@@ -6,7 +6,7 @@ from storage import (
 
 from supervisor import disable_autoreload
 
-print("{- * 16}\nL", end="")
+print('-' * 16 + "\nL",end="")
 
 devf = False
 stash = ""
@@ -32,5 +32,5 @@ else:
     
 print("UX",end="")
 disable_autoreload()
-print(" boot core\n{- * 16}")
+print(" boot core\n" + '-' * 16)
 print("Output:\n", stash)

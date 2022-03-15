@@ -179,12 +179,13 @@ try:
                 pin_alloc.append(a)
             dmtex(optt+"="+str(a),end=" ",timing=False)
             del a
-            gc.collect()
         except KeyError:
-            gc.collect()
+            pass
+    
     del pintab
     led.value = True
     dmtex("",timing=False)
+    gc.collect()
     gc.collect()
     dmtex("Total pin alloc: ",end="")
     for i in pin_alloc:
@@ -537,7 +538,6 @@ class ljinux():
             if loud:
                 print(str(gc.mem_free()))
             gc.collect()
-                
 
     class io(object):
         # activity led
