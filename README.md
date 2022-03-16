@@ -40,8 +40,8 @@ Download the zip (The 7.x-mpy variant), extract it & copy the libraries you want
 
 <h3>Contributors:</h3>
 
--> [bill88t](https://github.com/bill88t) - @bill88t#4044<br />
--> [Marios](https://github.com/mariospapaz) - @mariospapaz#2188
+-> [bill88t](https://github.com/bill88t) - @bill88t#4044 <br />
+-> [Marios](https://github.com/mariospapaz) - @mariospapaz#2188 <br />
 -> [mdaadoun](https://github.com/mdaadoun)
 
 <h3>Build instructions for linux:</h3>
