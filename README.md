@@ -38,6 +38,11 @@ Preferably use .mpy's to reduce storage & ram usage.<br /><br />
 
 <b>IMPORTANT NOTE: To make the pi appear as a usb device, run the command <code>devmode</code>.</b><br />
 
+<h3>Contributors:</h3>
+
+-> [bill88t](https://github.com/bill88t) - @bill88t#4044<br />
+-> [Marios](https://github.com/mariospapaz) - @mariospapaz#2188
+
 <h3>Build instructions for linux:</h3>
 
 In order to build & upload a binary different than the one provided to the pico, enable developer mode on the pico and from within the "source" folder, run make.<br />
