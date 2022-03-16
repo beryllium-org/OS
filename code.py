@@ -22,6 +22,7 @@ try:
     
     from gc import collect
     from time import sleep
+    
 except ImportError:
     print("bootloader failure")
     exit(0)
@@ -90,18 +91,23 @@ del oss
 collect()
 if (Exit_code == 245):
     reset()
+    
 elif (Exit_code == 244):
     print("[ OK ] Reached target: Halt")
     while True:
         sleep(3600)
+        
 elif (Exit_code == 243):
     on_next_reset(RunMode.BOOTLOADER)
     reset()
+    
 elif (Exit_code == 242):
     on_next_reset(RunMode.SAFE_MODE)
     reset()
+    
 elif (Exit_code == 241):
     on_next_reset(RunMode.UF2)
     reset()
+    
 else:
     exit(Exit_code)
