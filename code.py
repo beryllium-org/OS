@@ -16,7 +16,6 @@ try:
     from storage import umount
     
     from microcontroller import (
-        umount,
         RunMode,
         on_next_reset
     )

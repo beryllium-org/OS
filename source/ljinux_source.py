@@ -89,21 +89,17 @@ dmtex("Basic Libraries loading")
 
 # Basic libs
 # These are absolutely needed
+
+from sys import (
+    stdin,
+    stdout,
+    implementation,
+    platform,
+    modules,
+    exit
+) # if this import fails, idk
+
 try:
-    from sys import stdin
-    from sys import stdout
-    from sys import implementation
-    from sys import platform
-    from sys import modules
-
-    from sys import (
-        stdin,
-        stdout,
-        implementation,
-        platform,
-        modules,
-    )
-
     from supervisor import runtime
     import busio
     
@@ -116,7 +112,6 @@ try:
     )
 
     from os import (
-
         chdir, rmdir, mkdir,
         sync, getcwd, listdir,
         remove 
@@ -129,97 +124,132 @@ try:
     
     dmtex("Basic libraries loaded")
 except ImportError:
-    from sys import exit
     dmtex("FATAL: CRITICAL LIBRARY LOAD FAILED")
     exit(0)
 
 led.value = True
+
 # Kernel cmdline.txt
 try:
     led.value = False
-    with open("/config.json",'r') as f:
-        configg = json.load(f)
+    with open("/config.json",'r') as f: # load the config file
+        configg = json.load(f) # and parse it as a json
         led.value = True
         f.close()
-    gc.collect()
-    dmtex("Options understood:",end=" ")
-    led.value = False
-    for optt in ["fixrtc", "SKIPTEMP", "SKIPCP", "DEBUG", "DISPLAYONLYMODE"]: # the true/false ones
-        try:
-            if (configg[optt] == True):
-                dmtex(optt,end=" ",timing=False)
-            else:
-                configg[optt] = False
-        except KeyError:
-            itt = {str(optt): False}
-            configg.update(itt)
-            del itt
-            gc.collect()
-    pintab = { # used for pin identification
-        0:None,
-        1:board.GP1,
-        2:board.GP2,
-        3:board.GP3,
-        4:board.GP4,
-        5:board.GP5,
-        6:board.GP6,
-        7:board.GP7,
-        8:board.GP8,
-        9:board.GP9,
-        10:board.GP10,
-        11:board.GP11,
-        12:board.GP12,
-        13:board.GP13,
-        14:board.GP14,
-        15:board.GP15,
-        16:board.GP16,
-        17:board.GP17,
-        18:board.GP18,
-        19:board.GP19,
-        20:board.GP20,
-        21:board.GP21,
-        22:board.GP22,
-        23:board.GP23,
-        24:board.GP24,
-        25:board.GP25,
-        26:board.GP26,
-        27:board.GP27,
-        28:board.GP28,
-    }
-    # Hardware pin allocations
-    for optt in ["displaySCL", "displaySDA"]:
-        try:
-            a = configg[optt]
-            if a in pin_alloc:
-                dmtex("PIN ALLOCATED, EXITING")
-                from sys import exit
-                exit(0)
-            else:
-                pin_alloc.append(a)
-            dmtex(optt+"="+str(a),end=" ",timing=False)
-            del a
-        except KeyError:
-            pass
-    
-    del pintab
-    led.value = True
-    dmtex("",timing=False)
-    gc.collect()
-    gc.collect()
-    dmtex("Total pin alloc: ",end="")
-    for i in pin_alloc:
-        dmtex(str(i),timing=False,end=" ")
-    dmtex("",timing=False)
-    gc.collect()
+
 except (ValueError, OSError):
+    configg = {}
     led.value = False
-    dmtex("Kernel config error, cannot continue")
-    from sys import exit
-    exit(0)
-gc.collect()
+    dmtex("Kernel config could not be found / parsed, applying defaults")
+
+dmtex("Options applied:")
+led.value = False
+
+defaultoptions = { # default configuration, in line with the manual
+    "displaySCL":17,
+    "displaySDA":16,
+    "displayheight":64, # SSD1306 spec
+    "displaywidth":128, # SSD1306 spec
+    "fixrtc": True,
+    "SKIPTEMP": False,
+    "SKIPCP": False,
+    "DEBUG": False,
+    "DISPLAYONLYMODE": False
+}
+
+option_types = {
+    "displaySCL":int,
+    "displaySDA":int,
+    "displayheight":int,
+    "displaywidth":int,
+    "fixrtc": bool,
+    "SKIPTEMP": bool,
+    "SKIPCP": bool,
+    "DEBUG": bool,
+    "DISPLAYONLYMODE": bool
+}
+
+# General options
+for optt in [
+    "fixrtc",
+    "SKIPTEMP",
+    "SKIPCP",
+    "DEBUG",
+    "DISPLAYONLYMODE",
+    "displayheight",
+    "displaywidth"
+]:
+    try:
+        if type(configg[optt]) == option_types[optt]:
+            dmtex("\t"+optt+"="+str(configg[optt]),timing=False)
+        else:
+            raise KeyError
+    except KeyError:
+        configg.update({optt: defaultoptions[optt]})
+        dmtex("Missing / Invalid value for \"" + optt + "\" applied: " + str(configg[optt]), timing=False)
+
+# Hardware pin allocations
+
+pintab = { # used for pin identification
+    1:board.GP1,
+    2:board.GP2,
+    3:board.GP3,
+    4:board.GP4,
+    5:board.GP5,
+    6:board.GP6,
+    7:board.GP7,
+    8:board.GP8,
+    9:board.GP9,
+    10:board.GP10,
+    11:board.GP11,
+    12:board.GP12,
+    13:board.GP13,
+    14:board.GP14,
+    15:board.GP15,
+    16:board.GP16,
+    17:board.GP17,
+    18:board.GP18,
+    19:board.GP19,
+    20:board.GP20,
+    21:board.GP21,
+    22:board.GP22,
+    23:board.GP23,
+    24:board.GP24,
+    25:board.GP25,
+    26:board.GP26,
+    27:board.GP27,
+    28:board.GP28,
+}
+
+for optt in [
+    "displaySCL",
+    "displaySDA"
+]:
+    try:
+        a = configg[optt]
+        
+        if a in pin_alloc:
+            dmtex("PIN ALLOCATED, EXITING")
+            from sys import exit
+            exit(0)
+        else:
+            pin_alloc.append(a)
+        
+        dmtex("\t"+optt+"="+str(a),timing=False)
+        del a
+        
+    except KeyError:
+        pass
+
+led.value = True
+dmtex("Total pin alloc: ",end="")
+for i in pin_alloc:
+    dmtex(str(i),timing=False,end=" ")
+dmtex("",timing=False)
+del defaultoptions
 
 #basic checks
-if not configg["SKIPCP"]: # beta testing :)
+if not configg["SKIPCP"]: # beta testing
     if (implementation.version[0] == Circuitpython_supported_version):
         dmtex("Running on supported implementation")
     else:
@@ -232,9 +262,11 @@ if not configg["SKIPCP"]: # beta testing :)
             else:
                 time.sleep(.5)
             time.sleep(3)
-        gc.collect()
 
-if not configg["SKIPTEMP"]: # this exists cuz in rare instances the pico temperature probe may be broken, it has happended to me once
+if not configg["SKIPTEMP"]:
+    """
+        This exists cuz in rare instances the pico temperature probe may be broken, it has happended to me once
+    """
     temp = cpu.temperature
     tempcheck = True
     if ((temp > 0) and (temp < 60)):
@@ -253,13 +285,13 @@ if not configg["SKIPTEMP"]: # this exists cuz in rare instances the pico tempera
             gc.collect()
     del temp
     del tempcheck
-    gc.collect()
 
-dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
 led.deinit()
 del led
-dmtex("Basic checks done")
 gc.collect()
+gc.collect()
+dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
+dmtex("Basic checks done")
 
 # audio
 NoAudio = False # used to ensure audio will NOT be used in case of libs missing
@@ -363,15 +395,17 @@ class ljinux():
                 # File unused but I need to check it's existence
                 a = open(filen, 'r')
                 a.close()
-                
-                with open(filen, 'w') as historyfile:
-                    ljinux.io.led.value = True
-                    for i in range(len(ljinux.history.historyy)):
-                        ljinux.io.led.value = False
-                        historyfile.write(ljinux.history.historyy[i] + "\n")
+                try:
+                    with open(filen, 'w') as historyfile:
                         ljinux.io.led.value = True
-                    ljinux.io.led.value = False
-                    historyfile.flush()
+                        for i in range(len(ljinux.history.historyy)):
+                            ljinux.io.led.value = False
+                            historyfile.write(ljinux.history.historyy[i] + "\n")
+                            ljinux.io.led.value = True
+                        ljinux.io.led.value = False
+                        historyfile.flush()
+                except OSError:
+                    ljinux.based.error(7,filen)
             except OSError:
                     ljinux.based.error(4,filen)
             ljinux.io.led.value = True
@@ -793,19 +827,20 @@ class ljinux():
         
         def error(wh=3, f=None):
             print("based: ",end='')
-            if wh == 1:
+            if wh is 1:
                 print("Syntax Error")
-            elif wh == 2:
+            elif wh is 2:
                 print("Input Error")
-            elif wh == 3:
+            elif wh is 3:
                 print("Error")
-            elif wh == 4:
+            elif wh is 4:
                 print(str(f) + ": No such file or directory")
-            elif wh == 5:
+            elif wh is 5:
                 print("Network unavailable")
-            elif wh == 6:
+            elif wh is 6:
                 print("Display not attached")
-            
+            elif wh is 7:
+                print("Filesystem unwritable, pi in developer mode")
         
         def autorun():
             ljinux.io.led.value = False
@@ -1352,15 +1387,28 @@ class ljinux():
                         print("Authentication successful. Security disabled.")
                     else:
                         print("Authentication unsuccessful.")
-                    del passwordarr
+                        
+                    try:
+                        del passwordarr
+                    except NameError:
+                        pass
+                    
                 except (KeyboardInterrupt, KeyError): # I betya some cve's cover this
-                    del passwordarr
+                    
+                    try:
+                        del passwordarr
+                    except NameError:
+                        pass
+                    
                     if (dfpasswd == getpass()):
                         system_vars["security"] = "off"
                         print("Authentication successful. Security disabled.")
                     else:
                         print("Authentication unsuccessful.")
-                del passwordarr
+                try:
+                    del passwordarr
+                except NameError:
+                    pass
 
             def playmp3(inpt): # play mp3
                 global NoAudio
@@ -1770,7 +1818,41 @@ class ljinux():
         
         def shell(inp=None): # the shell function, warning do not touch, it has feelings
             global Exit
-            function_dict = {'ls':ljinux.based.command.ls, 'error':ljinux.based.command.not_found, 'exec':ljinux.based.command.execc, 'pwd':ljinux.based.command.pwd, 'help':ljinux.based.command.helpp, 'echo':ljinux.based.command.echoo, 'exit':ljinux.based.command.exitt, 'uname':ljinux.based.command.unamee, 'cd':ljinux.based.command.cdd, 'mkdir':ljinux.based.command.mkdiir, 'rmdir':ljinux.based.command.rmdiir, 'var':ljinux.based.command.var, 'display':ljinux.based.command.display, 'time':ljinux.based.command.timme, 'su':ljinux.based.command.suuu, 'mp3':ljinux.based.command.playmp3, 'wav':ljinux.based.command.playwav, 'reboot':ljinux.based.command.rebooto, 'history':ljinux.based.command.historgf, 'clear':ljinux.based.command.clearr, 'halt':ljinux.based.command.haltt, 'if':ljinux.based.command.iff, 'dmesg':ljinux.based.command.dmesgg, 'ping':ljinux.based.command.ping, 'webserver': ljinux.based.command.webs, 'touch': ljinux.based.command.touchh, 'devmode':ljinux.based.command.devv, 'pexec':ljinux.based.command.pexecc, 'rm':ljinux.based.command.rmm,'cat':ljinux.based.command.catt, 'head':ljinux.based.command.headd, 'COMMENT':ljinux.based.command.do_nothin, 'fpexec':ljinux.based.command.fpexecc}
+            function_dict = { # holds all built-in commands. The plan is to move as many as possible externally
+                'ls':ljinux.based.command.ls,
+                'error':ljinux.based.command.not_found,
+                'exec':ljinux.based.command.execc,
+                'pwd':ljinux.based.command.pwd,
+                'help':ljinux.based.command.helpp,
+                'echo':ljinux.based.command.echoo,
+                'exit':ljinux.based.command.exitt,
+                'uname':ljinux.based.command.unamee,
+                'cd':ljinux.based.command.cdd,
+                'mkdir':ljinux.based.command.mkdiir,
+                'rmdir':ljinux.based.command.rmdiir,
+                'var':ljinux.based.command.var,
+                'display':ljinux.based.command.display,
+                'time':ljinux.based.command.timme,
+                'su':ljinux.based.command.suuu,
+                'mp3':ljinux.based.command.playmp3,
+                'wav':ljinux.based.command.playwav,
+                'reboot':ljinux.based.command.rebooto,
+                'history':ljinux.based.command.historgf,
+                'clear':ljinux.based.command.clearr,
+                'halt':ljinux.based.command.haltt,
+                'if':ljinux.based.command.iff,
+                'dmesg':ljinux.based.command.dmesgg,
+                'ping':ljinux.based.command.ping,
+                'webserver': ljinux.based.command.webs,
+                'touch': ljinux.based.command.touchh,
+                'devmode':ljinux.based.command.devv,
+                'pexec':ljinux.based.command.pexecc,
+                'rm':ljinux.based.command.rmm,
+                'cat':ljinux.based.command.catt,
+                'head':ljinux.based.command.headd,
+                'COMMENT':ljinux.based.command.do_nothin,
+                'fpexec':ljinux.based.command.fpexecc
+            }
             command_input = False
             input_obj = ljinux.SerialReader()
             if not Exit:
@@ -1823,20 +1905,17 @@ class ljinux():
                                     # & this took me like 20 minutes to debug
                                     # shit gets lost real ez when it comes to input
                             except IndexError:
-                                bins = listdir("/LjinuxRoot/bin")
+                                bins = listdir("/LjinuxRoot/bin") # get the list of files in /bin
                                 certain = False
                                 for i in bins:
-                                    if (i.endswith(".lja") and (command_split[0] == i[:-4])):
-                                        command_split[0] = ("/LjinuxRoot/bin/" + i)
+                                    if (i.endswith(".lja") and (command_split[0] == i[:-4]) and not certain): # get the names of those that are .lja
+                                        command_split[0] = ("/LjinuxRoot/bin/" + i) # check if the command we got has the same name as the file we are currently examining
                                         certain = True
-                                del bins
-                                gc.collect()
+                                del bins # we no longer need the list
                                 if certain:
                                     res = function_dict["exec"](command_split)
-                                    gc.collect()
                                 else:
                                     res = function_dict["error"](command_split)
-                                    gc.collect()
                                 del certain
                                 gc.collect()
                         elif (("|" in command_input) and not ("&&" in command_input)): # this is a pipe  :)
@@ -1877,7 +1956,7 @@ class ljinux():
             global display_availability
             ljinux.io.led.value = False
             try:
-                i2c = busio.I2C(board.GP17, board.GP16)  # SCL, SDA
+                i2c = busio.I2C(pintab[configg["displaySCL"]], pintab[configg["displaySDA"]])  # SCL, SDA
                 ljinux.farland.oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c) # I use the i2c cuz it ez
                 del i2c
                 ljinux.farland.oled.fill(0) # cuz why not
