@@ -1,5 +1,5 @@
 # -----------------
-# Ljinux by bill88t
+#      Ljinux
 # Coded on a Raspberry Pi 400
 # Ma'am I swear this project is real
 # -----------------
