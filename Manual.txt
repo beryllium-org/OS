@@ -188,16 +188,34 @@ PRINTS THE CURRENT SYSTEM SENSORS DATA
 ----<| Config.json |
       \------------|
 
-example config:
+The default config is:
 
 {
+"_comment1": "Default Ljinux configuration, adjust to your needs"
+
+"_comment2": "As long as it's true, ram rtc will be used"
 "fixrtc": true
+
+"_comment3": "Display i2c pins"
 "displaySCL": 17
 "displaySDA": 16
+
+"_comment4": "Display height - width"
+"displayheight": 64
+"displaywidth": 128
+
+"_comment5": "Other display related options"
+"_comment6": "Makes the pi only bother with sensor io & not serial. Not yet implemented"
+"DISPLAYONLYMODE": false
+
+"_comment7": "Debugging & extreme options"
+"SKIPTEMP": false
+"SKIPCP": false
+"DEBUG": false
+
 }
 
-unused keys:
-Later
+The config file is no longer mandatory, as the defaults are hardcoded in case they are missing / errored.
 
       /----------|
 ----<| Scripting |
@@ -224,8 +242,30 @@ However it is also mirrored to my self-hosted Gitea instance at: https://git.por
 The bare minimum of files needed for ljinux to run is:
  - boot.py
  - code.py
- - config.json
  - ljinux.mpy
 
 Without them Ljinux cannot function at all.
 However it's highly recommended to have a root folder ("LjinuxRoot" or an sdcard) present.
+
+      /-------|
+----<| Errors |
+      \-------|
+
+based: Syntax Error
+    The command cannot work with the given arguments
+    Read #basic-commands
+    
+based: Input Error
+    The input given is not understandable from the command
+
+based: Display not attached
+    The display is not connected correctly
+
+based: Network unavailable
+    The network interface is not functional
+
+based: file: No such file or directory
+    The file cannot be found
+
+based: Error
+    This is a general error
