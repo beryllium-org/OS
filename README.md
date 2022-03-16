@@ -3,7 +3,7 @@ A "linux" written in python, for the Raspberry Pi Pico.<br />
 
 Important note:<br />
 Do not take this project seriously.<br />
-This is not a real os / linux distrubution, but here we are.<br />
+This is not a real os / linux distribution, but here we are.<br />
 
 <h3>Anyways, since you are still reading let's start with the basics.</h3>
 It runs on the rpi pico, circuitpython 7.<br />
