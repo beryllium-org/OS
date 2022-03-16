@@ -20,7 +20,7 @@ The <code>Init.lja</code> has to be at <code>/LjinuxRoot/boot/</code> of the pic
 
 <h2>Installation to a fresh pi pico:</h2><br />
 
-Install Circuitpython 7.X.X onto the pico (uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_pico)), and unzip this entire repo (or a release), except for the "source" folder onto the CIRCUITPY drive.<br />
+Install CircuitPython 7.X.X onto the pico (uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_pico) & detailed instruction regarding CircuitPython can be found [here]()), and unzip this entire repo (or a release), except for the "source" folder onto the CIRCUITPY drive.<br />
 This is also a good time to install the libraries for the hardware you wish to connect to it. Details in Configuration.<br />
 Then eject it and fully disconnect it from the pc. (It is important to power cycle the pi.)<br />
 When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)<br />
@@ -36,8 +36,7 @@ Piezo buzzer: GP15<br />
 Sdcard: GP2(clk),GP3(mosi),GP4(miso), GP5(cs) - libraries needed: <code>adafruit_sdcard adafruit_bus_device</code><br />
 Ethernet: GP10(clk), GP13(cs), GP11(mosi), GP12(miso) - libraries needed: <code>adafruit_wiznet5k adafruit_wsgi adafruit_requests adafruit_bus_device</code><br /><br />
 The neccessary libraries can be found [here](https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases)<br />
-Download the zip, extract it & copy the libraries you want onto <code>/lib</code> of the pico.
-Preferably use .mpy's to reduce storage & ram usage.<br /><br />
+Download the zip (Preferably the 7.x-mpy variant), extract it & copy the libraries you want onto <code>/lib</code> of the pico.
 
 <h3>Contributors:</h3>
 
