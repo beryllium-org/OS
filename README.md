@@ -40,7 +40,7 @@ Preferably use .mpy's to reduce storage & ram usage.<br /><br />
 
 <h3>Contributors:</h3>
 
--> [bill88t](https://github.com/bill88t) - @bill88t#4044
+-> [bill88t](https://github.com/bill88t) - @bill88t#4044<br />
 -> [Marios](https://github.com/mariospapaz) - @mariospapaz#2188
 
 <h3>Build instructions for linux:</h3>
