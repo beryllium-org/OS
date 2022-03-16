@@ -57,14 +57,19 @@ dmesg.append("[    0.00000] Garbage collector loaded and enabled")
 oend = "\n" # needed to mask print
 
 def dmtex(texx=None,end="\n",timing=True):
-    global uptimme # persistent offset
-    global oend # needs to be preserved for next run
+    # Persistent offset, Run preserver
+    global uptimee, oend
+    
     ct = "%.5f" % (uptimee+time.monotonic()) # current time since ljinux start rounded to 5 digits
-    if timing: # timing is used to disable the time print in case you want to make a print(blah,end='')
-        strr = "[{u}{upt}] {tx}".format(u="           ".replace(" ", "",len(ct)), upt=str(ct), tx=texx)# credits for this clusterfuck go to the python mele, our dear @C̴̝͌h̶̰̑r̷̖̓o̶̦̊n̸̻͌ö̷̧́s̷̜͊#2188
+    
+    if timing: 
+        # timing is used to disable the time print in case you want to make a print(blah,end='')
+        strr = "[{u}{upt}] {tx}".format(u="           ".replace(" ", "",len(ct)), upt=str(ct), tx=texx)
     else:
         strr = texx # the message as is
+        
     print(strr,end=end) # using the provided end
+    
     if ("\n" == oend): # if the oend of the last print is a newline we add a new entry, otherwise we go to the last one and we add it along with the old oend
         dmesg.append(strr)
     elif ((len(oend.replace("\n", "")) > 0) and ("\n" in oend)): # special case, there is hanging text in old oend 
@@ -74,8 +79,10 @@ def dmtex(texx=None,end="\n",timing=True):
     else: # append to the last entry
         a = len(dmesg) - 1 # the last entry
         dmesg[a] += oend + strr # with the ending ofc
+    
     oend = end # then we save the new oend for the next go
-    gc.collect() # :)
+    
+    gc.collect()
 
 print("[    0.00000] Timings reset")
 dmesg.append("[    0.00000] Timings reset")
@@ -86,34 +93,44 @@ dmtex("Basic Libraries loading")
 # Basic libs
 # These are absolutely needed
 try:
-    from sys import stdin
-    from sys import stdout
-    from sys import implementation
-    from sys import platform
-    from sys import modules
+    
+    from sys import (
+        stdin,
+        stdout,
+        implementation,
+        platform,
+        modules,
+    )
+    
     from supervisor import runtime
     import busio
-    from microcontroller import cpu
-    from microcontroller import cpus
-    from storage import remount
-    from storage import VfsFat
-    from storage import mount
-    from os import chdir
-    from os import rmdir
-    from os import mkdir
-    from os import sync
-    from os import getcwd
-    from os import listdir
-    from os import remove
+    from microcontroller import cpu, cpus
+
+    from storage import (
+        remount,
+        VfsFat,
+        mount
+    )
+    
+    from os import (
+        
+        chdir, rmdir, mkdir,
+        sync, getcwd, listdir,
+        remove 
+    )
+
     from io import StringIO
     from usb_cdc import console
     from getpass import getpass
     import json
     dmtex("Basic libraries loaded")
+    
 except ImportError:
+    
     from sys import exit
     dmtex("FATAL: CRITICAL LIBRARY LOAD FAILED")
     exit(0)
+    
 led.value = True
 # Kernel cmdline.txt
 try:
@@ -204,19 +221,15 @@ if not configg["SKIPCP"]: # beta testing :)
         dmtex("Running on supported implementation")
     else:
         dmtex("-----------------------------------\n              WARNING: Unsupported CircuitPython version\n              -----------------------------------\n              Continuing after led alert..")
-        for i in range(3):
-            led.value = True
-            time.sleep(.5)
-            led.value = False
-            time.sleep(.5)
-            led.value = True
-            time.sleep(.5)
-            led.value = False
-            time.sleep(.5)
-            led.value = True
-            time.sleep(.5)
-            led.value = False
-            time.sleep(3)
+        
+        for i in range(3 * 5):    
+            led.value = not led.value 
+                 
+            if i == 14:
+                 time.sleep(3)
+            else:
+                time.sleep(.5)
+         
         gc.collect()
 
 if not configg["SKIPTEMP"]: # this exists cuz in rare instances the pico temperature probe may be broken, it has happended to me once
@@ -228,17 +241,14 @@ if not configg["SKIPTEMP"]: # this exists cuz in rare instances the pico tempera
         dmtex("Temperature is unsafe: " + str(temp) + " Celcius. Halting!")
         led.value = False
         while True:
-            led.value = True
-            time.sleep(.3)
-            led.value = False
-            time.sleep(.3)
-            led.value = True
-            time.sleep(.3)
-            led.value = False
-            time.sleep(.5)
-            led.value = True
-            time.sleep(.5)
-            led.value = False
+            
+            for i in range(6):
+                led.value = not led.value           
+                if i < 3:
+                    time.sleep(.3)
+                else:
+                    time.sleep(.5)        
+            
             time.sleep(3)
             gc.collect()
     del temp
@@ -299,9 +309,7 @@ if not configg["fixrtc"]:
         rtcclk = digitalio.DigitalInOut(board.GP6)
         rtcdata = digitalio.DigitalInOut(board.GP7)
         rtcce = digitalio.DigitalInOut(board.GP8)
-
-        # to make it suitable for system
-        class RTC(object):
+        class RTC:
             @property
             def datetime(self):
                 return rtcc.read_datetime()
@@ -322,37 +330,38 @@ if not configg["fixrtc"]:
         dmtex("CRITICAL: RTC LIBRARIES LOADING FAILED")
 dmtex("Imports complete")
 
-class ljinux():
+class ljinux:
     class history:
         historyy = []
         historyitems = 0
 
         def load(filen):
-            ljinux.history.historyy = []
-            ljinux.history.historyitems = 0
+            ljinux.history.historyy = list()
             try:
                 with open(filen, 'r') as historyfile:
+                    
                     ljinux.io.led.value = False
                     lines = historyfile.readlines()
                     ljinux.io.led.value = True
+                    
                     for line in lines:
                         ljinux.io.led.value = False
                         ljinux.history.historyy.append(line.strip())
-                        ljinux.history.historyitems += 1
                         ljinux.io.led.value = True
+                        
             except OSError:
                     ljinux.io.led.value = True
                     ljinux.based.error(4,filen)
 
         def appen(itemm): # add to history, but don't save to file
             ljinux.history.historyy.append(itemm)
-            ljinux.history.historyitems += 1
 
         def save(filen):
             ljinux.io.led.value = False
             try:
-                a = open(filen, 'r')
-                a.close()
+                # File unused
+                # a = open(filen, 'r')
+                # a.close()
                 with open(filen, 'w') as historyfile:
                     ljinux.io.led.value = True
                     for i in range(ljinux.history.historyitems):
@@ -368,11 +377,13 @@ class ljinux():
         def clear(filen): # deletes all history, from ram and storage
             try:
                 ljinux.io.led.value = False
-                a = open(filen, 'r')
-                a.close()
+                # File unused 2
+                # a = open(filen, 'r')
+                # a.close()
+                
                 with open(filen, 'w') as historyfile:
                     historyfile.flush()
-                ljinux.history.historyitems = 0
+   
                 ljinux.history.historyy = []
             except OSError:
                     ljinux.based.error(4,filen)
@@ -382,11 +393,16 @@ class ljinux():
             return str(ljinux.history.historyy[ljinux.history.historyitems - whichh])
 
         def getall(): # get the whole history, numbered, line by line
-            for i in range(ljinux.history.historyitems):
+            for i in range(len(ljinux.history.historyy)):
                 print(str(i+1) + ": " + str(ljinux.history.historyy[i]))
 
-    class SerialReader: # based off of https://github.com/todbot/circuitpython-tricks#rename-circuitpy-drive-to-something-new, thanks a lot dude this shiet is awesome!
-        # at this point tho, this function is nothing like the original
+    class SerialReader: 
+        """
+           Credits and based on:
+           
+                https://github.com/todbot/circuitpython-tricks#rename-circuitpy-drive-to-something-new.
+          
+        """
         def __init__(self):
             self.s = ''
             self.scount = 0 # how many are in the array, just for speed
@@ -496,14 +512,16 @@ class ljinux():
                             self.capture_step = 0
                         badchar = True
                     elif (hexed == "0xf"): # Catch Ctrl + O for debug
-                        print("\n------------")
-                        print("self.pos = " + str(self.pos))
-                        print("self.s = " + str(self.s))
-                        print("self.scount = " + str(self.scount))
-                        print("self.capture_step = " + str(self.capture_step))
-                        print("self.temp_s = " + str(self.temp_s))
-                        print("self.temp_pos = " + str(self.temp_pos))
-                        print("self.historypos = " + str(self.historypos))
+                        print("\n" + "-" * 12)
+                                        
+                        print("self.pos = {}".format(self.pos))
+                        print("self.s = {}".format(self.s))
+                        print("self.scount = {}".format(self.scount))
+                        print("self.capture_step = {}".format(self.capture_step))
+                        print("self.temp_s = {}".format(self.temp_s))
+                        print("self.temp_pos = {}".format(self.temp_pos))
+                        print("self.historypos = {}".format(self.historypos))
+                        
                     else:
                         if echo: stdout.write(s) # echo back to hooman
                         if not (badchar):
@@ -688,7 +706,7 @@ class ljinux():
             return str(cpu.frequency)
         
         def get_implementation_version():
-            return (str(implementation.version[0]) + "." + str(implementation.version[1]) + "." + str(implementation.version[2]))
+            return str(implementation.version[0]) + "." + str(implementation.version[1]) + "." + str(implementation.version[2])
         
         def get_implementation():
             return implementation.name
@@ -696,7 +714,17 @@ class ljinux():
         def get_volt():
             return str(cpu.voltage)
         
-        sys_getters = {'sdcard': get_sdcard_fs, 'uptime': get_uptime, 'temperature': get_temp, 'display-attached': get_display_status, 'memory': get_mem_free, 'implementation_version': get_implementation_version, 'implementation': get_implementation, 'frequency': get_freq, 'voltage': get_volt}
+        sys_getters = {
+            'sdcard': get_sdcard_fs,
+            'uptime': get_uptime,
+            'temperature': get_temp, 
+            'display-attached': get_display_status,
+            'memory': get_mem_free,
+            'implementation_version': get_implementation_version, 
+            'implementation': get_implementation, 
+            'frequency': get_freq, 
+            'voltage': get_volt
+        }
 
     class networking(object):
         wsgiServer = None
@@ -741,28 +769,26 @@ class ljinux():
                 dmtex("Network unavailable")
         
         def test():
-            if (ljinux.io.network_online):
-                if not (ljinux.io.network.link_status):
+            
+            if ljinux.io.network_online and not ljinux.io.network.link_status:
                     ljinux.io.network_online = False
                     ljinux.io.network_name = "Offiline"
                     dmtex("Network connection lost")
-                    return False
+                    return False          
+                
             return True
-            pass
         
         def resolve():
             ljinux.networking.test()
-            if (ljinux.io.network_online):
-                pass
-            else:
+                
+            if not ljinux.io.network_online:
                 ljinux.based.error(5)
         
         def packet(data):
             ljinux.networking.test()
-            if (ljinux.io.network_online):
-                pass
-            else:
-                ljinux.based.error(5)
+            
+            if not ljinux.io.network_online:
+                ljinux.based.error(5)    
 
     class based(object):
         silent = False
