@@ -1,0 +1,5 @@
+{
+    "NAME":"rmdir",
+    "SYNOPSIS":"rmdir [DIR]...",
+    "DESCRIPTION":"DELETE A DIRECTORY"
+}

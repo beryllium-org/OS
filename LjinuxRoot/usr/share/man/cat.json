@@ -1,0 +1,5 @@
+{
+    "NAME":"cat",
+    "SYNOPSIS":"cat [file]",
+    "DESCRIPTION":"PRINTS THE CONTENTS OF A FILE"
+}

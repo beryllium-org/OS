@@ -11,6 +11,7 @@ help [COMMAND]
 
 OUTPUTS A BASIC LIST OF COMMANDS TO SERIAL OUT
 
+
 cd [DIR]...
 
 CHANGES TO SPECIFIED DIRECTORY
@@ -181,6 +182,16 @@ SAME AS HEAD, BUT PRINT THE LAST INSTEAD OF THE FIST n LINES OF A FILE
 PRINTS THE CURRENT SYSTEM SENSORS DATA
 
 
+*(external) pinout
+
+PRINTS THE PICO PINOUT MAP
+
+
+man [COMMAND]
+
+PRINT THE MANUAL FOR THE GIVEN [COMMAND]
+
+
 ---------------------------------
 *(external) commands are those that are not hard-coded into the ljinux binary, but instead provided within /LjinuxRoot/bin
 
@@ -272,3 +283,6 @@ based: Error
     
 based: Filesystem unwritable, pi in developer mode
     This error shows up when a write to the internal storage occures while developer mode is enabled. By CircuitPython design, when the internal storage is being made available from usb, it is unwritable to the os. To disable developer mode, delete the file "devm" from the root of LJINUX, and run the command "reboot"
+    
+based: Missing files
+    This error occurs when files needed for the command to run are missing.

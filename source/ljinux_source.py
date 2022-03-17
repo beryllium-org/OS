@@ -845,6 +845,8 @@ class ljinux():
                 print("Display not attached")
             elif wh is 7:
                 print("Filesystem unwritable, pi in developer mode")
+            elif wh is 8:
+                print("Missing files")
         
         def autorun():
             ljinux.io.led.value = False
@@ -1795,6 +1797,35 @@ class ljinux():
                 del nl
                 del offs
                 gc.collect()
+
+            def mann(inpt): # the documentation interface command, wow
+                if len(inpt) < 2:
+                    print("based: missing arguments")
+                    return 1
+                try:
+                    filee = ""
+                    mans = listdir("/LjinuxRoot/usr/share/man")
+                    for i in mans:
+                        if (i.endswith(".json") and (inpt[1] == i[:-5])):
+                            filee += "/" + i
+                            break
+                    del mans
+                    try:
+                        with open(("/LjinuxRoot/usr/share/man" + filee),'r') as f:
+                            man = json.load(f)
+                            f.close()
+                        print("\nNAME" + "\n\t" + man["NAME"] + "\n")
+                        print("SYNOPSIS" + "\n\t" + man["SYNOPSIS"] + "\n")
+                        print("DESCRIPTION" + "\n\t" + man["DESCRIPTION"] + "\n")
+                        del filee
+                        del man
+                        return 0
+                    except (ValueError, OSError, KeyError):
+                        dmtex("Manual file could not be found / parsed for "  + inpt[1] + ".")
+                        return 1
+                except OSError: # I guess no man then
+                    ljinux.based.error(8)
+                    return 1
                 
         def adv_input(whatever, _type):
             res = None
@@ -1848,7 +1879,8 @@ class ljinux():
                 'cat':ljinux.based.command.catt,
                 'head':ljinux.based.command.headd,
                 'COMMENT':ljinux.based.command.do_nothin,
-                'fpexec':ljinux.based.command.fpexecc
+                'fpexec':ljinux.based.command.fpexecc,
+                'man':ljinux.based.command.mann
             }
             command_input = False
             input_obj = ljinux.SerialReader()

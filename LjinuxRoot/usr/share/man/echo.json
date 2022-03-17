@@ -1,0 +1,5 @@
+{
+    "NAME":"echo",
+    "SYNOPSIS":"echo [DATA]...",
+    "DESCRIPTION":"PRINT SOME VARIABLES OR TEXT ONTO SERIAL OUT"
+}

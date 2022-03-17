@@ -1,0 +1,5 @@
+{
+    "NAME":"var",
+    "SYNOPSIS":"var [DATA]...",
+    "DESCRIPTION":"CREATE A NEW VARIABLE. SYNTAX: var a = \"ok\"\n\tNUMBERS DO NOT NEED BRACKETS.\n\tTHE COMMAND ITSELF IS OPTIONAL (a = \"is also valid\")"
+}

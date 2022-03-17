@@ -1,0 +1,5 @@
+{
+    "NAME":"pwd",
+    "SYNOPSIS":"pwd",
+    "DESCRIPTION":"OUTPUTS THE CURRENT DIRECTORY TO SERIAL OUT"
+}
