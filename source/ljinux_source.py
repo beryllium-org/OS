@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.2.0"
+Version = "0.2.1"
 Circuitpython_supported_version = 7
 dmesg = []
 access_log = []
@@ -282,7 +282,6 @@ if not configg["SKIPTEMP"]:
                 else:
                     time.sleep(.5)
             time.sleep(3)
-            gc.collect()
     del temp
     del tempcheck
 
@@ -355,7 +354,6 @@ if not configg["fixrtc"]:
             del rtcclk
             del rtcdata
             del rtcce
-            gc.collect()
         except OSError: # not sure how to catch if it's not available, TODO
             pass
         
@@ -623,7 +621,6 @@ class ljinux():
                 yield "CRITICAL: File Not Found"
         
         def init_net():
-            gc.collect()
             cs = digitalio.DigitalInOut(board.GP13)
             spi = busio.SPI(board.GP10, MOSI=board.GP11, MISO=board.GP12)
             dmtex("Network bus ready")
@@ -636,11 +633,9 @@ class ljinux():
                 ca = False
             del spi
             del cs
-            gc.collect()
             if ca and ljinux.io.network.link_status:
                 dhcp_status = ljinux.io.network.set_dhcp(hostname="Ljinux", response_timeout=10)
                 dmtex("Ran dhcp")
-                gc.collect()
                 if (dhcp_status == 0):
                     dmtex("Hostname set to \"Ljinux\"")
                     requests.set_socket(socket, ljinux.io.network)
@@ -651,17 +646,14 @@ class ljinux():
                         macc += str(hex(i))[2:] + ":"
                     dmtex("MAC eth0: " + macc[:-1])
                     del macc
-                    gc.collect()
                     dmtex("IP address: " + ljinux.io.network.pretty_ip(ljinux.io.network.ip_address))
                     dmtex("Neworking init successful")
                     ljinux.io.network_name = "eth0"
                     ljinux.io.network_online = True
                     server.set_interface(ljinux.io.network)
                     server.socket.gc.enable()
-                    gc.collect()
                 else:
                     dmtex("DHCP failed")
-                    gc.collect()
             else:
                 dmtex("Ethernet cable not connected / interface unavailable")
                 try:
@@ -677,13 +669,12 @@ class ljinux():
                     del modules["adafruit_wsgi.request"]
                 except KeyError:
                     pass
-                gc.collect()
                 dmtex("Unloaded networking libraries")
             del ca
             gc.collect()
+            gc.collect()
         
         def start_sdcard():
-            gc.collect()
             global sdcard_fs
             spi = busio.SPI(board.GP2, MOSI=board.GP3, MISO=board.GP4)
             cs = digitalio.DigitalInOut(board.GP5)
@@ -703,6 +694,7 @@ class ljinux():
                 del sdcard
             except NameError:
                 pass
+            gc.collect()
             gc.collect()
         
         def left_key():
@@ -824,6 +816,18 @@ class ljinux():
         silent = False
         user_vars = {'history-file': "/LjinuxRoot/home/pi/.history"} # the variables defined and modified by the user
         system_vars = {'user': "root", 'security': "off", 'Init-type': "oneshot"} # the variables defined and modified by the system
+        
+        def get_bins():
+            try:
+                bins = listdir("/LjinuxRoot/bin") # get /bin file list
+                l = []
+                for i in bins:
+                    if (i.endswith(".lja") and not i.startswith(".")): # only bother w/ these files
+                        l.append(i[:-4])
+                del bins # no longer need the ls
+                return l
+            except OSError: # Yea no root, we cope
+                return list()
         
         def error(wh=3, f=None):
             print("based: ",end='')
@@ -1061,13 +1065,7 @@ class ljinux():
                         print(i) # this gives us \n
                         j = 0
                 try:
-                    bins = listdir("/LjinuxRoot/bin") # now we print the things found in /bin
-                    l = []
-                    for i in bins:
-                        if (i.endswith(".lja")): # only bother w/ files with this extension
-                            l.append(i[:-4])
-                    del bins
-                    gc.collect()
+                    l = ljinux.based.get_bins()
                     for i in l:
                         if (j < 2):
                             print(i,end="                 ".replace(" ", "",len(i))) # basically the 3 wide collumn
@@ -1079,7 +1077,6 @@ class ljinux():
                     print("\n",end="")
                 except OSError: # Yea no root, we cope
                     pass
-                gc.collect()
 
             def echoo(what): # echo command
                 try:
@@ -1905,11 +1902,11 @@ class ljinux():
                                     # & this took me like 20 minutes to debug
                                     # shit gets lost real ez when it comes to input
                             except IndexError:
-                                bins = listdir("/LjinuxRoot/bin") # get the list of files in /bin
+                                bins = ljinux.based.get_bins()
                                 certain = False
                                 for i in bins:
-                                    if (i.endswith(".lja") and (command_split[0] == i[:-4]) and not certain): # get the names of those that are .lja
-                                        command_split[0] = ("/LjinuxRoot/bin/" + i) # check if the command we got has the same name as the file we are currently examining
+                                    if ((command_split[0] == i) and not certain): # check if currently examined file is same as command
+                                        command_split[0] = ("/LjinuxRoot/bin/" + i + ".lja") # we have to fill in the full path
                                         certain = True
                                 del bins # we no longer need the list
                                 if certain:
@@ -1917,20 +1914,24 @@ class ljinux():
                                 else:
                                     res = function_dict["error"](command_split)
                                 del certain
-                                gc.collect()
                         elif (("|" in command_input) and not ("&&" in command_input)): # this is a pipe  :)
                             ljinux.based.silent = True
                             the_pipe_pos = command_input.find("|",0)
                             partt = ljinux.based.shell(command_input[:the_pipe_pos-1])
                             ljinux.based.silent = False
                             ljinux.based.shell(command_input[the_pipe_pos+2:] + " " + partt)
+                            del the_pipe_pos
+                            del partt
                         elif (("&&" in command_input) and not ("|" in command_input)): # this is a dirty pipe  :)
                             the_pipe_pos = command_input.find("&&",0)
                             ljinux.based.shell(command_input[:the_pipe_pos-1])
                             ljinux.based.shell(command_input[the_pipe_pos+2:])
+                            del the_pipe_pos
                         else: # oh frick you
                             pass
                     ljinux.io.led.value = True
+                    gc.collect()
+                    gc.collect()
                     return res
 
     class farland: # wayland, but like a farfetched dream
@@ -1969,6 +1970,7 @@ class ljinux():
                     del modules["adafruit_framebuf"]
                 except KeyError:
                     pass
+                gc.collect()
                 gc.collect()
                 dmtex("Unloaded display libraries")
             ljinux.io.led.value = True

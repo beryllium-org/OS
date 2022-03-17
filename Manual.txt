@@ -269,3 +269,6 @@ based: file: No such file or directory
 
 based: Error
     This is a general error
+    
+based: Filesystem unwritable, pi in developer mode
+    This error shows up when a write to the internal storage occures while developer mode is enabled. By CircuitPython design, when the internal storage is being made available from usb, it is unwritable to the os. To disable developer mode, delete the file "devm" from the root of LJINUX, and run the command "reboot"
