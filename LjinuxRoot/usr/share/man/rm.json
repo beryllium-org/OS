@@ -1,0 +1,5 @@
+{
+    "NAME":"rm",
+    "SYNOPSIS":"rm [FILE]...",
+    "DESCRIPTION":"DELETE A FILE"
+}

@@ -1,0 +1,5 @@
+{
+    "NAME":"head",
+    "SYNOPSIS":"head [n] [file]",
+    "DESCRIPTION":"PRINT THE FIRST n LINES OF A FILE"
+}

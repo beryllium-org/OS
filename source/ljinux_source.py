@@ -1798,6 +1798,34 @@ class ljinux():
                 del nl
                 del offs
                 gc.collect()
+
+            def mann(inpt): # the documentation interface command, wow
+                if len(inpt) < 2:
+                    print("based: missing arguments")
+                    return
+                try:
+                    path = "/LjinuxRoot/usr/share/man"
+                    file = ""
+                    mans = listdir(path)
+                    for i in mans:
+                        if (i.endswith(".json")):
+                            if inpt[1] == i[:-5]:
+                                file += "/" + i
+                    try:
+                        with open((path + file),'r') as f:
+                            man = json.load(f)
+                            f.close()
+                        print("NAME" + "\n\t" + man["NAME"] + "\n")
+                        print("SYNOPSIS" + "\n\t" + man["SYNOPSIS"] + "\n")
+                        print("DESCRIPTION" + "\n\t" + man["DESCRIPTION"])
+                    except (ValueError, OSError, KeyError):
+                        dmtex("Manual file could not be found / parsed for "  + inpt[1] + ".")
+                    # not sure how it is necessary ?
+                    # del path, file, man, mans ?
+                    # gc.collect ?
+                    # print("\n",end="") ?
+                except OSError: # I guess no man then
+                    pass
                 
         def adv_input(whatever, _type):
             res = None
@@ -1851,7 +1879,8 @@ class ljinux():
                 'cat':ljinux.based.command.catt,
                 'head':ljinux.based.command.headd,
                 'COMMENT':ljinux.based.command.do_nothin,
-                'fpexec':ljinux.based.command.fpexecc
+                'fpexec':ljinux.based.command.fpexecc,
+                'man':ljinux.based.command.mann
             }
             command_input = False
             input_obj = ljinux.SerialReader()
