@@ -1801,26 +1801,24 @@ class ljinux():
                     print("based: missing arguments")
                     return
                 try:
-                    path = "/LjinuxRoot/usr/share/man"
                     file = ""
-                    mans = listdir(path)
+                    mans = listdir("/LjinuxRoot/usr/share/man")
                     for i in mans:
                         if (i.endswith(".json")):
                             if inpt[1] == i[:-5]:
                                 file += "/" + i
+                    del mans
                     try:
-                        with open((path + file),'r') as f:
+                        with open(("/LjinuxRoot/usr/share/man" + file),'r') as f:
                             man = json.load(f)
                             f.close()
                         print("NAME" + "\n\t" + man["NAME"] + "\n")
                         print("SYNOPSIS" + "\n\t" + man["SYNOPSIS"] + "\n")
                         print("DESCRIPTION" + "\n\t" + man["DESCRIPTION"])
+                        del file
+                        del man
                     except (ValueError, OSError, KeyError):
                         dmtex("Manual file could not be found / parsed for "  + inpt[1] + ".")
-                    # not sure how it is necessary ?
-                    # del path, file, man, mans ?
-                    # gc.collect ?
-                    # print("\n",end="") ?
                 except OSError: # I guess no man then
                     pass
                 
