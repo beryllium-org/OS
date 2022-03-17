@@ -1,0 +1,5 @@
+{
+    "NAME":"pexec",
+    "SYNOPSIS":"pexec [-n] [python commands]",
+    "DESCRIPTION":"RUNS PYTHON COMMANDS\n\twith -n DOES NOT PRINT THE CIRUITPY TEXT\n\tSee also exec, fexec"
+}

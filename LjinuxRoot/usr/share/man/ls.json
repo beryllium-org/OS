@@ -1,0 +1,5 @@
+{
+    "NAME":"ls",
+    "SYNOPSIS":"ls [OPTIONS]... [DIR]...",
+    "DESCRIPTION":"OUTPUTS THE DIRECTORY LISTING TO SERIAL OUT"
+}

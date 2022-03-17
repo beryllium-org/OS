@@ -1,0 +1,5 @@
+{
+    "NAME":"help",
+    "SYNOPSIS":"help [COMMAND]",
+    "DESCRIPTION":"OUTPUTS A BASIC LIST OF COMMANDS TO SERIAL OUT\n\tSee also man"
+}

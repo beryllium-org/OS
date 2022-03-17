@@ -1,0 +1,5 @@
+{
+    "NAME":"sensors",
+    "SYNOPSIS":"sensors",
+    "DESCRIPTION":"PRINTS THE CURRENT SYSTEM SENSORS DATA"
+}
