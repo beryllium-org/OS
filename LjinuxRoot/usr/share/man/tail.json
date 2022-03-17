@@ -1,0 +1,5 @@
+{
+    "NAME":"tail",
+    "SYNOPSIS":"tail [n] [file]",
+    "DESCRIPTION":"SAME AS HEAD, BUT PRINT THE LAST INSTEAD OF THE FIST n LINES OF A FILE"
+}

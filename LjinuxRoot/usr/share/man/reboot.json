@@ -1,0 +1,5 @@
+{
+    "NAME":"reboot",
+    "SYNOPSIS":"reboot [mode]",
+    "DESCRIPTION":"REBOOTS THE MICROCONTROLLER\n\tOPTIONALLY YOU CAN PASS A REBOOT MODE (safemode, uf2, bootloader)"
+}

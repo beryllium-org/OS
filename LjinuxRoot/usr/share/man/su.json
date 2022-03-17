@@ -1,0 +1,5 @@
+{
+    "NAME":"su",
+    "SYNOPSIS":"su",
+    "DESCRIPTION":"DISABLE SECURITY, ASKS FOR PASSWORD\n\tDEFAULT PASSWORD == Ljinux"
+}

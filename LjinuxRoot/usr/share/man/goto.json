@@ -1,0 +1,5 @@
+{
+    "NAME":"goto",
+    "SYNOPSIS":"goto [LINE]",
+    "DESCRIPTION":"GOTO INTERPRETED LINE AND RERUN FROM THERE"
+}

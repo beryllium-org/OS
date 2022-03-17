@@ -1,0 +1,5 @@
+{
+    "NAME":"display",
+    "SYNOPSIS":"display [OPERATION] [OPERATION DATA]",
+    "DESCRIPTION":"DISPLAYS SOMETHING ON THE I2C DISPLAY\n\tRETURNS OBJECT ID, DO NOT LOSE IT\n\tBUDGET DIDNT ALLOW PORTING WAYLAND, SO I MADE FARLAND.\n\tOPERATIONS:\n\t\ttext\n\t\tdot\n\t\tline\n\t\trectangle\n\t\tsquare\n\t\tcircle\n\t\trhombus\n\t\tmove\n\t\tdelete"
+}

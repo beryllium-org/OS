@@ -1,0 +1,5 @@
+{
+    "NAME":"man",
+    "SYNOPSIS":"man [COMMAND]",
+    "DESCRIPTION":"PRINT THE MANUAL FROM THE GIVEN [COMMAND]\n\tSee also help"
+}
