@@ -10,6 +10,7 @@
 #
 
 from sys import exit
+from src_py.lj_colours import lJ_Colours as LJC
 
 try:
     from os import chdir, sync
@@ -20,12 +21,18 @@ try:
         RunMode,
         on_next_reset
     )
-    
+
+
     from gc import collect
     from time import sleep
+<<<<<<< Updated upstream
     
 except ImportError:
     print("bootloader failure")
+=======
+except ImportError as e:
+    print(LJC.ERROR + "bootloader failure" + LJC.ENDC, e)
+>>>>>>> Stashed changes
     exit(0)
     
 
@@ -38,7 +45,7 @@ try:
     from ljinux import ljinux
     jrub("Ljinux basic init done")
 except ImportError:
-    jrub("Ljinux wanna-be kernel binary not found, cannot continue..") # anon is idot, we not gonna bother
+    jrub("Ljinux wanna-be kernel binary not found, cannot continue..")
     exit(1)
 
 oss = ljinux()
@@ -94,7 +101,7 @@ if (Exit_code == 245):
     reset()
     
 elif (Exit_code == 244):
-    print("[ OK ] Reached target: Halt")
+    print(LJC.OKAY + "[ OK ] Reached target: Halt" + LJC.ENDC)
     while True:
         sleep(3600)
         

@@ -362,7 +362,7 @@ if not configg["fixrtc"]:
         dmtex("CRITICAL: RTC LIBRARIES LOADING FAILED")
 dmtex("Imports complete")
 
-class ljinux():
+class ljinux:
     class history:
         historyy = []
         
@@ -390,6 +390,9 @@ class ljinux():
         def save(filen):
             ljinux.io.led.value = False
             try:
+
+                # use r+ instead of all of this please.
+
                 # File unused but I need to check it's existence
                 a = open(filen, 'r')
                 a.close()
@@ -415,7 +418,7 @@ class ljinux():
                 a.close()
                 with open(filen, 'w') as historyfile:
                     historyfile.flush()
-                ljinux.history.historyy = []
+                ljinux.history.historyy.clear()
             except OSError:
                     ljinux.based.error(4,filen)
             ljinux.io.led.value = True
@@ -423,9 +426,12 @@ class ljinux():
         def gett(whichh): # get a specific history item, from loaded history
             return str(ljinux.history.historyy[len(ljinux.history.historyy) - whichh])
 
-        def getall(): # get the whole history, numbered, line by line
-            for i in range(len(ljinux.history.historyy)):
-                print(str(i+1) + ": " + str(ljinux.history.historyy[i]))
+        def getall():
+            """
+                History
+            """
+            for index, content in enumerate(1, len(ljinux.history.historyy)):
+                print(index + ":", str(content))
 
     class SerialReader:
         """
@@ -544,7 +550,6 @@ class ljinux():
                         badchar = True
                     elif (hexed == "0xf"): # Catch Ctrl + O for debug
                         print("\n" + "-" * 12)
-
                         print("self.pos = {}".format(self.pos))
                         print("self.s = {}".format(self.s))
                         print("self.scount = {}".format(self.scount))
@@ -775,10 +780,9 @@ class ljinux():
                     r = requests.get("http://worldtimeapi.org/api/timezone/Europe/Athens")
                     dat = r.json()
                     dmtex("Public IP: " + dat["client_ip"])
-                    if (dat["dst"] == "True"):
-                        dst = 1
-                    else:
-                        dst = 0
+
+                    dst = 1 if dat["dst"] == "True" else 0
+
                     nettime = time.struct_time((int(dat["datetime"][:4]),int(dat["datetime"][5:7]),int(dat["datetime"][8:10]),int(dat["datetime"][11:13]),int(dat["datetime"][14:16]),int(dat["datetime"][17:19]),int(dat["day_of_week"]),int(dat["day_of_year"]),dst))
                     rtcc.write_datetime(nettime)
                     del nettime
@@ -793,7 +797,7 @@ class ljinux():
         def test():
             if ljinux.io.network_online and not ljinux.io.network.link_status:
                 ljinux.io.network_online = False
-                ljinux.io.network_name = "Offiline"
+                ljinux.io.network_name = "Offline"
                 dmtex("Network connection lost")
                 return False
             return True
