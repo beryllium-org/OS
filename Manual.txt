@@ -181,7 +181,6 @@ man [COMMAND]
 
 PRINT THE MANUAL FOR THE GIVEN [COMMAND]
 
-
 ---------------------------------
 *(external) commands are those that are not hard-coded into the ljinux binary, but instead provided within /LjinuxRoot/bin
 
@@ -294,15 +293,9 @@ CODE:
       ljinux.based.fn.[function_name](parameters)
       where [function_name] is one of the function below
 
-* def get_options(inpt, vopts)
+* def get_valid_options(inpt, vopts)
       Return an options array if the given parameter start with the character '-'.
       Return an empty array if there is none, duplicate or invalid character followind '-'.
       Parameters:
             inpt : string with the second user input ex:'-n'
             vopts : string with valid option ex:'abc'
-
-* has_option(opts, opt)
-      Return True if opt exists in the array opts, else return False.
-      Parameters:
-            opts: array of characters validated as options
-            opt: the option to check in the array
