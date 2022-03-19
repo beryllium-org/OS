@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.2.4"
+Version = "0.3.0"
 Circuitpython_supported_version = 7
 dmesg = []
 access_log = []
@@ -55,6 +55,7 @@ dmesg.append("[    0.00000] Garbage collector loaded and enabled")
 
 # dmtex previous end holder
 oend = "\n" # needed to mask print
+dmtex_suppress = False
 
 def dmtex(texx=None,end="\n",timing=True):
     # Persistent offset, Print "end=" preserver
@@ -67,7 +68,8 @@ def dmtex(texx=None,end="\n",timing=True):
     else:
         strr = texx # the message as is
     
-    print(strr,end=end) # using the provided end
+    if not dmtex_suppress:
+        print(strr,end=end) # using the provided end
     
     if ("\n" == oend): # if the oend of the last print is a newline we add a new entry, otherwise we go to the last one and we add it along with the old oend
         dmesg.append(strr)
@@ -79,7 +81,6 @@ def dmtex(texx=None,end="\n",timing=True):
         a = len(dmesg) - 1 # the last entry
         dmesg[a] += oend + strr # with the ending ofc
     oend = end # then we save the new oend for the next go
-    gc.collect() # :)
 
 print("[    0.00000] Timings reset")
 dmesg.append("[    0.00000] Timings reset")
@@ -580,6 +581,209 @@ class ljinux():
                             return rstr
             return None # no end_char yet
     
+    class jcurses:
+        enabled = False
+        cursorx = 1
+        cursory = 1
+        softquit = False
+        reset = False
+        text_stepping = 0
+        ctx_dict = {"zero": [1, 1]} # bookmarks baby, bookmarks
+        char_map = { # you need to add 0x
+            "61": "a",
+            "62": "b",
+            "63": "c",
+            "64": "d",
+            "65": "e",
+            "66": "f",
+            "67": "g",
+            "68": "h",
+            "69": "i",
+            "6a": "j",
+            "6b": "k",
+            "6c": "l",
+            "6d": "m",
+            "6e": "n",
+            "6f": "o",
+            "70": "p",
+            "71": "q",
+            "72": "r",
+            "73": "s",
+            "74": "t",
+            "75": "u",
+            "76": "v",
+            "77": "w",
+            "78": "x",
+            "79": "y",
+            "7a": "z",
+            "41": "A",
+            "42": "B",
+            "43": "C",
+            "44": "D",
+            "45": "E",
+            "46": "F",
+            "47": "G",
+            "48": "H",
+            "49": "I",
+            "4a": "J",
+            "4b": "K",
+            "4c": "L",
+            "4d": "M",
+            "4e": "N",
+            "4f": "O",
+            "50": "P",
+            "51": "Q",
+            "52": "R",
+            "53": "S",
+            "54": "T",
+            "55": "U",
+            "56": "V",
+            "57": "W",
+            "58": "X",
+            "59": "Y",
+            "5a": "Z",
+            "31": "1",
+            "32": "2",
+            "33": "3",
+            "34": "4",
+            "35": "5",
+            "36": "6",
+            "37": "7",
+            "38": "8",
+            "39": "9",
+            "30": "0",
+            "60": "`",
+            "2d": "-",
+            "5f": "_",
+            "3d": "=",
+            "2b": "+",
+            "5b": "[",
+            "5d": "]",
+            "5c": "\\",
+            "2f": "/",
+            "2e": ".",
+            "2c": ",",
+            "27": "'",
+            "3b": ";",
+            "7b": "{",
+            "7d": "}",
+            "22": "\"",
+            "3a": ":",
+            "7c": "|",
+            "3f": "?",
+            "3e": ">",
+            "3c": "<",
+            "1b": "alt",
+            "20": "space",
+            "a": "enter",
+            "9": "tab",
+            "7e": "~",
+            "4": "CtrlD",
+            "21": "!",
+            "40": "@",
+            "23": "#",
+            "24": "$",
+            "25": "%",
+            "5e": "^",
+            "26": "&",
+            "2a": "*",
+            "28": "(",
+            "29": ")",
+        }
+        
+        def start():
+            if not ljinux.jcurses.enabled:
+                global dmtex_suppress
+                dmtex_suppress = True
+                print("\n" * 500) # clear screen
+                stdout.write('\x1b[500D') # go to the left of the screen
+                stdout.write('\x1b[500A') # go to the top of the screen
+            else:
+                raise OSError # It's a big error
+            
+        def stop():
+            stdout.write('\x1b[500D') # go to the left
+            global dmtex_suppress
+            dmtex_suppress = False
+        
+        def train_mode(): # get the chars you inputted
+            try:
+                while True:
+                    a = ljinux.jcurses.register_char()
+                    if a != []:
+                        for i in a:
+                            print(i)
+            except KeyboardInterrupt:
+                return
+        
+        def register_char():
+            """
+                Complete all-in-one input character registration function.
+                Returns list of input.
+                Usually it's a list of one item, but if too much is inputted at once
+                (for example, you are pasting text)
+                it will all come in one nice bundle. This is to improve performance & compatibility with advanced keyboard features.
+                
+                You need to loop this in a while true.
+            """
+            stack = []
+            n = runtime.serial_bytes_available # do we have anythin?
+            if n > 0: # we do
+                i = stdin.read(n)
+                for s in i:
+                    try:
+                        charr = str(hex(ord(s)))[2:] # I tried to fix this 4 times. Watch this number go up. - lol I made it longer 19/3/22
+                        if charr != "1b" and ljinux.jcurses.text_stepping is 0: # if it's not an alt, or if we were proccessing something
+                            stack.append(ljinux.jcurses.char_map[charr])
+                        elif ljinux.jcurses.text_stepping is 0: # skipping over the alt, dw it's not lost
+                            ljinux.jcurses.text_stepping = 1
+                        elif ljinux.jcurses.text_stepping is 1: # we have passed the alt key, time to check it
+                            if charr != "5b": # not an arrow key
+                                ljinux.jcurses.text_stepping = 0
+                                stack.append("alt")
+                                stack.append(ljinux.jcurses.char_map[charr])
+                            else: # it's an arrow key
+                                ljinux.jcurses.text_stepping = 2
+                        elif ljinux.jcurses.text_stepping is 2: # time to get the arrow key
+                            res = ""
+                            if charr == "41":
+                                res = "up"
+                            elif charr == "42":
+                                res = "down"
+                            elif charr == "43":
+                                res = "right"
+                            elif charr == "44":
+                                res = "left"
+                            ljinux.jcurses.text_stepping = 0
+                            stack.append(res)
+                            del res
+                    except KeyError:
+                        print("\nInvalid char")
+            return stack
+            
+        def ack(action):
+            pass
+        
+        def tick(trigger_dict, echo_dict):
+            """
+                the main tick, this should be run in a while true.
+                trigger_dict : What to do when what key.
+                echo : To write or not to write what we are getting.
+                
+                A suggested dictionary is:
+                {""}
+            """
+            pass
+        
+        def gotoo(ctx, number=0):
+            diffx = ljinux.jcurses.ctx_dict[ctx][0] - ljinux.jcurses.cursorx
+            diffy = ljinux.jcurses.ctx_dict[ctx][1] - ljinux.jcurses.cursory
+            del diffx
+            del diffy
+        
+        def ctx_reg(namee):
+            ljinux.jcurses.ctx_dict[namee] = [ljinux.jcurses.cursorx, ljinux.jcurses.cursory]
+    
     class backrounding:
         webserver = False
         def main_tick(loud=False): # this run in between of shell character captures
@@ -828,6 +1032,12 @@ class ljinux():
                 return l
             except OSError: # Yea no root, we cope
                 return list()
+            
+        class shellfuncs:
+            historypos = 0
+            
+            def history_movement(action):
+                pass
         
         def error(wh=3, f=None):
             """
@@ -1910,7 +2120,6 @@ class ljinux():
                                 if (str(command_split[0])[:2] == "./"):
                                     command_split[0] = str(command_split[0])[2:]
                                     if (command_split[0] != ''):
-                                        
                                         res = function_dict["exec"](command_split)
                                     else:
                                         print("Error: No file specified")

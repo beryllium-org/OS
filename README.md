@@ -22,8 +22,8 @@ The <code>Init.lja</code> has to be at <code>/LjinuxRoot/boot/</code> of the pic
 
 <h2>Installation to a fresh pi pico:</h2><br />
 
-Install CircuitPython 7.X.X onto the pico (uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_pico) & detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython)), and unzip this entire repo (or a release), except for the "source" folder onto the CIRCUITPY drive.<br />
-This is also a good time to install the libraries for the hardware you wish to connect to it. Details in Configuration.<br />
+Install CircuitPython 7.X.X onto the pico (uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_pico) & detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython)), and unzip this entire repo (or a release), except for the "source" folder onto the CIRCUITPY drive.<br /><br />
+This is also a good time to install the libraries for the hardware you wish to connect to it. Details in Configuration.<br /><b>If you plan on using the pico standalone, you don't need put any libraries.</b><br /><br />
 Then eject it and fully disconnect it from the pc. (It is important to power cycle the pi.)<br />
 When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)<br />
 <b>IMPORTANT NOTE: To make the pi appear as a usb device, run the command <code>devmode</code>.</b><br />
@@ -31,6 +31,7 @@ When it's plugged back in, it should run automatically and you can connect to it
 <h3>Configuration</h3>
 
 <b>GPIO PINS:</b><br />
+<i>Note: This pin assortment is only the <b>default</b> pin configuration. If you are using a custom config.json you should refer to that instead.</i><br />
 For the SSD1306 display: GP17(scl), GP16(sda) - libraries needed: <code>adafruit_ssd1306 adafruit_framebuf</code><br />
 For the ds1302 RTC: GP6(clk), GP7(data), GP8(ce) - libraries needed: <code>ds1302</code><br />
 Left button GP19 - Right Button GP18 - Enter Button GP20<br />
