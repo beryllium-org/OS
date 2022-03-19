@@ -830,6 +830,12 @@ class ljinux():
                 return list()
         
         def error(wh=3, f=None):
+            """
+                The differents errors used by the based shell.
+                CODE:
+                    ljinux.based.error([number])
+                    where [number] is one of the error below
+            """
             print("based: ",end='')
             if wh is 1:
                 print("Syntax Error")
@@ -847,6 +853,8 @@ class ljinux():
                 print("Filesystem unwritable, pi in developer mode")
             elif wh is 8:
                 print("Missing files")
+            elif wh is 9:
+                print("Missing arguments")
         
         def autorun():
             ljinux.io.led.value = False
@@ -1497,32 +1505,66 @@ class ljinux():
                 except OSError:
                     ljinux.based.error(4)
             
-            def headd(inpt): #givin head
-                res = ""
+            def headtail(inpt, type):
                 try:
-                    if (int(inpt[1]) >= 1):
-                        try:
-                            with open(inpt[2],'r') as f:
-                                lines = f.readlines()
-                                try:
-                                    for i in range (0,int(inpt[1])):
-                                        print(lines[i],end='')
-                                        res += lines[i-1] 
-                                except IndexError:
-                                    pass
-                                f.close()
-                                del lines
-                                gc.collect()
-                                return res
-                        except OSError:
-                            ljinux.based.error(4,inpt[2])
-                            gc.collect()
+                    lines = 10
+                    if inpt[1][0] == '-':
+                        ops = ljinux.based.fn.get_valid_options(inpt[1], 'n')
+                        if 'n' in ops and len(inpt) == 4:
+                            try:
+                                lines = int(inpt[2])
+                                file = inpt[3]
+                                del ops
+                            except IndexError:
+                                ljinux.based.error(9)
+                                return 1
+                            except ValueError:
+                                ljinux.based.error(1)
+                                return 1
+                        else:
+                            ljinux.based.error(1)
+                            return 1
+                    elif len(inpt) == 2:
+                        file = inpt[1]
                     else:
                         ljinux.based.error(1)
-                        gc.collect()
+                        return 1
+                    try:
+                        with open(file, 'r') as f:
+                            content = f.readlines()
+                            count = len(content)
+                            if lines > count:
+                                lines = count
+                            if type == "head":
+                                start = 0
+                                end = lines
+                            elif type == "tail":
+                                start = count - lines
+                                end = count
+                            for i in range (start, end):
+                                if i < count - 1:
+                                    print(content[i], end="")
+                                else:
+                                    print(content[i])
+                            f.close()
+                            del content
+                            del count
+                            del lines
+                            del start
+                            del end
+                            return 1
+                    except OSError:
+                        ljinux.based.error(4, file)
+                        return 1
                 except IndexError:
-                    ljinux.based.error(1)
-                    gc.collect()
+                    ljinux.based.error(9)
+                    return 1
+
+            def headd(inpt):
+                ljinux.based.command.headtail(inpt, "head")
+
+            def taill(inpt):
+                ljinux.based.command.headtail(inpt, "tail")
 
             def rebooto(inpt): # reboot the whole microcontroller
                 global Exit
@@ -1757,8 +1799,8 @@ class ljinux():
                         nl = True
                         pcomm = pcomm.lstrip(rc.split()[1]).replace(" ", "", 1)
                 except IndexError:
-                    print("based: missing arguments")
-                    return
+                    ljinux.based.error(9)
+                    return 1
                 if not nl:
                     print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040\n>>> " + pcomm, end="")
                 try:
@@ -1781,8 +1823,8 @@ class ljinux():
                         nl = True
                         offs = 2
                 except IndexError:
-                    print("based: missing arguments")
-                    return
+                    ljinux.based.error(9)
+                    return 1
                 if not nl:
                     print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040\nRunning file: " + inpt[offs])
                 try:
@@ -1798,9 +1840,9 @@ class ljinux():
                 del offs
                 gc.collect()
 
-            def mann(inpt): # the documentation interface command, wow
+            def mann(inpt):
                 if len(inpt) < 2:
-                    print("based: missing arguments")
+                    ljinux.based.error(9)
                     return 1
                 try:
                     filee = ""
@@ -1826,6 +1868,36 @@ class ljinux():
                 except OSError: # I guess no man then
                     ljinux.based.error(8)
                     return 1
+
+        class fn():
+            """
+                Commons functions used by the commands.
+                CODE:
+                    ljinux.based.fn.[function_name](parameters)
+                    where [function_name] is one of the function below
+            """
+
+            def get_valid_options(inpt, vopts):
+                """
+                    Return an options array if the given parameter start with the character '-'.
+                    Return an empty array if there is none, duplicate or invalid character followind '-'.
+                    Parameters:
+                        inpt : string with the second user input ex:'-n'
+                        vopts : string with valid option ex:'abc'
+                """
+                opts = []
+                i = 1
+                while i < len(inpt):
+                    if inpt[i] in vopts:
+                        opts.append(inpt[i])
+                        vopts = vopts.replace(inpt[i], '')
+                        i += 1
+                    else:
+                        return []
+                del i
+                del inpt
+                del vopts
+                return opts
                 
         def adv_input(whatever, _type):
             res = None
@@ -1878,6 +1950,7 @@ class ljinux():
                 'rm':ljinux.based.command.rmm,
                 'cat':ljinux.based.command.catt,
                 'head':ljinux.based.command.headd,
+                'tail':ljinux.based.command.taill,
                 'COMMENT':ljinux.based.command.do_nothin,
                 'fpexec':ljinux.based.command.fpexecc,
                 'man':ljinux.based.command.mann
@@ -2215,7 +2288,6 @@ class ljinux():
                             ljinux.farland.oled.pixel(i, j, col)
                 else:
                     ljinux.based.error(1)
-
 
         
         #clock functions, to be made part of hs

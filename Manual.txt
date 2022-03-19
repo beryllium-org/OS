@@ -167,16 +167,6 @@ cat [file]
 PRINTS THE CONTENTS OF A FILE
 
 
-head [n] [file]
-
-PRINT THE FIRST n LINES OF A FILE
-
-
-tail [n] [file]
-
-SAME AS HEAD, BUT PRINT THE LAST INSTEAD OF THE FIST n LINES OF A FILE
-
-
 *(external) sensors
 
 PRINTS THE CURRENT SYSTEM SENSORS DATA
@@ -190,7 +180,6 @@ PRINTS THE PICO PINOUT MAP
 man [COMMAND]
 
 PRINT THE MANUAL FOR THE GIVEN [COMMAND]
-
 
 ---------------------------------
 *(external) commands are those that are not hard-coded into the ljinux binary, but instead provided within /LjinuxRoot/bin
@@ -262,27 +251,51 @@ However it's highly recommended to have a root folder ("LjinuxRoot" or an sdcard
 ----<| Errors |
       \-------|
 
-based: Syntax Error
-    The command cannot work with the given arguments
-    Read #basic-commands
-    
-based: Input Error
-    The input given is not understandable from the command
+The differents errors used by the based shell.
+CODE:
+      ljinux.based.error([number])
+      where [number] is one of the error below
 
-based: Display not attached
-    The display is not connected correctly
+1 : Syntax Error
+      The command cannot work with the given arguments
+      Read #basic-commands
 
-based: Network unavailable
-    The network interface is not functional
+2 : Input Error
+      The input given is not understandable from the command
 
-based: file: No such file or directory
-    The file cannot be found
+3 : Error
+      This is a general error
 
-based: Error
-    This is a general error
-    
-based: Filesystem unwritable, pi in developer mode
-    This error shows up when a write to the internal storage occures while developer mode is enabled. By CircuitPython design, when the internal storage is being made available from usb, it is unwritable to the os. To disable developer mode, delete the file "devm" from the root of LJINUX, and run the command "reboot"
-    
-based: Missing files
-    This error occurs when files needed for the command to run are missing.
+4 : [file]: No such file or directory
+      The file cannot be found
+
+5 : Network unavailable
+      The network interface is not functional
+
+6 : Display not attached
+      The display is not connected correctly
+
+7 : Filesystem unwritable, pi in developer mode
+      This error shows up when a write to the internal storage occures while developer mode is enabled. By CircuitPython design, when the internal storage is being made available from usb, it is unwritable to the os. To disable developer mode, delete the file "devm" from the root of LJINUX, and run the command "reboot"
+
+8 : Missing files
+      This error occurs when files needed for the command to run are missing.
+
+9 : Missing arguments
+      This error occur when the command is used without the necessary parameters.
+
+      /----------|
+----<| Functions |
+      \----------|
+
+Commons functions used by the commands.
+CODE:
+      ljinux.based.fn.[function_name](parameters)
+      where [function_name] is one of the function below
+
+* def get_valid_options(inpt, vopts)
+      Return an options array if the given parameter start with the character '-'.
+      Return an empty array if there is none, duplicate or invalid character followind '-'.
+      Parameters:
+            inpt : string with the second user input ex:'-n'
+            vopts : string with valid option ex:'abc'

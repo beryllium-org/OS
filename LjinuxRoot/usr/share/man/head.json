@@ -1,5 +1,5 @@
 {
     "NAME":"head",
-    "SYNOPSIS":"head [n] [file]",
-    "DESCRIPTION":"PRINT THE FIRST n LINES OF A FILE"
+    "SYNOPSIS":"head [file]\n\thead [-n number] [file]",
+    "DESCRIPTION":"Print the firsts [-n number] lines of a files named [file].\n\tPrint the first 10 lines if [-n number] option is not given.\n\n\tExample to print the firsts 10 lines of a file named README.md.\n\t\thead README.md\n\tExample to print the firsts 2 lines of a file named README.md.\n\t\thead -n 2 README.md\n\n\tSee also tail."
 }
