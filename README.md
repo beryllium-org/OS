@@ -3,7 +3,9 @@ A "linux" written in python, for the Raspberry Pi Pico.<br />
 
 Important note:<br />
 Do not take this project seriously.<br />
-This is not a real os / linux distribution, but here we are.<br />
+This is not a real os / linux distribution, but here we are.<br /><br />
+
+We also now have a [discord](https://discord.gg/V8AejwGpCv) server! If you need help, feel free to hop on for some support.<br /><br />
 
 <h3>Anyways, since you are still reading let's start with the basics.</h3>
 It runs on the rpi pico, circuitpython 7.<br />
@@ -24,9 +26,7 @@ Install CircuitPython 7.X.X onto the pico (uf2 file can be found [here](https://
 This is also a good time to install the libraries for the hardware you wish to connect to it. Details in Configuration.<br />
 Then eject it and fully disconnect it from the pc. (It is important to power cycle the pi.)<br />
 When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)<br />
-<b>IMPORTANT NOTE: To make the pi appear as a usb device, run the command <code>devmode</code>.</b><br /><br />
-
-We also now have a [discord](https://discord.gg/V8AejwGpCv) server! If you need help, feel free to hop on for some support.<br />
+<b>IMPORTANT NOTE: To make the pi appear as a usb device, run the command <code>devmode</code>.</b><br />
 
 <h3>Configuration</h3>
 

@@ -1,5 +1,5 @@
 {
     "NAME":"tail",
-    "SYNOPSIS":"tail [n] [file]",
-    "DESCRIPTION":"SAME AS HEAD, BUT PRINT THE LAST INSTEAD OF THE FIST n LINES OF A FILE"
+    "SYNOPSIS":"tail [file]\n\ttail [-n number] [file]",
+    "DESCRIPTION":"PRINT THE LAST [-n number] LINES OF FILE [file].\n\tPRINTS THE LAST 10 LINES IF [-n number] IS NOT SPECIFIED.\n\n\tEXAMPLE:\n\n\tTo print the lasts 12 lines of a file named README.md.\n\t\ttail -n 12 README.md"
 }
