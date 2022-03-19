@@ -49,7 +49,7 @@ rm [FILE]...
 DELETE A FILE
 
 
-ls [OPTIONS]... [DIR]...
+*(external) ls [OPTIONS]... [DIR]...
 
 OUTPUTS THE DIRECTORY LISTING TO SERIAL OUT
 
@@ -151,7 +151,7 @@ ENABLES USB ACCESS AND OTHER DEVELOPMENT FEATURES
 THIS PROHIBITS WRITE ACCESS TO THE BUILT IN FILESYSTEM
 
 
-reboot [mode]
+*(external) reboot [mode]
 
 REBOOTS THE MICROCONTROLLER
 OPTIONALLY YOU CAN PASS A REBOOT MODE (safemode, uf2, bootloader)
@@ -162,7 +162,7 @@ dmesg
 PRINTS OUT THE DMESG LOG
 
 
-cat [file]
+*(eternal) cat [file]
 
 PRINTS THE CONTENTS OF A FILE
 
@@ -237,6 +237,8 @@ To create a comment, simply write COMMENT in the beginning of the line.
 
 To execute python code, you are advised to use pexec & fpexec.
 The scope is the same as the one of ljinux and you can call & alter ljinux data freely. Security is not important when you don't have internet or usb.
+
+To access argj from based scripts containing pexec, the best way is to use ljinux.based.user_vars["argj"].split()
 
       /---------------|
 ----<| Repo & Mirrors |

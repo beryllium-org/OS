@@ -1,0 +1,2 @@
+COMMENT the ls command
+fpexec -n /LjinuxRoot/bin/ls.py

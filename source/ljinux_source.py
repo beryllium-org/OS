@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.2.1"
+Version = "0.2.4"
 Circuitpython_supported_version = 7
 dmesg = []
 access_log = []
@@ -814,7 +814,7 @@ class ljinux():
 
     class based:
         silent = False
-        user_vars = {'history-file': "/LjinuxRoot/home/pi/.history"} # the variables defined and modified by the user
+        user_vars = {'history-file': "/LjinuxRoot/home/pi/.history", 'return': "0"} # the variables defined and modified by the user
         system_vars = {'user': "root", 'security': "off", 'Init-type': "oneshot"} # the variables defined and modified by the system
         
         def get_bins():
@@ -972,60 +972,9 @@ class ljinux():
             return Exit_code
 
         class command():
-            def ls(dirr):
-                argss_in = {}
-                in_l = 0
-                aa = False
-                ll = False
-                rett = ""
-                directory_listing = listdir()
-                try:
-                    if ("-" == str(dirr[1])[:1]):
-                        argss_in = list(str(dirr[1])[1:])
-                except IndexError:
-                    pass
-                if ("l" in argss_in):
-                    ll = True
-                if ("a" in argss_in):
-                    if ll:
-                        print(".")
-                        rett += (".")
-                        print("..")
-                        rett += ("..")
-                    else:
-                        print(".", end='   ')
-                        rett += (".   ")
-                        print("..", end='   ')
-                        rett += ("..   ")
-                    aa = True
-                    in_l +=2
-                for i in directory_listing:
-                    if ((i)[:1] == "."):
-                        if (aa):
-                            if not (ll):
-                                    print(i, end='   ')
-                                    rett += (i + '   ')
-                                    in_l += 1
-                            else:
-                                print(i)
-                                rett += (i)
-                                in_l += 1
-                    else:
-                        if not (ll):
-                            print(i, end='   ')
-                            rett += (i + '   ')
-                            in_l += 1
-                        else:
-                            print(i)
-                            rett += (i)
-                            in_l +=1
-                if not (ll):
-                    print("\n", end='')
-                    rett += ("\n")
-                return rett
-
             def not_found(errr): # command not found
                 print("based: " + errr[0] + ": command not found")
+                ljinux.based.user_vars["return"] = "1"
 
             def execc(argj): # exec a based script
                 global Exit
@@ -1055,14 +1004,13 @@ class ljinux():
                         del ljinux.based.user_vars["argj"]
                     except KeyError:
                         pass
-                    gc.collect()
                 except OSError:
                     ljinux.io.led.value = True
                     print("based: "+ argj[0] +": No such file or directory\n")
 
             def pwd(dirr): # print working directory
                 print(getcwd())
-                return getcwd()
+                ljinux.based.user_vars["return"] = getcwd()
 
             def helpp(dictt): # help
                 print("LNL based\nThese shell commands are defined internally or are in PATH. Type `help' to see this list.") # shameless
@@ -1094,7 +1042,7 @@ class ljinux():
                         if (what[1].endswith("\"")):
                             if not ljinux.based.silent:
                                 print(str(what[1])[1:-1])
-                            return (str(what[1])[1:-1])
+                            ljinux.based.user_vars["return"] = str(what[1])[1:-1]
                         else:
                             countt = len(what)
                             if (countt > 2):
@@ -1105,7 +1053,7 @@ class ljinux():
                                     res += str(what[countt-1])[:-1]
                                     if not ljinux.based.silent:
                                         print(res)
-                                    return res
+                                    ljinux.based.user_vars["return"] = res
                                 else:
                                     pass
                     else:
@@ -1113,7 +1061,8 @@ class ljinux():
                             res = ljinux.based.fn.adv_input(what[1],str)
                             if not ljinux.based.silent:
                                 print(res)
-                            return res
+                            ljinux.based.user_vars["return"] = res
+                            del res
                         except ValueError:
                             print("based: Error: Variable not found!")
                 except IndexError:
@@ -1491,20 +1440,6 @@ class ljinux():
                 else:
                     print("No audio libraries loaded")
             
-            def catt(inpt): # kot
-                res = ""
-                try:
-                    with open(inpt[1],'r') as f:
-                        lines = f.readlines()
-                        for i in lines:
-                            print(i,end="")
-                            res += i
-                        f.close()
-                        gc.collect()
-                    return res
-                except OSError:
-                    ljinux.based.error(4)
-            
             def headtail(inpt, type): # the combined command for head & tail
                 lines = 10
                 try:
@@ -1517,18 +1452,18 @@ class ljinux():
                                 del ops
                             except IndexError:
                                 ljinux.based.error(9)
-                                return 1
+                                ljinux.based.user_vars["return"] = "1"
                             except ValueError:
                                 ljinux.based.error(1)
-                                return 1
+                                ljinux.based.user_vars["return"] = "1"
                         else:
                             ljinux.based.error(1)
-                            return 1
+                            ljinux.based.user_vars["return"] = "1"
                     elif len(inpt) == 2:
                         file = inpt[1]
                     else:
                         ljinux.based.error(1)
-                        return 1
+                        ljinux.based.user_vars["return"] = "1"
                     try:
                         with open(file, 'r') as f:
                             content = f.readlines()
@@ -1552,35 +1487,19 @@ class ljinux():
                             del lines
                             del start
                             del end
-                            return 1
+                            ljinux.based.user_vars["return"] = "0"
                     except OSError:
                         ljinux.based.error(4, file)
-                        return 1
+                        ljinux.based.user_vars["return"] = "1"
                 except IndexError:
                     ljinux.based.error(9)
-                    return 1
+                    ljinux.based.user_vars["return"] = "1"
 
             def headd(inpt):
                 ljinux.based.command.headtail(inpt, "head")
 
             def taill(inpt):
                 ljinux.based.command.headtail(inpt, "tail")
-
-            def rebooto(inpt): # reboot the whole microcontroller
-                global Exit
-                global Exit_code
-                Exit = True
-                try:
-                    if (inpt[1] == "bootloader"):
-                        Exit_code = 243
-                    elif (inpt[1] == "safemode"):
-                        Exit_code = 242
-                    elif (inpt[1] == "uf2"):
-                        Exit_code = 241
-                    else:
-                        Exit_code = 245
-                except IndexError:
-                    Exit_code = 245
 
             def historgf(inpt): # history get full list
                 try:
@@ -1800,9 +1719,10 @@ class ljinux():
                         pcomm = pcomm.lstrip(rc.split()[1]).replace(" ", "", 1)
                 except IndexError:
                     ljinux.based.error(9)
-                    return 1
+                    ljinux.based.user_vars["return"] = "1"
+                    return
                 if not nl:
-                    print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040\n>>> " + pcomm, end="")
+                    print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040\n>>> " + pcomm)
                 try:
                     exec(pcomm)
                     del pcomm
@@ -1824,7 +1744,8 @@ class ljinux():
                         offs = 2
                 except IndexError:
                     ljinux.based.error(9)
-                    return 1
+                    ljinux.based.user_vars["return"] = "1"
+                    return
                 if not nl:
                     print("Adafruit CircuitPython "+str(implementation.version[0])+"."+str(implementation.version[1])+"."+str(implementation.version[2])+" on Ljinux "+Version+"; Raspberry Pi Pico with rp2040\nRunning file: " + inpt[offs])
                 try:
@@ -1843,7 +1764,8 @@ class ljinux():
             def mann(inpt):
                 if len(inpt) < 2:
                     ljinux.based.error(9)
-                    return 1
+                    ljinux.based.user_vars["return"] = "1"
+                    return
                 try:
                     filee = ""
                     mans = listdir("/LjinuxRoot/usr/share/man")
@@ -1861,13 +1783,15 @@ class ljinux():
                         print("DESCRIPTION" + "\n\t" + man["DESCRIPTION"] + "\n")
                         del filee
                         del man
-                        return 0
+                        ljinux.based.user_vars["return"] = "0"
+                        return
                     except (ValueError, OSError, KeyError):
                         dmtex("Manual file could not be found / parsed for "  + inpt[1] + ".")
-                        return 1
+                        ljinux.based.user_vars["return"] = "1"
+                        return
                 except OSError: # I guess no man then
                     ljinux.based.error(8)
-                    return 1
+                    ljinux.based.user_vars["return"] = "1"
 
         class fn():
             """
@@ -1925,7 +1849,6 @@ class ljinux():
         def shell(inp=None): # the shell function, warning do not touch, it has feelings
             global Exit
             function_dict = { # holds all built-in commands. The plan is to move as many as possible externally
-                'ls':ljinux.based.command.ls,
                 'error':ljinux.based.command.not_found,
                 'exec':ljinux.based.command.execc,
                 'pwd':ljinux.based.command.pwd,
@@ -1942,7 +1865,6 @@ class ljinux():
                 'su':ljinux.based.command.suuu,
                 'mp3':ljinux.based.command.playmp3,
                 'wav':ljinux.based.command.playwav,
-                'reboot':ljinux.based.command.rebooto,
                 'history':ljinux.based.command.historgf,
                 'clear':ljinux.based.command.clearr,
                 'halt':ljinux.based.command.haltt,
@@ -1954,7 +1876,6 @@ class ljinux():
                 'devmode':ljinux.based.command.devv,
                 'pexec':ljinux.based.command.pexecc,
                 'rm':ljinux.based.command.rmm,
-                'cat':ljinux.based.command.catt,
                 'head':ljinux.based.command.headd,
                 'tail':ljinux.based.command.taill,
                 'COMMENT':ljinux.based.command.do_nothin,
@@ -2029,16 +1950,28 @@ class ljinux():
                         elif (("|" in command_input) and not ("&&" in command_input)): # this is a pipe  :)
                             ljinux.based.silent = True
                             the_pipe_pos = command_input.find("|",0)
-                            partt = ljinux.based.shell(command_input[:the_pipe_pos-1])
+                            ljinux.based.shell(command_input[:the_pipe_pos-1])
                             ljinux.based.silent = False
-                            ljinux.based.shell(command_input[the_pipe_pos+2:] + " " + partt)
+                            ljinux.based.shell(command_input[the_pipe_pos+2:] + " " + ljinux.based.user_vars["return"])
                             del the_pipe_pos
-                            del partt
                         elif (("&&" in command_input) and not ("|" in command_input)): # this is a dirty pipe  :)
                             the_pipe_pos = command_input.find("&&",0)
                             ljinux.based.shell(command_input[:the_pipe_pos-1])
                             ljinux.based.shell(command_input[the_pipe_pos+2:])
                             del the_pipe_pos
+                        elif (("&&" in command_input) and ("|" in command_input)): # this pipe was used to end me :(
+                            the_pipe_pos_1 = command_input.find("|",0)
+                            the_pipe_pos_2 = command_input.find("&&",0)
+                            if the_pipe_pos_1 < the_pipe_pos_2: # the first pipe is a |
+                                ljinux.based.silent = True
+                                ljinux.based.shell(command_input[:the_pipe_pos_1-1])
+                                ljinux.based.silent = False
+                                ljinux.based.shell(command_input[the_pipe_pos_1+2:] + " " + ljinux.based.user_vars["return"])
+                            else: # the first pipe is a &&
+                                ljinux.based.shell(command_input[:the_pipe_pos_2-1])
+                                ljinux.based.shell(command_input[the_pipe_pos_2+2:])
+                            del the_pipe_pos_1
+                            del the_pipe_pos_2
                         else: # oh frick you
                             pass
                     ljinux.io.led.value = True
