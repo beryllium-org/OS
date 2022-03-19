@@ -167,6 +167,16 @@ cat [file]
 PRINTS THE CONTENTS OF A FILE
 
 
+head [n] [file]
+
+PRINT THE FIRST [-n number] LINES OF FILE [file].
+
+
+tail [n] [file]
+
+PRINT THE LAST [-n number] LINES OF FILE [file].
+
+
 *(external) sensors
 
 PRINTS THE CURRENT SYSTEM SENSORS DATA
@@ -251,7 +261,7 @@ However it's highly recommended to have a root folder ("LjinuxRoot" or an sdcard
 ----<| Errors |
       \-------|
 
-The differents errors used by the based shell.
+The different errors used by the based shell.
 CODE:
       ljinux.based.error([number])
       where [number] is one of the error below

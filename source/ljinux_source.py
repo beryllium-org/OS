@@ -831,7 +831,7 @@ class ljinux():
         
         def error(wh=3, f=None):
             """
-                The differents errors used by the based shell.
+                The different errors used by the based shell.
                 CODE:
                     ljinux.based.error([number])
                     where [number] is one of the error below
@@ -1047,7 +1047,7 @@ class ljinux():
                     for i in argj:
                         simplif += i + " "
                     simplif = simplif[:-1]
-                    ljinux.based.shell("argj = " + simplif) # provide arguments
+                    ljinux.based.shell("argj = \"" + simplif + "\"") # provide arguments
                     for commandd in lines:
                         ljinux.based.shell(commandd) # yes stonks
                     f.close()
@@ -1110,7 +1110,7 @@ class ljinux():
                                     pass
                     else:
                         try:
-                            res = ljinux.based.adv_input(what[1],str)
+                            res = ljinux.based.fn.adv_input(what[1],str)
                             if not ljinux.based.silent:
                                 print(res)
                             return res
@@ -1261,10 +1261,10 @@ class ljinux():
                 if (typee == "text"): # x, y, color, text in ""
                     try:
                         xi = 0
-                        xi = ljinux.based.adv_input(inpt[2], int)
-                        yi = ljinux.based.adv_input(inpt[3], int)
+                        xi = ljinux.based.fn.adv_input(inpt[2], int)
+                        yi = ljinux.based.fn.adv_input(inpt[3], int)
                         txt = "" #inpt[5]
-                        col = ljinux.based.adv_input(inpt[4], int)
+                        col = ljinux.based.fn.adv_input(inpt[4], int)
                         if (inpt[5].startswith("\"")): # let's do some string proccessing!
                             countt = len(inpt) # get the numb of args
                             if (countt > 6):
@@ -1285,40 +1285,40 @@ class ljinux():
                         print("based: Input error")
                 elif (typee == "dot"): # x,y,col
                     try:
-                        xi = ljinux.based.adv_input(inpt[2], int)
-                        yi = ljinux.based.adv_input(inpt[3], int)
-                        col = ljinux.based.adv_input(inpt[4], int)
+                        xi = ljinux.based.fn.adv_input(inpt[2], int)
+                        yi = ljinux.based.fn.adv_input(inpt[3], int)
+                        col = ljinux.based.fn.adv_input(inpt[4], int)
                         ljinux.farland.pixel(xi,yi,col)
                     except ValueError:
                         print("based: Input error")
                 elif (typee == "rectangle"): # x start, y start, x stop, y stop, color, mode (fill / border)
                     try:
-                        xi = ljinux.based.adv_input(inpt[2], int)
-                        yi = ljinux.based.adv_input(inpt[3], int)
-                        xe = ljinux.based.adv_input(inpt[4], int)
-                        ye = ljinux.based.adv_input(inpt[5], int)
-                        col = ljinux.based.adv_input(inpt[6], int)
-                        modd = ljinux.based.adv_input(inpt[7], str)
+                        xi = ljinux.based.fn.adv_input(inpt[2], int)
+                        yi = ljinux.based.fn.adv_input(inpt[3], int)
+                        xe = ljinux.based.fn.adv_input(inpt[4], int)
+                        ye = ljinux.based.fn.adv_input(inpt[5], int)
+                        col = ljinux.based.fn.adv_input(inpt[6], int)
+                        modd = ljinux.based.fn.adv_input(inpt[7], str)
                         ljinux.farland.rect(xi,yi,xe,ye,col,modd)
                     except ValueError:
                         print("based: Input error")
                 elif (typee == "line"): # x start, y start, x stop, y stop, color
                     try:
-                        xi = ljinux.based.adv_input(inpt[2], int)
-                        yi = ljinux.based.adv_input(inpt[3], int)
-                        xe = ljinux.based.adv_input(inpt[4], int)
-                        ye = ljinux.based.adv_input(inpt[5], int)
-                        col = ljinux.based.adv_input(inpt[6], int)
+                        xi = ljinux.based.fn.adv_input(inpt[2], int)
+                        yi = ljinux.based.fn.adv_input(inpt[3], int)
+                        xe = ljinux.based.fn.adv_input(inpt[4], int)
+                        ye = ljinux.based.fn.adv_input(inpt[5], int)
+                        col = ljinux.based.fn.adv_input(inpt[6], int)
                         ljinux.farland.line(xi,yi,xe,ye,col)
                     except ValueError:
                         print("based: Input error")
                 elif (typee == "circle"): # x center, y center, rad, color, mode (fill/ border / template) TODO fix fill and do template
                     try:
-                        xi = ljinux.based.adv_input(inpt[2], int)
-                        yi = ljinux.based.adv_input(inpt[3], int)
-                        radd = ljinux.based.adv_input(inpt[4], int)
-                        col = ljinux.based.adv_input(inpt[5], int)
-                        modd = ljinux.based.adv_input(inpt[6], int)
+                        xi = ljinux.based.fn.adv_input(inpt[2], int)
+                        yi = ljinux.based.fn.adv_input(inpt[3], int)
+                        radd = ljinux.based.fn.adv_input(inpt[4], int)
+                        col = ljinux.based.fn.adv_input(inpt[5], int)
+                        modd = ljinux.based.fn.adv_input(inpt[6], int)
                         if (modd != "fill"):
                             ljinux.farland.draw_circle(xi,yi,radd,col)
                         else:
@@ -1327,14 +1327,14 @@ class ljinux():
                         print("based: Input error")
                 elif (typee == "triangle"): # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
                     try:
-                        xi = ljinux.based.adv_input(inpt[2], int)
-                        yi = ljinux.based.adv_input(inpt[3], int)
-                        xe = ljinux.based.adv_input(inpt[4], int)
-                        ye = ljinux.based.adv_input(inpt[5], int)
-                        xz = ljinux.based.adv_input(inpt[6], int)
-                        yz = ljinux.based.adv_input(inpt[7], int)
-                        col = ljinux.based.adv_input(inpt[8], int)
-                        modd = ljinux.based.adv_input(inpt[9], str)
+                        xi = ljinux.based.fn.adv_input(inpt[2], int)
+                        yi = ljinux.based.fn.adv_input(inpt[3], int)
+                        xe = ljinux.based.fn.adv_input(inpt[4], int)
+                        ye = ljinux.based.fn.adv_input(inpt[5], int)
+                        xz = ljinux.based.fn.adv_input(inpt[6], int)
+                        yz = ljinux.based.fn.adv_input(inpt[7], int)
+                        col = ljinux.based.fn.adv_input(inpt[8], int)
+                        modd = ljinux.based.fn.adv_input(inpt[9], str)
                         ljinux.farland.line(xi,yi,xe,ye,col)
                         ljinux.farland.line(xi,yi,xz,yz,col)
                         ljinux.farland.line(xz,yz,xe,ye,col)
@@ -1346,7 +1346,7 @@ class ljinux():
                         print("based: Input error")
                 elif (typee == "fill"): # color
                     try:
-                        col = ljinux.based.adv_input(inpt[2], int)
+                        col = ljinux.based.fn.adv_input(inpt[2], int)
                         ljinux.farland.fill(col)
                     except ValueError:
                         print("based: Input error")
@@ -1355,7 +1355,7 @@ class ljinux():
                 elif (typee == "move"): # todo
                     pass
                 elif (typee == "delete"): #todo more
-                    optt = ljinux.based.adv_input(inpt[2], int)
+                    optt = ljinux.based.fn.adv_input(inpt[2], int)
                     if (optt == "all"):
                         ljinux.farland.clear()
                     else:
@@ -1505,9 +1505,9 @@ class ljinux():
                 except OSError:
                     ljinux.based.error(4)
             
-            def headtail(inpt, type):
+            def headtail(inpt, type): # the combined command for head & tail
+                lines = 10
                 try:
-                    lines = 10
                     if inpt[1][0] == '-':
                         ops = ljinux.based.fn.get_valid_options(inpt[1], 'n')
                         if 'n' in ops and len(inpt) == 4:
@@ -1871,23 +1871,22 @@ class ljinux():
 
         class fn():
             """
-                Commons functions used by the commands.
+                Common functions used by the commands.
                 CODE:
                     ljinux.based.fn.[function_name](parameters)
-                    where [function_name] is one of the function below
             """
 
             def get_valid_options(inpt, vopts):
                 """
-                    Return an options array if the given parameter start with the character '-'.
-                    Return an empty array if there is none, duplicate or invalid character followind '-'.
+                    Returns an options array if the given parameter start with the character '-'.
+                    Returns an empty array if there is none, duplicate or invalid character followind '-'.
                     Parameters:
                         inpt : string with the second user input ex:'-n'
                         vopts : string with valid option ex:'abc'
                 """
                 opts = []
                 i = 1
-                while i < len(inpt):
+                while i < len(inpt): # why not "for"?
                     if inpt[i] in vopts:
                         opts.append(inpt[i])
                         vopts = vopts.replace(inpt[i], '')
@@ -1899,22 +1898,29 @@ class ljinux():
                 del vopts
                 return opts
                 
-        def adv_input(whatever, _type):
-            res = None
-            act_dict = {'left_key': ljinux.io.left_key, 'right_key': ljinux.io.right_key, 'enter_key': ljinux.io.enter_key, 'serial_input': ljinux.io.serial}
-            if whatever.isdigit():
-                res = int(whatever)
-            elif whatever in ljinux.based.user_vars:
-                res = ljinux.based.user_vars[whatever]
-            elif whatever in ljinux.based.system_vars:
-                res = ljinux.based.system_vars[whatever]
-            elif whatever in ljinux.io.sys_getters:
-                res = ljinux.io.sys_getters[whatever]()
-            elif whatever in act_dict:
-                res = act_dict[whatever]()
-            else:
-                raise ValueError("Could not be found in Ljinux lists")
-            return _type(res)
+            def adv_input(whatever, _type):
+                """
+                    Universal variable request
+                    Returns the variable's value in the specified type
+                    Parameters:
+                        whatever : The name of the variable
+                        _type : The type in which it should be returned
+                """
+                res = None
+                act_dict = {'left_key': ljinux.io.left_key, 'right_key': ljinux.io.right_key, 'enter_key': ljinux.io.enter_key, 'serial_input': ljinux.io.serial}
+                if whatever.isdigit():
+                    res = int(whatever)
+                elif whatever in ljinux.based.user_vars:
+                    res = ljinux.based.user_vars[whatever]
+                elif whatever in ljinux.based.system_vars:
+                    res = ljinux.based.system_vars[whatever]
+                elif whatever in ljinux.io.sys_getters:
+                    res = ljinux.io.sys_getters[whatever]()
+                elif whatever in act_dict:
+                    res = act_dict[whatever]()
+                else:
+                    raise ValueError("Could not be found in Ljinux lists")
+                return _type(res)
         
         def shell(inp=None): # the shell function, warning do not touch, it has feelings
             global Exit
@@ -1983,6 +1989,7 @@ class ljinux():
                                 if (str(command_split[0])[:2] == "./"):
                                     command_split[0] = str(command_split[0])[2:]
                                     if (command_split[0] != ''):
+                                        
                                         res = function_dict["exec"](command_split)
                                     else:
                                         print("Error: No file specified")
