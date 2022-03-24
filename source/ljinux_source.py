@@ -55,7 +55,15 @@ dmesg.append("[    0.00000] Garbage collector loaded and enabled")
 
 # dmtex previous end holder
 oend = "\n" # needed to mask print
-dmtex_suppress = False
+
+try:
+    from jcurses import jcurses
+    term = jcurses()
+    print("[    0.00000] Loaded jcurses")
+    dmesg.append("[    0.00000] Loaded jcurses")
+except ImportError:
+    print("CRITICAL: FAILED TO LOAD JCURSES")
+    exit(0)
 
 def dmtex(texx=None,end="\n",timing=True):
     # Persistent offset, Print "end=" preserver
@@ -68,7 +76,7 @@ def dmtex(texx=None,end="\n",timing=True):
     else:
         strr = texx # the message as is
     
-    if not dmtex_suppress:
+    if not term.dmtex_suppress:
         print(strr,end=end) # using the provided end
     
     if ("\n" == oend): # if the oend of the last print is a newline we add a new entry, otherwise we go to the last one and we add it along with the old oend
@@ -361,11 +369,39 @@ if not configg["fixrtc"]:
         dmtex("RTC clock init done")
     except ImportError:
         dmtex("CRITICAL: RTC LIBRARIES LOADING FAILED")
+
+try:
+    from lj_colours import lJ_Colours as colors
+    print(colors.reset_s_format,end="")
+    dmtex("Loaded lj_colours")
+except ImportError:
+    dmtex("CRITICAL: FAILED TO LOAD LJ_COLOURS")
+    exit(0)
+
 dmtex("Imports complete")
+
+def systemprints(mod,tx1,tx2=None):
+    print("[ ",end="")
+    if mod is 1: # ok
+        print(colors.green_t + "OK",end="")
+    elif mod is 2: # ..
+        print(colors.magenta_t + "..",end="")
+    elif mod is 3: # FAILED
+        print(colors.red_t + "FAILED",end="")
+    print(colors.endc + " ] " + tx1)
+    if tx2 is not None:
+        if mod is not 3:
+            print("       -> ",end="")
+        else:
+            print("           -> ",end="")
+        print(tx2)
+
+dmtex("Additional loading done")
 
 class ljinux():
     class history:
         historyy = []
+        historynav = [0, 0, ""]
         
         def load(filen):
             ljinux.history.historyy = list()
@@ -581,209 +617,6 @@ class ljinux():
                             return rstr
             return None # no end_char yet
     
-    class jcurses:
-        enabled = False
-        cursorx = 1
-        cursory = 1
-        softquit = False
-        reset = False
-        text_stepping = 0
-        ctx_dict = {"zero": [1, 1]} # bookmarks baby, bookmarks
-        char_map = { # you need to add 0x
-            "61": "a",
-            "62": "b",
-            "63": "c",
-            "64": "d",
-            "65": "e",
-            "66": "f",
-            "67": "g",
-            "68": "h",
-            "69": "i",
-            "6a": "j",
-            "6b": "k",
-            "6c": "l",
-            "6d": "m",
-            "6e": "n",
-            "6f": "o",
-            "70": "p",
-            "71": "q",
-            "72": "r",
-            "73": "s",
-            "74": "t",
-            "75": "u",
-            "76": "v",
-            "77": "w",
-            "78": "x",
-            "79": "y",
-            "7a": "z",
-            "41": "A",
-            "42": "B",
-            "43": "C",
-            "44": "D",
-            "45": "E",
-            "46": "F",
-            "47": "G",
-            "48": "H",
-            "49": "I",
-            "4a": "J",
-            "4b": "K",
-            "4c": "L",
-            "4d": "M",
-            "4e": "N",
-            "4f": "O",
-            "50": "P",
-            "51": "Q",
-            "52": "R",
-            "53": "S",
-            "54": "T",
-            "55": "U",
-            "56": "V",
-            "57": "W",
-            "58": "X",
-            "59": "Y",
-            "5a": "Z",
-            "31": "1",
-            "32": "2",
-            "33": "3",
-            "34": "4",
-            "35": "5",
-            "36": "6",
-            "37": "7",
-            "38": "8",
-            "39": "9",
-            "30": "0",
-            "60": "`",
-            "2d": "-",
-            "5f": "_",
-            "3d": "=",
-            "2b": "+",
-            "5b": "[",
-            "5d": "]",
-            "5c": "\\",
-            "2f": "/",
-            "2e": ".",
-            "2c": ",",
-            "27": "'",
-            "3b": ";",
-            "7b": "{",
-            "7d": "}",
-            "22": "\"",
-            "3a": ":",
-            "7c": "|",
-            "3f": "?",
-            "3e": ">",
-            "3c": "<",
-            "1b": "alt",
-            "20": "space",
-            "a": "enter",
-            "9": "tab",
-            "7e": "~",
-            "4": "CtrlD",
-            "21": "!",
-            "40": "@",
-            "23": "#",
-            "24": "$",
-            "25": "%",
-            "5e": "^",
-            "26": "&",
-            "2a": "*",
-            "28": "(",
-            "29": ")",
-        }
-        
-        def start():
-            if not ljinux.jcurses.enabled:
-                global dmtex_suppress
-                dmtex_suppress = True
-                print("\n" * 500) # clear screen
-                stdout.write('\x1b[500D') # go to the left of the screen
-                stdout.write('\x1b[500A') # go to the top of the screen
-            else:
-                raise OSError # It's a big error
-            
-        def stop():
-            stdout.write('\x1b[500D') # go to the left
-            global dmtex_suppress
-            dmtex_suppress = False
-        
-        def train_mode(): # get the chars you inputted
-            try:
-                while True:
-                    a = ljinux.jcurses.register_char()
-                    if a != []:
-                        for i in a:
-                            print(i)
-            except KeyboardInterrupt:
-                return
-        
-        def register_char():
-            """
-                Complete all-in-one input character registration function.
-                Returns list of input.
-                Usually it's a list of one item, but if too much is inputted at once
-                (for example, you are pasting text)
-                it will all come in one nice bundle. This is to improve performance & compatibility with advanced keyboard features.
-                
-                You need to loop this in a while true.
-            """
-            stack = []
-            n = runtime.serial_bytes_available # do we have anythin?
-            if n > 0: # we do
-                i = stdin.read(n)
-                for s in i:
-                    try:
-                        charr = str(hex(ord(s)))[2:] # I tried to fix this 4 times. Watch this number go up. - lol I made it longer 19/3/22
-                        if charr != "1b" and ljinux.jcurses.text_stepping is 0: # if it's not an alt, or if we were proccessing something
-                            stack.append(ljinux.jcurses.char_map[charr])
-                        elif ljinux.jcurses.text_stepping is 0: # skipping over the alt, dw it's not lost
-                            ljinux.jcurses.text_stepping = 1
-                        elif ljinux.jcurses.text_stepping is 1: # we have passed the alt key, time to check it
-                            if charr != "5b": # not an arrow key
-                                ljinux.jcurses.text_stepping = 0
-                                stack.append("alt")
-                                stack.append(ljinux.jcurses.char_map[charr])
-                            else: # it's an arrow key
-                                ljinux.jcurses.text_stepping = 2
-                        elif ljinux.jcurses.text_stepping is 2: # time to get the arrow key
-                            res = ""
-                            if charr == "41":
-                                res = "up"
-                            elif charr == "42":
-                                res = "down"
-                            elif charr == "43":
-                                res = "right"
-                            elif charr == "44":
-                                res = "left"
-                            ljinux.jcurses.text_stepping = 0
-                            stack.append(res)
-                            del res
-                    except KeyError:
-                        print("\nInvalid char")
-            return stack
-            
-        def ack(action):
-            pass
-        
-        def tick(trigger_dict, echo_dict):
-            """
-                the main tick, this should be run in a while true.
-                trigger_dict : What to do when what key.
-                echo : To write or not to write what we are getting.
-                
-                A suggested dictionary is:
-                {""}
-            """
-            pass
-        
-        def gotoo(ctx, number=0):
-            diffx = ljinux.jcurses.ctx_dict[ctx][0] - ljinux.jcurses.cursorx
-            diffy = ljinux.jcurses.ctx_dict[ctx][1] - ljinux.jcurses.cursory
-            del diffx
-            del diffy
-        
-        def ctx_reg(namee):
-            ljinux.jcurses.ctx_dict[namee] = [ljinux.jcurses.cursorx, ljinux.jcurses.cursory]
-    
     class backrounding:
         webserver = False
         def main_tick(loud=False): # this run in between of shell character captures
@@ -811,7 +644,7 @@ class ljinux():
         buttone.switch_to_input(pull=digitalio.Pull.DOWN)
         network = None
         network_online = False
-        network_name = "Offiline"
+        network_name = "Offline"
         
         def get_static_file(filename,m="rb"):
             "Static file generator"
@@ -997,7 +830,7 @@ class ljinux():
         def test():
             if ljinux.io.network_online and not ljinux.io.network.link_status:
                 ljinux.io.network_online = False
-                ljinux.io.network_name = "Offiline"
+                ljinux.io.network_name = "Offline"
                 dmtex("Network connection lost")
                 return False
             return True
@@ -1046,25 +879,20 @@ class ljinux():
                     ljinux.based.error([number])
                     where [number] is one of the error below
             """
-            print("based: ",end='')
-            if wh is 1:
-                print("Syntax Error")
-            elif wh is 2:
-                print("Input Error")
-            elif wh is 3:
-                print("Error")
-            elif wh is 4:
-                print(str(f) + ": No such file or directory")
-            elif wh is 5:
-                print("Network unavailable")
-            elif wh is 6:
-                print("Display not attached")
-            elif wh is 7:
-                print("Filesystem unwritable, pi in developer mode")
-            elif wh is 8:
-                print("Missing files")
-            elif wh is 9:
-                print("Missing arguments")
+            errs = {
+                1: "Syntax Error",
+                2: "Input Error",
+                3: "Error",
+                4: str(f) + ": No such file or directory",
+                5: "Network unavailable",
+                6: "Display not attached",
+                7: "Filesystem unwritable, pi in developer mode",
+                8: "Missing files",
+                9: "Missing arguments"
+            }
+            print("based: " + errs[wh])
+            del errs
+            
         
         def autorun():
             ljinux.io.led.value = False
@@ -1075,16 +903,16 @@ class ljinux():
             ljinux.based.system_vars["ImplementationVersion"] = str(implementation.version[0]) + "." + str(implementation.version[1]) + "." + str(implementation.version[2])
             print("\nWelcome to ljinux wanna-be kernel " + ljinux.based.system_vars["Version"] + "\n\n", end='')
             try:
-                print("[ .. ] Mount /LjinuxRoot")
+                systemprints(2, "Mount /LjinuxRoot")
                 ljinux.io.start_sdcard()
-                print("[ OK ] Mount /LjinuxRoot")
+                systemprints(1, "Mount /LjinuxRoot")
             except OSError:
-                print("[ Failed ] Mount /LjinuxRoot\n       -> Error: sd card not available, assuming built in fs")
+                systemprints(3, "Mount /LjinuxRoot", "Error: sd card not available, assuming built in fs")
                 del modules["adafruit_sdcard"]
                 dmtex("Unloaded sdio libraries")
                 gc.collect()
             ljinux.io.led.value = True
-            print("[ .. ] Running Init Script\n       -> Attempting to open /LjinuxRoot/boot/Init.lja..")
+            systemprints(2, "Running Init Script", "Attempting to open /LjinuxRoot/boot/Init.lja..")
             lines = None
             Exit_code = 0 # resetting, in case we are the 2nd .shell
             try:
@@ -1101,16 +929,18 @@ class ljinux():
                     ljinux.io.led.value = True
                 for commandd in lines:
                     ljinux.based.shell(commandd)
-                print("[ OK ] Running Init Script")
+                systemprints(1, "Running Init Script")
+                
             except OSError:
-                print("[ Failed ] Running Init Script\n")
+                systemprints(3, "Running Init Script")
             ljinux.history.load(ljinux.based.user_vars["history-file"])
-            print("[ OK ] History Reload")
+            systemprints(1, "History Reload")
             if (ljinux.based.system_vars["Init-type"] == "oneshot"):
-                print("[ OK ] Init complete\n[ .. ] Awaiting serial interface connection")
+                systemprints(1, "Init complete")
+                systemprints(2, "Awaiting serial interface connection")
                 while not console.connected:
                     time.sleep(1)
-                print("[ OK ] Serial is connected\n")
+                systemprints(1, "Serial is connected\n")
             elif (ljinux.based.system_vars["Init-type"] == "reboot-repeat"):
                 global Exit
                 global Exit_code
@@ -1725,7 +1555,7 @@ class ljinux():
                     ljinux.history.getall()
 
             def clearr(inpt): # try to clear the screen
-                print("\n" * 100) # yea, I can't do much more than that in serial.. :(
+                tclear()
 
             def haltt(inpt):
                 global Exit
@@ -2056,7 +1886,7 @@ class ljinux():
                     raise ValueError("Could not be found in Ljinux lists")
                 return _type(res)
         
-        def shell(inp=None): # the shell function, warning do not touch, it has feelings
+        def shell(inp=None): # the shell function, warning do not touch, it has feelings - no I think I will 20/3/22
             global Exit
             function_dict = { # holds all built-in commands. The plan is to move as many as possible externally
                 'error':ljinux.based.command.not_found,
@@ -2093,15 +1923,47 @@ class ljinux():
                 'man':ljinux.based.command.mann
             }
             command_input = False
-            input_obj = ljinux.SerialReader()
+            #input_obj = ljinux.SerialReader()
+            if not term.enabled:
+                term.start()
+                term.trigger_dict = {
+                    "inp_type": "prompt",
+                    "context": [],
+                    "enter": 0,
+                    "ctrlC": 1,
+                    "ctrlD": 2,
+                    "tab": 3,
+                    "up": 4,
+                    "down": 7,
+                    "rest": "stack",
+                    "rest_a": "common",
+                    "echo": "common"
+                }
             if not Exit:
-                while ((command_input == False) or (command_input == "\n")):
+                while ((command_input == False) or (command_input == "\n")) and not Exit:
+                    term.trigger_dict["prefix"] = "[" + ljinux.based.system_vars["user"] + "@pico | " + getcwd() + "]>"
                     if (inp == None):
-                        print("[" + ljinux.based.system_vars["user"] + "@pico | " + getcwd() + "]> ", end='')
                         command_input = False
                         while (((not command_input) or (command_input == "")) and not Exit):
-                            command_input = input_obj.read()  # read until newline, echo back chars
-                            # an alternative: command_input = input_obj.read(end_char='\t', echo=False) # trigger on tab, no echo
+                            term.program()
+                            if term.buf[0] is 0:
+                                command_input = term.buf[1]
+                                term.buf[1] = ""
+                                term.focus = 0
+                                print("\n",end="")
+                            elif term.buf[0] is 1:
+                                print("^C")
+                                term.buf[1] = ""
+                                term.termline()
+                            elif term.buf[0] is 2:
+                                print("^D")
+                                global Exit
+                                global Exit_code
+                                Exit = True
+                                Exit_code = 0
+                                break
+                            elif term.buf[0] is 3:
+                                pass # autocomplete
                             ljinux.backrounding.main_tick()
                             try:
                                 if (command_input[:1] != " "):
@@ -2186,6 +2048,7 @@ class ljinux():
                     ljinux.io.led.value = True
                     gc.collect()
                     gc.collect()
+                    #del SerialReader
                     return res
 
     class farland: # wayland, but like a farfetched dream
