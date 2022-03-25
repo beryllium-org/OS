@@ -463,159 +463,6 @@ class ljinux():
         def getall(): # get the whole history, numbered, line by line
             for i in range(len(ljinux.history.historyy)):
                 print(str(i+1) + ": " + str(ljinux.history.historyy[i]))
-
-    class SerialReader:
-        """
-           Credits and based on:
-           
-                https://github.com/todbot/circuitpython-tricks#rename-circuitpy-drive-to-something-new.
-          
-        """
-        def __init__(self):
-            self.s = ''
-            self.scount = 0 # how many are in the array, just for speed
-            self.capture_step = 0 # var to hold status of capturing multi-byte chars
-            self.pos = 0 # where is the cursor, and to be more precise, how many steps left it is.
-            self.temp_s = '' # holds current command, while you are browsing the history
-            self.temp_scount = 0 # holds current command, while you are browsing the history
-            self.temp_pos = 0 # holds the current command position if you browsing the history.
-            self.historypos = 0
-        def read(self,end_char='\n', echo= True): # you can call it with a custom end_char or no echo
-            badchar = False # don't pass char to str
-            n = runtime.serial_bytes_available
-            if n > 0:
-                i = stdin.read(n) # it's now a char, read from stdin :)
-                for s in i:
-                    hexed = str(hex(ord(s))) # I tried to fix this 3 times. Watch this number go up.
-                    #print(hexed) #use this to get it's hex form
-                    if (hexed == "0x4"): # catch Ctrl + D
-                        print("^D")
-                        global Exit
-                        Exit = True
-                        return None
-                    elif (hexed == "0x7f"): # catch Backspace
-                        if (self.scount - self.pos > 0):
-                            if (self.pos == 0):
-                                self.s = self.s[:-1]
-                                self.scount -= 1
-                                stdout.write('\010')
-                                stdout.write(' ')
-                                stdout.write('\010')
-                            else:
-                                # oh come on whyyyyyyy
-                                stdout.write('\010')
-                                insertion_pos = self.scount - self.pos - 1
-                                self.s = self.s[:insertion_pos] + self.s[insertion_pos+1:] # backend insertion
-                                self.scount -= 1
-                                steps_in = 0
-                                for i in self.s[insertion_pos:]: # frontend insertion
-                                    stdout.write(i)
-                                    steps_in +=1
-                                stdout.write(' ')
-                                stdout.write('\x1b[{}D'.format(steps_in+1)) # go back to pos
-                        badchar = True
-                    elif ((hexed == "0x1b") or (self.capture_step > 0)): # catch arrow keys
-                        if (self.capture_step < 2): # we need to get the char that specifies it's an arrow key, the useless char and then the one we need
-                            self.capture_step += 1
-                        else:
-                            # up: \x1b[{n}A
-                            # down: \x1b[{n}B
-                            # right: \x1b[{n}C
-                            # left: \x1b[{n}D
-                            # where n = number of steps
-                            if (hexed == "0x41"): # Up arrow key
-                                try:
-                                    temp_temp_pos = 0
-                                    historyitemm = ljinux.history.gett(self.historypos + 1)
-                                    if (self.pos > 0):
-                                        temp_temp_pos = self.pos
-                                        stdout.write('\x1b[{}C'.format(self.pos)) # go to end of line
-                                        self.pos = 0
-                                    for i in range(self.scount): # clear the line
-                                        stdout.write('\010')
-                                        stdout.write(' ')
-                                        stdout.write('\010')
-                                    if (self.historypos == 0):
-                                        self.temp_scount = self.scount # save inputed
-                                        self.temp_s = self.s
-                                        self.temp_pos = temp_temp_pos
-                                    self.s = historyitemm # backend
-                                    self.scount = len(historyitemm) # backend
-                                    self.historypos += 1
-                                    stdout.write(self.s)
-                                except IndexError:
-                                    pass
-                            elif (hexed == "0x44"): # Left arrow key
-                                if (self.pos < self.scount):
-                                    self.pos += 1
-                                    stdout.write('\x1b[1D')
-                            elif (hexed == "0x43"): # Right arrow key
-                                if (self.pos > 0):
-                                    self.pos -= 1
-                                    stdout.write('\x1b[1C')
-                            elif (hexed == "0x42"): # Down arrow key
-                                if (self.historypos > 0):
-                                    if (self.pos > 0):
-                                        stdout.write('\x1b[{}C'.format(self.pos)) # go to end of line
-                                        self.pos = 0
-                                    for i in range(self.scount): # clear the line
-                                        stdout.write('\010')
-                                        stdout.write(' ')
-                                        stdout.write('\010')
-                                    if (self.historypos > 1):
-                                        historyitemm = ljinux.history.gett(self.historypos - 1)
-                                        self.s = historyitemm # backend
-                                        self.scount = len(historyitemm) # backend
-                                        stdout.write(self.s) # write it out
-                                        self.historypos -= 1
-                                    else:
-                                        # have to give back the temporarily stored one
-                                        self.s = self.temp_s
-                                        self.scount = self.temp_scount
-                                        self.pos = self.temp_pos
-                                        self.historypos = 0
-                                        stdout.write(self.s)
-                                        if (self.pos > 0):
-                                            stdout.write('\x1b[{}D'.format(self.pos))
-                            self.capture_step = 0
-                        badchar = True
-                    elif (hexed == "0xf"): # Catch Ctrl + O for debug
-                        print("\n" + "-" * 12)
-
-                        print("self.pos = {}".format(self.pos))
-                        print("self.s = {}".format(self.s))
-                        print("self.scount = {}".format(self.scount))
-                        print("self.capture_step = {}".format(self.capture_step))
-                        print("self.temp_s = {}".format(self.temp_s))
-                        print("self.temp_pos = {}".format(self.temp_pos))
-                        print("self.historypos = {}".format(self.historypos))
-                        
-                    else:
-                        if echo: stdout.write(s) # echo back to hooman
-                        if not (badchar):
-                            if ((self.pos == 0) or (s == end_char)):
-                                self.s = self.s + s # keep building the string up
-                                self.scount += 1
-                            else:
-                                insertion_pos = self.scount - self.pos
-                                self.s = self.s[:insertion_pos] + s + self.s[insertion_pos:] # backend insertion
-                                self.scount += 1
-                                steps_in = 0
-                                for i in self.s[insertion_pos+1:]: # frontend insertion
-                                    stdout.write(i)
-                                    steps_in +=1
-                                stdout.write('\x1b[{}D'.format(steps_in)) # go back to pos
-                        if s.endswith(end_char): # got our end_char!
-                            rstr = self.s # save for return
-                            self.s = '' # reset everything
-                            self.scount = 0
-                            self.pos = 0
-                            self.capture_step = 0
-                            self.historypos = 0
-                            self.temp_s = ''
-                            self.temp_scount = 0
-                            return rstr
-            return None # no end_char yet
     
     class backrounding:
         webserver = False
@@ -1923,7 +1770,6 @@ class ljinux():
                 'man':ljinux.based.command.mann
             }
             command_input = False
-            #input_obj = ljinux.SerialReader()
             if not term.enabled:
                 term.start()
                 term.trigger_dict = {
@@ -2076,7 +1922,6 @@ class ljinux():
                     ljinux.io.led.value = True
                     gc.collect()
                     gc.collect()
-                    #del SerialReader
                     return res
 
     class farland: # wayland, but like a farfetched dream
