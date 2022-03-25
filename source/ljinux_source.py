@@ -554,8 +554,6 @@ class ljinux():
                     pass
                 dmtex("Unloaded networking libraries")
             del ca
-            gc.collect()
-            gc.collect()
         
         def start_sdcard():
             global sdcard_fs
@@ -577,8 +575,6 @@ class ljinux():
                 del sdcard
             except NameError:
                 pass
-            gc.collect()
-            gc.collect()
         
         def left_key():
             return ljinux.io.buttonl.value
@@ -756,7 +752,6 @@ class ljinux():
                 systemprints(3, "Mount /LjinuxRoot", "Error: sd card not available, assuming built in fs")
                 del modules["adafruit_sdcard"]
                 dmtex("Unloaded sdio libraries")
-                gc.collect()
             ljinux.io.led.value = True
             systemprints(2, "Running Init Script", "Attempting to open /LjinuxRoot/boot/Init.lja..")
             lines = None
@@ -849,7 +844,6 @@ class ljinux():
             while not Exit:
                 try:
                     ljinux.based.shell()
-                    gc.collect()
                 except KeyboardInterrupt:
                     ljinux.io.led.value = False
                     print("^C\n",end='')
@@ -971,7 +965,6 @@ class ljinux():
                         tt = time.localtime()
                         print("Ljinux Raspberry Pi Pico " + ljinux.based.system_vars["Version"] + " " + str(tt.tm_mday) + "/" + str(tt.tm_mon) + "/" + str(tt.tm_year) + " " + str(tt.tm_hour) + ":" + str(tt.tm_min) + ":" + str(tt.tm_sec) + " circuitpython Ljinux")
                         del tt
-                        gc.collect()
                 except IndexError:
                     print("Ljinux")
                 ljinux.io.led.value = True
@@ -1264,7 +1257,6 @@ class ljinux():
                                 a.play(mp3)
                                 while a.playing:
                                     time.sleep(.2)
-                                    gc.collect()
                                     if (ljinux.io.buttone.value == True):
                                         if a.playing:
                                             a.pause()
@@ -1301,7 +1293,6 @@ class ljinux():
                                 a.play(wav)
                                 while a.playing:
                                     time.sleep(.2)
-                                    gc.collect()
                                     if (ljinux.io.buttone.value == True):
                                         if a.playing:
                                             a.pause()
@@ -1430,7 +1421,6 @@ class ljinux():
                                 if condition[i] == "argj": # this is an argument check
                                     i += 1 # we can move on as we know of the current situation
                                     if condition[i] == "has": # check if condition is present
-                                        gc.collect()
                                         i += 1 # we have to keep moving
                                         if condition[i] in ljinux.based.user_vars["argj"]: # it's in!
                                             val = True
@@ -1486,7 +1476,6 @@ class ljinux():
                             del val
                         except KeyError:
                             print("based: Invalid condition type")
-                        gc.collect()
                     else:
                         print("based: Incomplete condition")
                 else:
@@ -1494,13 +1483,11 @@ class ljinux():
                 del need_new_cond
                 del complete
                 del condition
-                gc.collect()
             
             def dmesgg(inpt): # print the dmesg
                 global dmesg
                 for i in dmesg:
                     print(i)
-                    gc.collect()
             
             def ping(inpt): # brok
                 print("Ping google.com: %d ms" % ljinux.io.network.ping("google.com"))
@@ -1612,13 +1599,10 @@ class ljinux():
                 try:
                     exec(pcomm)
                     del pcomm
-                    gc.collect()
                 except Exception as err:
                     print("Traceback (most recent call last):\n\t"+str(type(err))[8:-2]+": "+str(err))
                     del err
-                    gc.collect()
                 del nl
-                gc.collect()
             
             def fpexecc(inpt): #file pexec
                 global Version
@@ -1638,14 +1622,11 @@ class ljinux():
                     a = open(inpt[offs]).read()
                     exec(a)
                     del a
-                    gc.collect()
                 except Exception as err:
                     print("Traceback (most recent call last):\n\t"+str(type(err))[8:-2]+": "+str(err))
                     del err
-                    gc.collect()
                 del nl
                 del offs
-                gc.collect()
 
             def mann(inpt):
                 if len(inpt) < 2:
@@ -1865,6 +1846,8 @@ class ljinux():
                     res = ""
                     ljinux.io.led.value = False
                     if not (command_input == ""):
+                        gc.collect()
+                        gc.collect()
                         if ((not "|" in command_input) and (not "&&" in command_input)):
                             command_split = command_input.split() # making it an arr of words
                             try:
@@ -1975,8 +1958,6 @@ class ljinux():
                     del modules["adafruit_framebuf"]
                 except KeyError:
                     pass
-                gc.collect()
-                gc.collect()
                 dmtex("Unloaded display libraries")
             ljinux.io.led.value = True
         
