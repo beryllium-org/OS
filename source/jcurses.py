@@ -1,5 +1,6 @@
 from sys import stdout,stdin
 from supervisor import runtime
+
 class jcurses():
     def __init__(self):
             self.enabled = False # jcurses has init'ed
@@ -281,7 +282,7 @@ class jcurses():
 
     def program(self):
         """
-            the main program, this should be run in a while true.
+            The main program.
             Depends on variables being already set.
         """
         self.softquit = False
@@ -338,7 +339,9 @@ class jcurses():
     
     def termline(self):
         self.clear_line()
-        print(self.trigger_dict["prefix"] + self.buf[1],end=" ")
+        print(self.trigger_dict["prefix"] + " " + self.buf[1],end="")
+        if self.focus > 0:
+            stdout.write('\x1b[{}D'.format(self.focus))
 
     def gotoo(self, ctx, number=0):
         pass

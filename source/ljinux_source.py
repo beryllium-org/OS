@@ -401,7 +401,7 @@ dmtex("Additional loading done")
 class ljinux():
     class history:
         historyy = []
-        historynav = [0, 0, ""]
+        nav = [0, 0, ""]
         
         def load(filen):
             ljinux.history.historyy = list()
@@ -1947,6 +1947,7 @@ class ljinux():
                         while (((not command_input) or (command_input == "")) and not Exit):
                             term.program()
                             if term.buf[0] is 0:
+                                ljinux.history.nav[0] = 0
                                 command_input = term.buf[1]
                                 term.buf[1] = ""
                                 term.focus = 0
@@ -1962,8 +1963,35 @@ class ljinux():
                                 Exit = True
                                 Exit_code = 0
                                 break
-                            elif term.buf[0] is 3:
-                                pass # autocomplete
+                            elif term.buf[0] is 3: # tab key
+                                pass
+                            elif term.buf[0] is 4: # up
+                                try:
+                                    neww = ljinux.history.gett(ljinux.history.nav[0] + 1)
+                                    # if no historyitem, we wont run the items below
+                                    if (ljinux.history.nav[0] == 0):
+                                        ljinux.history.nav[2] = term.buf[1]
+                                        ljinux.history.nav[1] = term.focus
+                                    term.buf[1] = neww
+                                    del neww
+                                    ljinux.history.nav[0] += 1
+                                    term.focus = 0
+                                    term.termline()
+                                except IndexError:
+                                    pass
+                            elif term.buf[0] is 7: # down
+                                if ljinux.history.nav[0] > 0:
+                                    if ljinux.history.nav[0] > 1:
+                                        term.buf[1] = ljinux.history.gett(ljinux.history.nav[0] - 1)
+                                        ljinux.history.nav[0] -= 1
+                                        term.focus = 0
+                                        term.termline()
+                                    else:
+                                        # have to give back the temporarily stored one
+                                        term.buf[1] = ljinux.history.nav[2]
+                                        term.focus = ljinux.history.nav[1]
+                                        ljinux.history.nav[0] = 0
+                                        term.termline()
                             ljinux.backrounding.main_tick()
                             try:
                                 if (command_input[:1] != " "):
