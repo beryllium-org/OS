@@ -25,13 +25,13 @@ led.direction = digitalio.Direction.OUTPUT
 led.value = True
 led.value = False
 
-# Pin allocation stuff
+# Pin allocation table
 pin_alloc = []
 
 # Default password, aka the password if no /LjinuxRoot/etc/passwd is found
 dfpasswd = "Ljinux"
 
-# Exit code holder, has to be global
+# Exit code holder, has to be global for everyone to be able to see it.
 Exit = False
 Exit_code = 0
 
@@ -58,7 +58,7 @@ oend = "\n" # needed to mask print
 
 try:
     from jcurses import jcurses
-    term = jcurses()
+    term = jcurses() # the main curses entity, used primarily for based.shell()
     print("[    0.00000] Loaded jcurses")
     dmesg.append("[    0.00000] Loaded jcurses")
 except ImportError:
@@ -100,16 +100,15 @@ dmtex("Basic Libraries loading")
 # These are absolutely needed
 
 from sys import (
-    stdin,
-    stdout,
     implementation,
-    platform,
+    platform, # needed for picofetch
     modules,
     exit
 ) # if this import fails, idk
 
+dmtex("System libraries loaded")
+
 try:
-    from supervisor import runtime
     import busio
     
     from microcontroller import cpu, cpus
@@ -151,6 +150,14 @@ except (ValueError, OSError):
     led.value = False
     dmtex("Kernel config could not be found / parsed, applying defaults")
 
+try:
+    from lj_colours import lJ_Colours as colors
+    print(colors.reset_s_format,end="")
+    dmtex("Loaded lj_colours")
+except ImportError:
+    dmtex("CRITICAL: FAILED TO LOAD LJ_COLOURS")
+    exit(0)
+
 dmtex("Options applied:")
 led.value = False
 
@@ -190,7 +197,7 @@ for optt in [
 ]:
     try:
         if type(configg[optt]) == option_types[optt]:
-            dmtex("\t"+optt+"="+str(configg[optt]),timing=False)
+            dmtex("\t" + colors.green_t + "√" + colors.endc + " " + optt +"="+str(configg[optt]),timing=False)
         else:
             raise KeyError
     except KeyError:
@@ -244,7 +251,7 @@ for optt in [
         else:
             pin_alloc.append(a)
         
-        dmtex("\t"+optt+"="+str(a),timing=False)
+        dmtex("\t" + colors.green_t + "√" + colors.endc + " " + optt +"="+str(a),timing=False)
         del a
         
     except KeyError:
@@ -310,21 +317,21 @@ try:
     dmtex("Audio libraries loaded")
 except ImportError:
     NoAudio = True
-    dmtex("CRITICAL: AUDIO LIBRARIES LOADING FAILED")
+    dmtex(colors.error + "CRITICAL: " + colors.endc + "AUDIO LIBRARIES LOADING FAILED")
 
 # sd card
 try:
     import adafruit_sdcard
     dmtex("Sdcard libraries loaded")
 except ImportError:
-    dmtex("CRITICAL: SDCARD LIBRARIES LOADING FAILED")
+    dmtex(colors.error + "CRITICAL: " + colors.endc + "SDCARD LIBRARIES LOADING FAILED")
 
 # display
 try:
     import adafruit_ssd1306
     dmtex("Display libraries loaded")
 except ImportError:
-    dmtex("CRITICAL: DISPLAY LIBRARIES LOADING FAILED")
+    dmtex(colors.error + "CRITICAL: " + colors.endc + "DISPLAY LIBRARIES LOADING FAILED")
 
 # networking
 try:
@@ -335,7 +342,7 @@ try:
     import adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver as server
     dmtex("Networking libraries loaded")
 except ImportError:
-    dmtex("CRITICAL: NETWORKING LIBRARIES LOADING FAILED")
+    dmtex(colors.error + "CRITICAL: " + colors.endc + "NETWORKING LIBRARIES LOADING FAILED")
 
 if not configg["fixrtc"]:
     # for rtc
@@ -368,15 +375,7 @@ if not configg["fixrtc"]:
         
         dmtex("RTC clock init done")
     except ImportError:
-        dmtex("CRITICAL: RTC LIBRARIES LOADING FAILED")
-
-try:
-    from lj_colours import lJ_Colours as colors
-    print(colors.reset_s_format,end="")
-    dmtex("Loaded lj_colours")
-except ImportError:
-    dmtex("CRITICAL: FAILED TO LOAD LJ_COLOURS")
-    exit(0)
+        dmtex(colors.error + "CRITICAL: " + colors.endc + "RTC LIBRARIES LOADING FAILED")
 
 dmtex("Imports complete")
 
@@ -1810,7 +1809,23 @@ class ljinux():
                                 Exit_code = 0
                                 break
                             elif term.buf[0] is 3: # tab key
-                                pass
+                                tofind = term.buf[1] # made into var for speed reasons
+                                candidates = []
+                                bins = ljinux.based.get_bins()
+                                for i in [function_dict, bins]:
+                                    for j in i:
+                                        if j.startswith(tofind):
+                                            candidates.append(j)
+                                if len(candidates) > 1:
+                                    print("\n",end="")
+                                    for i in candidates:
+                                        print("\t" + i)
+                                elif len(candidates) == 1:
+                                    term.buf[1] = candidates[0]
+                                    term.focus = 0
+                                del bins
+                                del tofind
+                                del candidates
                             elif term.buf[0] is 4: # up
                                 try:
                                     neww = ljinux.history.gett(ljinux.history.nav[0] + 1)
@@ -1840,7 +1855,7 @@ class ljinux():
                                         term.termline()
                             ljinux.backrounding.main_tick()
                             try:
-                                if (command_input[:1] != " "):
+                                if command_input[:1] != " " and command_input != "":
                                     ljinux.history.appen(command_input.strip())
                             except (AttributeError, TypeError): # idk why this is here, forgor
                                 pass

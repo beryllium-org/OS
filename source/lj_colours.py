@@ -26,7 +26,7 @@ class lJ_Colours:
     """
     underline = "1033[4m"
     bold = '\033[1m'
-    endc = "\033[0m"
+    endc = "\033[0m" # use to end color
 
     """
         Okay
