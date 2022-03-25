@@ -21,11 +21,7 @@ except OSError:
 
 print("J",end="")
 
-if(devf != True):
-    disable_usb_drive()
-    print("IN",end="")
-    
-else:
+if devf:
     remount("/", readonly=False
             )
     print("I",end="")
@@ -34,7 +30,10 @@ else:
     
     remount("/", readonly=True)
     print("N",end="")
-    
+else:
+    disable_usb_drive()
+    print("IN",end="")
+
 print("UX",end="")
 disable_autoreload()
 
