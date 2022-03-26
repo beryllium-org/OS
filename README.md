@@ -44,9 +44,10 @@ Download the zip (The 7.x-mpy variant), extract it & copy the libraries you want
 <h3>Connection</h3>
 
 To connect to the pico it's recommended to use Putty for Windows and GNU/Screen for Linux.<br />
-For Putty, you open it up, select connection type "Serial" and select port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the pico and set the speed/baudrate to 115200. (You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br /><br />
+For Putty, select connection type to be Serial, select the port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the pico and set the speed/baudrate to 115200. (You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br /><br />
 
-For GNU/Screen, you need to be in the <code>dialout</code> group and run from the terminal: <code>screen /dev/ttyACM0 115200</code><br />
+For GNU/Screen, you need to be in the <code>dialout</code> user group. To connect, run: <code>screen /dev/ttyACM0 115200</code><br />
+To disconnect, press Ctrl + A, K and confirm with y.<br />
 To be added to the <code>dialout</code> group, you need to run <code>sudo usermod -a -G dialout \<your username here\></code>
 
 <h3>Contributors:</h3>
