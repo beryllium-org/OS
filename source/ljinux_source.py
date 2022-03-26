@@ -18,6 +18,7 @@ except ImportError:
     print("O_O nope, i'm out")
     from sys import exit
     exit(0)
+
 print("[    0.00000] Core libs loaded")
 dmesg.append("[    0.00000] Core libs loaded")
 led = digitalio.DigitalInOut(board.LED)
@@ -209,7 +210,7 @@ pintab = { # Hardware pin allocations
     6:board.GP6, 7:board.GP7, 8:board.GP8, 9:board.GP9, 10:board.GP10,
     11:board.GP11, 12:board.GP12, 13:board.GP13, 14:board.GP14, 15:board.GP15,
     16:board.GP16, 17:board.GP17, 18:board.GP18, 19:board.GP19, 20:board.GP20,
-    24:board.GP24, 25:board.GP25, 26:board.GP26, 27:board.GP27, 28:board.GP28,
+    24:board.GP24, 25:board.GP25, 26:board.GP26, 27:board.GP27, 28:board.GP28
 }
 
 for optt in [
@@ -254,7 +255,8 @@ if not configg["SKIPCP"]: # beta testing
 
 if not configg["SKIPTEMP"]:
     """
-        Taking measures to pico's unordinary temperatures
+        Taking measures in case of unordinary temperature readings.
+        The override exists in case of hardware failure.
     """
     temp = cpu.temperature
     if temp > 60:
@@ -266,11 +268,10 @@ if not configg["SKIPTEMP"]:
                 time.sleep(.3)
 
             time.sleep(3)
-    elif temp > 30:
+    elif temp > 7:
         dmtex("Temperature OK: " + str(temp) + " Celcius")
     else:
         dmtex("Now that a 'cool' pico! B)")
-
     del temp
 
 led.deinit()
@@ -366,7 +367,7 @@ def systemprints(mod,tx1,tx2=None):
 
 dmtex("Additional loading done")
 
-class ljinux:
+class ljinux(): # The parentheses are needed. Same as with jcurses. Don't remove them.
     class history:
         historyy = []
         nav = [0, 0, ""]
@@ -1354,7 +1355,7 @@ class ljinux:
                     ljinux.history.getall()
 
             def clearr(inpt): # try to clear the screen
-                tclear()
+                term.clear()
 
             def haltt(inpt):
                 global Exit

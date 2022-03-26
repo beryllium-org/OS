@@ -1,7 +1,9 @@
 {
   "_comment1": "Default Ljinux configuration, adjust to your needs",
+  
   "_comment2": "As long as it's true, ram rtc will be used",
   "fixrtc": true,
+  
   "_comment3": "Display i2c pins",
   "displaySCL": 17,
   "displaySDA": 16,
