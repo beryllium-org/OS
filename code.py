@@ -83,7 +83,7 @@ try:
     jrub("Unmounted /ljinux")
     oss.io.led.value = True
 except OSError as os_err:
-    jrub("\nCould not unmount /ljinux\nError:", os_err)
+    jrub("Could not unmount /ljinux")
 
 jrub("Reached target: Quit")
 oss.io.led.value = False
@@ -94,15 +94,13 @@ def halt():
         sleep(3600)
 
 exit_l = {
+    0: lambda: jrub("Exiting"),
+    1: lambda: jrub("Exiting due to error"),
     241: lambda: (on_next_reset(RunMode.UF2), reset()),
     242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
     243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
-    244: lambda: (print("[ OK ] Reached target: Halt"), halt()),
+    244: lambda: (jrub("Reached target: Halt"), halt()),
     245: lambda: reset()
 }
 
-try:
-    exit_l[Exit_code]()
-except KeyError as e:
-    jrub(e + " resetting...")
-    exit_l[245]()
+exit_l[Exit_code]()

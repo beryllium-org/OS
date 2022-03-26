@@ -1207,78 +1207,6 @@ class ljinux(): # The parentheses are needed. Same as with jcurses. Don't remove
                     del passwordarr
                 except NameError:
                     pass
-
-            def playmp3(inpt): # play mp3
-                global NoAudio
-                if not NoAudio:
-                    try:
-                        with open(inpt[1], "rb") as data:
-                            mp3 = MP3Decoder(data)
-                            a = PWMAudioOut(board.GP15)
-                            print("Playing")
-                            try:
-                                a.play(mp3)
-                                while a.playing:
-                                    time.sleep(.2)
-                                    if ljinux.io.buttone.value:
-                                        if a.playing:
-                                            a.pause()
-                                            print("Paused")
-                                            time.sleep(.5)
-                                            while a.paused:
-                                                if ljinux.io.buttonl.value and ljinux.io.buttonr.value and not ljinux.io.buttone.value:
-                                                    a.stop()
-                                                elif ljinux.io.buttone.value:
-                                                    a.resume()
-                                                    print("Resumed")
-                                                    time.sleep(.5)
-                                                else:
-                                                    time.sleep(.1)
-                            except KeyboardInterrupt:
-                                a.stop()
-                            a.deinit()
-                            mp3.deinit()
-                            print("Stopped")
-                    except OSError:
-                        ljinux.based.error(4)
-                else:
-                    print("No audio libraries loaded")
-
-            def playwav(inpt): # play wav file
-                global NoAudio
-                if not NoAudio:
-                    try:
-                        with open(inpt[1], "rb") as data:
-                            wav = WaveFile(data)
-                            a = PWMAudioOut(board.GP15)
-                            print("Playing")
-                            try:
-                                a.play(wav)
-                                while a.playing:
-                                    time.sleep(.2)
-                                    if ljinux.io.buttone.value:
-                                        if a.playing:
-                                            a.pause()
-                                            print("Paused")
-                                            time.sleep(.5)
-                                            while a.paused:
-                                                if ljinux.io.buttonl.value and ljinux.io.buttonr.value and not ljinux.io.buttone.value:
-                                                    a.stop()
-                                                elif ljinux.io.buttone.value:
-                                                    a.resume()
-                                                    print("Resumed")
-                                                    time.sleep(.5)
-                                                else:
-                                                    time.sleep(.1)
-                            except KeyboardInterrupt:
-                                a.stop()
-                            a.deinit()
-                            wav.deinit()
-                            print("Stopped")
-                    except OSError:
-                        ljinux.based.error(4)
-                else:
-                    print("No audio libraries loaded")
             
             def headtail(inpt, type): # the combined command for head & tail
                 lines = 10
@@ -1693,8 +1621,6 @@ class ljinux(): # The parentheses are needed. Same as with jcurses. Don't remove
                 'display':ljinux.based.command.display,
                 'time':ljinux.based.command.timme,
                 'su':ljinux.based.command.suuu,
-                'mp3':ljinux.based.command.playmp3,
-                'wav':ljinux.based.command.playwav,
                 'history':ljinux.based.command.historgf,
                 'clear':ljinux.based.command.clearr,
                 'halt':ljinux.based.command.haltt,

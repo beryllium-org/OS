@@ -1,0 +1,2 @@
+COMMENT Play a wav file
+fpexec -n /LjinuxRoot/bin/playwav.py 

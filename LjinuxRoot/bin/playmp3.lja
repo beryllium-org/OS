@@ -1,0 +1,3 @@
+COMMENT Play a mp3
+fpexec -n /LjinuxRoot/bin/playmp3.py
+ 
