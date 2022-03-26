@@ -11,8 +11,8 @@ We also now have a [discord](https://discord.gg/V8AejwGpCv) server! If you need 
 It runs on the rpi pico, circuitpython 7.<br />
 You can optionally attach a SSD1306 display for output, a ds1302 RTC (make sure to set <code>fixrtc</code> to false from <code>config.json</code>) for persistent time or a w5500 networking breakout board for networking.<br />
 For the missing hardware the functions will be automatically deactivated. (The hardware will also be deactivated in case of missing libraries.)<br />
+It expects to find a <code>/LjinuxRoot</code> folder which uses as it's root. It can be on the built in fs, or an sd card.<br />
 More info in Configuration.<br />
-It expects to find a <code>/LjinuxRoot</code> folder which uses as it's root. It can be on the built in fs, or an sd card, more details at Configuration.<br />
 
 It's structure:<br />
 
@@ -37,6 +37,7 @@ For the ds1302 RTC: GP6(clk), GP7(data), GP8(ce) - libraries needed: <code>ds130
 Left button GP19 - Right Button GP18 - Enter Button GP20<br />
 Piezo buzzer: GP15<br />
 Sdcard: GP2(clk),GP3(mosi),GP4(miso), GP5(cs) - libraries needed: <code>adafruit_sdcard adafruit_bus_device</code><br />
+    The sdcard has to be formatted as Fat32 / Fat16 or equivelant.<br />
 Ethernet: GP10(clk), GP13(cs), GP11(mosi), GP12(miso) - libraries needed: <code>adafruit_wiznet5k adafruit_wsgi adafruit_requests adafruit_bus_device</code><br /><br />
 The neccessary libraries can be found [here](https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases)<br />
 Download the zip (The 7.x-mpy variant), extract it & copy the libraries you want onto <code>/lib</code> of the pico.
