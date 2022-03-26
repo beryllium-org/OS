@@ -44,14 +44,13 @@ Download the zip (The 7.x-mpy variant), extract it & copy the libraries you want
 
 <h3>Connection</h3>
 
-To connect to the pico it's recommended to use Putty for Windows and GNU/Screen for Linux.<br />
+To connect to the pico it's recommended to use Putty for Windows and GNU/Screen for Linux/Mac.<br />
 For Putty, select connection type to be Serial, select the port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the pico and set the speed/baudrate to 115200. (You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br /><br />
 
-For GNU/Screen, you need to be in the <code>dialout</code> user group. To connect, run: <code>screen /dev/ttyACM0 115200</code><br />
+For GNU/Screen, if you are on linux, you need to be in the <code>dialout</code> user group and to connect, run: <code>screen /dev/ttyACM0 115200</code><br />If you are on a Mac instead, run: <code>ls /dev/tty.usb*</code> to find the device name, and connect to it by running: <code>screen /dev/tty.usb\<Device name here\> 115200</code><br />
+Example: <code>screen /dev/tty.usbmodem12210 115200</code><br /><br />
 To disconnect, press Ctrl + A, K and confirm with y.<br />
-To be added to the <code>dialout</code> group, you need to run <code>sudo usermod -a -G dialout \<your username here\></code><br /><br />
-
-Mac instructions are not possible without your help.<br />If you know how to perform serial connections from a mac feel free to pr or message me.
+To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dialout \<your username here\></code><br /><br />
 
 <h3>Contributors:</h3>
 
