@@ -33,7 +33,7 @@ The <code>Init.lja</code> has to be at <code>/LjinuxRoot/boot/</code> of the pic
 <b>GPIO PINS:</b><br />
 <i>Note: This pin assortment is only the <b>default</b> pin configuration. If you are using a custom config.json you should refer to that instead.</i><br />
 For the SSD1306 display: GP17(scl), GP16(sda) - libraries needed: <code>adafruit_ssd1306 adafruit_framebuf</code><br />
-For the ds1302 RTC: GP6(clk), GP7(data), GP8(ce) - libraries needed: <code>ds1302</code><br />
+For the ds1302 RTC: GP6(clk), GP7(data), GP8(ce) - libraries needed: <code>ds1302</code> (It's included in /lib) <br />
 Left button GP19 - Right Button GP18 - Enter Button GP20<br />
 Piezo buzzer: GP15<br />
 Sdcard: GP2(clk),GP3(mosi),GP4(miso), GP5(cs) - libraries needed: <code>adafruit_sdcard adafruit_bus_device</code><br />
