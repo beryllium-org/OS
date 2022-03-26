@@ -82,10 +82,10 @@ try:
     umount("/ljinux")
     jrub("Unmounted /ljinux")
     oss.io.led.value = True
-except OSError:
-    pass
-jrub("Reached target: Quit")
+except OSError as os_err:
+    jrub("\nCould not unmount /ljinux\nError:", os_err)
 
+jrub("Reached target: Quit")
 oss.io.led.value = False
 del oss
 
@@ -101,5 +101,8 @@ exit_l = {
     245: lambda: reset()
 }
 
-
-exit_l[Exit_code]()
+try:
+    exit_l[Exit_code]()
+except KeyError as e:
+    jrub(e + " resetting...")
+    exit_l[245]()

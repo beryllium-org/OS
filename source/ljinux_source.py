@@ -18,6 +18,7 @@ except ImportError:
     print("O_O nope, i'm out")
     from sys import exit
     exit(0)
+
 print("[    0.00000] Core libs loaded")
 dmesg.append("[    0.00000] Core libs loaded")
 led = digitalio.DigitalInOut(board.LED)
@@ -204,37 +205,12 @@ for optt in [
         configg.update({optt: defaultoptions[optt]})
         dmtex("Missing / Invalid value for \"" + optt + "\" applied: " + str(configg[optt]), timing=False)
 
-# Hardware pin allocations
-
-pintab = { # used for pin identification
-    1:board.GP1,
-    2:board.GP2,
-    3:board.GP3,
-    4:board.GP4,
-    5:board.GP5,
-    6:board.GP6,
-    7:board.GP7,
-    8:board.GP8,
-    9:board.GP9,
-    10:board.GP10,
-    11:board.GP11,
-    12:board.GP12,
-    13:board.GP13,
-    14:board.GP14,
-    15:board.GP15,
-    16:board.GP16,
-    17:board.GP17,
-    18:board.GP18,
-    19:board.GP19,
-    20:board.GP20,
-    21:board.GP21,
-    22:board.GP22,
-    23:board.GP23,
-    24:board.GP24,
-    25:board.GP25,
-    26:board.GP26,
-    27:board.GP27,
-    28:board.GP28,
+pintab = { # Hardware pin allocations
+    1:board.GP1, 2:board.GP2, 3:board.GP3, 4:board.GP4, 5:board.GP5,
+    6:board.GP6, 7:board.GP7, 8:board.GP8, 9:board.GP9, 10:board.GP10,
+    11:board.GP11, 12:board.GP12, 13:board.GP13, 14:board.GP14, 15:board.GP15,
+    16:board.GP16, 17:board.GP17, 18:board.GP18, 19:board.GP19, 20:board.GP20,
+    24:board.GP24, 25:board.GP25, 26:board.GP26, 27:board.GP27, 28:board.GP28
 }
 
 for optt in [
@@ -242,18 +218,14 @@ for optt in [
     "displaySDA"
 ]:
     try:
-        a = configg[optt]
-        
-        if a in pin_alloc:
+        pin = configg[optt]
+        if pin in pin_alloc:
             dmtex("PIN ALLOCATED, EXITING")
-            from sys import exit
             exit(0)
         else:
-            pin_alloc.append(a)
-        
-        dmtex("\t" + colors.green_t + "√" + colors.endc + " " + optt +"="+str(a),timing=False)
-        del a
-        
+            pin_alloc.append(pin)
+        dmtex("\t" + colors.green_t + "√" + colors.endc + " " + optt +"="+str(pin),timing=False)
+        del pin
     except KeyError:
         pass
 
@@ -266,40 +238,41 @@ del defaultoptions
 
 #basic checks
 if not configg["SKIPCP"]: # beta testing
-    if (implementation.version[0] == Circuitpython_supported_version):
+    if implementation.version[0] == Circuitpython_supported_version:
         dmtex("Running on supported implementation")
     else:
-        dmtex('-' * 42 + "\n" + " " * 14 + "WARNING: Unsupported CircuitPython version\n" + " " * 14 + "Continuing after led alert..\n" + " " * 14  + '-' * 42) # mariospapaz#2188 was the reason
-        for i in range(3 * 5):    
-            led.value = not led.value 
+        dmtex(
+            '-' * 42 + "\n" + " " * 14 +
+            "WARNING: Unsupported CircuitPython version\n" + " " * 14 +
+            "Continuing after led alert..\n" + " " * 14  + '-' * 42
+        )
 
-            if i == 14:
-                time.sleep(3)
-            else:
-                time.sleep(.5)
-            time.sleep(3)
+        for i in range(3 * 5 - 1):
+            led.value = not led.value 
+            time.sleep(.5)
+
+        time.sleep(6)
 
 if not configg["SKIPTEMP"]:
     """
-        This exists cuz in rare instances the pico temperature probe may be broken, it has happended to me once
+        Taking measures in case of unordinary temperature readings.
+        The override exists in case of hardware failure.
     """
     temp = cpu.temperature
-    tempcheck = True
-    if ((temp > 0) and (temp < 60)):
-        dmtex("Temperature OK: " + str(temp) + " Celcius")
-    else:
+    if temp > 60:
         dmtex("Temperature is unsafe: " + str(temp) + " Celcius. Halting!")
         led.value = False
         while True:
-            for i in range(6):
-                led.value = not led.value           
-                if i < 3:
-                    time.sleep(.3)
-                else:
-                    time.sleep(.5)
+            for i in range(3):
+                led.value = not led.value
+                time.sleep(.3)
+
             time.sleep(3)
+    elif temp > 7:
+        dmtex("Temperature OK: " + str(temp) + " Celcius")
+    else:
+        dmtex("Now that a 'cool' pico! B)")
     del temp
-    del tempcheck
 
 led.deinit()
 del led
@@ -364,9 +337,8 @@ if not configg["fixrtc"]:
                 return rtcc.read_datetime()
 
         try:
-            rtcc = ds1302.DS1302(rtcclk,rtcdata,rtcce) # muh rtc object
-            r = RTC() # now in a good format
-            rtc.set_time_source(r)
+            rtcc = ds1302.DS1302(rtcclk,rtcdata,rtcce)
+            rtc.set_time_source(RTC())
             del rtcclk
             del rtcdata
             del rtcce
@@ -381,23 +353,21 @@ dmtex("Imports complete")
 
 def systemprints(mod,tx1,tx2=None):
     print("[ ",end="")
-    if mod is 1: # ok
-        print(colors.green_t + "OK",end="")
-    elif mod is 2: # ..
-        print(colors.magenta_t + "..",end="")
-    elif mod is 3: # FAILED
-        print(colors.red_t + "FAILED",end="")
+
+    mods = {
+        1: lambda: print(colors.green_t + "OK",end=""),
+        2: lambda: print(colors.magenta_t + "..",end=""),
+        3: lambda: print(colors.red_t + "FAILED",end="")
+    }
+    mods[mod]()
     print(colors.endc + " ] " + tx1)
     if tx2 is not None:
-        if mod is not 3:
-            print("       -> ",end="")
-        else:
-            print("           -> ",end="")
+        print("           -> " if mod is 3 else "       -> ", end="")
         print(tx2)
 
 dmtex("Additional loading done")
 
-class ljinux():
+class ljinux(): # The parentheses are needed. Same as with jcurses. Don't remove them.
     class history:
         historyy = []
         nav = [0, 0, ""]
@@ -654,10 +624,7 @@ class ljinux():
                     r = requests.get("http://worldtimeapi.org/api/timezone/Europe/Athens")
                     dat = r.json()
                     dmtex("Public IP: " + dat["client_ip"])
-                    if (dat["dst"] == "True"):
-                        dst = 1
-                    else:
-                        dst = 0
+                    dst = 1 if dat["dst"] == "True" else 0
                     nettime = time.struct_time((int(dat["datetime"][:4]),int(dat["datetime"][5:7]),int(dat["datetime"][8:10]),int(dat["datetime"][11:13]),int(dat["datetime"][14:16]),int(dat["datetime"][17:19]),int(dat["day_of_week"]),int(dat["day_of_year"]),dst))
                     rtcc.write_datetime(nettime)
                     del nettime
@@ -679,14 +646,14 @@ class ljinux():
         
         def resolve():
             ljinux.networking.test()
-            if (ljinux.io.network_online):
+            if ljinux.io.network_online:
                 pass # wip
             else:
                 ljinux.based.error(5)
         
         def packet(data):
             ljinux.networking.test()
-            if (ljinux.io.network_online):
+            if ljinux.io.network_online:
                 pass # same
             else:
                 ljinux.based.error(5)
@@ -699,10 +666,7 @@ class ljinux():
         def get_bins():
             try:
                 bins = listdir("/LjinuxRoot/bin") # get /bin file list
-                l = []
-                for i in bins:
-                    if (i.endswith(".lja") and not i.startswith(".")): # only bother w/ these files
-                        l.append(i[:-4])
+                l = [ i[:-4] for i in bins if i.endswith(".lja") and not i.startswith(".")]
                 del bins # no longer need the ls
                 return l
             except OSError: # Yea no root, we cope
@@ -989,7 +953,7 @@ class ljinux():
                     if not sdcard_fs:
                         remount("/",True)
                 except (OSError, RuntimeError) as errr:
-                    if (str(errr) == "[Errno 17] File exists"):
+                    if str(errr) == "[Errno 17] File exists":
                         print("mkdir: cannot create directory ‘" + dirr[1] + "’: File exists")
                     else:
                         print("mmdir: cannot create directory ‘" + dirr[1] + "’: Cannot write, the pi pico is in read only mode! Make sure you have disabled developer mode!")
@@ -1007,7 +971,7 @@ class ljinux():
                     if not sdcard_fs:
                         remount("/",True)
                 except (OSError, RuntimeError) as errr:
-                    if (str(errr) == "[Errno 2] No such file/directory"):
+                    if str(errr) == "[Errno 2] No such file/directory":
                         print("rmdir: failed to remove ‘" + dirr[1] + "’: No such file or directory")
                     else:
                         print("rmdir: failed to remove ‘" + dirr[1] + "’: Cannot write, the pi pico is in read only mode!\nMake sure to disable to usb drive to be able to access these functions!")
@@ -1025,9 +989,9 @@ class ljinux():
                     if not sdcard_fs:
                         remount("/",True)
                 except (OSError, RuntimeError) as errr:
-                    if (str(errr) == "[Errno 2] No such file/directory"):
+                    if str(errr) == "[Errno 2] No such file/directory":
                         print("rm: failed to remove ‘" + dirr[1] + "’: No such file or directory")
-                    elif (str(errr) == "[Errno 21] EISDIR"):
+                    elif str(errr) == "[Errno 21] EISDIR":
                         print("rm: Is directory")
                     else:
                         print("rm: failed to remove ‘" + dirr[1] + "’: Cannot write, the pi pico is in read only mode!\nMake sure to disable to usb drive to be able to access these functions!")
@@ -1038,7 +1002,7 @@ class ljinux():
             def var(inpt, user_vars, system_vars): # system & user variables setter
                 ljinux.io.led.value = False
                 valid = True
-                if (inpt[0] == "var"):
+                if inpt[0] == "var":
                     temp = inpt
                     del inpt
                     inpt = []
@@ -1048,18 +1012,18 @@ class ljinux():
                     for chh in inpt[0]:
                         if not (chh.islower() or chh.isupper() or chh == "-"):
                             valid = False
-                    if (inpt[1] == '='):
+                    if inpt[1] == '=':
                         if not (inpt[2].startswith('"') or inpt[2].isdigit() or inpt[2].startswith('/')):
                                 valid = False
                     else:
                         valid = False
                     if valid:
                         new_var = ""
-                        if (inpt[2].startswith("\"")):
+                        if inpt[2].startswith("\""):
                             countt = len(inpt)
-                            if (inpt[2].endswith("\"")):
+                            if inpt[2].endswith("\""):
                                 new_var = str(inpt[2])[1:-1]
-                            elif ((countt > 3) and (inpt[countt-1].endswith("\""))):
+                            elif (countt > 3) and (inpt[countt - 1].endswith("\"")):
                                 new_var += (str(inpt[2])[1:] + ' ')
                                 for i in range(3, countt-1):
                                     new_var += (inpt[i] + ' ')
@@ -1073,7 +1037,7 @@ class ljinux():
                         ljinux.based.error(1)
                         valid = False
                     if valid:
-                        if (inpt[0] in system_vars):
+                        if inpt[0] in system_vars:
                             if not (system_vars["security"] == "on"):
                                 system_vars[inpt[0]] = new_var
                             else:
@@ -1086,23 +1050,22 @@ class ljinux():
 
             def display(inpt, objectss): # the graphics drawing stuff
                 typee = inpt[1] # "text / pixel / rectangle / line / circle / triangle / fill"
-                if (typee == "text"): # x, y, color, text in ""
+                if typee == "text": # x, y, color, text in ""
                     try:
                         xi = 0
                         xi = ljinux.based.fn.adv_input(inpt[2], int)
                         yi = ljinux.based.fn.adv_input(inpt[3], int)
                         txt = "" #inpt[5]
                         col = ljinux.based.fn.adv_input(inpt[4], int)
-                        if (inpt[5].startswith("\"")): # let's do some string proccessing!
+                        if inpt[5].startswith("\""): # let's do some string proccessing!
                             countt = len(inpt) # get the numb of args
-                            if (countt > 6):
+                            if countt > 6:
                                 txt += str(inpt[5])[1:] + " " # get the first word, remove last char (")
-                                if (inpt[countt - 1].endswith("\"")):
+                                if inpt[countt - 1].endswith("\""):
                                     for i in range(6,countt-1): # make all the words one thicc string
                                         txt += str(inpt[i]) + " "
                                     txt += str(inpt[countt-1])[:-1] # last word without last char (")
                                 else:
-                                    # oh cmon wtfrick
                                     print("based: Input error")
                             else:
                                 txt += str(inpt[5])[1:-1]
@@ -1111,7 +1074,7 @@ class ljinux():
                         ljinux.farland.text(txt,xi,yi,col)
                     except ValueError:
                         print("based: Input error")
-                elif (typee == "dot"): # x,y,col
+                elif typee == "dot": # x,y,col
                     try:
                         xi = ljinux.based.fn.adv_input(inpt[2], int)
                         yi = ljinux.based.fn.adv_input(inpt[3], int)
@@ -1119,7 +1082,7 @@ class ljinux():
                         ljinux.farland.pixel(xi,yi,col)
                     except ValueError:
                         print("based: Input error")
-                elif (typee == "rectangle"): # x start, y start, x stop, y stop, color, mode (fill / border)
+                elif typee == "rectangle": # x start, y start, x stop, y stop, color, mode (fill / border)
                     try:
                         xi = ljinux.based.fn.adv_input(inpt[2], int)
                         yi = ljinux.based.fn.adv_input(inpt[3], int)
@@ -1130,7 +1093,7 @@ class ljinux():
                         ljinux.farland.rect(xi,yi,xe,ye,col,modd)
                     except ValueError:
                         print("based: Input error")
-                elif (typee == "line"): # x start, y start, x stop, y stop, color
+                elif typee == "line": # x start, y start, x stop, y stop, color
                     try:
                         xi = ljinux.based.fn.adv_input(inpt[2], int)
                         yi = ljinux.based.fn.adv_input(inpt[3], int)
@@ -1140,20 +1103,20 @@ class ljinux():
                         ljinux.farland.line(xi,yi,xe,ye,col)
                     except ValueError:
                         print("based: Input error")
-                elif (typee == "circle"): # x center, y center, rad, color, mode (fill/ border / template) TODO fix fill and do template
+                elif typee == "circle": # x center, y center, rad, color, mode (fill/ border / template) TODO fix fill and do template
                     try:
                         xi = ljinux.based.fn.adv_input(inpt[2], int)
                         yi = ljinux.based.fn.adv_input(inpt[3], int)
                         radd = ljinux.based.fn.adv_input(inpt[4], int)
                         col = ljinux.based.fn.adv_input(inpt[5], int)
                         modd = ljinux.based.fn.adv_input(inpt[6], int)
-                        if (modd != "fill"):
+                        if modd != "fill":
                             ljinux.farland.draw_circle(xi,yi,radd,col)
                         else:
                             ljinux.farland.f_draw_circle(xi,yi,radd,col)
                     except ValueError:
                         print("based: Input error")
-                elif (typee == "triangle"): # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
+                elif typee == "triangle": # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
                     try:
                         xi = ljinux.based.fn.adv_input(inpt[2], int)
                         yi = ljinux.based.fn.adv_input(inpt[3], int)
@@ -1166,36 +1129,36 @@ class ljinux():
                         ljinux.farland.line(xi,yi,xe,ye,col)
                         ljinux.farland.line(xi,yi,xz,yz,col)
                         ljinux.farland.line(xz,yz,xe,ye,col)
-                        if (modd == "fill"):
+                        if modd == "fill":
                             templ = ljinux.farland.virt_line(xi,yi,xe,ye)
                             for i in templ:
                                 ljinux.farland.ext_line(xz,yz,i[0],i[1],col)
                     except ValueError:
                         print("based: Input error")
-                elif (typee == "fill"): # color
+                elif typee == "fill": # color
                     try:
                         col = ljinux.based.fn.adv_input(inpt[2], int)
                         ljinux.farland.fill(col)
                     except ValueError:
                         print("based: Input error")
-                elif (typee == "rhombus"): # todo
+                elif typee == "rhombus": # todo
                     pass
-                elif (typee == "move"): # todo
+                elif typee == "move": # todo
                     pass
-                elif (typee == "delete"): #todo more
+                elif typee == "delete": #todo more
                     optt = ljinux.based.fn.adv_input(inpt[2], int)
-                    if (optt == "all"):
+                    if optt == "all":
                         ljinux.farland.clear()
                     else:
                         ljinux.based.error(1)
-                elif (typee == "refresh"):
+                elif typee == "refresh":
                     ljinux.farland.frame()
                 else:
                     ljinux.based.error(1)
 
             def timme(inpt): # time command
                 try:
-                    if (inpt[1] == "set"):
+                    if inpt[1] == "set":
                         try:
                             the_time = time.struct_time((int(inpt[4]),int(inpt[3]),int(inpt[2]),int(inpt[5]),int(inpt[6]),int(inpt[7]),1,-1,-1)) # yr, mon, d, hr, m, s, ss, shit,shit,shit
                             rtcc.write_datetime(the_time)
@@ -1217,7 +1180,7 @@ class ljinux():
                                 passwordarr[dt[0]] = dt[1]
                     except OSError:
                         pass
-                    if (passwordarr["root"] == getpass()):
+                    if passwordarr["root"] == getpass():
                         system_vars["security"] = "off"
                         print("Authentication successful. Security disabled.")
                     else:
@@ -1235,7 +1198,7 @@ class ljinux():
                     except NameError:
                         pass
                     
-                    if (dfpasswd == getpass()):
+                    if dfpasswd == getpass():
                         system_vars["security"] = "off"
                         print("Authentication successful. Security disabled.")
                     else:
@@ -1257,15 +1220,15 @@ class ljinux():
                                 a.play(mp3)
                                 while a.playing:
                                     time.sleep(.2)
-                                    if (ljinux.io.buttone.value == True):
+                                    if ljinux.io.buttone.value:
                                         if a.playing:
                                             a.pause()
                                             print("Paused")
                                             time.sleep(.5)
                                             while a.paused:
-                                                if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True) and not (ljinux.io.buttone.value == True)):
+                                                if ljinux.io.buttonl.value and ljinux.io.buttonr.value and not ljinux.io.buttone.value:
                                                     a.stop()
-                                                elif (ljinux.io.buttone.value == True):
+                                                elif ljinux.io.buttone.value:
                                                     a.resume()
                                                     print("Resumed")
                                                     time.sleep(.5)
@@ -1293,15 +1256,15 @@ class ljinux():
                                 a.play(wav)
                                 while a.playing:
                                     time.sleep(.2)
-                                    if (ljinux.io.buttone.value == True):
+                                    if ljinux.io.buttone.value:
                                         if a.playing:
                                             a.pause()
                                             print("Paused")
                                             time.sleep(.5)
                                             while a.paused:
-                                                if ((ljinux.io.buttonl.value == True) and (ljinux.io.buttonr.value == True) and not (ljinux.io.buttone.value == True)):
+                                                if ljinux.io.buttonl.value and ljinux.io.buttonr.value and not ljinux.io.buttone.value:
                                                     a.stop()
-                                                elif (ljinux.io.buttone.value == True):
+                                                elif ljinux.io.buttone.value:
                                                     a.resume()
                                                     print("Resumed")
                                                     time.sleep(.5)
@@ -1380,11 +1343,11 @@ class ljinux():
 
             def historgf(inpt): # history get full list
                 try:
-                    if (inpt[1] == "clear"):
+                    if inpt[1] == "clear":
                         ljinux.history.clear(ljinux.based.user_vars["history-file"])
-                    elif (inpt[1] == "load"):
+                    elif inpt[1] == "load":
                         ljinux.history.load(ljinux.based.user_vars["history-file"])
-                    elif (inpt[1] == "save"):
+                    elif inpt[1] == "save":
                         ljinux.history.save(ljinux.based.user_vars["history-file"])
                     else:
                         print("based: Invalid option")
@@ -1392,7 +1355,7 @@ class ljinux():
                     ljinux.history.getall()
 
             def clearr(inpt): # try to clear the screen
-                tclear()
+                term.clear()
 
             def haltt(inpt):
                 global Exit
@@ -1404,9 +1367,9 @@ class ljinux():
                 condition = []
                 complete = False
                 next_part = None
-                if (inpt[1] == "["):
+                if inpt[1] == "[":
                     for i in range(2,len(inpt)):
-                        if (inpt[i] == "]"):
+                        if inpt[i] == "]":
                             complete = True
                             next_part = i+1
                             break
@@ -1417,7 +1380,7 @@ class ljinux():
                             val = False
                             need_new_cond = False
                             i = 0
-                            while (i < len(condition)-1):
+                            while i < len(condition)-1:
                                 if condition[i] == "argj": # this is an argument check
                                     i += 1 # we can move on as we know of the current situation
                                     if condition[i] == "has": # check if condition is present
@@ -1505,7 +1468,7 @@ class ljinux():
                         arg = inpt[1]
                     except IndexError:
                         arg = ""
-                    if (arg != "-k"):
+                    if arg != "-k":
                         print("Starting in the backround, send webserver -k to kill.")
                         web_app = WSGIApp()
                     
@@ -1534,8 +1497,8 @@ class ljinux():
                         except RuntimeError:
                             print("Out of sockets, please reboot")
                             return
-                    elif (ljinux.backrounding.webserver == True):
-                        ljinux.backrounding.webserver = False
+                    elif ljinux.backrounding.webserver:
+                        ljinux.backrounding.webserver = not ljinux.backrounding.webserver
                         del ljinux.networking.wsgiServer
                         ljinux.networking.wsgiServer = None
                         print("Webserver unloaded, keep in mind sockets cannot be reused in the current implementation, and you might have to reboot to restart the webserver.")
@@ -1637,7 +1600,7 @@ class ljinux():
                     filee = ""
                     mans = listdir("/LjinuxRoot/usr/share/man")
                     for i in mans:
-                        if (i.endswith(".json") and (inpt[1] == i[:-5])):
+                        if i.endswith(".json") and inpt[1] == i[:-5]:
                             filee += "/" + i
                             break
                     del mans
@@ -1768,9 +1731,9 @@ class ljinux():
             if not Exit:
                 while ((command_input == False) or (command_input == "\n")) and not Exit:
                     term.trigger_dict["prefix"] = "[" + ljinux.based.system_vars["user"] + "@pico | " + getcwd() + "]>"
-                    if (inp == None):
+                    if inp is None:
                         command_input = False
-                        while (((not command_input) or (command_input == "")) and not Exit):
+                        while ((not command_input) or (command_input == "")) and not Exit:
                             term.program()
                             if term.buf[0] is 0:
                                 ljinux.history.nav[0] = 0
@@ -1848,40 +1811,38 @@ class ljinux():
                     if not (command_input == ""):
                         gc.collect()
                         gc.collect()
-                        if ((not "|" in command_input) and (not "&&" in command_input)):
+                        if (not "|" in command_input) and (not "&&" in command_input):
                             command_split = command_input.split() # making it an arr of words
                             try:
-                                if (str(command_split[0])[:2] == "./"):
+                                if str(command_split[0])[:2] == "./":
                                     command_split[0] = str(command_split[0])[2:]
-                                    if (command_split[0] != ''):
+                                    if command_split[0] != '':
                                         res = function_dict["exec"](command_split)
                                     else:
                                         print("Error: No file specified")
-                                elif ((command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help", "display", "su", "pexec"])): # those are special bois, they will not be special when I make the api great
+                                elif (command_split[0] in function_dict) and (command_split[0] not in ["error", "var", "help", "display", "su", "pexec"]): # those are special bois, they will not be special when I make the api great
                                     res = function_dict[command_split[0]](command_split)
-                                elif (command_split[0] == "pexec"):
+                                elif command_split[0] == "pexec":
                                     res = function_dict["pexec"](command_split,command_input)
-                                elif (command_split[0] == "help"):
+                                elif command_split[0] == "help":
                                     res = function_dict["help"](function_dict)
-                                elif (command_split[0] == "display"):
+                                elif command_split[0] == "display":
                                     global display_availability
                                     if display_availability:
                                         res = function_dict["display"](command_split,ljinux.farland.entities)
                                     else:
                                         ljinux.based.error(6)
-                                elif (command_split[0] == "su"):
+                                elif command_split[0] == "su":
                                     res = function_dict["su"](command_split,ljinux.based.system_vars)
-                                elif ((command_split[1] == "=") or (command_split[0] == "var")):
+                                elif (command_split[1] == "=") or (command_split[0] == "var"):
                                     res = function_dict["var"](command_split, ljinux.based.user_vars, ljinux.based.system_vars)
                                 else:
-                                    raise IndexError # quick & dirty fix, but makes sense
-                                    # & this took me like 20 minutes to debug
-                                    # shit gets lost real ez when it comes to input
+                                    raise IndexError
                             except IndexError:
                                 bins = ljinux.based.get_bins()
                                 certain = False
                                 for i in bins:
-                                    if ((command_split[0] == i) and not certain): # check if currently examined file is same as command
+                                    if (command_split[0] == i) and not certain: # check if currently examined file is same as command
                                         command_split[0] = ("/LjinuxRoot/bin/" + i + ".lja") # we have to fill in the full path
                                         certain = True
                                 del bins # we no longer need the list
@@ -1890,19 +1851,19 @@ class ljinux():
                                 else:
                                     res = function_dict["error"](command_split)
                                 del certain
-                        elif (("|" in command_input) and not ("&&" in command_input)): # this is a pipe  :)
+                        elif ("|" in command_input) and not ("&&" in command_input): # this is a pipe  :)
                             ljinux.based.silent = True
                             the_pipe_pos = command_input.find("|",0)
                             ljinux.based.shell(command_input[:the_pipe_pos-1])
                             ljinux.based.silent = False
                             ljinux.based.shell(command_input[the_pipe_pos+2:] + " " + ljinux.based.user_vars["return"])
                             del the_pipe_pos
-                        elif (("&&" in command_input) and not ("|" in command_input)): # this is a dirty pipe  :)
+                        elif ("&&" in command_input) and not ("|" in command_input): # this is a dirty pipe  :)
                             the_pipe_pos = command_input.find("&&",0)
                             ljinux.based.shell(command_input[:the_pipe_pos-1])
                             ljinux.based.shell(command_input[the_pipe_pos+2:])
                             del the_pipe_pos
-                        elif (("&&" in command_input) and ("|" in command_input)): # this pipe was used to end me :(
+                        elif ("&&" in command_input) and ("|" in command_input): # this pipe was used to end me :(
                             the_pipe_pos_1 = command_input.find("|",0)
                             the_pipe_pos_2 = command_input.find("&&",0)
                             if the_pipe_pos_1 < the_pipe_pos_2: # the first pipe is a |
@@ -1915,7 +1876,7 @@ class ljinux():
                                 ljinux.based.shell(command_input[the_pipe_pos_2+2:])
                             del the_pipe_pos_1
                             del the_pipe_pos_2
-                        else: # oh frick you
+                        else:
                             pass
                     ljinux.io.led.value = True
                     gc.collect()
@@ -1940,7 +1901,7 @@ class ljinux():
         # the display objects
         entities = [] # it will hold the drawn objects and allow their dynamic deletion
         # ---
-        
+
         def setup():
             global display_availability
             ljinux.io.led.value = False
@@ -1960,12 +1921,12 @@ class ljinux():
                     pass
                 dmtex("Unloaded display libraries")
             ljinux.io.led.value = True
-        
+
         def frame():
             global display_availability
             if display_availability:
                 ljinux.farland.oled.show()
-        
+
         def clear():
             global display_availability
             if display_availability:
@@ -2022,10 +1983,10 @@ class ljinux():
         def f_draw_circle(xpos0, ypos0, rad, col):
             rad -= 1
             y = -rad
-            while (y<=rad):
+            while y<=rad:
                 x=-rad
-                while (x<=rad):
-                    if ((x*x+y*y) < (rad*rad + rad*0.8)):
+                while x<=rad:
+                    if (x * 2 + y * 2) < (rad * rad + rad * 0.8):
                         ljinux.farland.oled.pixel(xpos0+x, ypos0+y, col)
                         #setpixel(origin.x+x, origin.y+y)
                     x += 1
@@ -2133,8 +2094,8 @@ class ljinux():
             return virt_l_tab
 
         def rect(x0,y0,x1,y1,col,modee):
-            if (modee == "border"):
-                if (x0 < x1):
+            if modee == "border":
+                if x0 < x1:
                     for i in range(x0,x1):
                         ljinux.farland.oled.pixel(i, y0, col)
                         ljinux.farland.oled.pixel(i, y1, col)
@@ -2142,7 +2103,7 @@ class ljinux():
                     for i in range(x1,x0):
                         ljinux.farland.oled.pixel(i, y0, col)
                         ljinux.farland.oled.pixel(i, y1, col)
-                if (y0 < y1):
+                if y0 < y1:
                     for i in range(y0,y1):
                         ljinux.farland.oled.pixel(x0, i, col)
                         ljinux.farland.oled.pixel(x1, i, col)
@@ -2150,20 +2111,20 @@ class ljinux():
                     for i in range(x1,x0):
                         ljinux.farland.oled.pixel(x0, i, col)
                         ljinux.farland.oled.pixel(x1, i, col)
-            elif (modee == "fill"):
-                if ((x0<x1) and (y0<y1)):
+            elif modee == "fill":
+                if (x0 < x1) and (y0 < y1):
                     for i in range(x0,x1):
                         for j in range(y0,y1):
                             ljinux.farland.oled.pixel(i, j, col)
-                elif ((x0<x1) and (y1>y0)):
+                elif (x0 < x1) and (y1 > y0):
                     for i in range(x0,x1):
                         for j in range(y0,y1,-1):
                             ljinux.farland.oled.pixel(i, j, col)
-                elif ((x0>x1) and (y1<y0)):
+                elif (x0 > x1) and (y1 < y0):
                     for i in range(x0,x1,-1):
                         for j in range(y0,y1):
                             ljinux.farland.oled.pixel(i, j, col)
-                elif ((x0>x1) and (y1>y0)):
+                elif (x0 > x1) and (y1 > y0):
                     for i in range(x0,x1,-1):
                         for j in range(y0,y1,-1):
                             ljinux.farland.oled.pixel(i, j, col)
@@ -2183,20 +2144,20 @@ class ljinux():
         # each time increments if monotonic has gone up
         def draw_clock():
             ljinux.farland.timm_in = int(time.monotonic())
-            if (ljinux.farland.timm_in != ljinux.farland.timm_old):
+            if ljinux.farland.timm_in != ljinux.farland.timm_old:
                 ljinux.farland.timm_old = ljinux.farland.timm_in
-                if (ljinux.farland.tp[3] != 9):
+                if ljinux.farland.tp[3] != 9:
                     ljinux.farland.oled.text(str(ljinux.farland.tp[3]), ljinux.farland.poss[3] + ljinux.farland.offs, 2, True)
                     ljinux.farland.tp[3] += 1
                     ljinux.farland.oled.text(str(ljinux.farland.tp[3]), ljinux.farland.poss[3] + ljinux.farland.offs, 2, False)
-                elif (ljinux.farland.tp[2] != 5):
+                elif ljinux.farland.tp[2] != 5:
                     ljinux.farland.oled.text(str(ljinux.farland.tp[3]), ljinux.farland.poss[3] + ljinux.farland.offs, 2, True)
                     ljinux.farland.tp[3] = 0
                     ljinux.farland.oled.text(str(ljinux.farland.tp[3]), ljinux.farland.poss[3] + ljinux.farland.offs, 2, False)
                     ljinux.farland.oled.text(str(ljinux.farland.tp[2]), ljinux.farland.poss[2] + ljinux.farland.offs, 2, True)
                     ljinux.farland.tp[2] += 1
                     ljinux.farland.oled.text(str(ljinux.farland.tp[2]), ljinux.farland.poss[2] + ljinux.farland.offs, 2, False)
-                elif (ljinux.farland.tp[1] != 9):
+                elif ljinux.farland.tp[1] != 9:
                     ljinux.farland.oled.text(str(ljinux.farland.tp[3]), ljinux.farland.poss[3] + ljinux.farland.offs, 2, True)
                     ljinux.farland.tp[3] = 0
                     ljinux.farland.oled.text(str(ljinux.farland.tp[3]), ljinux.farland.poss[3] + ljinux.farland.offs, 2, False)
@@ -2206,7 +2167,7 @@ class ljinux():
                     ljinux.farland.oled.text(str(ljinux.farland.tp[1]), ljinux.farland.poss[1] + ljinux.farland.offs, 2, True)
                     ljinux.farland.tp[1] += 1
                     ljinux.farland.oled.text(str(ljinux.farland.tp[1]), ljinux.farland.poss[1] + ljinux.farland.offs, 2, False)
-                elif (ljinux.farland.tp[0] != 5):
+                elif ljinux.farland.tp[0] != 5:
                     ljinux.farland.oled.text(str(ljinux.farland.tp[3]), ljinux.farland.poss[3] + ljinux.farland.offs, 2, True)
                     ljinux.farland.tp[3] = 0
                     ljinux.farland.oled.text(str(ljinux.farland.tp[3]), ljinux.farland.poss[3] + ljinux.farland.offs, 2, False)
@@ -2223,7 +2184,7 @@ class ljinux():
                 ljinux.farland.oled.text(":", ljinux.farland.poss[4] + ljinux.farland.offs, 2, ljinux.farland.poin)
         
         def fps():
-            if ((ljinux.farland.frame_poi <= 9)):
+            if ljinux.farland.frame_poi <= 9:
                 ljinux.farland.time_new = time.monotonic()
                 ljinux.farland.frames[ljinux.farland.frame_poi] = ljinux.farland.time_new - ljinux.farland.time_old
                 ljinux.farland.time_old = time.monotonic()
