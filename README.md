@@ -41,6 +41,14 @@ Ethernet: GP10(clk), GP13(cs), GP11(mosi), GP12(miso) - libraries needed: <code>
 The neccessary libraries can be found [here](https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases)<br />
 Download the zip (The 7.x-mpy variant), extract it & copy the libraries you want onto <code>/lib</code> of the pico.
 
+<h3>Connection</h3>
+
+To connect to the pico it's recommended to use Putty for Windows and GNU/Screen for Linux.<br />
+For Putty, you open it up, select connection type "Serial" and select port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the pico and set the speed/baudrate to 115200. (You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br /><br />
+
+For GNU/Screen, you need to be in the <code>dialout</code> group and run from the terminal: <code>screen /dev/ttyACM0 115200</code><br />
+To be added to the <code>dialout</code> group, you need to run <code>sudo usermod -a -G dialout \<your username here\></code>
+
 <h3>Contributors:</h3>
 
 -> [bill88t](https://github.com/bill88t) - @bill88t#4044 <br />
