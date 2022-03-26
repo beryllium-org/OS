@@ -48,7 +48,9 @@ For Putty, select connection type to be Serial, select the port to be COM<b>X</b
 
 For GNU/Screen, you need to be in the <code>dialout</code> user group. To connect, run: <code>screen /dev/ttyACM0 115200</code><br />
 To disconnect, press Ctrl + A, K and confirm with y.<br />
-To be added to the <code>dialout</code> group, you need to run <code>sudo usermod -a -G dialout \<your username here\></code>
+To be added to the <code>dialout</code> group, you need to run <code>sudo usermod -a -G dialout \<your username here\></code><br /><br />
+
+Mac instructions are not possible without your help.<br />If you know how to perform serial connections from a mac feel free to pr or message me.
 
 <h3>Contributors:</h3>
 
