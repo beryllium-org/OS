@@ -12,5 +12,5 @@ jobs:
         with:
           options: "--check --verbose --color"
           src: "."
-          version: "21.10b0"
+          version: "22.3.0"
           
