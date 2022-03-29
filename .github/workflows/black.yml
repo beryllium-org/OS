@@ -11,12 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - name: Install Python dependencies
-        run: |
-          pip install pipenv
-          touch pipenv
-          pipenv install --deploy --dev --system
       - uses: wearerequired/lint-action@v1
         with:
           github_token: ${{ secrets.SECRET }}
