@@ -10,18 +10,15 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Black
+      - name: Checkout
       - uses: actions/checkout@v2
+
+      - name: Black
       - uses: psf/black@stable
-      - ​name​: ​Commit Changes
- ​        ​run​: ​|
- ​          git add dist/*
- ​          git config --local user.email "418924582+github-actions[bot]@users.noreply.github.com"
- ​          git config --local user.name "github-actions[bot]"
- ​          git commit -m "Executable for Linux"
- ​     
- ​     - ​name​: ​Push changes
- ​       uses​: ​ad-m/github-push-action@master
- ​        ​with​:
- ​          ​github_token​: ​${{ secrets.SECRET }}
- ​          ​branch​: ​${{ github.ref }}
+
+      - name: Commit
+        run: |
+ ​         git add dist/*
+ ​         git config --local user.email "42198152+github-actions[bot]@users.noreply.github.com"
+ ​         git config --local user.name "github-actions[bot]"
+ ​         git commit -m "Black code changes"
