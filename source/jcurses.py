@@ -275,7 +275,12 @@ class jcurses:
                             else:  # it's an arrow key
                                 self.text_stepping = 2
                         elif self.text_stepping is 2:  # time to get the arrow key
-                            aact = {"41": "up", "42": "down", "43": "right", "44": "left"}
+                            aact = {
+                                "41": "up",
+                                "42": "down",
+                                "43": "right",
+                                "44": "left",
+                            }
                             res = aact[charr]
                             del aact
                             self.text_stepping = 0

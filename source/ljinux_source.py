@@ -1972,9 +1972,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     )
                     if inp is None:
                         command_input = False
-                        while (
-                            command_input in [False, '']
-                        ) and not Exit:
+                        while (command_input in [False, ""]) and not Exit:
                             term.program()
                             if term.buf[0] is 0:
                                 ljinux.history.nav[0] = 0
