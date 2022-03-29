@@ -15,6 +15,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install pipenv
+          touch pipenv
           pipenv install --deploy --dev --system
       - uses: wearerequired/lint-action@v1
         with:
