@@ -10,7 +10,7 @@ jobs:
       - uses: psf/black@stable
       
         with:
-          options: "--check --verbose --color"
+          options: "--verbose"
           src: "."
           version: "22.3.0"
           
