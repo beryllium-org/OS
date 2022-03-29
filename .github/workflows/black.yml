@@ -7,18 +7,10 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-
+  lint:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      
-    - name: Setup Python
-      uses: actions/setup-python@v3
-    
-    - name: Commit blackness
-      uses: jpetrucciani/black-check@master
-      with:
-        path: '.'
+      - uses: actions/checkout@v2
+      - uses: psf/black@stable
+        with:
+        options: "--verbose"
