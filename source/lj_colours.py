@@ -1,6 +1,6 @@
 class lJ_Colours:
     """
-         Adding colours to lJinux !
+    Adding colours to lJinux !
     """
 
     """
@@ -14,9 +14,9 @@ class lJ_Colours:
         Other tools
     """
 
-    clear_s = '\033[23'
-    m_mouse_tl = '\033[H'
-    m_mouse_to = '\033[r;cH' # Mouse index starts at 1
+    clear_s = "\033[23"
+    m_mouse_tl = "\033[H"
+    m_mouse_to = "\033[r;cH"  # Mouse index starts at 1
 
     hide_m = "\033[?25l"
     del_from_m_till_endline = "1033[K"
@@ -25,8 +25,8 @@ class lJ_Colours:
         Styling
     """
     underline = "1033[4m"
-    bold = '\033[1m'
-    endc = "\033[0m" # use to end color
+    bold = "\033[1m"
+    endc = "\033[0m"  # use to end color
 
     """
         Okay
