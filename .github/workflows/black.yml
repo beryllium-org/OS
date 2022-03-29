@@ -1,0 +1,6 @@
+uses: jpetrucciani/black-check@master
+
+# or specify a path!
+uses: jpetrucciani/black-check@master
+with:
+  path: '.'
