@@ -1,5 +1,5 @@
 # Ljinux
-A "linux" written in python, for the Raspberry Pi Pico.<br />
+A "linux" written in python, for the Raspberry Pi Pico. [![Black code formatting](https://github.com/bill88t/ljinux/actions/workflows/black.yml/badge.svg)](https://github.com/bill88t/ljinux/actions/workflows/black.yml)<br />
 
 Important note:<br />
 Do not take this project seriously.<br />
