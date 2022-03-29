@@ -1949,7 +1949,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 term.start()
                 term.trigger_dict = {
                     "inp_type": "prompt",
-                    "context": [],
                     "enter": 0,
                     "ctrlC": 1,
                     "ctrlD": 2,
@@ -1974,7 +1973,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     if inp is None:
                         command_input = False
                         while (
-                            (not command_input) or (command_input == "")
+                            command_input in [False, '']
                         ) and not Exit:
                             term.program()
                             if term.buf[0] is 0:
