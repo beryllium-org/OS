@@ -49,7 +49,7 @@ rm [FILE]...
 DELETE A FILE
 
 
-*(external) ls [OPTIONS]... [DIR]...
+ls [OPTIONS]... [DIR]...
 
 OUTPUTS THE DIRECTORY LISTING TO SERIAL OUT
 
@@ -128,7 +128,7 @@ DISABLE SECURITY, ASKS FOR PASSWORD
 DEFAULT PASSWORD == Ljinux
 
 
-*(external) picofetch
+picofetch
 
 NEOFETCH FOR THE PICO OFC
 
@@ -151,7 +151,7 @@ ENABLES USB ACCESS AND OTHER DEVELOPMENT FEATURES
 THIS PROHIBITS WRITE ACCESS TO THE BUILT IN FILESYSTEM
 
 
-*(external) reboot [mode]
+reboot [mode]
 
 REBOOTS THE MICROCONTROLLER
 OPTIONALLY YOU CAN PASS A REBOOT MODE (safemode, uf2, bootloader)
@@ -162,7 +162,7 @@ dmesg
 PRINTS OUT THE DMESG LOG
 
 
-*(eternal) cat [file]
+cat [file]
 
 PRINTS THE CONTENTS OF A FILE
 
@@ -177,12 +177,12 @@ tail [n] [file]
 PRINT THE LAST [-n number] LINES OF FILE [file].
 
 
-*(external) sensors
+sensors
 
 PRINTS THE CURRENT SYSTEM SENSORS DATA
 
 
-*(external) pinout
+pinout
 
 PRINTS THE PICO PINOUT MAP
 
@@ -190,9 +190,6 @@ PRINTS THE PICO PINOUT MAP
 man [COMMAND]
 
 PRINT THE MANUAL FOR THE GIVEN [COMMAND]
-
----------------------------------
-*(external) commands are those that are not hard-coded into the ljinux binary, but instead provided within /LjinuxRoot/bin
 
       /------------|
 ----<| Config.json |
@@ -311,3 +308,34 @@ CODE:
       Parameters:
             inpt : string with the second user input ex:'-n'
             vopts : string with valid option ex:'abc'
+
+      /--------|
+----<| jCurses |
+      \--------|
+
+jCurses are the ljinux version of nCurses.
+The library is preinstalled in "/lib".
+
+Each program should use it's own jcurses object.
+Based, by default, creates the "term" jcurses object.
+
+Useful functions:
+    - .detect_size()
+    Detects the size of the terminal & returns it as [rows, collumns]
+    
+    - .detect_pos()
+    Detects the current cursor position & returns it as [row, collumn]
+    
+    - .ctx_reg(name)
+    Registers the current cursor position as a bookmark with the name specified.
+    
+    - .move(ctx=None, x=None, y=None)
+    Moves the cursor to a specified x (row), y (collumn), or a bookmark. You can specify both a bookmark & and x, y coordinate.
+    In that case, the x, y will be used as an offset.
+    
+    - .clear()
+    Clears the screen & goes to top.
+
+jCurses does not depend onto ljinux.
+
+More documentation on jcurses will be added later.
