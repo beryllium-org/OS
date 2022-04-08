@@ -19,5 +19,6 @@
   "_comment7": "Debugging & extreme options",
   "SKIPTEMP": false,
   "SKIPCP": false,
-  "DEBUG": false
+  "DEBUG": false,
+  "DEVBOARD": false
 }

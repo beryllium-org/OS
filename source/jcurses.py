@@ -198,6 +198,9 @@ class jcurses:
         self.dmtex_suppress = False
 
     def detect_size(self):
+        """
+            detect terminal size, returns [rows, collumns]
+        """
         strr = ""
         self.get_hw(0)
         self.get_hw(1)
@@ -216,15 +219,15 @@ class jcurses:
         return [int(strr[: strr.find(";")]), int(strr[strr.find(";") + 1 :])]
 
     def get_hw(self, act):
-        if act is 0:  # clear & to the end
-            self.clear()
-            stdout.write("\033[500B")  # down & forward, to go to the end
+        if act is 0:  # save pos & goto the end
+            stdout.write("\033[s")
+            stdout.write("\033[500B")
             stdout.write("\033[500C")
         elif act is 1:  # ask position
-            stdout.write("\033[6n")  # get ending position
-        elif act is 2:  # go back to top
-            self.clear()
-        elif act is 3:  # get pos
+            stdout.write("\033[6n")
+        elif act is 2:  # go back to original position
+            stdout.write("\033[u")
+        elif act is 3:  # get it
             return stdin.read(1)
 
     def train_mode(self):  # get the chars you inputted

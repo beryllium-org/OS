@@ -179,6 +179,7 @@ defaultoptions = {  # default configuration, in line with the manual
     "fixrtc": True,
     "SKIPTEMP": False,
     "SKIPCP": False,
+    "DEVBOARD": False,
     "DEBUG": False,
     "DISPLAYONLYMODE": False,
 }
@@ -191,6 +192,7 @@ option_types = {
     "fixrtc": bool,
     "SKIPTEMP": bool,
     "SKIPCP": bool,
+    "DEVBOARD": bool,
     "DEBUG": bool,
     "DISPLAYONLYMODE": bool,
 }
@@ -201,6 +203,7 @@ for optt in [
     "SKIPTEMP",
     "SKIPCP",
     "DEBUG",
+    "DEVBOARD",
     "DISPLAYONLYMODE",
     "displayheight",
     "displaywidth",
@@ -302,11 +305,13 @@ if not configg["SKIPCP"]:  # beta testing
             time.sleep(0.5)
 
         time.sleep(6)
+else:
+    print("Skipped CircuitPython version checking, happy beta testing!")
 
 if not configg["SKIPTEMP"]:
     """
-    Taking measures in case of unordinary temperature readings.
-    The override exists in case of hardware failure.
+        Taking measures in case of unordinary temperature readings.
+        The override exists in case of hardware failure.
     """
     temp = cpu.temperature
     if temp > 60:
@@ -323,9 +328,34 @@ if not configg["SKIPTEMP"]:
     else:
         dmtex("Now that a 'cool' pico! B)")
     del temp
+else:
+    print("Temperature check skipped, rest in pieces cpu.")
 
+if not configg["DEVBOARD"]:
+    """
+        Enable to skip board checks and patches.
+    """
+    print("Running board detection")
+    led.value = False
+    boardactions = {
+        "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
+    }
+    
+    try:
+        led.value = False
+        boardactions[board.board_id]()
+        led.value = True
+    except KeyError:
+        led.value = True
+        dmtex(colors.error + "Unknown board. "+ colors.endc + "Please open an issue in " + colors.cyan_t + "https://github.com/bill88t/ljinux" + colors.endc + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible.")
+        time.sleep(20)
+    del boardactions
+else:
+    dmtex("Board detection skipped. Enjoy experimenting!")
+    
 led.deinit()
 del led
+
 gc.collect()
 gc.collect()
 dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
@@ -610,12 +640,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 mount(vfs, "/LjinuxRoot")
                 sdcard_fs = True
             except NameError:
-                pass
+                dmtex("SD libraries not present, aborting.")
+            del spi
+            del cs
             try:
-                del spi
-                del cs
-                del vfs
                 del sdcard
+                del vfs
             except NameError:
                 pass
 
@@ -627,9 +657,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
         def enter_key():
             return ljinux.io.buttone.value
-
-        def serial():
-            return input()
 
         def get_sdcard_fs():
             return str(sdcard_fs)
