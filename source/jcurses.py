@@ -3,6 +3,7 @@ from supervisor import runtime
 
 esck = "\033["
 
+
 class jcurses:
     def __init__(self):
         self.enabled = False  # jcurses has init'ed
@@ -371,7 +372,7 @@ class jcurses:
 
     def termline(self):
         self.clear_line()
-        print(self.trigger_dict["prefix"] + ' ' + self.buf[1], end="")
+        print(self.trigger_dict["prefix"] + " " + self.buf[1], end="")
         if self.focus > 0:
             stdout.write(esck + self.focus + "{}D")
 
@@ -382,28 +383,28 @@ class jcurses:
         """
         if ctx is None:
             if x is not None and y is not None:
-                if x < 1: # not sure if it can be in a for loop
+                if x < 1:  # not sure if it can be in a for loop
                     x = 1
                 if y < 1:
                     y = 1
-                stdout.write(esck + str(x) + ';' + str(y) + 'H')
+                stdout.write(esck + str(x) + ";" + str(y) + "H")
             else:
                 raise IndexError  # not the right error, but good enough
         else:
             # no try except here, errors here are the user's fault
             thectx = self.ctx_dict[ctx]
-            stdout.write(esck + str(thectx[0]) + ';' + str(thectx[1]) + 'H')
+            stdout.write(esck + str(thectx[0]) + ";" + str(thectx[1]) + "H")
             if x is not None:
-                if x+thectx[0] > 0: # out of bounds check
-                    if thectx[0] > 0: # down
+                if x + thectx[0] > 0:  # out of bounds check
+                    if thectx[0] > 0:  # down
                         stdout.write(esck + str(thectx[0]) + "B")
-                    else: # up
+                    else:  # up
                         stdout.write(esck + str(-thectx[0]) + "A")
             if y is not None:
-                if y+thectx[1] > 0: # out of bounds check
-                    if thectx[1] > 0: # right
+                if y + thectx[1] > 0:  # out of bounds check
+                    if thectx[1] > 0:  # right
                         stdout.write(esck + str(thectx[1]) + "C")
-                    else: # left
+                    else:  # left
                         stdout.write(esck + str(-thectx[1]) + "D")
             del thectx
 
