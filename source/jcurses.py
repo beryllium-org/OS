@@ -1,6 +1,7 @@
 from sys import stdout, stdin
 from supervisor import runtime
 
+esck = "\033["
 
 class jcurses:
     def __init__(self):
@@ -147,7 +148,7 @@ class jcurses:
                     )  # backend insertion
                     stdout.write(self.buf[1][insertion_pos:])  # frontend insertion
                     stdout.write(
-                        " \x1b[{}D".format(len(self.buf[1][insertion_pos:]) + 1)
+                        esck + "{}D".format(len(self.buf[1][insertion_pos:]) + 1)
                     )  # go back
                     del insertion_pos
 
@@ -163,15 +164,15 @@ class jcurses:
         """
         Clear the whole screen & goto top
         """
-        stdout.write("\033[2J")
-        stdout.write("\033[H")
+        stdout.write(esck + "2J")
+        stdout.write(esck + "H")
 
     def clear_line(self):
         """
         Clear the current line
         """
-        stdout.write("\033[2K")
-        stdout.write("\033[500D")
+        stdout.write(esck + "2K")
+        stdout.write(esck + "500D")
 
     def start(self):
         """
@@ -220,13 +221,13 @@ class jcurses:
 
     def get_hw(self, act):
         if act is 0:  # save pos & goto the end
-            stdout.write("\033[s")
-            stdout.write("\033[500B")
-            stdout.write("\033[500C")
+            stdout.write(esck + "s")
+            stdout.write(esck + "500B")
+            stdout.write(esck + "500C")
         elif act is 1:  # ask position
-            stdout.write("\033[6n")
+            stdout.write(esck + "6n")
         elif act is 2:  # go back to original position
-            stdout.write("\033[u")
+            stdout.write(esck + "u")
         elif act is 3:  # get it
             return stdin.read(1)
 
@@ -328,7 +329,7 @@ class jcurses:
                                 self.focus += 1
                         elif i == "right":
                             if self.focus > 0:
-                                stdout.write("\x1b[1C")
+                                stdout.write(esck + "1C")
                                 self.focus -= 1
                         elif i == "down":
                             pass
@@ -370,29 +371,41 @@ class jcurses:
 
     def termline(self):
         self.clear_line()
-        print(self.trigger_dict["prefix"] + " " + self.buf[1], end="")
+        print(self.trigger_dict["prefix"] + ' ' + self.buf[1], end="")
         if self.focus > 0:
-            stdout.write("\x1b[{}D".format(self.focus))
+            stdout.write(esck + self.focus + "{}D")
 
     def move(self, ctx=None, x=None, y=None):
         """
-        Move to a specified coordinate or a bookmark
+        Move to a specified coordinate or a bookmark.
+        If you specified a bookmark, you can use x & y to add an offset.
         """
         if ctx is None:
             if x is not None and y is not None:
-                stdout.write("\033[#;%H".replace("#", str(x)).replace("%", str(y)))
+                if x < 1: # not sure if it can be in a for loop
+                    x = 1
+                if y < 1:
+                    y = 1
+                stdout.write(esck + str(x) + ';' + str(y) + 'H')
             else:
                 raise IndexError  # not the right error, but good enough
         else:
-            pass
+            # no try except here, errors here are the user's fault
+            thectx = self.ctx_dict[ctx]
+            stdout.write(esck + str(thectx[0]) + ';' + str(thectx[1]) + 'H')
             if x is not None:
-                pass
+                if x+thectx[0] > 0: # out of bounds check
+                    if thectx[0] > 0: # down
+                        stdout.write(esck + str(thectx[0]) + "B")
+                    else: # up
+                        stdout.write(esck + str(-thectx[0]) + "A")
             if y is not None:
-                pass
-        pass
+                if y+thectx[1] > 0: # out of bounds check
+                    if thectx[1] > 0: # right
+                        stdout.write(esck + str(thectx[1]) + "C")
+                    else: # left
+                        stdout.write(esck + str(-thectx[1]) + "D")
+            del thectx
 
     def ctx_reg(self, namee):
-        self.ctx_dict[namee] = [
-            0,
-            0,
-        ]  # addfahsdjhfasdfsadgfshdgfshdavfasjkdfvsdjakafvdhkvhjvfkashdvjfshvkhv
+        self.ctx_dict[namee] = self.detect_pos()
