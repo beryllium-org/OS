@@ -371,7 +371,21 @@ class jcurses:
         if self.focus > 0:
             stdout.write("\x1b[{}D".format(self.focus))
 
-    def gotoo(self, ctx, number=0):
+    def move(self, ctx=None, x=None, y=None):
+        """
+            Move to a specified coordinate or a bookmark
+        """
+        if ctx is None:
+            if x is not None and y is not None:
+                stdout.write("\033[#;%H".replace('#',str(x)).replace('%',str(y)))
+            else:
+                raise IndexError # not the right error, but good enough
+        else:
+            pass
+            if x is not None:
+                pass
+            if y is not None:
+                pass
         pass
 
     def ctx_reg(self, namee):

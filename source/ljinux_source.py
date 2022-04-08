@@ -276,7 +276,10 @@ dmtex("Total pin alloc: ", end="")
 for i in pin_alloc:
     dmtex(str(i), timing=False, end=" ")
 dmtex("", timing=False)
+
 del defaultoptions
+del option_types
+del pintab
 
 # basic checks
 if not configg["SKIPCP"]:  # beta testing
@@ -1965,10 +1968,21 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 ) and not Exit:
                     term.trigger_dict["prefix"] = (
                         "["
+                        + colors.cyan_t
                         + ljinux.based.system_vars["user"]
-                        + "@pico | "
+                        + colors.endc
+                        + "@"
+                        + colors.cyan_t
+                        + "pico"
+                        + colors.endc
+                        + "| "
+                        + colors.yellow_t
                         + getcwd()
-                        + "]>"
+                        + colors.endc
+                        + "]"
+                        + colors.blue_t
+                        + ">"
+                        + colors.endc
                     )
                     if inp is None:
                         command_input = False

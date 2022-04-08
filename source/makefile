@@ -3,11 +3,11 @@ SHELL = bash
 all: clean program.run
 
 program.run: 
-	./mpy-cross-$(shell uname -m) ./ljinux_source.py -s Ljinux -v -O150 -o ../ljinux.mpy
+	./mpy-cross-$(shell uname -m) ./ljinux_source.py -s Ljinux -v -O4 -o ../ljinux.mpy
 	cp ../ljinux.mpy /media/$(shell whoami)/LJINUX/ljinux.mpy
-	./mpy-cross-$(shell uname -m) ./jcurses.py -s Jcurses -v -O150 -o ../lib/jcurses.mpy
+	./mpy-cross-$(shell uname -m) ./jcurses.py -s Jcurses -v -O4 -o ../lib/jcurses.mpy
 	cp ../lib/jcurses.mpy /media/$(shell whoami)/LJINUX/lib/jcurses.mpy
-	./mpy-cross-$(shell uname -m) ./lj_colours.py -s Jcurses -v -O150 -o ../lib/lj_colours.mpy
+	./mpy-cross-$(shell uname -m) ./lj_colours.py -s Jcurses -v -O4 -o ../lib/lj_colours.mpy
 	cp ../lib/lj_colours.mpy /media/$(shell whoami)/LJINUX/lib/lj_colours.mpy
 	sync
 clean:
