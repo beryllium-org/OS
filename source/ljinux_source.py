@@ -310,8 +310,8 @@ else:
 
 if not configg["SKIPTEMP"]:
     """
-        Taking measures in case of unordinary temperature readings.
-        The override exists in case of hardware failure.
+    Taking measures in case of unordinary temperature readings.
+    The override exists in case of hardware failure.
     """
     temp = cpu.temperature
     if temp > 60:
@@ -333,26 +333,35 @@ else:
 
 if not configg["DEVBOARD"]:
     """
-        Enable to skip board checks and patches.
+    Enable to skip board checks and patches.
     """
     print("Running board detection")
     led.value = False
     boardactions = {
         "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
     }
-    
+
     try:
         led.value = False
         boardactions[board.board_id]()
         led.value = True
     except KeyError:
         led.value = True
-        dmtex(colors.error + "Unknown board. "+ colors.endc + "Please open an issue in " + colors.cyan_t + "https://github.com/bill88t/ljinux" + colors.endc + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible.")
+        dmtex(
+            colors.error
+            + "Unknown board. "
+            + colors.endc
+            + "Please open an issue in "
+            + colors.cyan_t
+            + "https://github.com/bill88t/ljinux"
+            + colors.endc
+            + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible."
+        )
         time.sleep(20)
     del boardactions
 else:
     dmtex("Board detection skipped. Enjoy experimenting!")
-    
+
 led.deinit()
 del led
 

@@ -199,7 +199,7 @@ class jcurses:
 
     def detect_size(self):
         """
-            detect terminal size, returns [rows, collumns]
+        detect terminal size, returns [rows, collumns]
         """
         strr = ""
         self.get_hw(0)
