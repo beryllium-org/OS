@@ -232,16 +232,6 @@ class jcurses:
         elif act is 3:  # get it
             return stdin.read(1)
 
-    def train_mode(self):  # get the chars you inputted
-        try:
-            while True:
-                a = self.register_char()
-                if a != []:
-                    for i in a:
-                        print(i)
-        except KeyboardInterrupt:
-            return
-
     def register_char(self):
         """
         Complete all-in-one input character registration function.
@@ -388,8 +378,6 @@ class jcurses:
                 if y < 1:
                     y = 1
                 stdout.write(esck + str(x) + ";" + str(y) + "H")
-            else:
-                raise IndexError  # not the right error, but good enough
         else:
             # no try except here, errors here are the user's fault
             thectx = self.ctx_dict[ctx]

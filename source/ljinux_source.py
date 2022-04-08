@@ -1025,10 +1025,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     ljinux.io.led.value = True
                     print("based: " + argj[0] + ": No such file or directory\n")
 
-            def pwd(dirr):  # print working directory
-                print(getcwd())
-                ljinux.based.user_vars["return"] = getcwd()
-
             def helpp(dictt):  # help
                 print(
                     "LNL based\nThese shell commands are defined internally or are in PATH. Type `help' to see this list."
@@ -1094,53 +1090,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             print("based: Error: Variable not found!")
                 except IndexError:
                     pass
-
-            def exitt(returncode):  # exit
-                global Exit
-                global Exit_code
-                print("Bye")
-                Exit = True
-                try:
-                    Exit_code = returncode[1]
-                except IndexError:
-                    pass
-
-            def unamee(optt):  # uname
-                ljinux.io.led.value = False
-                try:
-                    if optt[1] == "-a":
-                        tt = time.localtime()
-                        print(
-                            "Ljinux Raspberry Pi Pico "
-                            + ljinux.based.system_vars["Version"]
-                            + " "
-                            + str(tt.tm_mday)
-                            + "/"
-                            + str(tt.tm_mon)
-                            + "/"
-                            + str(tt.tm_year)
-                            + " "
-                            + str(tt.tm_hour)
-                            + ":"
-                            + str(tt.tm_min)
-                            + ":"
-                            + str(tt.tm_sec)
-                            + " circuitpython Ljinux"
-                        )
-                        del tt
-                except IndexError:
-                    print("Ljinux")
-                ljinux.io.led.value = True
-
-            def cdd(optt):  # cd
-                ljinux.io.led.value = False
-                try:
-                    chdir(optt[1])
-                except OSError:
-                    print("Error: Directory does not exist")
-                except IndexError:
-                    pass
-                ljinux.io.led.value = True
 
             def mkdiir(dirr):  # mkdir
                 global sdcard_fs
@@ -1550,9 +1499,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 except IndexError:
                     ljinux.history.getall()
 
-            def clearr(inpt):  # try to clear the screen
-                term.clear()
-
             def haltt(inpt):
                 global Exit
                 global Exit_code
@@ -1731,47 +1677,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 else:
                     print("Network unavailable")
 
-            def touchh(inpt):  # equivelant to linux "touch"
-                try:
-                    f = open(inpt[1], "r")
-                    f.close()
-                    print("based: Error: file exists")
-                except OSError:
-                    global sdcard_fs
-                    if not sdcard_fs:
-                        try:
-                            remount("/", False)
-                        except RuntimeError:
-                            print(
-                                "based: Cannot remount built in fs in development mode"
-                            )
-                            return
-                    f = open(inpt[1], "w")
-                    f.close()
-                    if not sdcard_fs:
-                        remount("/", True)
-
-            def devv(inpt):  # Developer mode enabler, basedically "touch devm"
-                print(
-                    "Enabling ljinux developer mode..\nKeep in mind the pico will restart automatically, after it's enabled."
-                )
-                time.sleep(5)
-                try:
-                    f = open("/devm", "r")
-                    f.close()
-                    print(
-                        'based: Error: file exists\nIf you want to disable developer mode, delete the file "devm" from the pico\'s built in filesystem and powercycle it.'
-                    )
-                except OSError:
-                    remount("/", False)
-                    f = open("/devm", "w")
-                    f.close()
-                    remount("/", True)
-                    global Exit
-                    global Exit_code
-                    Exit = True
-                    Exit_code = 245
-
             def do_nothin(inpt):
                 pass  # really this is needed
 
@@ -1853,42 +1758,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 del nl
                 del offs
 
-            def mann(inpt):
-                if len(inpt) < 2:
-                    ljinux.based.error(9)
-                    ljinux.based.user_vars["return"] = "1"
-                    return
-                try:
-                    filee = ""
-                    mans = listdir("/LjinuxRoot/usr/share/man")
-                    for i in mans:
-                        if i.endswith(".json") and inpt[1] == i[:-5]:
-                            filee += "/" + i
-                            break
-                    del mans
-                    try:
-                        with open(("/LjinuxRoot/usr/share/man" + filee), "r") as f:
-                            man = json.load(f)
-                            f.close()
-                        print("\nNAME" + "\n\t" + man["NAME"] + "\n")
-                        print("SYNOPSIS" + "\n\t" + man["SYNOPSIS"] + "\n")
-                        print("DESCRIPTION" + "\n\t" + man["DESCRIPTION"] + "\n")
-                        del filee
-                        del man
-                        ljinux.based.user_vars["return"] = "0"
-                        return
-                    except (ValueError, OSError, KeyError):
-                        dmtex(
-                            "Manual file could not be found / parsed for "
-                            + inpt[1]
-                            + "."
-                        )
-                        ljinux.based.user_vars["return"] = "1"
-                        return
-                except OSError:  # I guess no man then
-                    ljinux.based.error(8)
-                    ljinux.based.user_vars["return"] = "1"
-
         class fn:
             """
             Common functions used by the commands.
@@ -1954,12 +1823,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             function_dict = {  # holds all built-in commands. The plan is to move as many as possible externally
                 "error": ljinux.based.command.not_found,
                 "exec": ljinux.based.command.execc,
-                "pwd": ljinux.based.command.pwd,
                 "help": ljinux.based.command.helpp,
                 "echo": ljinux.based.command.echoo,
-                "exit": ljinux.based.command.exitt,
-                "uname": ljinux.based.command.unamee,
-                "cd": ljinux.based.command.cdd,
                 "mkdir": ljinux.based.command.mkdiir,
                 "rmdir": ljinux.based.command.rmdiir,
                 "var": ljinux.based.command.var,
@@ -1967,21 +1832,17 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 "time": ljinux.based.command.timme,
                 "su": ljinux.based.command.suuu,
                 "history": ljinux.based.command.historgf,
-                "clear": ljinux.based.command.clearr,
                 "halt": ljinux.based.command.haltt,
                 "if": ljinux.based.command.iff,
                 "dmesg": ljinux.based.command.dmesgg,
                 "ping": ljinux.based.command.ping,
                 "webserver": ljinux.based.command.webs,
-                "touch": ljinux.based.command.touchh,
-                "devmode": ljinux.based.command.devv,
                 "pexec": ljinux.based.command.pexecc,
                 "rm": ljinux.based.command.rmm,
                 "head": ljinux.based.command.headd,
                 "tail": ljinux.based.command.taill,
                 "COMMENT": ljinux.based.command.do_nothin,
                 "fpexec": ljinux.based.command.fpexecc,
-                "man": ljinux.based.command.mann,
             }
             command_input = False
             if not term.enabled:

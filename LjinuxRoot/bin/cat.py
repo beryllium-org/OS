@@ -1,9 +1,9 @@
 ljinux.based.user_vars["return"] = ""
 try:
-    with open(ljinux.based.user_vars["argj"].split()[1], "r") as f:
+    with open(ljinux.based.user_vars["argj"].split()[1],'r') as f:
         lines = f.readlines()
         for i in lines:
-            print(i, end="")
+            print(i,end="")
             ljinux.based.user_vars["return"] += i
         f.close()
         gc.collect()

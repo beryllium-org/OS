@@ -1,0 +1,2 @@
+COMMENT man man man man
+fpexec -n /LjinuxRoot/bin/man.py

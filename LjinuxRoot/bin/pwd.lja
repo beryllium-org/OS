@@ -1,0 +1,2 @@
+COMMENT pwd command
+fpexec -n /LjinuxRoot/bin/pwd.py

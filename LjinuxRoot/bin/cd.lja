@@ -1,0 +1,2 @@
+COMMENT change directory
+fpexec -n /LjinuxRoot/bin/cd.py
