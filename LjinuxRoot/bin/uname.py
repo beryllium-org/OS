@@ -21,4 +21,4 @@ try:
         del tt
 except IndexError:
     print("Ljinux")
-ljinux.based.user_vars["return"] = '0'
+ljinux.based.user_vars["return"] = "0"

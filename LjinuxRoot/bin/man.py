@@ -25,4 +25,4 @@ try:
         ljinux.based.user_vars["return"] = "1"
 except (OSError, IndexError):  # I guess no man then
     ljinux.based.error(8)
-    ljinux.based.user_vars["return"] = "1" 
+    ljinux.based.user_vars["return"] = "1"

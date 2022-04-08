@@ -3,4 +3,4 @@ try:
 except OSError:
     print("Error: Directory does not exist")
 except IndexError:
-    pass 
+    pass

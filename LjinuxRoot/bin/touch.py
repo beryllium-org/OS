@@ -10,8 +10,6 @@ except OSError:
             f = open(ljinux.based.user_vars["argj"].split()[1], "w")
             f.close()
             if not sdcard_fs:
-                remount("/", True) 
+                remount("/", True)
         except RuntimeError:
-            print(
-                "based: Cannot remount built in fs in development mode"
-            )
+            print("based: Cannot remount built in fs in development mode")
