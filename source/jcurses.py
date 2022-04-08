@@ -373,13 +373,13 @@ class jcurses:
 
     def move(self, ctx=None, x=None, y=None):
         """
-            Move to a specified coordinate or a bookmark
+        Move to a specified coordinate or a bookmark
         """
         if ctx is None:
             if x is not None and y is not None:
-                stdout.write("\033[#;%H".replace('#',str(x)).replace('%',str(y)))
+                stdout.write("\033[#;%H".replace("#", str(x)).replace("%", str(y)))
             else:
-                raise IndexError # not the right error, but good enough
+                raise IndexError  # not the right error, but good enough
         else:
             pass
             if x is not None:
