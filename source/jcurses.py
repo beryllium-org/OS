@@ -131,6 +131,10 @@ class jcurses:
         "2a": "*",
         "28": "(",
         "29": ")",
+        "41": "up",
+        "42": "down",
+        "43": "right",
+        "44": "left",
         "7f": "bck",
         "ctrlC": "ctrlC",  # needed
     }
@@ -248,7 +252,6 @@ class jcurses:
         stack = []
         try:
             n = runtime.serial_bytes_available
-            keys = {}  # Please put the key binds here instead of the iteration
             if n > 0:
                 i = stdin.read(n)
                 for s in i:
@@ -271,15 +274,8 @@ class jcurses:
 
                         # Arrow keys
                         else:
-                            aact = {
-                                "41": "up",
-                                "42": "down",
-                                "43": "right",
-                                "44": "left",
-                            }
                             self.text_stepping = 0
-                            stack.append(aact[charr])
-                            del aact
+                            stack.append(self.char_map[charr])
                     except KeyError:
                         pass
                     except KeyboardInterrupt:
