@@ -1,8 +1,7 @@
 from sys import stdout, stdin
 from supervisor import runtime
 
-esck = "\033["
-
+ESCK = "\033["
 
 class jcurses:
     def __init__(self):
@@ -149,7 +148,7 @@ class jcurses:
                     )  # backend insertion
                     stdout.write(self.buf[1][insertion_pos:])  # frontend insertion
                     stdout.write(
-                        esck + "{}D".format(len(self.buf[1][insertion_pos:]) + 1)
+                        ESCK + "{}D".format(len(self.buf[1][insertion_pos:]) + 1)
                     )  # go back
                     del insertion_pos
 
@@ -165,15 +164,15 @@ class jcurses:
         """
         Clear the whole screen & goto top
         """
-        stdout.write(esck + "2J")
-        stdout.write(esck + "H")
+        stdout.write(ESCK + "2J")
+        stdout.write(ESCK + "H")
 
     def clear_line(self):
         """
         Clear the current line
         """
-        stdout.write(esck + "2K")
-        stdout.write(esck + "500D")
+        stdout.write(ESCK + "2K")
+        stdout.write(ESCK + "500D")
 
     def start(self):
         """
@@ -204,9 +203,8 @@ class jcurses:
         detect terminal size, returns [rows, collumns]
         """
         strr = ""
-        self.get_hw(0)
-        self.get_hw(1)
-        self.get_hw(2)
+        for i in range(3):
+            self.get_hw(i)
         while not strr.endswith("R"):
             strr += self.get_hw(3)
         strr = strr[2:-1]  # this is critical as find will break with <esc>.
@@ -221,15 +219,19 @@ class jcurses:
         return [int(strr[: strr.find(";")]), int(strr[strr.find(";") + 1 :])]
 
     def get_hw(self, act):
-        if act is 0:  # save pos & goto the end
-            stdout.write(esck + "s")
-            stdout.write(esck + "500B")
-            stdout.write(esck + "500C")
-        elif act is 1:  # ask position
-            stdout.write(esck + "6n")
-        elif act is 2:  # go back to original position
-            stdout.write(esck + "u")
-        elif act is 3:  # get it
+        if act is 0:
+            # save pos & goto the end
+            stdout.write(ESCK + "s")
+            stdout.write(ESCK + "500B")
+            stdout.write(ESCK + "500C")
+        elif act is 1:
+            # ask position
+            stdout.write(ESCK + "6n")
+        elif act is 2:
+            # go back to original position
+            stdout.write(ESCK + "u")
+        elif act is 3:
+            # get it
             return stdin.read(1)
 
     def register_char(self):
@@ -244,43 +246,39 @@ class jcurses:
         """
         stack = []
         try:
-            n = runtime.serial_bytes_available  # do we have anythin?
-            if n > 0:  # we do
+            n = runtime.serial_bytes_available
+            keys = {} # Please put the key binds here instead of the iteration
+            if n > 0:
                 i = stdin.read(n)
                 for s in i:
                     try:
-                        charr = str(hex(ord(s)))[
-                            2:
-                        ]  # I tried to fix this 4 times. Watch this number go up. - lol I made it longer 19/3/22
-                        if (
-                            charr != "1b" and self.text_stepping is 0
-                        ):  # if it's not an alt, or if we were proccessing something
-                            stack.append(self.char_map[charr])
-                        elif (
-                            self.text_stepping is 0
-                        ):  # skipping over the alt, dw it's not lost
-                            self.text_stepping = 1
-                        elif (
-                            self.text_stepping is 1
-                        ):  # we have passed the alt key, time to check it
-                            if charr != "5b":  # not an arrow key
-                                self.text_stepping = 0
-                                stack.append("alt")
+                        charr = str(hex(ord(s)))[2:]
+                        # Check for alt or process
+                        if self.text_stepping is 0:
+                            if charr != "1b":
                                 stack.append(self.char_map[charr])
+                            else:
+                                self.text_stepping = 1
+
+                        # Check skipped alt
+                        elif self.text_stepping is 1:
+                            if charr != "5b":
+                                self.text_stepping = 0
+                                stack.extend(["alt", self.char_map[charr]])
                             else:  # it's an arrow key
                                 self.text_stepping = 2
-                        elif self.text_stepping is 2:  # time to get the arrow key
+
+                        # Arrow keys
+                        else:
                             aact = {
                                 "41": "up",
                                 "42": "down",
                                 "43": "right",
                                 "44": "left",
                             }
-                            res = aact[charr]
-                            del aact
                             self.text_stepping = 0
-                            stack.append(res)
-                            del res
+                            stack.append(aact[charr])
+                            del aact
                     except KeyError:
                         pass
                     except KeyboardInterrupt:
@@ -294,8 +292,7 @@ class jcurses:
         The main program.
         Depends on variables being already set.
         """
-        self.softquit = False
-        segmented = False
+        self.softquit = segmented = False
         self.buf[0] = 0
         if self.trigger_dict["inp_type"] == "prompt":  # a terminal prompt
             self.termline()
@@ -320,7 +317,7 @@ class jcurses:
                                 self.focus += 1
                         elif i == "right":
                             if self.focus > 0:
-                                stdout.write(esck + "1C")
+                                stdout.write(ESCK + "1C")
                                 self.focus -= 1
                         elif i == "down":
                             pass
@@ -328,34 +325,22 @@ class jcurses:
                             pass
                         elif self.trigger_dict["rest"] == "stack" and (
                             self.trigger_dict["rest_a"] == "common"
-                            and i != "alt"
-                            and i != "ctrl"
-                            and i != "ctrlD"
+                            and i not in {"alt", "ctrl", "ctrlD"}
                         ):  # Arknights "PatriotExtra" theme starts playing
                             if self.focus is 0:
                                 self.buf[1] += i
-                                if (
-                                    self.trigger_dict["echo"] == "common"
-                                    or self.trigger_dict["echo"] == "all"
-                                ):
+                                if self.trigger_dict["echo"] in {'common', 'all'}:
                                     stdout.write(i)
                             else:
-                                insertion_pos = len(self.buf[1]) - self.focus
-                                self.buf[1] = (
-                                    self.buf[1][:insertion_pos]
-                                    + i
-                                    + self.buf[1][insertion_pos:]
-                                )  # backend insertion
-                                steps_in = 0
-                                for d in self.buf[1][
-                                    insertion_pos:
-                                ]:  # frontend insertion
+                                insertion_pos = len(self.buf[1]) - self.focus # backend insertion
+                                self.buf[1] = self.buf[1][:insertion_pos] + i + self.buf[1][insertion_pos:]
+                                # frontend insertion
+                                for d in self.buf[1][insertion_pos:]:
                                     stdout.write(d)
-                                    steps_in += 1
+                                steps_in = len(self.buf[1][insertion_pos:])
                                 for e in range(steps_in - 1):
                                     stdout.write("\010")
-                                del steps_in
-                                del insertion_pos
+                                del steps_in, insertion_pos
                 del tempstack
         del segmented
         return self.buf
@@ -364,7 +349,7 @@ class jcurses:
         self.clear_line()
         print(self.trigger_dict["prefix"] + " " + self.buf[1], end="")
         if self.focus > 0:
-            stdout.write(esck + self.focus + "{}D")
+            stdout.write(ESCK + self.focus + "{}D")
 
     def move(self, ctx=None, x=None, y=None):
         """
@@ -373,27 +358,24 @@ class jcurses:
         """
         if ctx is None:
             if x is not None and y is not None:
-                if x < 1:  # not sure if it can be in a for loop
-                    x = 1
-                if y < 1:
-                    y = 1
-                stdout.write(esck + str(x) + ";" + str(y) + "H")
+                x, y = max(1, x), max(1, y)
+                stdout.write(ESCK + str(x) + ";" + str(y) + "H")
         else:
             # no try except here, errors here are the user's fault
             thectx = self.ctx_dict[ctx]
-            stdout.write(esck + str(thectx[0]) + ";" + str(thectx[1]) + "H")
+            stdout.write(ESCK + str(thectx[0]) + ";" + str(thectx[1]) + "H")
             if x is not None:
                 if x + thectx[0] > 0:  # out of bounds check
                     if thectx[0] > 0:  # down
-                        stdout.write(esck + str(thectx[0]) + "B")
+                        stdout.write(ESCK + str(thectx[0]) + "B")
                     else:  # up
-                        stdout.write(esck + str(-thectx[0]) + "A")
+                        stdout.write(ESCK + str(-thectx[0]) + "A")
             if y is not None:
                 if y + thectx[1] > 0:  # out of bounds check
                     if thectx[1] > 0:  # right
-                        stdout.write(esck + str(thectx[1]) + "C")
+                        stdout.write(ESCK + str(thectx[1]) + "C")
                     else:  # left
-                        stdout.write(esck + str(-thectx[1]) + "D")
+                        stdout.write(ESCK + str(-thectx[1]) + "D")
             del thectx
 
     def ctx_reg(self, namee):
