@@ -15,6 +15,7 @@ jobs:
           version: "22.3.0"
           
       - name: Commit Changes
+        continue-on-error: true
         run: |          
           git add .
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -22,6 +23,7 @@ jobs:
           git commit -m "Black Code Formatting"
       
       - name: Push changes
+        continue-on-error: true
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.SECRET }}
