@@ -4,6 +4,7 @@ from jcurses_data import char_map
 
 ESCK = "\033["
 
+
 class jcurses:
     def __init__(self):
         self.enabled = False  # jcurses has init'ed

@@ -104,4 +104,4 @@ char_map = {  # you need to add 0x
     "44": "left",
     "7f": "bck",
     "ctrlC": "ctrlC",  # needed
-} 
+}
