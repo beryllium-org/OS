@@ -198,7 +198,7 @@ option_types = {
 }
 
 # General options
-for optt in [
+for optt in {
     "fixrtc",
     "SKIPTEMP",
     "SKIPCP",
@@ -207,7 +207,7 @@ for optt in [
     "DISPLAYONLYMODE",
     "displayheight",
     "displaywidth",
-]:
+}:
     try:
         if type(configg[optt]) == option_types[optt]:
             dmtex(
@@ -258,7 +258,7 @@ pintab = {  # Hardware pin allocations
     28: board.GP28,
 }
 
-for optt in ["displaySCL", "displaySDA"]:
+for optt in {"displaySCL", "displaySDA"}:
     try:
         pin = configg[optt]
         if pin in pin_alloc:
