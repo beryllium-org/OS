@@ -3,6 +3,7 @@ from supervisor import runtime
 
 ESCK = "\033["
 
+
 class jcurses:
     def __init__(self):
         self.enabled = False  # jcurses has init'ed
@@ -247,7 +248,7 @@ class jcurses:
         stack = []
         try:
             n = runtime.serial_bytes_available
-            keys = {} # Please put the key binds here instead of the iteration
+            keys = {}  # Please put the key binds here instead of the iteration
             if n > 0:
                 i = stdin.read(n)
                 for s in i:
@@ -329,11 +330,17 @@ class jcurses:
                         ):  # Arknights "PatriotExtra" theme starts playing
                             if self.focus is 0:
                                 self.buf[1] += i
-                                if self.trigger_dict["echo"] in {'common', 'all'}:
+                                if self.trigger_dict["echo"] in {"common", "all"}:
                                     stdout.write(i)
                             else:
-                                insertion_pos = len(self.buf[1]) - self.focus # backend insertion
-                                self.buf[1] = self.buf[1][:insertion_pos] + i + self.buf[1][insertion_pos:]
+                                insertion_pos = (
+                                    len(self.buf[1]) - self.focus
+                                )  # backend insertion
+                                self.buf[1] = (
+                                    self.buf[1][:insertion_pos]
+                                    + i
+                                    + self.buf[1][insertion_pos:]
+                                )
                                 # frontend insertion
                                 for d in self.buf[1][insertion_pos:]:
                                     stdout.write(d)
