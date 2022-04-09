@@ -28,7 +28,7 @@ led.value = True
 led.value = False
 
 # Pin allocation table
-pin_alloc = []
+pin_alloc = set()
 
 # Default password, aka the password if no /LjinuxRoot/etc/passwd is found
 dfpasswd = "Ljinux"
@@ -265,7 +265,7 @@ for optt in ["displaySCL", "displaySDA"]:
             dmtex("PIN ALLOCATED, EXITING")
             exit(0)
         else:
-            pin_alloc.append(pin)
+            pin_alloc.add(pin)
         dmtex(
             "\t" + colors.green_t + "√" + colors.endc + " " + optt + "=" + str(pin),
             timing=False,
