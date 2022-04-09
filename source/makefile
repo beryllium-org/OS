@@ -17,17 +17,17 @@ program.run:
 	cp ../lib/jcurses_data.mpy /media/$(shell whoami)/LJINUX/lib/jcurses_data.mpy
 clean:
 	@echo -en "Cleaning:\n[1/6] "
-	if (test -f ../ljinux.mpy); then rm ../ljinux.mpy; fi
+	[ -f ../ljinux.mpy ] && rm ../ljinux.mpy || true
 	@echo -n "[2/6] "
-	if (test -f /media/$(shell whoami)/LJINUX/ljinux.mpy); then rm /media/$(shell whoami)/LJINUX/ljinux.mpy; fi
+	[ -f /media/$(shell whoami)/LJINUX/ljinux.mpy ] && rm /media/$(shell whoami)/LJINUX/ljinux.mpy || true
 	@echo -n "[3/6] "
-	if (test -f /media/$(shell whoami)/LJINUX/jcurses.mpy); then rm /media/$(shell whoami)/LJINUX/lib/jcurses.mpy; fi
+	[ -f /media/$(shell whoami)/LJINUX/jcurses.mpy ] && rm /media/$(shell whoami)/LJINUX/lib/jcurses.mpy || true
 	@echo -n "[4/6] "
-	if (test -f /media/$(shell whoami)/LJINUX/lj_colours.mpy); then rm /media/$(shell whoami)/LJINUX/lib/lj_colours.mpy; fi
+	[ -f /media/$(shell whoami)/LJINUX/lj_colours.mpy ] && rm /media/$(shell whoami)/LJINUX/lib/lj_colours.mpy || true
 	@echo -n "[5/6] "
-	if (test -f /media/$(shell whoami)/LJINUX/jcurses_data.mpy); then rm /media/$(shell whoami)/LJINUX/lib/jcurses_data.mpy; fi
+	[ -f /media/$(shell whoami)/LJINUX/jcurses_data.mpy ] && rm /media/$(shell whoami)/LJINUX/lib/jcurses_data.mpy || true
 	@echo -n "[6/6] "
-	if (test -f /media/$(shell whoami)/LJINUX/LjinuxRoot/home/pi/Manual.txt); then rm /media/$(shell whoami)/LJINUX/LjinuxRoot/home/pi/Manual.txt; fi
+	[ -f /media/$(shell whoami)/LJINUX/LjinuxRoot/home/pi/Manual.txt ] && rm /media/$(shell whoami)/LJINUX/LjinuxRoot/home/pi/Manual.txt || true
 manual:
 	@echo -e "\nManual file:"
 	cp ../Manual.txt /media/$(shell whoami)/LJINUX/LjinuxRoot/home/pi/Manual.txt
