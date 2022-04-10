@@ -15,7 +15,10 @@ class jcurses:
         self.text_stepping = (
             0  # handy variable to make multi-action keys easily parsable
         )
-        self.ctx_dict = {"top_left": [1, 1], "bottom_left": [1, 1]}  # bookmarks baby, bookmarks
+        self.ctx_dict = {
+            "top_left": [1, 1],
+            "bottom_left": [1, 1],
+        }  # bookmarks baby, bookmarks
         self.trigger_dict = None
         self.dmtex_suppress = False
         self.context = []
@@ -74,7 +77,7 @@ class jcurses:
             self.stop()
         self.enabled = True
         self.dmtex_suppress = True
-        self.detect_size() # don't need it as by itself, I only want it to update the bookmarks.
+        self.detect_size()  # don't need it as by itself, I only want it to update the bookmarks.
         self.clear()
 
     def stop(self):
@@ -96,11 +99,13 @@ class jcurses:
         detect terminal size, returns [rows, collumns]
         """
         done = False
-        while not done: # this whole ass fiasco is to combat user input during the ansi negotiation.
+        while (
+            not done
+        ):  # this whole ass fiasco is to combat user input during the ansi negotiation.
             try:
                 strr = ""
                 while not console.connected:
-                    sleep(.3)
+                    sleep(0.3)
                 for i in range(3):
                     self.get_hw(i)
                 while not strr.endswith("R"):
@@ -279,7 +284,7 @@ class jcurses:
 
     def ctx_reg(self, namee):
         self.ctx_dict[namee] = self.detect_pos()
-    
+
     def line(self, charr):
         self.clear_line()
         stdout.write(charr * self.detect_size()[1])

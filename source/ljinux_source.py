@@ -1080,11 +1080,11 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                         res += what[i + offs] + " "
                                     res += str(what[countt - 1 + offs])[:-1]
                                     if not ljinux.based.silent:
-                                        if 'n' in optss:
-                                            print(res,end="")
-                                        elif 'n' in optss and 'e' in optss:
+                                        if "n" in optss:
+                                            print(res, end="")
+                                        elif "n" in optss and "e" in optss:
                                             stdout.write(res)
-                                        elif 'e' in optss:
+                                        elif "e" in optss:
                                             stdout.write(res + "\n")
                                         else:
                                             print(res)
@@ -1917,7 +1917,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     Exit_code = 0
                                     break
                                 elif term.buf[0] is 3:  # tab key
-                                    tofind = term.buf[1]  # made into var for speed reasons
+                                    tofind = term.buf[
+                                        1
+                                    ]  # made into var for speed reasons
                                     candidates = []
                                     bins = ljinux.based.get_bins()
                                     for i in [function_dict, bins]:
@@ -1975,7 +1977,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     TypeError,
                                 ):  # idk why this is here, forgor
                                     pass
-                            except KeyboardInterrupt: # duplicate code as by ^C^C you could escape somehow
+                            except KeyboardInterrupt:  # duplicate code as by ^C^C you could escape somehow
                                 print("^C")
                                 term.buf[1] = ""
                                 term.focus = 0
