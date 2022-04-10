@@ -1,6 +1,8 @@
 from sys import stdout, stdin
 from supervisor import runtime
 from jcurses_data import char_map
+from usb_cdc import console
+from time import sleep
 
 ESCK = "\033["
 
@@ -13,7 +15,7 @@ class jcurses:
         self.text_stepping = (
             0  # handy variable to make multi-action keys easily parsable
         )
-        self.ctx_dict = {"zero": [1, 1]}  # bookmarks baby, bookmarks
+        self.ctx_dict = {"top_left": [1, 1], "bottom_left": [1, 1]}  # bookmarks baby, bookmarks
         self.trigger_dict = None
         self.dmtex_suppress = False
         self.context = []
@@ -50,14 +52,6 @@ class jcurses:
                     )  # go back
                     del insertion_pos
 
-    def setout(self, cx, tx):
-        """
-        Used to set the text after a given point
-        cx, is the x to consider as the start
-        tx, is the text to put after that
-        """
-        pass
-
     def clear(self):
         """
         Clear the whole screen & goto top
@@ -80,6 +74,7 @@ class jcurses:
             self.stop()
         self.enabled = True
         self.dmtex_suppress = True
+        self.detect_size() # don't need it as by itself, I only want it to update the bookmarks.
         self.clear()
 
     def stop(self):
@@ -100,13 +95,26 @@ class jcurses:
         """
         detect terminal size, returns [rows, collumns]
         """
-        strr = ""
-        for i in range(3):
-            self.get_hw(i)
-        while not strr.endswith("R"):
-            strr += self.get_hw(3)
-        strr = strr[2:-1]  # this is critical as find will break with <esc>.
-        return [int(strr[: strr.find(";")]), int(strr[strr.find(";") + 1 :])]
+        done = False
+        while not done: # this whole ass fiasco is to combat user input during the ansi negotiation.
+            try:
+                strr = ""
+                while not console.connected:
+                    sleep(.3)
+                for i in range(3):
+                    self.get_hw(i)
+                while not strr.endswith("R"):
+                    strr += self.get_hw(3)
+                strr = strr[2:-1]  # this is critical as find will break with <esc>.
+                res = [int(strr[: strr.find(";")]), int(strr[strr.find(";") + 1 :])]
+                # Let's also update the move bookmarks.
+                self.ctx_dict["bottom_left"] = [res[0], 1]
+                done = True
+            except ValueError:
+                pass
+        # Now let's return with the result.
+        del done
+        return res
 
     def detect_pos(self):
         strr = ""
@@ -119,9 +127,7 @@ class jcurses:
     def get_hw(self, act):
         if act is 0:
             # save pos & goto the end
-            stdout.write(ESCK + "s")
-            stdout.write(ESCK + "500B")
-            stdout.write(ESCK + "500C")
+            stdout.write(ESCK + "s" + ESCK + "500B" + ESCK + "500C")
         elif act is 1:
             # ask position
             stdout.write(ESCK + "6n")
@@ -171,10 +177,8 @@ class jcurses:
                             stack.append(char_map[charr])
                     except KeyError:
                         pass
-                    except KeyboardInterrupt:
-                        stack.append("ctrlC")
         except KeyboardInterrupt:
-            stack.append("ctrlC")  # yes this has to be done twice.
+            stack = ["ctrlC"]
         return stack
 
     def program(self):
@@ -242,10 +246,9 @@ class jcurses:
         return self.buf
 
     def termline(self):
-        self.clear_line()
         print(self.trigger_dict["prefix"], self.buf[1], end="")
         if self.focus > 0:
-            stdout.write(ESCK + self.focus + "{}D")
+            stdout.write(ESCK + str(self.focus) + "D")
 
     def move(self, ctx=None, x=None, y=None):
         """
@@ -276,3 +279,7 @@ class jcurses:
 
     def ctx_reg(self, namee):
         self.ctx_dict[namee] = self.detect_pos()
+    
+    def line(self, charr):
+        self.clear_line()
+        stdout.write(charr * self.detect_size()[1])

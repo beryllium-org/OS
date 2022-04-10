@@ -121,6 +121,7 @@ from sys import (
     platform,  # needed for picofetch
     modules,
     exit,
+    stdout,
 )  # if this import fails, idk
 
 dmtex("System libraries loaded")
@@ -983,7 +984,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     ljinux.based.shell()
                 except KeyboardInterrupt:
                     ljinux.io.led.value = False
-                    print("^C\n", end="")
+                    stdout.write("^C\n")
                     ljinux.io.led.value = True
             Exit = False  # to allow ljinux.based.shell to be rerun
             return Exit_code
@@ -1061,21 +1062,32 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
             def echoo(what):  # echo command
                 try:
-                    if what[1].startswith('"'):
-                        if what[1].endswith('"'):
+                    optss = ljinux.based.fn.get_valid_options(what[1], "ne")
+                    offs = 0
+                    if len(optss) > 0:
+                        offs += 1
+                    if what[1 + offs].startswith('"'):
+                        if what[1 + offs].endswith('"'):
                             if not ljinux.based.silent:
-                                print(str(what[1])[1:-1])
-                            ljinux.based.user_vars["return"] = str(what[1])[1:-1]
+                                print(str(what[1 + offs])[1:-1])
+                            ljinux.based.user_vars["return"] = str(what[1 + offs])[1:-1]
                         else:
-                            countt = len(what)
+                            countt = len(what) - offs
                             if countt > 2:
-                                if what[countt - 1].endswith('"'):
-                                    res = str(what[1])[1:] + " "
+                                if what[countt - 1 + offs].endswith('"'):
+                                    res = str(what[1 + offs])[1:] + " "
                                     for i in range(2, countt - 1):
-                                        res += what[i] + " "
-                                    res += str(what[countt - 1])[:-1]
+                                        res += what[i + offs] + " "
+                                    res += str(what[countt - 1 + offs])[:-1]
                                     if not ljinux.based.silent:
-                                        print(res)
+                                        if 'n' in optss:
+                                            print(res,end="")
+                                        elif 'n' in optss and 'e' in optss:
+                                            stdout.write(res)
+                                        elif 'e' in optss:
+                                            stdout.write(res + "\n")
+                                        else:
+                                            print(res)
                                     ljinux.based.user_vars["return"] = res
                                 else:
                                     pass
@@ -1090,6 +1102,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             print("based: Error: Variable not found!")
                 except IndexError:
                     pass
+                del optss
 
             def mkdiir(dirr):  # mkdir
                 global sdcard_fs
@@ -1770,8 +1783,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 Returns an options array if the given parameter start with the character '-'.
                 Returns an empty array if there is none, duplicate or invalid character followind '-'.
                 Parameters:
-                    inpt : string with the second user input ex:'-n'
-                    vopts : string with valid option ex:'abc'
+                    inpt : string with args, ex: "-n"
+                    vopts : string with valid options, ex: "abc"
                 """
                 opts = []
                 i = 1
@@ -1800,7 +1813,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     "left_key": ljinux.io.left_key,
                     "right_key": ljinux.io.right_key,
                     "enter_key": ljinux.io.enter_key,
-                    "serial_input": ljinux.io.serial,
                 }
                 if whatever.isdigit():
                     res = int(whatever)
@@ -1884,82 +1896,90 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     if inp is None:
                         command_input = False
                         while (command_input in [False, ""]) and not Exit:
-                            term.program()
-                            if term.buf[0] is 0:
-                                ljinux.history.nav[0] = 0
-                                command_input = term.buf[1]
-                                term.buf[1] = ""
-                                term.focus = 0
-                                print("\n", end="")
-                            elif term.buf[0] is 1:
+                            try:
+                                term.program()
+                                if term.buf[0] is 0:
+                                    ljinux.history.nav[0] = 0
+                                    command_input = term.buf[1]
+                                    term.buf[1] = ""
+                                    term.focus = 0
+                                    stdout.write("\n")
+                                elif term.buf[0] is 1:
+                                    print("^C")
+                                    term.buf[1] = ""
+                                    term.focus = 0
+                                    term.clear_line()
+                                elif term.buf[0] is 2:
+                                    print("^D")
+                                    global Exit
+                                    global Exit_code
+                                    Exit = True
+                                    Exit_code = 0
+                                    break
+                                elif term.buf[0] is 3:  # tab key
+                                    tofind = term.buf[1]  # made into var for speed reasons
+                                    candidates = []
+                                    bins = ljinux.based.get_bins()
+                                    for i in [function_dict, bins]:
+                                        for j in i:
+                                            if j.startswith(tofind):
+                                                candidates.append(j)
+                                    if len(candidates) > 1:
+                                        stdout.write("\n")
+                                        for i in candidates:
+                                            print("\t" + i)
+                                    elif len(candidates) == 1:
+                                        term.clear_line()
+                                        term.buf[1] = candidates[0]
+                                        term.focus = 0
+                                    del bins
+                                    del tofind
+                                    del candidates
+                                elif term.buf[0] is 4:  # up
+                                    try:
+                                        neww = ljinux.history.gett(
+                                            ljinux.history.nav[0] + 1
+                                        )
+                                        # if no historyitem, we wont run the items below
+                                        if ljinux.history.nav[0] == 0:
+                                            ljinux.history.nav[2] = term.buf[1]
+                                            ljinux.history.nav[1] = term.focus
+                                        term.buf[1] = neww
+                                        del neww
+                                        ljinux.history.nav[0] += 1
+                                        term.focus = 0
+                                        term.clear_line()
+                                    except IndexError:
+                                        pass
+                                elif term.buf[0] is 7:  # down
+                                    if ljinux.history.nav[0] > 0:
+                                        if ljinux.history.nav[0] > 1:
+                                            term.buf[1] = ljinux.history.gett(
+                                                ljinux.history.nav[0] - 1
+                                            )
+                                            ljinux.history.nav[0] -= 1
+                                            term.focus = 0
+                                            term.clear_line()
+                                        else:
+                                            # have to give back the temporarily stored one
+                                            term.buf[1] = ljinux.history.nav[2]
+                                            term.focus = ljinux.history.nav[1]
+                                            ljinux.history.nav[0] = 0
+                                            term.clear_line()
+                                ljinux.backrounding.main_tick()
+                                try:
+                                    if command_input[:1] != " " and command_input != "":
+                                        ljinux.history.appen(command_input.strip())
+                                except (
+                                    AttributeError,
+                                    TypeError,
+                                ):  # idk why this is here, forgor
+                                    pass
+                            except KeyboardInterrupt: # duplicate code as by ^C^C you could escape somehow
                                 print("^C")
                                 term.buf[1] = ""
-                                term.termline()
-                            elif term.buf[0] is 2:
-                                print("^D")
-                                global Exit
-                                global Exit_code
-                                Exit = True
-                                Exit_code = 0
-                                break
-                            elif term.buf[0] is 3:  # tab key
-                                tofind = term.buf[1]  # made into var for speed reasons
-                                candidates = []
-                                bins = ljinux.based.get_bins()
-                                for i in [function_dict, bins]:
-                                    for j in i:
-                                        if j.startswith(tofind):
-                                            candidates.append(j)
-                                if len(candidates) > 1:
-                                    print("\n", end="")
-                                    for i in candidates:
-                                        print("\t" + i)
-                                elif len(candidates) == 1:
-                                    term.buf[1] = candidates[0]
-                                    term.focus = 0
-                                del bins
-                                del tofind
-                                del candidates
-                            elif term.buf[0] is 4:  # up
-                                try:
-                                    neww = ljinux.history.gett(
-                                        ljinux.history.nav[0] + 1
-                                    )
-                                    # if no historyitem, we wont run the items below
-                                    if ljinux.history.nav[0] == 0:
-                                        ljinux.history.nav[2] = term.buf[1]
-                                        ljinux.history.nav[1] = term.focus
-                                    term.buf[1] = neww
-                                    del neww
-                                    ljinux.history.nav[0] += 1
-                                    term.focus = 0
-                                    term.termline()
-                                except IndexError:
-                                    pass
-                            elif term.buf[0] is 7:  # down
-                                if ljinux.history.nav[0] > 0:
-                                    if ljinux.history.nav[0] > 1:
-                                        term.buf[1] = ljinux.history.gett(
-                                            ljinux.history.nav[0] - 1
-                                        )
-                                        ljinux.history.nav[0] -= 1
-                                        term.focus = 0
-                                        term.termline()
-                                    else:
-                                        # have to give back the temporarily stored one
-                                        term.buf[1] = ljinux.history.nav[2]
-                                        term.focus = ljinux.history.nav[1]
-                                        ljinux.history.nav[0] = 0
-                                        term.termline()
-                            ljinux.backrounding.main_tick()
-                            try:
-                                if command_input[:1] != " " and command_input != "":
-                                    ljinux.history.appen(command_input.strip())
-                            except (
-                                AttributeError,
-                                TypeError,
-                            ):  # idk why this is here, forgor
-                                pass
+                                term.focus = 0
+                                term.clear_line()
                     else:
                         command_input = inp
                 if not Exit:

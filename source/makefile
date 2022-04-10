@@ -1,6 +1,7 @@
 # I HAAAATE MAKE
 SHELL = bash
 all: clean program.run manual sync
+debug: clean program.run.debug manual sync
 
 program.run:
 	@echo -en "\nLjinux making:\n[1/4] "
@@ -14,6 +15,19 @@ program.run:
 	cp ../lib/lj_colours.mpy /media/$(shell whoami)/LJINUX/lib/lj_colours.mpy
 	@echo -n "[4/4] "
 	./mpy-cross-$(shell uname -m) ./jcurses_data.py -s jCurses_data -v -O4 -o ../lib/jcurses_data.mpy
+	cp ../lib/jcurses_data.mpy /media/$(shell whoami)/LJINUX/lib/jcurses_data.mpy
+program.run.debug:
+	@echo -en "\nLjinux debug making:\n[1/4] "
+	./mpy-cross-$(shell uname -m) ./ljinux_source.py -s Ljinux -v -o ../ljinux.mpy
+	cp ../ljinux.mpy /media/$(shell whoami)/LJINUX/ljinux.mpy
+	@echo -n "[2/4] "
+	./mpy-cross-$(shell uname -m) ./jcurses.py -s jCurses -v -o ../lib/jcurses.mpy
+	cp ../lib/jcurses.mpy /media/$(shell whoami)/LJINUX/lib/jcurses.mpy
+	@echo -n "[3/4] "
+	./mpy-cross-$(shell uname -m) ./lj_colours.py -s lJcolours -v -o ../lib/lj_colours.mpy
+	cp ../lib/lj_colours.mpy /media/$(shell whoami)/LJINUX/lib/lj_colours.mpy
+	@echo -n "[4/4] "
+	./mpy-cross-$(shell uname -m) ./jcurses_data.py -s jCurses_data -v -o ../lib/jcurses_data.mpy
 	cp ../lib/jcurses_data.mpy /media/$(shell whoami)/LJINUX/lib/jcurses_data.mpy
 clean:
 	@echo -en "Cleaning:\n[1/6] "

@@ -70,6 +70,15 @@ try:
 except EOFError:
     jrub("\nAlert: Serial Ctrl + D caught, exiting\n")
     Exit_code = 0
+except Exception as err:
+    print(
+        "Ljinux crashed with:\n\t"
+        + str(type(err))[8:-2]
+        + ": "
+        + str(err)
+    )
+    del err
+    Exit_code = 1
 oss.io.led.value = False
 
 oss.farland.clear()
@@ -97,19 +106,13 @@ jrub("Reached target: Quit")
 oss.io.led.value = False
 del oss
 
-
-def halt():
-    while True:
-        sleep(3600)
-
-
 exit_l = {
     0: lambda: jrub("Exiting"),
     1: lambda: jrub("Exiting due to error"),
     241: lambda: (on_next_reset(RunMode.UF2), reset()),
     242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
     243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
-    244: lambda: (jrub("Reached target: Halt"), halt()),
+    244: lambda: (jrub("Reached target: Halt"), sleep(36000)),
     245: lambda: reset(),
 }
 
