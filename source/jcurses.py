@@ -48,11 +48,9 @@ class jcurses:
                     insertion_pos = len(self.buf[1]) - self.focus - 1
                     self.buf[1] = (
                         self.buf[1][:insertion_pos] + self.buf[1][insertion_pos + 1 :]
-                    )  # backend insertion
-                    stdout.write(self.buf[1][insertion_pos:])  # frontend insertion
-                    stdout.write(
-                        ESCK + "{}D".format(len(self.buf[1][insertion_pos:]) + 1)
-                    )  # go back
+                    )  # backend
+                    stdout.write(self.buf[1][insertion_pos:] + ' ' + ESCK + str(len(self.buf[1][insertion_pos:]) + 1) + "D"
+                    )  # frontend
                     del insertion_pos
 
     def clear(self):

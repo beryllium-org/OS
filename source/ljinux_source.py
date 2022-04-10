@@ -457,18 +457,18 @@ dmtex("Imports complete")
 
 
 def systemprints(mod, tx1, tx2=None):
-    print("[ ", end="")
+    dmtex("[ ", timing=False, end="")
 
     mods = {
-        1: lambda: print(colors.green_t + "OK", end=""),
-        2: lambda: print(colors.magenta_t + "..", end=""),
-        3: lambda: print(colors.red_t + "FAILED", end=""),
+        1: lambda: dmtex(colors.green_t + "OK", timing=False, end=""),
+        2: lambda: dmtex(colors.magenta_t + "..", timing=False, end=""),
+        3: lambda: dmtex(colors.red_t + "FAILED", timing=False, end=""),
     }
     mods[mod]()
-    print(colors.endc + " ] " + tx1)
+    dmtex(colors.endc + " ] " + tx1, timing=False)
     if tx2 is not None:
-        print("           -> " if mod is 3 else "       -> ", end="")
-        print(tx2)
+        dmtex("           -> " if mod is 3 else "       -> ", timing=False, end="")
+        dmtex(tx2, timing=False)
 
 
 dmtex("Additional loading done")
@@ -882,26 +882,17 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             systemprints(
                 2,
                 "Running Init Script",
+            )
+            systemprints(
+                2,
                 "Attempting to open /LjinuxRoot/boot/Init.lja..",
             )
             lines = None
             Exit_code = 0  # resetting, in case we are the 2nd .shell
             try:
                 ljinux.io.led.value = False
-                f = open("/LjinuxRoot/boot/Init.lja", "r")
-                lines = f.readlines()
-                f.close()
-                count = 0
-                ljinux.io.led.value = True
-                for line in lines:
-                    ljinux.io.led.value = False
-                    lines[count] = line.strip()
-                    count += 1
-                    ljinux.io.led.value = True
-                for commandd in lines:
-                    ljinux.based.shell(commandd)
+                ljinux.based.command.execc(["/LjinuxRoot/boot/Init.lja"])
                 systemprints(1, "Running Init Script")
-
             except OSError:
                 systemprints(3, "Running Init Script")
             ljinux.history.load(ljinux.based.user_vars["history-file"])
@@ -1438,67 +1429,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 except NameError:
                     pass
 
-            def headtail(inpt, type):  # the combined command for head & tail
-                lines = 10
-                try:
-                    if inpt[1][0] == "-":
-                        ops = ljinux.based.fn.get_valid_options(inpt[1], "n")
-                        if "n" in ops and len(inpt) == 4:
-                            try:
-                                lines = int(inpt[2])
-                                file = inpt[3]
-                                del ops
-                            except IndexError:
-                                ljinux.based.error(9)
-                                ljinux.based.user_vars["return"] = "1"
-                            except ValueError:
-                                ljinux.based.error(1)
-                                ljinux.based.user_vars["return"] = "1"
-                        else:
-                            ljinux.based.error(1)
-                            ljinux.based.user_vars["return"] = "1"
-                    elif len(inpt) == 2:
-                        file = inpt[1]
-                    else:
-                        ljinux.based.error(1)
-                        ljinux.based.user_vars["return"] = "1"
-                    try:
-                        with open(file, "r") as f:
-                            content = f.readlines()
-                            count = len(content)
-                            if lines > count:
-                                lines = count
-                            if type == "head":
-                                start = 0
-                                end = lines
-                            elif type == "tail":
-                                start = count - lines
-                                end = count
-                            for i in range(start, end):
-                                if i < count - 1:
-                                    print(content[i], end="")
-                                else:
-                                    print(content[i])
-                            f.close()
-                            del content
-                            del count
-                            del lines
-                            del start
-                            del end
-                            ljinux.based.user_vars["return"] = "0"
-                    except OSError:
-                        ljinux.based.error(4, file)
-                        ljinux.based.user_vars["return"] = "1"
-                except IndexError:
-                    ljinux.based.error(9)
-                    ljinux.based.user_vars["return"] = "1"
-
-            def headd(inpt):
-                ljinux.based.command.headtail(inpt, "head")
-
-            def taill(inpt):
-                ljinux.based.command.headtail(inpt, "tail")
-
             def historgf(inpt):  # history get full list
                 try:
                     if inpt[1] == "clear":
@@ -1851,8 +1781,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 "webserver": ljinux.based.command.webs,
                 "pexec": ljinux.based.command.pexecc,
                 "rm": ljinux.based.command.rmm,
-                "head": ljinux.based.command.headd,
-                "tail": ljinux.based.command.taill,
                 "COMMENT": ljinux.based.command.do_nothin,
                 "fpexec": ljinux.based.command.fpexecc,
             }
@@ -1934,6 +1862,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                         term.clear_line()
                                         term.buf[1] = candidates[0]
                                         term.focus = 0
+                                    else:
+                                        term.clear_line()
                                     del bins
                                     del tofind
                                     del candidates
@@ -2157,10 +2087,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         def clear():
             global display_availability
             if display_availability:
-                ljinux.io.led.value = False
                 ljinux.farland.oled.fill(0)
                 ljinux.farland.oled.show()
-                ljinux.io.led.value = True
 
         def pixel(x, y, col):
             ljinux.farland.oled.pixel(x, y, col)
