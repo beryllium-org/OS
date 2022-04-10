@@ -49,7 +49,12 @@ class jcurses:
                     self.buf[1] = (
                         self.buf[1][:insertion_pos] + self.buf[1][insertion_pos + 1 :]
                     )  # backend
-                    stdout.write(self.buf[1][insertion_pos:] + ' ' + ESCK + str(len(self.buf[1][insertion_pos:]) + 1) + "D"
+                    stdout.write(
+                        self.buf[1][insertion_pos:]
+                        + " "
+                        + ESCK
+                        + str(len(self.buf[1][insertion_pos:]) + 1)
+                        + "D"
                     )  # frontend
                     del insertion_pos
 
