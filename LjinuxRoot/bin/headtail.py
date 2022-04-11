@@ -1,7 +1,9 @@
 lines = 10
 try:
     if ljinux.based.user_vars["argj"].split()[1][0] == "-":
-        ops = ljinux.based.fn.get_valid_options(ljinux.based.user_vars["argj"].split()[1], "n")
+        ops = ljinux.based.fn.get_valid_options(
+            ljinux.based.user_vars["argj"].split()[1], "n"
+        )
         if "n" in ops and len(ljinux.based.user_vars["argj"].split()) == 4:
             try:
                 lines = int(ljinux.based.user_vars["argj"].split()[2])
