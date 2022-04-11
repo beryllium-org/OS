@@ -1,7 +1,8 @@
 # I HAAAATE MAKE
 SHELL = bash
-all: clean program.run manual sync
-debug: clean program.run.debug manual sync
+all: presync clean program.run sync
+install: presync clean program.run rootfs manual sync
+debug: presync clean program.run.debug rootfs manual sync
 
 program.run:
 	@echo -en "\nLjinux making:\n[1/4] "
@@ -48,3 +49,10 @@ manual:
 sync:
 	@echo -e "\nSyncing changes:"
 	sync
+presync:
+	@echo -e "\nSyncing source:"
+	sync
+rootfs:
+	@echo -e "\nUpdating the pico's rootfs:"
+	[ -d /media/$(shell whoami)/LJINUX ] && cp -rv ../LjinuxRoot/ /media/$(shell whoami)/LJINUX/ || true
+	[ -d /media/$(shell whoami)/CIRCUITPY ] && cp -rv ../LjinuxRoot/ /media/$(shell whoami)/CIRCUITPY/ || true
