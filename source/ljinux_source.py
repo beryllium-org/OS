@@ -173,29 +173,16 @@ dmtex("Options applied:")
 led.value = False
 
 defaultoptions = {  # default configuration, in line with the manual
-    "displaySCL": 17,
-    "displaySDA": 16,
-    "displayheight": 64,  # SSD1306 spec
-    "displaywidth": 128,  # SSD1306 spec
-    "fixrtc": True,
-    "SKIPTEMP": False,
-    "SKIPCP": False,
-    "DEVBOARD": False,
-    "DEBUG": False,
-    "DISPLAYONLYMODE": False,
-}
-
-option_types = {
-    "displaySCL": int,
-    "displaySDA": int,
-    "displayheight": int,
-    "displaywidth": int,
-    "fixrtc": bool,
-    "SKIPTEMP": bool,
-    "SKIPCP": bool,
-    "DEVBOARD": bool,
-    "DEBUG": bool,
-    "DISPLAYONLYMODE": bool,
+    "displaySCL": (17, int),
+    "displaySDA": (16, int),
+    "displayheight": (64, int),  # SSD1306 spec
+    "displaywidth": (128, int),  # SSD1306 spec
+    "fixrtc": (True, bool),
+    "SKIPTEMP": (False, bool),
+    "SKIPCP": (False, bool),
+    "DEVBOARD": (False, bool),
+    "DEBUG": (False, bool),
+    "DISPLAYONLYMODE": (False, bool),
 }
 
 # General options
@@ -210,7 +197,7 @@ for optt in {
     "displaywidth",
 }:
     try:
-        if type(configg[optt]) == option_types[optt]:
+        if isinstance(configg[optt], defaultoptions[optt][1]):
             dmtex(
                 "\t"
                 + colors.green_t
@@ -225,7 +212,7 @@ for optt in {
         else:
             raise KeyError
     except KeyError:
-        configg.update({optt: defaultoptions[optt]})
+        configg.update({optt: defaultoptions[optt][1]})
         dmtex(
             'Missing / Invalid value for "' + optt + '" applied: ' + str(configg[optt]),
             timing=False,
@@ -282,7 +269,6 @@ for i in pin_alloc:
 dmtex("", timing=False)
 
 del defaultoptions
-del option_types
 del pintab
 
 # basic checks
