@@ -10,7 +10,7 @@ try:
     gc.collect()
 
 except OSError:
-    ljinux.based.error(4)
+    ljinux.based.error(4, ljinux.based.user_vars["argj"].split()[1])
     ljinux.based.user_vars["return"] = "1"
 
 except IndexError:

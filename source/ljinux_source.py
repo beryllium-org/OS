@@ -470,11 +470,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             ljinux.history.historyy = list()
             try:
                 with open(filen, "r") as historyfile:
-
-                    ljinux.io.led.value = False
                     lines = historyfile.readlines()
-                    ljinux.io.led.value = True
-
                     for line in lines:
                         ljinux.io.led.value = False
                         ljinux.history.historyy.append(line.strip())
@@ -488,19 +484,17 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             ljinux.history.historyy.append(itemm)
 
         def save(filen):
-            ljinux.io.led.value = False
             try:
                 # File unused but I need to check it's existence
                 a = open(filen, "r")
                 a.close()
                 try:
                     with open(filen, "w") as historyfile:
-                        ljinux.io.led.value = True
-                        for i in range(len(ljinux.history.historyy)):
+                        for item in ljinux.history.historyy:
                             ljinux.io.led.value = False
-                            historyfile.write(ljinux.history.historyy[i] + "\n")
+                            historyfile.write(item + "\n")
                             ljinux.io.led.value = True
-                        ljinux.io.led.value = False
+
                         historyfile.flush()
                 except OSError:
                     ljinux.based.error(7, filen)
