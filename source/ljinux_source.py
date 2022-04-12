@@ -515,7 +515,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 a.close()
                 with open(filen, "w") as historyfile:
                     historyfile.flush()
-                ljinux.history.historyy = []
+                ljinux.history.historyy.clear()
             except OSError:
                 ljinux.based.error(4, filen)
             ljinux.io.led.value = True
