@@ -6,6 +6,8 @@ try:
         for line in lines:
             print(line, end="")
             ljinux.based.user_vars["return"] += line
+            del line
+        del lines, f
     gc.collect()
     gc.collect()
 
