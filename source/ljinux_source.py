@@ -1861,9 +1861,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                         del neww
                                         ljinux.history.nav[0] += 1
                                         term.focus = 0
-                                        term.clear_line()
                                     except IndexError:
                                         pass
+                                    term.clear_line()
                                 elif term.buf[0] is 7:  # down
                                     if ljinux.history.nav[0] > 0:
                                         if ljinux.history.nav[0] > 1:
@@ -1872,13 +1872,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                             )
                                             ljinux.history.nav[0] -= 1
                                             term.focus = 0
-                                            term.clear_line()
                                         else:
                                             # have to give back the temporarily stored one
                                             term.buf[1] = ljinux.history.nav[2]
                                             term.focus = ljinux.history.nav[1]
                                             ljinux.history.nav[0] = 0
-                                            term.clear_line()
+                                    term.clear_line()
                                 ljinux.backrounding.main_tick()
                                 try:
                                     if command_input[:1] != " " and command_input != "":
