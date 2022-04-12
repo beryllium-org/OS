@@ -1,9 +1,11 @@
 lines = 10
+offs = 0
 try:
     if ljinux.based.user_vars["argj"].split()[1][0] == "-":
         ops = ljinux.based.fn.get_valid_options(
             ljinux.based.user_vars["argj"].split()[1], "n"
         )
+        offs += 1
         if "n" in ops and len(ljinux.based.user_vars["argj"].split()) == 4:
             try:
                 lines = int(ljinux.based.user_vars["argj"].split()[2])
@@ -27,25 +29,13 @@ try:
         with open(filee, "r") as f:
             content = f.readlines()
             count = len(content)
-            if lines > count:
-                lines = count
-            if type == "head":
-                start = 0
-                end = lines
-            elif type == "tail":
-                start = count - lines
-                end = count
-            for i in range(start, end):
-                if i < count - 1:
-                    print(content[i], end="")
-                else:
-                    print(content[i])
-            f.close()
-            del content
-            del count
-            del start
-            del end
-            del filee
+            min(lines, count)
+            start = 0 if ljinux.based.user_vars["argj"].split()[0].endswith("head.lja") else count - lines
+            end = lines if ljinux.based.user_vars["argj"].split()[0].endswith("head.lja") else count
+            for item in content[start:end-1]:
+                print(item, end="")
+            print(content[-1])
+            del content, count, start, end, filee
             ljinux.based.user_vars["return"] = "0"
     except OSError:
         ljinux.based.error(4, filee)
@@ -53,4 +43,4 @@ try:
 except IndexError:
     ljinux.based.error(9)
     ljinux.based.user_vars["return"] = "1"
-del lines
+del lines, offs

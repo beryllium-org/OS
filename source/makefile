@@ -1,8 +1,8 @@
 # I HAAAATE MAKE
 SHELL = bash
-all: presync clean program.run sync
-install: presync clean program.run rootfs manual sync
-debug: presync clean program.run.debug rootfs manual sync
+all: clean presync program.run sync
+install: clean presync program.run rootfs manual sync
+debug: clean presync program.run.debug rootfs manual sync
 
 program.run:
 	@echo -en "\nLjinux making:\n[1/4] "

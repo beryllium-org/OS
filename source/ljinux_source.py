@@ -139,6 +139,7 @@ try:
     from usb_cdc import console
     from getpass import getpass
     import json
+    from traceback import print_exception
 
     dmtex("Basic libraries loaded")
 except ImportError:
