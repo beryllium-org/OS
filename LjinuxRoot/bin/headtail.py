@@ -30,9 +30,17 @@ try:
             content = f.readlines()
             count = len(content)
             min(lines, count)
-            start = 0 if ljinux.based.user_vars["argj"].split()[0].endswith("head.lja") else count - lines
-            end = lines if ljinux.based.user_vars["argj"].split()[0].endswith("head.lja") else count
-            for item in content[start:end-1]:
+            start = (
+                0
+                if ljinux.based.user_vars["argj"].split()[0].endswith("head.lja")
+                else count - lines
+            )
+            end = (
+                lines
+                if ljinux.based.user_vars["argj"].split()[0].endswith("head.lja")
+                else count
+            )
+            for item in content[start : end - 1]:
                 print(item, end="")
             print(content[-1])
             del content, count, start, end, filee
