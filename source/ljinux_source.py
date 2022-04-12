@@ -1333,43 +1333,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 else:
                     ljinux.based.error(1)
 
-            def timme(inpt):  # time command
-                try:
-                    if inpt[1] == "set":
-                        try:
-                            the_time = time.struct_time(
-                                (
-                                    int(inpt[4]),
-                                    int(inpt[3]),
-                                    int(inpt[2]),
-                                    int(inpt[5]),
-                                    int(inpt[6]),
-                                    int(inpt[7]),
-                                    1,
-                                    -1,
-                                    -1,
-                                )
-                            )  # yr, mon, d, hr, m, s, ss, shit,shit,shit
-                            rtcc.write_datetime(the_time)
-                        except IndexError:
-                            ljinux.based.error(1)
-                except IndexError:
-                    tt = time.localtime()
-                    print(
-                        "Current time: "
-                        + str(tt.tm_mday)
-                        + "/"
-                        + str(tt.tm_mon)
-                        + "/"
-                        + str(tt.tm_year)
-                        + " "
-                        + str(tt.tm_hour)
-                        + ":"
-                        + str(tt.tm_min)
-                        + ":"
-                        + str(tt.tm_sec)
-                    )
-
             def suuu(inpt, system_vars):  # su command but worse
                 global dfpasswd
                 passwordarr = {}
@@ -1422,12 +1385,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         print("based: Invalid option")
                 except IndexError:
                     ljinux.history.getall()
-
-            def haltt(inpt):
-                global Exit
-                global Exit_code
-                Exit_code = 244
-                Exit = True
 
             def iff(inpt):  # the if, the pinnacle of ai WIP
                 condition = []
@@ -1530,11 +1487,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 del need_new_cond
                 del complete
                 del condition
-
-            def dmesgg(inpt):  # print the dmesg
-                global dmesg
-                for i in dmesg:
-                    print(i)
 
             def ping(inpt):  # brok
                 print("Ping google.com: %d ms" % ljinux.io.network.ping("google.com"))
@@ -1752,12 +1704,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 "rmdir": ljinux.based.command.rmdiir,
                 "var": ljinux.based.command.var,
                 "display": ljinux.based.command.display,
-                "time": ljinux.based.command.timme,
                 "su": ljinux.based.command.suuu,
                 "history": ljinux.based.command.historgf,
-                "halt": ljinux.based.command.haltt,
                 "if": ljinux.based.command.iff,
-                "dmesg": ljinux.based.command.dmesgg,
                 "ping": ljinux.based.command.ping,
                 "webserver": ljinux.based.command.webs,
                 "pexec": ljinux.based.command.pexecc,

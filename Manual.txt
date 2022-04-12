@@ -116,7 +116,7 @@ exit [CODE]
 EXIT THE CURRENT PROCESS WITH AN EXIT CODE, DEFAULT = 0
 
 
-time [set]...
+timedate [set]...
 
 VIEW THE TIME, OR SET IT
 VALID FORMAT "time set dd mm yyyy hr mm ss"
