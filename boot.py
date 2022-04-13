@@ -1,7 +1,3 @@
-from storage import disable_usb_drive, getmount, remount
-
-from supervisor import disable_autoreload
-
 print("-" * 16 + "\nL", end="")
 
 devf = False
@@ -18,6 +14,7 @@ except OSError:
 print("J", end="")
 
 if devf:
+    from storage import disable_usb_drive, getmount, remount
     remount("/", readonly=False)
     print("I", end="")
     m = getmount("/")
@@ -29,6 +26,7 @@ else:
     disable_usb_drive()
     print("IN", end="")
 
+from supervisor import disable_autoreload
 disable_autoreload()
 print("UX boot core\n" + "-" * 16 + "\nOutput:\n" + stash)
 del stash
