@@ -1,7 +1,4 @@
 declare mpyn="./mpy-cross-$(uname -m)"
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    mpyn="./mpy-cross-macos"
-fi
 if [ -d /media/$(whoami)/LJINUX ]; then
     declare picop="/media/$(whoami)/LJINUX"
 elif [ -d /media/$(whoami)/CIRCUITPY ]; then
