@@ -1075,87 +1075,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 except IndexError:
                     pass
                 del optss
-
-            def mkdiir(dirr):  # mkdir
-                global sdcard_fs
-                ljinux.io.led.value = False
-                try:
-                    if not sdcard_fs:
-                        remount("/", False)
-                    mkdir(dirr[1])
-                    if not sdcard_fs:
-                        remount("/", True)
-                except (OSError, RuntimeError) as errr:
-                    if str(errr) == "[Errno 17] File exists":
-                        print(
-                            "mkdir: cannot create directory ‘"
-                            + dirr[1]
-                            + "’: File exists"
-                        )
-                    else:
-                        print(
-                            "mmdir: cannot create directory ‘"
-                            + dirr[1]
-                            + "’: Cannot write, the pi pico is in read only mode! Make sure you have disabled developer mode!"
-                        )
-                except IndexError:
-                    pass
-                ljinux.io.led.value = True
-
-            def rmdiir(dirr):  # rmdir
-                global sdcard_fs
-                ljinux.io.led.value = False
-                try:
-                    if not sdcard_fs:
-                        remount("/", False)
-                    rmdir(dirr[1])
-                    if not sdcard_fs:
-                        remount("/", True)
-                except (OSError, RuntimeError) as errr:
-                    if str(errr) == "[Errno 2] No such file/directory":
-                        print(
-                            "rmdir: failed to remove ‘"
-                            + dirr[1]
-                            + "’: No such file or directory"
-                        )
-                    else:
-                        print(
-                            "rmdir: failed to remove ‘"
-                            + dirr[1]
-                            + "’: Cannot write, the pi pico is in read only mode!\nMake sure to disable to usb drive to be able to access these functions!"
-                        )
-                except IndexError:
-                    pass
-                ljinux.io.led.value = True
-
-            def rmm(dirr):  # rm
-                global sdcard_fs
-                ljinux.io.led.value = False
-                try:
-                    if not sdcard_fs:
-                        remount("/", False)
-                    remove(dirr[1])
-                    if not sdcard_fs:
-                        remount("/", True)
-                except (OSError, RuntimeError) as errr:
-                    if str(errr) == "[Errno 2] No such file/directory":
-                        print(
-                            "rm: failed to remove ‘"
-                            + dirr[1]
-                            + "’: No such file or directory"
-                        )
-                    elif str(errr) == "[Errno 21] EISDIR":
-                        print("rm: Is directory")
-                    else:
-                        print(
-                            "rm: failed to remove ‘"
-                            + dirr[1]
-                            + "’: Cannot write, the pi pico is in read only mode!\nMake sure to disable to usb drive to be able to access these functions!"
-                        )
-                except IndexError:
-                    pass
-                ljinux.io.led.value = True
-
+                
             def var(inpt, user_vars, system_vars):  # system & user variables setter
                 ljinux.io.led.value = False
                 valid = True
@@ -1700,8 +1620,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 "exec": ljinux.based.command.execc,
                 "help": ljinux.based.command.helpp,
                 "echo": ljinux.based.command.echoo,
-                "mkdir": ljinux.based.command.mkdiir,
-                "rmdir": ljinux.based.command.rmdiir,
                 "var": ljinux.based.command.var,
                 "display": ljinux.based.command.display,
                 "su": ljinux.based.command.suuu,
@@ -1710,7 +1628,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 "ping": ljinux.based.command.ping,
                 "webserver": ljinux.based.command.webs,
                 "pexec": ljinux.based.command.pexecc,
-                "rm": ljinux.based.command.rmm,
                 "COMMENT": ljinux.based.command.do_nothin,
                 "fpexec": ljinux.based.command.fpexecc,
             }

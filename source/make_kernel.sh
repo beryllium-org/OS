@@ -8,6 +8,7 @@ elif [ -d /Volumes/LJINUX ]; then
 elif [ -d /Volumes/CIRCUITPY ]; then
     declare picop="/Volumes/CIRCUITPY"
 else
+    echo "Error: Pico not found, make sure it is connected and mounted."
     exit 1
 fi
 echo "[1/4] ljinux_source.py -> ljinux.mpy"
