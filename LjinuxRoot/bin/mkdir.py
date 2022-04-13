@@ -20,4 +20,4 @@ except (OSError, RuntimeError) as errr:
         )
     del errr
 except IndexError:
-    pass 
+    pass

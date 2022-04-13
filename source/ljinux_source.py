@@ -1075,7 +1075,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 except IndexError:
                     pass
                 del optss
-                
+
             def var(inpt, user_vars, system_vars):  # system & user variables setter
                 ljinux.io.led.value = False
                 valid = True
