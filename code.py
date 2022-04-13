@@ -1,15 +1,15 @@
 def jrub(texx=None):  # basic logging for the launcher
     print("jrub> ", texx)
 
+
 try:
     from ljinux import ljinux
 
     jrub("Ljinux basic init done")
 except ImportError:
-    jrub(
-        "Ljinux wanna-be kernel binary not found, cannot continue.."
-    )
+    jrub("Ljinux wanna-be kernel binary not found, cannot continue..")
     from sys import exit
+
     exit(1)
 oss = ljinux()
 jrub(
@@ -64,6 +64,7 @@ oss.io.led.value = True
 try:
     oss.io.led.value = False
     from storage import umount
+
     umount("/ljinux")
     jrub("Unmounted /ljinux")
     oss.io.led.value = True
