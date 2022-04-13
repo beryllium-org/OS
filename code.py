@@ -1,34 +1,5 @@
-# -----------------
-# Ljinux launcher by bill88t
-# Coded on a Raspberry Pi 400
-# Ma'am I swear this project is real
-# -----------------
-
-#
-# this file is used as the launcher for ljinux
-# does basic init and holds the ljinux object
-#
-
-from sys import exit
-
-try:
-    from os import chdir, sync
-    from storage import umount
-
-    from microcontroller import reset, RunMode, on_next_reset
-
-    from time import sleep
-
-except ImportError:
-    print("bootloader failure")
-    exit(0)
-
-
 def jrub(texx=None):  # basic logging for the launcher
     print("jrub> ", texx)
-
-
-jrub("Basic loading complete")
 
 try:
     from ljinux import ljinux
@@ -37,9 +8,9 @@ try:
 except ImportError:
     jrub(
         "Ljinux wanna-be kernel binary not found, cannot continue.."
-    )  # anon is idot, we not gonna bother
+    )
+    from sys import exit
     exit(1)
-
 oss = ljinux()
 jrub(
     "Ljinux object init complete"
@@ -57,7 +28,6 @@ if oss.io.network_online:
     jrub("Time set complete")
 else:
     jrub("Network down")
-
 oss.farland.frame()
 jrub(
     "Running Ljinux autorun.."
@@ -82,6 +52,8 @@ jrub("Cleared display")
 oss.history.save(ljinux.based.user_vars["history-file"])
 jrub("History flushed")
 
+from os import chdir, sync
+
 chdir("/")
 jrub("Switched to Picofs")
 
@@ -91,6 +63,7 @@ jrub("Synced all volumes")
 oss.io.led.value = True
 try:
     oss.io.led.value = False
+    from storage import umount
     umount("/ljinux")
     jrub("Unmounted /ljinux")
     oss.io.led.value = True
@@ -100,6 +73,10 @@ except OSError as os_err:
 jrub("Reached target: Quit")
 oss.io.led.value = False
 del oss
+
+from sys import exit
+from microcontroller import reset, RunMode, on_next_reset
+from time import sleep
 
 exit_l = {
     0: lambda: jrub("Exiting"),
