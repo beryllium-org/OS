@@ -1,0 +1,12 @@
+name: Compile test
+
+on: [push, pull_request]
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run make compiletest
+        run: |          
+          cd ./source
+          make compiletest
