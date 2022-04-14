@@ -7,6 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run make compiletest
-        working-directory: ./source
+        working-directory: source
         run: |
           make compiletest
