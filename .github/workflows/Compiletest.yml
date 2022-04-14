@@ -6,6 +6,8 @@ jobs:
   compile:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+    
       - name: Run make compiletest
         working-directory: source
         run: |
