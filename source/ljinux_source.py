@@ -151,6 +151,7 @@ led.value = True
 # Kernel cmdline.txt
 try:
     led.value = False
+    confign = "/config-" + board.board_id + ".json"
     with open("/config.json", "r") as f:  # load the config file
         configg = json.load(f)  # and parse it as a json
         led.value = True

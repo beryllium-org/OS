@@ -1,5 +1,5 @@
 # Ljinux 
-A "linux" written in python, for the Raspberry Pi Pico.<br />
+A "linux" written in python, for CircuitPython powered microcontrollers.<br />
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a><br />
 
 Important note:<br />
@@ -9,8 +9,18 @@ This is not a real os / linux distribution, but here we are.<br /><br />
 We also now have a [discord](https://discord.gg/V8AejwGpCv) server! If you need help, feel free to hop on for some support.<br /><br />
 
 <h3>Anyways, since you are still reading let's start with the basics.</h3>
-It runs on the rpi pico, circuitpython 7.<br />
-You can optionally attach a SSD1306 display for output, a ds1302 RTC (make sure to set <code>fixrtc</code> to false from <code>config.json</code>) for persistent time or a w5500 networking breakout board for networking.<br />
+Depends on circuitpython 7.<br />
+At the moment the supported microcontrollers are:<br />
+ - Raspberry Pi Pico <br />
+ - Waveshare RP2040-Zero <br />
+But it can probably run on many more.<br />
+The only real limiting factor should be ram, as about 150k are needed for the system to even function.<br />
+If you have gotten it running on an unsupported board, feel free to pr a configuration file.<br /><br />
+
+<br />You can optionally attach a SSD1306 display for output, a ds1302 RTC <br />
+    (make sure to set <code>fixrtc</code> to false from <code>config</code> file)<br />
+    for persistent time or a w5500 networking breakout board for networking.<br />
+
 For the missing hardware the functions will be automatically deactivated. (The hardware will also be deactivated in case of missing libraries.)<br />
 It expects to find a <code>/LjinuxRoot</code> folder which uses as it's root. It can be on the built in fs, or an sd card.<br />
 More info in Configuration.<br />
@@ -31,15 +41,15 @@ The <code>Init.lja</code> has to be at <code>/LjinuxRoot/boot/</code> of the pic
 
 <h3>Configuration</h3>
 
-<b>GPIO PINS:</b><br />
-<i>Note: This pin assortment is only the <b>default</b> pin configuration. If you are using a custom config.json you should refer to that instead.</i><br />
-For the SSD1306 display: GP17(scl), GP16(sda) - libraries needed: <code>adafruit_ssd1306 adafruit_framebuf</code><br />
-For the ds1302 RTC: GP6(clk), GP7(data), GP8(ce) - libraries needed: <code>ds1302</code> (It's included in /lib) <br />
-Left button GP19 - Right Button GP18 - Enter Button GP20<br />
-Piezo buzzer: GP15<br />
-Sdcard: GP2(clk),GP3(mosi),GP4(miso), GP5(cs) - libraries needed: <code>adafruit_sdcard adafruit_bus_device</code><br />
+<i>Each board has it's own different pin configuration. You can see the defaults and modify them from the board's respecive config file.</i><br /><br />
+
+<b>Libraries needed for hardware:</b><br />
+For the SSD1306 display: <code>adafruit_ssd1306 adafruit_framebuf</code><br />
+For the ds1302 RTC: <code>ds1302</code> (It's included in /lib) <br />
+Sdcard: <code>adafruit_sdcard adafruit_bus_device</code><br />
     The sdcard has to be formatted as Fat32 / Fat16 or equivelant.<br />
-Ethernet: GP10(clk), GP13(cs), GP11(mosi), GP12(miso) - libraries needed: <code>adafruit_wiznet5k adafruit_wsgi adafruit_requests adafruit_bus_device</code><br /><br />
+Ethernet: <code>adafruit_wiznet5k adafruit_wsgi adafruit_requests adafruit_bus_device</code><br /><br />
+
 The neccessary libraries can be found [here](https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases)<br />
 Download the zip (The 7.x-mpy variant), extract it & copy the libraries you want onto <code>/lib</code> of the pico.
 
