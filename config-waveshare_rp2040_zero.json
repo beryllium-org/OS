@@ -1,0 +1,27 @@
+{
+  "_comment1": "Default Ljinux configuration, adjust to your needs",
+  
+  "_comment2": "As long as it's true, ram rtc will be used",
+  "fixrtc": true,
+  
+  "_comment3": "onboard led",
+  "led": 16,
+  
+  "_comment4": "Display i2c pins",
+  "displaySCL": 3,
+  "displaySDA": 2,
+
+  "_comment5": "Display height - width",
+  "displayheight": 64,
+  "displaywidth": 128,
+
+  "_comment6": "Other display related options",
+  "_comment7": "Makes the pi only bother with sensor io & not serial. Not yet implemented",
+  "DISPLAYONLYMODE": false,
+
+  "_comment8": "Debugging & extreme options",
+  "SKIPTEMP": false,
+  "SKIPCP": false,
+  "DEBUG": false,
+  "DEVBOARD": false
+}
