@@ -240,7 +240,6 @@ pintab = {  # Hardware pin allocations
     26: board.GP26,
     27: board.GP27,
     28: board.GP28,
-    0: board.LED,
 }
 
 for optt in {"displaySCL", "displaySDA", "led"}:
@@ -264,7 +263,10 @@ for i in pin_alloc:
     dmtex(str(i), timing=False, end=" ")
 dmtex("", timing=False)
 
-boardLED = pintab[configg["led"]]
+if configg["led"] == 0:
+    boardLED = board.LED
+else:
+    boardLED = pintab[configg["led"]]
 
 del defaultoptions
 del pintab
