@@ -4,12 +4,12 @@
   "_comment2": "As long as it's true, ram rtc will be used",
   "fixrtc": true,
   
-  "_comment3": "Board led",
-  "led": 0,
+  "_comment3": "onboard led",
+  "led": 16,
   
   "_comment4": "Display i2c pins",
-  "displaySCL": 17,
-  "displaySDA": 16,
+  "displaySCL": 3,
+  "displaySDA": 2,
 
   "_comment5": "Display height - width",
   "displayheight": 64,

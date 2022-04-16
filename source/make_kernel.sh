@@ -11,20 +11,28 @@ else
     echo "Error: Pico not found, make sure it is connected and mounted."
     exit 1
 fi
-echo "[1/4] ljinux_source.py -> ljinux.mpy"
+echo "[1/8] ljinux_source.py -> ljinux.mpy"
 $mpyn ./ljinux_source.py -s Ljinux -v -O4 -o ../ljinux.mpy
 cp ../ljinux.mpy $picop/ljinux.mpy
 if ! [ -d $picop/lib ]; then
     echo "Created lib directory."
     mkdir $picop/lib
 fi
-echo "[2/4] jcurses.py -> lib/jcurses.mpy"
+echo "[2/8] jcurses.py -> lib/jcurses.mpy"
 $mpyn ./jcurses.py -s jCurses -v -O4 -o ../lib/jcurses.mpy
 cp ../lib/jcurses.mpy $picop/lib/jcurses.mpy
-echo "[3/4] lj_colours.py -> lib/lj_colours.mpy"
+echo "[3/8] lj_colours.py -> lib/lj_colours.mpy"
 $mpyn ./lj_colours.py -s lJcolours -v -O4 -o ../lib/lj_colours.mpy
 cp ../lib/lj_colours.mpy $picop/lib/lj_colours.mpy
-echo "[4/4] jcurses_data.py -> lib/jcurses_data.mpy"
+echo "[4/8] jcurses_data.py -> lib/jcurses_data.mpy"
 $mpyn ./jcurses_data.py -s jCurses_data -v -O4 -o ../lib/jcurses_data.mpy
 cp ../lib/jcurses_data.mpy $picop/lib/jcurses_data.mpy
+echo "[5/8] code.py"
+cp ../code.py $picop/code.py
+echo "[6/8] boot.py"
+cp ../boot.py $picop/boot.py
+echo "[7/8] config-raspberry_pi_pico.json"
+cp ../config-raspberry_pi_pico.json $picop/config-raspberry_pi_pico.json
+echo "[8/8] config-waveshare_rp2040_zero.json"
+cp ../config-waveshare_rp2040_zero.json $picop/config-waveshare_rp2040_zero.json
 exit 0

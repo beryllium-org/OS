@@ -22,10 +22,6 @@ except ImportError:
 
 print("[    0.00000] Core libs loaded")
 dmesg.append("[    0.00000] Core libs loaded")
-led = digitalio.DigitalInOut(board.LED)
-led.direction = digitalio.Direction.OUTPUT
-led.value = True
-led.value = False
 
 # Pin allocation table
 pin_alloc = set()
@@ -146,20 +142,17 @@ except ImportError:
     dmtex("FATAL: CRITICAL LIBRARY LOAD FAILED")
     exit(0)
 
-led.value = True
-
 # Kernel cmdline.txt
 try:
-    led.value = False
     confign = "/config-" + board.board_id + ".json"
-    with open("/config.json", "r") as f:  # load the config file
+    with open(confign, "r") as f:  # load the config file
+        dmtex("Loaded " + confign)
         configg = json.load(f)  # and parse it as a json
-        led.value = True
         f.close()
+    del confign
 
 except (ValueError, OSError):
     configg = {}
-    led.value = False
     dmtex("Kernel config could not be found / parsed, applying defaults")
 
 try:
@@ -172,13 +165,13 @@ except ImportError:
     exit(0)
 
 dmtex("Options applied:")
-led.value = False
 
 defaultoptions = {  # default configuration, in line with the manual
     "displaySCL": (17, int),
     "displaySDA": (16, int),
     "displayheight": (64, int),  # SSD1306 spec
     "displaywidth": (128, int),  # SSD1306 spec
+    "led": (0, int),
     "fixrtc": (True, bool),
     "SKIPTEMP": (False, bool),
     "SKIPCP": (False, bool),
@@ -197,6 +190,7 @@ for optt in {
     "DISPLAYONLYMODE",
     "displayheight",
     "displaywidth",
+    "led",
 }:
     try:
         if isinstance(configg[optt], defaultoptions[optt][1]):
@@ -214,7 +208,7 @@ for optt in {
         else:
             raise KeyError
     except KeyError:
-        configg.update({optt: defaultoptions[optt][1]})
+        configg.update({optt: defaultoptions[optt][0]})
         dmtex(
             'Missing / Invalid value for "' + optt + '" applied: ' + str(configg[optt]),
             timing=False,
@@ -246,9 +240,10 @@ pintab = {  # Hardware pin allocations
     26: board.GP26,
     27: board.GP27,
     28: board.GP28,
+    0: board.LED,
 }
 
-for optt in {"displaySCL", "displaySDA"}:
+for optt in {"displaySCL", "displaySDA", "led"}:
     try:
         pin = configg[optt]
         if pin in pin_alloc:
@@ -264,11 +259,12 @@ for optt in {"displaySCL", "displaySDA"}:
     except KeyError:
         pass
 
-led.value = True
 dmtex("Total pin alloc: ", end="")
 for i in pin_alloc:
     dmtex(str(i), timing=False, end=" ")
 dmtex("", timing=False)
+
+boardLED = pintab[configg["led"]]
 
 del defaultoptions
 del pintab
@@ -288,11 +284,6 @@ if not configg["SKIPCP"]:  # beta testing
             + " " * 14
             + "-" * 42
         )
-
-        for i in range(3 * 5 - 1):
-            led.value = not led.value
-            time.sleep(0.5)
-
         time.sleep(6)
 else:
     print("Skipped CircuitPython version checking, happy beta testing!")
@@ -304,14 +295,9 @@ if not configg["SKIPTEMP"]:
     """
     temp = cpu.temperature
     if temp > 60:
-        dmtex("Temperature is unsafe: " + str(temp) + " Celcius. Halting!")
-        led.value = False
         while True:
-            for i in range(3):
-                led.value = not led.value
-                time.sleep(0.3)
-
-            time.sleep(3)
+            dmtex("Temperature is unsafe: " + str(temp) + " Celcius. Halting!")
+            time.sleep(0.3)
     elif temp > 7:
         dmtex("Temperature OK: " + str(temp) + " Celcius")
     else:
@@ -325,17 +311,14 @@ if not configg["DEVBOARD"]:
     Enable to skip board checks and patches.
     """
     print("Running board detection")
-    led.value = False
     boardactions = {
         "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
+        "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
     }
 
     try:
-        led.value = False
         boardactions[board.board_id]()
-        led.value = True
     except KeyError:
-        led.value = True
         dmtex(
             colors.error
             + "Unknown board. "
@@ -350,9 +333,6 @@ if not configg["DEVBOARD"]:
     del boardactions
 else:
     dmtex("Board detection skipped. Enjoy experimenting!")
-
-led.deinit()
-del led
 
 gc.collect()
 gc.collect()
@@ -537,7 +517,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
     class io:
         # activity led
-        led = digitalio.DigitalInOut(board.LED)
+        led = digitalio.DigitalInOut(boardLED)
         led.direction = digitalio.Direction.OUTPUT
         led.value = True
         # sd card
