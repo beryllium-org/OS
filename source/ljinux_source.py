@@ -768,9 +768,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             "return": "0",
         }  # the variables defined and modified by the user
         system_vars = {
-            "user": "root",
-            "security": "off",
+            "USER": "root",
+            "SECURITY": "off",
             "Init-type": "oneshot",
+            "HOSTNAME": "pico",
+            "TERM": "xterm-256color",
+            "LANG": "en_GB.UTF-8",
         }  # the variables defined and modified by the system
 
         def get_bins():
@@ -1102,7 +1105,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         valid = False
                     if valid:
                         if inpt[0] in system_vars:
-                            if not (system_vars["security"] == "on"):
+                            if not (system_vars["SECURITY"] == "on"):
                                 system_vars[inpt[0]] = new_var
                             else:
                                 print(
@@ -1246,6 +1249,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             for line in lines:
                                 dt = line.split()
                                 passwordarr[dt[0]] = dt[1]
+                                del dt
+                            data.close()
+                            del lines
                     except OSError:
                         pass
                     if passwordarr["root"] == getpass():
@@ -1636,11 +1642,11 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     term.trigger_dict["prefix"] = (
                         "["
                         + colors.cyan_t
-                        + ljinux.based.system_vars["user"]
+                        + ljinux.based.system_vars["USER"]
                         + colors.endc
                         + "@"
                         + colors.cyan_t
-                        + "pico"
+                        + ljinux.based.system_vars["HOSTNAME"]
                         + colors.endc
                         + "| "
                         + colors.yellow_t

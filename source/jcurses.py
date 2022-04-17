@@ -37,6 +37,11 @@ class jcurses:
                 "echo": Can be "all" / "common" / "none".
             """
 
+    def map(self):
+        while True:
+            sleep(1)
+            print(str(self.register_char()))
+
     def backspace(self, n=1):
         for i in range(n):
             if len(self.buf[1]) - self.focus > 0:
@@ -182,7 +187,7 @@ class jcurses:
                         # Arrow keys
                         else:
                             self.text_stepping = 0
-                            stack.append(char_map[charr])
+                            stack.append(char_map[charr+"l"])
                     except KeyError:
                         pass
         except KeyboardInterrupt:

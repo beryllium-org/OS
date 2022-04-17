@@ -98,10 +98,10 @@ char_map = {  # you need to add 0x
     "2a": "*",
     "28": "(",
     "29": ")",
-    "41": "up",
-    "42": "down",
-    "43": "right",
-    "44": "left",
+    "41l": "up", # hacky fix to namechake with capital ABCD
+    "42l": "down",
+    "43l": "right",
+    "44l": "left",
     "7f": "bck",
     "ctrlC": "ctrlC",  # needed
 }
