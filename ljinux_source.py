@@ -533,12 +533,23 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
     class io:
         # activity led
+        
+        ledcases = {
+            1: nc.idle,
+            2: nc.idletype,
+            3: nc.activity,
+            4: nc.waiting,
+            5: nc.error,
+            6: nc.killtheuser,
+        }
+        
         led = digitalio.DigitalInOut(boardLED)
         led.direction = digitalio.Direction.OUTPUT
         if configg["ledtype"] == "generic":
             led.value = True
         elif configg["ledtype"] == "neopixel":
             neopixel_write(led, nc.idle)
+        
         # sd card
         # L R and Enter keys for basic io
         buttonl = digitalio.DigitalInOut(board.GP19)
@@ -551,6 +562,15 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         network_online = False
         network_name = "Offline"
 
+        def ledset(state): # Set the led to a state
+            if configg["ledtype"] == "generic":
+                if state == 3:
+                    led.value = False
+                else
+                    led.value = True
+            elif configg["ledtype"] == "neopixel":
+                neopixel_write(led, ljinux.io.ledcases[state])
+            
         def get_static_file(filename, m="rb"):
             "Static file generator"
             try:

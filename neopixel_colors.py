@@ -2,11 +2,11 @@ class neopixel_colors:
     """
     Ljinux colors for the neopixel led
     """
-
+    
     idle = bytearray([3, 0, 0])  # for idling in terminal
     idletype = bytearray([2, 0, 0])  # whilst chars are being inputted
 
-    activity = bytearray()
+    activity = bytearray([16,0,13])
 
     waiting = bytearray([0, 0, 5])  # done with init, waiting for serial
 
