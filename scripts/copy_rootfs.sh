@@ -9,16 +9,6 @@ elif [ -d /Volumes/CIRCUITPY ]; then
 else
     exit 1
 fi
-echo "[1/4] old ljinux.mpy"
-rm $picop/ljinux.mpy
-rm ../ljinux.mpy
-echo "[2/4] lib/jcurses.mpy"
-rm $picop/lib/jcurses.mpy
-rm ../lib/jcurses.mpy
-echo "[3/4] lib/lj_colours.mpy"
-rm $picop/lib/lj_colours.mpy
-rm ../lib/lj_colours.mpy
-echo "[4/4] jcurses_data.py -> lib/jcurses_data.mpy"
-rm $picop/lib/jcurses_data.mpy
-rm ../lib/jcurses_data.mpy
+cp -rv ./LjinuxRoot/ $picop/
+cp -v ./Manual.txt $picop/LjinuxRoot/home/pi/Manual.txt
 exit 0

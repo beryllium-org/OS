@@ -136,6 +136,7 @@ try:
     from getpass import getpass
     import json
     from traceback import print_exception
+    from math import trunc
 
     dmtex("Basic libraries loaded")
 except ImportError:

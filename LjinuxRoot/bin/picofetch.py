@@ -20,11 +20,12 @@ if neofetch_time > 0:
 else:
     uptimestr = uptimestr[:-2]
 
-Ccpu = "{} ({}) @ {}Mhz".format(platform, len(cpus), cpu.frequency / 1000000)
-Rram = "{} + KiB / 264KiB".format(abs(264 - gc.mem_free/1000))
+Ccpu = "{} ({}) @ {}Mhz".format(platform, len(cpus), trunc(cpu.frequency / 1000000))
+gc.collect()
+gc.collect()
+Rram = "{}KiB / 264KiB".format(trunc(abs(264 - gc.mem_free()/1000)))
 
-print("""
-\033[32m    `.::///+:/-.        --///+//-:``     {}@{} \033[0m
+print("""\033[32m    `.::///+:/-.        --///+//-:``    {}@{} \033[0m
 \033[32m   `+oooooooooooo:   `+oooooooooooo:  \033[0m  ---------
 \033[32m    /oooo++//ooooo:  ooooo+//+ooooo.  \033[0m  \033[31mOS\033[0m: \033[33mLjinux 0.3.0\033[0m
 \033[32m    `+ooooooo:-:oo-  +o+::/ooooooo:   \033[0m  \033[31mHost\033[0m: Raspberry Pi Pico  
@@ -56,9 +57,7 @@ print("""
     Rram)
 )
 
+del Rram, Ccpu
 del uptimestr
 del neofetch_time
-del hours
-del minutes
-gc.collect()
-gc.collect()
+del hours, minutes
