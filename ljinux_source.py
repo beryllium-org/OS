@@ -145,13 +145,14 @@ except ImportError:
 
 try:
     from neopixel_write import neopixel_write
-    try: # we can't fail this part though
+
+    try:  # we can't fail this part though
         import neopixel_colors as nc
     except ImportError:
         dmtex("CRITICAL: FAILED TO LOAD NEOPIXEL_COLORS")
         exit(1)
 except ImportError:
-    pass # no big deal, this just isn't a neopixel board
+    pass  # no big deal, this just isn't a neopixel board
 
 # Kernel cmdline.txt
 try:
@@ -537,7 +538,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         if configg["ledtype"] == "generic":
             led.value = True
         elif configg["ledtype"] == "neopixel":
-            neopixel_write(led,nc.idle)
+            neopixel_write(led, nc.idle)
         # sd card
         # L R and Enter keys for basic io
         buttonl = digitalio.DigitalInOut(board.GP19)
