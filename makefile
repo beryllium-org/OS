@@ -1,6 +1,6 @@
 # I HAAAATE MAKE
 SHELL = bash
-all: prepperms kerncomp sync
+all: prepperms kerncomp
 install: prepperms kerncomp rootfs donemsg
 compiletest: prepperms ctest
 connection: cn

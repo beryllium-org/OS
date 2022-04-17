@@ -143,6 +143,16 @@ except ImportError:
     dmtex("FATAL: CRITICAL LIBRARY LOAD FAILED")
     exit(0)
 
+try:
+    from neopixel_write import neopixel_write
+    try: # we can't fail this part though
+        import neopixel_colors as nc
+    except ImportError:
+        dmtex("CRITICAL: FAILED TO LOAD NEOPIXEL_COLORS")
+        exit(1)
+except ImportError:
+    pass # no big deal, this just isn't a neopixel board
+
 # Kernel cmdline.txt
 try:
     confign = "/config-" + board.board_id + ".json"
@@ -173,6 +183,7 @@ defaultoptions = {  # default configuration, in line with the manual
     "displayheight": (64, int),  # SSD1306 spec
     "displaywidth": (128, int),  # SSD1306 spec
     "led": (0, int),
+    "ledtype": ("generic", str),
     "fixrtc": (True, bool),
     "SKIPTEMP": (False, bool),
     "SKIPCP": (False, bool),
@@ -192,6 +203,7 @@ for optt in {
     "displayheight",
     "displaywidth",
     "led",
+    "ledtype",
 }:
     try:
         if isinstance(configg[optt], defaultoptions[optt][1]):
@@ -522,7 +534,10 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         # activity led
         led = digitalio.DigitalInOut(boardLED)
         led.direction = digitalio.Direction.OUTPUT
-        led.value = True
+        if configg["ledtype"] == "generic":
+            led.value = True
+        elif configg["ledtype"] == "neopixel":
+            neopixel_write(led,nc.idle)
         # sd card
         # L R and Enter keys for basic io
         buttonl = digitalio.DigitalInOut(board.GP19)

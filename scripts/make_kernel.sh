@@ -22,12 +22,14 @@ echo "[3/8] lj_colours.py -> lib/lj_colours.mpy"
 $mpyn ./lj_colours.py -s lJcolours -v -O4 -o $picop/lib/lj_colours.mpy
 echo "[4/8] jcurses_data.py -> lib/jcurses_data.mpy"
 $mpyn ./jcurses_data.py -s jCurses_data -v -O4 -o $picop/lib/jcurses_data.mpy
-echo "[5/8] code.py"
+echo "[5/9] neopixel_colors.py -> lib/neopixel_colors.mpy"
+$mpyn ./neopixel_colors.py -s Neopixel_colors -v -O4 -o $picop/lib/neopixel_colors.mpy
+echo "[6/9] code.py"
 cp ./rootfilesystem/code.py $picop/code.py
-echo "[6/8] boot.py"
+echo "[7/9] boot.py"
 cp ./rootfilesystem/boot.py $picop/boot.py
-echo "[7/8] config-raspberry_pi_pico.json"
+echo "[8/9] config-raspberry_pi_pico.json"
 cp ./rootfilesystem/config-raspberry_pi_pico.json $picop/config-raspberry_pi_pico.json
-echo "[8/8] config-waveshare_rp2040_zero.json"
+echo "[9/9] config-waveshare_rp2040_zero.json"
 cp ./rootfilesystem/config-waveshare_rp2040_zero.json $picop/config-waveshare_rp2040_zero.json
 exit 0

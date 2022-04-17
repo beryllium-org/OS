@@ -4,8 +4,9 @@
   "_comment2": "As long as it's true, ram rtc will be used",
   "fixrtc": true,
   
-  "_comment3": "Board led",
+  "_comment3": "Board led, can be generic or neopixel",
   "led": 0,
+  "ledtype": "generic",
   
   "_comment4": "Display i2c pins",
   "displaySCL": 17,
