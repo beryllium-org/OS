@@ -187,7 +187,7 @@ class jcurses:
                         # Arrow keys
                         else:
                             self.text_stepping = 0
-                            stack.append(char_map[charr+"l"])
+                            stack.append(char_map[charr + "l"])
                     except KeyError:
                         pass
         except KeyboardInterrupt:
