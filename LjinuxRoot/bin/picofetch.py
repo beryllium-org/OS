@@ -23,9 +23,10 @@ else:
 Ccpu = "{} ({}) @ {}Mhz".format(platform, len(cpus), trunc(cpu.frequency / 1000000))
 gc.collect()
 gc.collect()
-Rram = "{}KiB / 264KiB".format(trunc(abs(264 - gc.mem_free()/1000)))
+Rram = "{}KiB / 264KiB".format(trunc(abs(264 - gc.mem_free() / 1000)))
 
-print("""\033[32m    `.::///+:/-.        --///+//-:``    {}@{} \033[0m
+print(
+    """\033[32m    `.::///+:/-.        --///+//-:``    {}@{} \033[0m
 \033[32m   `+oooooooooooo:   `+oooooooooooo:  \033[0m  ---------
 \033[32m    /oooo++//ooooo:  ooooo+//+ooooo.  \033[0m  \033[31mOS\033[0m: \033[33mLjinux 0.3.0\033[0m
 \033[32m    `+ooooooo:-:oo-  +o+::/ooooooo:   \033[0m  \033[31mHost\033[0m: Raspberry Pi Pico  
@@ -49,12 +50,13 @@ print("""\033[32m    `.::///+:/-.        --///+//-:``    {}@{} \033[0m
 \033[91m             .::::::::::             \033[0m
 \033[91m              `.-::::-`              \033[0m
 """.format(
-    ljinux.based.system_vars["USER"],
-    ljinux.based.system_vars["HOSTNAME"],
-    ljinux.based.system_vars["IMPLEMENTATION"],
-    uptimestr,
-    Ccpu,
-    Rram)
+        ljinux.based.system_vars["USER"],
+        ljinux.based.system_vars["HOSTNAME"],
+        ljinux.based.system_vars["IMPLEMENTATION"],
+        uptimestr,
+        Ccpu,
+        Rram,
+    )
 )
 
 del Rram, Ccpu
