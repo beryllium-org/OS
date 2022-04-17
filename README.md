@@ -33,10 +33,15 @@ The <code>Init.lja</code> has to be at <code>/LjinuxRoot/boot/</code> of the boa
 
 <h2>Installation to a fresh board:</h2><br />
 
-1) Install CircuitPython 7.X.X onto the board (pi pico uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_board) & detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython)), and extract this entire repo (or a release), except for the "source" folder onto the CIRCUITPY drive.<br /><br />
-2) This is also a good time to install the libraries for the hardware you wish to connect to it. Details in Configuration.<br />   <b>Though if you plan on using the board standalone, you don't need put any extra libraries in.</b><br /><br />
-3) After these steps, eject the board and fully disconnect it from the pc. (It is important to power cycle the pi.)<br />
+<i>Note: Windows not supported. Linux & MacOS only.</i><br /><br />
+
+1) Install CircuitPython 7.X.X onto the board (pi pico uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_board) & detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython)).<br />
+2) Clone (or download this project) and from within it run <code>make install</code>.<br />
+3) Install the optional libraries for the hardware you want to connect to it. Details in Configuration.<br />
+<b>If you plan on using the board standalone, you don't need put any extra libraries in.</b><br /><br />
+4) After these steps, eject the board and fully disconnect it from the pc. (It is important to power cycle it.)<br />
    When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)<br />
+   An automated connection script exists in the form of <code>make connection</code>
 <b>IMPORTANT NOTE: To make the pi appear as a usb device, run the command <code>devmode</code></b><br />
 
 <h3>Configuration</h3>
