@@ -33,24 +33,24 @@ The <code>Init.lja</code> has to be at <code>/LjinuxRoot/boot/</code> of the boa
 
 <h2>Installation to a fresh board:</h2><br />
 
-<i>Note: Windows not supported. Linux & MacOS only.</i><br /><br />
+<i>Note: Automatic Windows install not supported at the moment. Linux & MacOS only.</i><br /><br />
 
-1) Install CircuitPython 7.X.X onto the board (pi pico uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_board) & detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython)).<br />
+1) Install CircuitPython 7.X.X onto the board<br />
+    Raspberry Pi Pico uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_board) & detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
 2) Clone (or download this project) and from within it run <code>make install</code>.<br />
 3) Install the optional libraries for the hardware you want to connect to it. Details in Configuration.<br />
-<b>If you plan on using the board standalone, you don't need put any extra libraries in.</b><br /><br />
+<b>If you plan on using the board standalone, you don't need put any extra libraries in.</b><br />
 4) After these steps, eject the board and fully disconnect it from the pc. (It is important to power cycle it.)<br />
    When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)<br />
-   An automated connection script exists in the form of <code>make connection</code>
-<b>IMPORTANT NOTE: To make the pi appear as a usb device, run the command <code>devmode</code></b><br />
+   An automated connection script exists in the form of <code>make connection</code><br />
+<b>IMPORTANT NOTE: To make the pi appear as a usb device, run the command </b><code>devmode</code><br />
 
 <h3>Configuration</h3>
 
 <i>Each board has it's own different pin configuration. You can see the defaults and modify them from the board's respecive config file.</i><br /><br />
 
-<b>Libraries needed for hardware:</b><br />
+<b>Libraries needed for optional hardware:</b><br />
 For the SSD1306 display: <code>adafruit_ssd1306 adafruit_framebuf</code><br />
-For the ds1302 RTC: <code>ds1302</code> (It's included in /lib) <br />
 Sdcard: <code>adafruit_sdcard adafruit_bus_device</code><br />
     The sdcard has to be formatted as Fat32 / Fat16 or equivelant.<br />
 Ethernet: <code>adafruit_wiznet5k adafruit_wsgi adafruit_requests adafruit_bus_device</code><br /><br />
@@ -60,7 +60,9 @@ Download the zip (The 7.x-mpy variant), extract it & copy the libraries you want
 
 <h3>Connection</h3>
 
-To connect to the board it's recommended to use Putty for Windows and GNU/Screen for Linux/Mac.<br />
+For an automated way on Linux/MacOS, run <code>make connection</code>. Manual way below.<br /><br />
+
+To connect to the board it's recommended to use Putty for Windows and GNU/Screen for Linux/MacOS.<br />
 For Putty, select connection type to be Serial, select the port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the board and set the speed/baudrate to 115200. (You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br /><br />
 
 For GNU/Screen, if you are on linux, you need to be in the <code>dialout</code> user group and to connect, run: <code>screen /dev/ttyACM0 115200</code><br />If you are on a Mac instead, run: <code>ls /dev/tty.usb*</code> to find the device name, and connect to it by running: <code>screen /dev/tty.usb\<Device name here\> 115200</code><br />
