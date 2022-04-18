@@ -10,7 +10,7 @@ donemsg:
 	@sync
 	@echo -e "\nDone. "
 rootfs:
-	@echo -e "\nUpdating the pico's rootfs:\n"
+	@echo -e "\nUpdating the board's rootfs:\n"
 	@sync
 	@./scripts/copy_rootfs.sh
 prepperms:

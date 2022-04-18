@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.3.0"
+Version = "0.4.0"
 Circuitpython_supported_version = 7
 dmesg = []
 access_log = []
@@ -1545,6 +1545,34 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             CODE:
                 ljinux.based.fn.[function_name](parameters)
             """
+            
+            def betterpath(back=None):
+                """
+                Removes /LjinuxRoot from path and puts it back
+                """
+                res = ""
+                if back is None:
+                    a = getcwd()
+                    if a == "/":
+                        res = "board/"
+                    elif a == "/LjinuxRoot":
+                        res = "/"
+                    elif a.startswith("/LjinuxRoot"):
+                        res = a[11:]
+                    else:
+                        res = ("board" + a)
+                    del a
+                else: #resolve path back to normal
+                    if back.startswith("board"):
+                        res = back[5:]
+                    elif back != "." and back[:2] != "..":
+                        res = "/LjinuxRoot"
+                        if back != "/":
+                            res += back
+                    else:
+                        res = back
+                del back
+                return res
 
             def get_valid_options(inpt, vopts):
                 """
@@ -1649,7 +1677,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         + colors.endc
                         + "| "
                         + colors.yellow_t
-                        + getcwd()
+                        + ljinux.based.fn.betterpath()
                         + colors.endc
                         + "]"
                         + colors.blue_t

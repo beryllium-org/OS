@@ -1,2 +1,2 @@
-cat /LjinuxRoot/bin/pinout.map
+cat /bin/pinout.map
 return = 0

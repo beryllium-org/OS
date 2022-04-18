@@ -26,7 +26,7 @@ try:
         ljinux.based.error(1)
         ljinux.based.user_vars["return"] = "1"
     try:
-        with open(filee, "r") as f:
+        with open(ljinux.based.fn.betterpath(filee), "r") as f:
             content = f.readlines()
             count = len(content)
             min(lines, count)

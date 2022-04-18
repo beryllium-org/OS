@@ -9,6 +9,6 @@ elif [ -d /Volumes/CIRCUITPY ]; then
 else
     exit 1
 fi
-cp -rv ./LjinuxRoot/ $picop/
-cp -v ./Manual.txt $picop/LjinuxRoot/home/pi/Manual.txt
+\cp -rv ./LjinuxRoot/ $picop/
+\cp -v ./Manual.txt $picop/LjinuxRoot/home/pi/Manual.txt
 exit 0

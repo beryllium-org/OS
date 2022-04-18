@@ -2,7 +2,7 @@ global sdcard_fs
 try:
     if not sdcard_fs:
         remount("/", False)
-    rmdir(ljinux.based.user_vars["argj"].split()[1])
+    rmdir(ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]))
     if not sdcard_fs:
         remount("/", True)
 except (OSError, RuntimeError) as errr:

@@ -1,6 +1,6 @@
 SHELL = "based"
 OS = "Ljinux"
-cd /LjinuxRoot/home/pi
+cd /home/pi
 exec .basedrc
 USER = "Pi"
 fpexec -n /LjinuxRoot/etc/hostname-reload.py
