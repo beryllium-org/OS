@@ -3,7 +3,7 @@ SHELL = bash
 all: prepperms kerncomp
 install: prepperms kerncomp rootfs donemsg
 compiletest: prepperms ctest
-connection: cn
+debug: prepperms kerncompd
 
 donemsg:
 	@echo -e "\nSyncing changes.."
@@ -21,11 +21,15 @@ kerncomp:
 	@echo -e "\nCommencing kernel compilation..\n"
 	@sync
 	@time ./scripts/make_kernel.sh
+kerncompd:
+	@echo -e "\nCommencing debug kernel compilation..\n"
+	@sync
+	@time ./scripts/make_kernel_debug.sh
 ctest:
 	@echo -e "Commencing kernel compile test\nNote: This should only be used to verify the kernel compiles!\n"
 	@time ./scripts/make_kernel_test.sh
-cn:
+connection:
 	@echo -n "Ensuring GNU/Screen is installed.. "
 	@command -v screen >/dev/null && echo "Found" || (echo -e "Not found\nInstalling.." && ./scripts/installscreen.sh)
-	@echo -n "\nRunning screen connection.."
+	@echo -e "\nRunning screen connection.. "
 	@./scripts/screenningg.sh

@@ -128,9 +128,9 @@ DISABLE SECURITY, ASKS FOR PASSWORD
 DEFAULT PASSWORD == Ljinux
 
 
-picofetch
+neofetch
 
-NEOFETCH FOR THE PICO OFC
+VIEW SOME SYSTEM INFO
 
 
 history [save/load/clear]
@@ -195,34 +195,23 @@ PRINT THE MANUAL FOR THE GIVEN [COMMAND]
 ----<| Config.json |
       \------------|
 
-The default config is:
+This is a complete summary of all the options available, to create a custom config, arrange them into a valid json, named as config-"board.id":
 
-{
-"_comment1": "Default Ljinux configuration, adjust to your needs"
+"fixrtc", bool, can be true or false. While true, disables hardware Real Time Clock (RTC).
 
-"_comment2": "As long as it's true, ram rtc will be used"
-"fixrtc": true
+"displaySCL" & "displaySDA", int, specifies the SSD1606 display i2c pins
+"displayheight" & "displaywidth", int, said display height - width
+"DISPLAYONLYMODE", false, bool, not yet implemented
 
-"_comment3": "Display i2c pins"
-"displaySCL": 17
-"displaySDA": 16
+"led", int, specifies the activity led pin. Set to 0 for board.LED
+"ledtype", string, can be "generic" or "neopixel"
 
-"_comment4": "Display height - width"
-"displayheight": 64
-"displaywidth": 128
+"SKIPTEMP" Debugging & extreme options, bools, keep them false
+"SKIPCP"
+"DEBUG"
+"DEVBOARD"
 
-"_comment5": "Other display related options"
-"_comment6": "Makes the pi only bother with sensor io & not serial. Not yet implemented"
-"DISPLAYONLYMODE": false
-
-"_comment7": "Debugging & extreme options"
-"SKIPTEMP": false
-"SKIPCP": false
-"DEBUG": false
-
-}
-
-The config file is no longer mandatory, as the defaults are hardcoded in case they are missing / errored.
+The config file is no longer mandatory on simple boards, as the defaults are hardcoded in case they are missing / errored.
 
       /----------|
 ----<| Scripting |
@@ -293,6 +282,9 @@ CODE:
 9 : Missing arguments
       This error occur when the command is used without the necessary parameters.
 
+10 : File exists
+      A file that shouldn't exist, does exist.
+
       /----------|
 ----<| Functions |
       \----------|
@@ -320,6 +312,7 @@ Each program should use it's own jcurses object.
 Based, by default, creates the "term" jcurses object.
 
 Useful functions:
+
     - .detect_size()
     Detects the size of the terminal & returns it as [rows, collumns]
     
@@ -335,6 +328,15 @@ Useful functions:
     
     - .clear()
     Clears the screen & goes to top.
+    
+    - .clear_line()
+    Clears the current line.
+    
+    - .line(char)
+    Draws a line with the given char.
+    
+    - .map()
+    Testing function, prints chars inputted.
 
 jCurses does not depend onto ljinux.
 

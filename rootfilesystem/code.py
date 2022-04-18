@@ -44,7 +44,7 @@ except Exception as err:
     print("\n\nLjinux crashed with:\t" + str(type(err))[8:-2] + ": " + str(err))
     del err
     Exit_code = 1
-oss.io.led.value = False
+oss.io.ledset(0) # idle
 
 oss.farland.clear()
 jrub("Cleared display")

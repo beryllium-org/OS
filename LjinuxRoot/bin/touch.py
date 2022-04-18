@@ -1,15 +1,15 @@
 try:
     f = open(ljinux.based.user_vars["argj"].split()[1], "r")
     f.close()
-    print("based: Error: file exists")
+    ljinux.based.error(10)
 except OSError:
     global sdcard_fs
-    if not sdcard_fs:
-        try:
+    try:
+        if not sdcard_fs:
             remount("/", False)
-            f = open(ljinux.based.user_vars["argj"].split()[1], "w")
-            f.close()
-            if not sdcard_fs:
-                remount("/", True)
-        except RuntimeError:
-            print("based: Cannot remount built in fs in development mode")
+        f = open(ljinux.based.user_vars["argj"].split()[1], "w")
+        f.close()
+        if not sdcard_fs:
+            remount("/", True)
+    except RuntimeError:
+        ljinux.based.error(7)
