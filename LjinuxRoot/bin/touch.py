@@ -7,7 +7,9 @@ except OSError:
     try:
         if not sdcard_fs:
             remount("/", False)
-        f = open(ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]), "w")
+        f = open(
+            ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]), "w"
+        )
         f.close()
         if not sdcard_fs:
             remount("/", True)

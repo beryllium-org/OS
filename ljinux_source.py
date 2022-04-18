@@ -1545,7 +1545,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             CODE:
                 ljinux.based.fn.[function_name](parameters)
             """
-            
+
             def betterpath(back=None):
                 """
                 Removes /LjinuxRoot from path and puts it back
@@ -1560,9 +1560,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     elif a.startswith("/LjinuxRoot"):
                         res = a[11:]
                     else:
-                        res = ("board" + a)
+                        res = "board" + a
                     del a
-                else: #resolve path back to normal
+                else:  # resolve path back to normal
                     if back.startswith("board"):
                         res = back[5:]
                     elif back != "." and back[:2] != "..":
