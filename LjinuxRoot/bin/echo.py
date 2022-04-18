@@ -1,5 +1,7 @@
 try:
-    optss = ljinux.based.fn.get_valid_options(ljinux.based.user_vars["argj"].split()[1], "ne")
+    optss = ljinux.based.fn.get_valid_options(
+        ljinux.based.user_vars["argj"].split()[1], "ne"
+    )
     offs = 0
     if len(optss) > 0:
         offs += 1
@@ -7,15 +9,25 @@ try:
         if ljinux.based.user_vars["argj"].split()[1 + offs].endswith('"'):
             if not ljinux.based.silent:
                 print(str(ljinux.based.user_vars["argj"].split()[1 + offs])[1:-1])
-            ljinux.based.user_vars["return"] = str(ljinux.based.user_vars["argj"].split()[1 + offs])[1:-1]
+            ljinux.based.user_vars["return"] = str(
+                ljinux.based.user_vars["argj"].split()[1 + offs]
+            )[1:-1]
         else:
             countt = len(ljinux.based.user_vars["argj"].split()) - offs
             if countt > 2:
-                if ljinux.based.user_vars["argj"].split()[countt - 1 + offs].endswith('"'):
-                    res = str(ljinux.based.user_vars["argj"].split()[1 + offs])[1:] + " "
+                if (
+                    ljinux.based.user_vars["argj"]
+                    .split()[countt - 1 + offs]
+                    .endswith('"')
+                ):
+                    res = (
+                        str(ljinux.based.user_vars["argj"].split()[1 + offs])[1:] + " "
+                    )
                     for i in range(2, countt - 1):
                         res += ljinux.based.user_vars["argj"].split()[i + offs] + " "
-                    res += str(ljinux.based.user_vars["argj"].split()[countt - 1 + offs])[:-1]
+                    res += str(
+                        ljinux.based.user_vars["argj"].split()[countt - 1 + offs]
+                    )[:-1]
                     if not ljinux.based.silent:
                         if "n" in optss:
                             print(res, end="")
@@ -30,7 +42,9 @@ try:
                     pass
     else:
         try:
-            res = ljinux.based.fn.adv_input(ljinux.based.user_vars["argj"].split()[1], str)
+            res = ljinux.based.fn.adv_input(
+                ljinux.based.user_vars["argj"].split()[1], str
+            )
             if not ljinux.based.silent:
                 print(res)
             ljinux.based.user_vars["return"] = res

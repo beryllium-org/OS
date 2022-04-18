@@ -469,12 +469,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 with open(filen, "r") as historyfile:
                     lines = historyfile.readlines()
                     for line in lines:
-                        ljinux.io.ledset(3) # act
+                        ljinux.io.ledset(3)  # act
                         ljinux.history.historyy.append(line.strip())
-                        ljinux.io.ledset(1) # idle
+                        ljinux.io.ledset(1)  # idle
 
             except OSError:
-                ljinux.io.ledset(1) # idle
+                ljinux.io.ledset(1)  # idle
                 ljinux.based.error(4, filen)
 
         def appen(itemm):  # add to history, but don't save to file
@@ -528,7 +528,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
     class io:
         # activity led
-        
+
         ledcases = {
             0: nc.off,
             1: nc.idle,
@@ -538,14 +538,14 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             5: nc.error,
             6: nc.killtheuser,
         }
-        
+
         led = digitalio.DigitalInOut(boardLED)
         led.direction = digitalio.Direction.OUTPUT
         if configg["ledtype"] == "generic":
             led.value = True
         elif configg["ledtype"] == "neopixel":
             neopixel_write(led, nc.idle)
-        
+
         # sd card
         # L R and Enter keys for basic io
         buttonl = digitalio.DigitalInOut(board.GP19)
@@ -558,7 +558,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         network_online = False
         network_name = "Offline"
 
-        def ledset(state): # Set the led to a state
+        def ledset(state):  # Set the led to a state
             if configg["ledtype"] == "generic":
                 if state in [0, 3]:
                     ljinux.io.led.value = False
@@ -566,7 +566,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     ljinux.io.led.value = True
             elif configg["ledtype"] == "neopixel":
                 neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
-            
+
         def get_static_file(filename, m="rb"):
             "Static file generator"
             try:
@@ -836,8 +836,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 ljinux.based.error([number])
                 where [number] is one of the error below
             """
-            ljinux.io.ledset(5) # error
-            time.sleep(.1)
+            ljinux.io.ledset(5)  # error
+            time.sleep(0.1)
             errs = {
                 1: "Syntax Error",
                 2: "Input Error",
@@ -848,14 +848,14 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 7: "Filesystem unwritable, pi in developer mode",
                 8: "Missing files",
                 9: "Missing arguments",
-                10: "File exists"
+                10: "File exists",
             }
             print("based: " + errs[wh])
-            ljinux.io.ledset(1) # idle
+            ljinux.io.ledset(1)  # idle
             del errs
 
         def autorun():
-            ljinux.io.ledset(3) # act
+            ljinux.io.ledset(3)  # act
             global Exit
             global Exit_code
             global Version
@@ -885,7 +885,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 )
                 del modules["adafruit_sdcard"]
                 dmtex("Unloaded sdio libraries")
-            ljinux.io.ledset(1) # idle
+            ljinux.io.ledset(1)  # idle
             systemprints(
                 2,
                 "Running Init Script",
@@ -897,7 +897,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             lines = None
             Exit_code = 0  # resetting, in case we are the 2nd .shell
             try:
-                ljinux.io.ledset(3) # act
+                ljinux.io.ledset(3)  # act
                 ljinux.based.command.execc(["/LjinuxRoot/boot/Init.lja"])
                 systemprints(1, "Running Init Script")
             except OSError:
@@ -976,7 +976,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     print("based: Caught Ctrl + C")
             else:
                 print("based: Init-type specified incorrectly, assuming oneshot")
-            ljinux.io.ledset(1) # idle
+            ljinux.io.ledset(1)  # idle
             while not Exit:
                 try:
                     ljinux.based.shell()
@@ -996,30 +996,32 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 if argj[0] == "exec":
                     argj = argj[1:]  # we don't want to carry on the exec command itself
                 try:
-                    ljinux.io.ledset(3) # act
+                    ljinux.io.ledset(3)  # act
                     f = open(argj[0], "r")  # open the file to run
                     lines = f.readlines()  # get all lines
                     count = 0
-                    ljinux.io.ledset(1) # idle
+                    ljinux.io.ledset(1)  # idle
                     for line in lines:
-                        ljinux.io.ledset(3) # act
+                        ljinux.io.ledset(3)  # act
                         lines[count] = line.strip()  # command_split
                         count += 1
-                        ljinux.io.ledset(1) # idle
+                        ljinux.io.ledset(1)  # idle
                     simplif = ""
                     for i in argj:
                         simplif += i + " "
                     simplif = simplif[:-1]
-                    ljinux.based.shell('argj = "' + simplif + '"', led = False)  # provide arguments
+                    ljinux.based.shell(
+                        'argj = "' + simplif + '"', led=False
+                    )  # provide arguments
                     for commandd in lines:
-                        ljinux.based.shell(commandd, led = False)  # yes stonks
+                        ljinux.based.shell(commandd, led=False)  # yes stonks
                     f.close()
                     try:
                         del ljinux.based.user_vars["argj"]
                     except KeyError:
                         pass
                 except OSError:
-                    ljinux.io.ledset(1) # idle
+                    ljinux.io.ledset(1)  # idle
                     print("based: " + argj[0] + ": No such file or directory\n")
 
             def helpp(dictt):  # help
@@ -1376,7 +1378,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     print("based: Invalid action type: " + condition[i])
                                     break
                             if val == 1:
-                                ljinux.based.shell(" ".join(inpt[next_part:]), led = False)
+                                ljinux.based.shell(
+                                    " ".join(inpt[next_part:]), led=False
+                                )
                             del next_part
                             del val
                         except KeyError:
@@ -1664,23 +1668,23 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     term.focus = 0
                                     stdout.write("\n")
                                 elif term.buf[0] is 1:
-                                    ljinux.io.ledset(2) # keyact
+                                    ljinux.io.ledset(2)  # keyact
                                     print("^C")
                                     term.buf[1] = ""
                                     term.focus = 0
                                     term.clear_line()
-                                    ljinux.io.ledset(1) # idle
+                                    ljinux.io.ledset(1)  # idle
                                 elif term.buf[0] is 2:
-                                    ljinux.io.ledset(2) # keyact
+                                    ljinux.io.ledset(2)  # keyact
                                     print("^D")
                                     global Exit
                                     global Exit_code
                                     Exit = True
                                     Exit_code = 0
-                                    ljinux.io.ledset(1) # idle
+                                    ljinux.io.ledset(1)  # idle
                                     break
                                 elif term.buf[0] is 3:  # tab key
-                                    ljinux.io.ledset(2) # keyact
+                                    ljinux.io.ledset(2)  # keyact
                                     tofind = term.buf[
                                         1
                                     ]  # made into var for speed reasons
@@ -1703,9 +1707,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     del bins
                                     del tofind
                                     del candidates
-                                    ljinux.io.ledset(1) # idle
+                                    ljinux.io.ledset(1)  # idle
                                 elif term.buf[0] is 4:  # up
-                                    ljinux.io.ledset(2) # keyact
+                                    ljinux.io.ledset(2)  # keyact
                                     try:
                                         neww = ljinux.history.gett(
                                             ljinux.history.nav[0] + 1
@@ -1721,9 +1725,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     except IndexError:
                                         pass
                                     term.clear_line()
-                                    ljinux.io.ledset(1) # idle
+                                    ljinux.io.ledset(1)  # idle
                                 elif term.buf[0] is 7:  # down
-                                    ljinux.io.ledset(2) # keyact
+                                    ljinux.io.ledset(2)  # keyact
                                     if ljinux.history.nav[0] > 0:
                                         if ljinux.history.nav[0] > 1:
                                             term.buf[1] = ljinux.history.gett(
@@ -1737,7 +1741,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                             term.focus = ljinux.history.nav[1]
                                             ljinux.history.nav[0] = 0
                                     term.clear_line()
-                                    ljinux.io.ledset(1) # idle
+                                    ljinux.io.ledset(1)  # idle
                                 ljinux.backrounding.main_tick()
                                 try:
                                     if command_input[:1] != " " and command_input != "":
@@ -1757,7 +1761,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 if not Exit:
                     res = ""
                     if led:
-                        ljinux.io.ledset(3) # act
+                        ljinux.io.ledset(3)  # act
                     if not (command_input == ""):
                         gc.collect()
                         gc.collect()
@@ -1834,20 +1838,27 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         ):  # this is a pipe  :)
                             ljinux.based.silent = True
                             the_pipe_pos = command_input.find("|", 0)
-                            ljinux.based.shell(command_input[: the_pipe_pos - 1], led = False)
+                            ljinux.based.shell(
+                                command_input[: the_pipe_pos - 1], led=False
+                            )
                             ljinux.based.silent = False
                             ljinux.based.shell(
                                 command_input[the_pipe_pos + 2 :]
                                 + " "
-                                + ljinux.based.user_vars["return"], led = False
+                                + ljinux.based.user_vars["return"],
+                                led=False,
                             )
                             del the_pipe_pos
                         elif ("&&" in command_input) and not (
                             "|" in command_input
                         ):  # this is a dirty pipe  :)
                             the_pipe_pos = command_input.find("&&", 0)
-                            ljinux.based.shell(command_input[: the_pipe_pos - 1], led = False)
-                            ljinux.based.shell(command_input[the_pipe_pos + 2 :], led = False)
+                            ljinux.based.shell(
+                                command_input[: the_pipe_pos - 1], led=False
+                            )
+                            ljinux.based.shell(
+                                command_input[the_pipe_pos + 2 :], led=False
+                            )
                             del the_pipe_pos
                         elif ("&&" in command_input) and (
                             "|" in command_input
@@ -1864,14 +1875,18 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     + ljinux.based.user_vars["return"]
                                 )
                             else:  # the first pipe is a &&
-                                ljinux.based.shell(command_input[: the_pipe_pos_2 - 1], led = False)
-                                ljinux.based.shell(command_input[the_pipe_pos_2 + 2 :], led = False)
+                                ljinux.based.shell(
+                                    command_input[: the_pipe_pos_2 - 1], led=False
+                                )
+                                ljinux.based.shell(
+                                    command_input[the_pipe_pos_2 + 2 :], led=False
+                                )
                             del the_pipe_pos_1
                             del the_pipe_pos_2
                         else:
                             pass
                     if led:
-                        ljinux.io.ledset(1) # idle
+                        ljinux.io.ledset(1)  # idle
                     gc.collect()
                     gc.collect()
                     return res
@@ -1897,7 +1912,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
         def setup():
             global display_availability
-            ljinux.io.ledset(3) # act
+            ljinux.io.ledset(3)  # act
             try:
                 i2c = busio.I2C(
                     pintab[configg["displaySCL"]], pintab[configg["displaySDA"]]
@@ -1919,7 +1934,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 except KeyError:
                     pass
                 dmtex("Unloaded display libraries")
-            ljinux.io.ledset(1) # idle
+            ljinux.io.ledset(1)  # idle
 
         def frame():
             global display_availability
