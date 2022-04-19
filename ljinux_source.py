@@ -1555,7 +1555,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 if back is None:
                     a = getcwd()
                     if a.startswith(hd):
-                        res = "~" + a[len(hd):]
+                        res = "~" + a[len(hd) :]
                     elif a == "/":
                         res = "board/"
                     elif a == "/LjinuxRoot":
@@ -1572,12 +1572,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         and we can just ommit the board part
                         """
                         res = back[5:]
-                    elif back[0] == '/':
-                        #This is for absolute paths
+                    elif back[0] == "/":
+                        # This is for absolute paths
                         res = "/LjinuxRoot"
                         if back != "/":
                             res += back
-                    elif back[0] == '~':
+                    elif back[0] == "~":
                         res = hd
                         if back != "~":
                             res += back[1:]

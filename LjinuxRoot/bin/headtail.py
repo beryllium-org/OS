@@ -40,9 +40,10 @@ try:
                 if ljinux.based.user_vars["argj"].split()[0].endswith("head.lja")
                 else count - 1
             )
-            for item in content[start : end]:
+            for item in content[start:end]:
                 print(item, end="")
-            if ljinux.based.user_vars["argj"].split()[0].endswith("tail.lja"): print(content[-1])
+            if ljinux.based.user_vars["argj"].split()[0].endswith("tail.lja"):
+                print(content[-1])
             del content, count, start, end, filee
             ljinux.based.user_vars["return"] = "0"
     except OSError:
