@@ -28,8 +28,8 @@ Rram = "{}KiB / 264KiB".format(trunc(abs(264 - gc.mem_free() / 1000)))
 print(
     """\033[32m    `.::///+:/-.        --///+//-:``    {}@{} \033[0m
 \033[32m   `+oooooooooooo:   `+oooooooooooo:  \033[0m  ---------
-\033[32m    /oooo++//ooooo:  ooooo+//+ooooo.  \033[0m  \033[31mOS\033[0m: \033[33mLjinux 0.3.0\033[0m
-\033[32m    `+ooooooo:-:oo-  +o+::/ooooooo:   \033[0m  \033[31mHost\033[0m: Raspberry Pi Pico  
+\033[32m    /oooo++//ooooo:  ooooo+//+ooooo.  \033[0m  \033[31mOS\033[0m: \033[33mLjinux {}\033[0m
+\033[32m    `+ooooooo:-:oo-  +o+::/ooooooo:   \033[0m  \033[31mHost\033[0m: {}  
 \033[32m    `:oooooooo+``    `.oooooooo+-    \033[0m   \033[31mCircuitPython\033[0m: {}
 \033[32m      `:++ooo/.        :+ooo+/.`     \033[0m   \033[31mUptime\033[0m: {}
 \033[91m         ...`  `.----.` ``..         \033[0m   \033[31mPackages\033[0m: 0 ()
@@ -52,6 +52,8 @@ print(
 """.format(
         ljinux.based.system_vars["USER"],
         ljinux.based.system_vars["HOSTNAME"],
+        ljinux.based.system_vars["VERSION"],
+        ljinux.based.system_vars["BOARD"],
         ljinux.based.system_vars["IMPLEMENTATION"],
         uptimestr,
         Ccpu,

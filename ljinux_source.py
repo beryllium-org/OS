@@ -809,6 +809,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             "HOSTNAME": "pico",
             "TERM": "xterm-256color",
             "LANG": "en_GB.UTF-8",
+            "BOARD": board.board_id.replace("_"," "),
             "IMPLEMENTATION": ".".join(map(str, list(implementation.version))),
         }
 
