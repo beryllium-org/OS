@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.4.0"
+Version = "0.3.1"
 Circuitpython_supported_version = 7
 dmesg = []
 access_log = []
@@ -845,7 +845,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 4: str(f) + ": No such file or directory",
                 5: "Network unavailable",
                 6: "Display not attached",
-                7: "Filesystem unwritable, pi in developer mode",
+                7: "Filesystem unwritable, board in developer mode",
                 8: "Missing files",
                 9: "Missing arguments",
                 10: "File exists",
@@ -859,8 +859,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             global Exit
             global Exit_code
             global Version
-            ljinux.based.system_vars["Version"] = Version
-            ljinux.based.system_vars["ImplementationVersion"] = (
+            ljinux.based.system_vars["VERSION"] = Version
+            ljinux.based.system_vars["IMPLEMENTATIONVERSION"] = (
                 str(implementation.version[0])
                 + "."
                 + str(implementation.version[1])
@@ -869,10 +869,11 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             )
             print(
                 "\nWelcome to ljinux wanna-be kernel "
-                + ljinux.based.system_vars["Version"]
+                + ljinux.based.system_vars["VERSION"]
                 + "\n\n",
                 end="",
             )
+            time.sleep(.6) # it's iconic staying here for a bit
             try:
                 systemprints(2, "Mount /LjinuxRoot")
                 ljinux.io.start_sdcard()
@@ -1249,7 +1250,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     except OSError:
                         pass
                     if passwordarr["root"] == getpass():
-                        system_vars["security"] = "off"
+                        system_vars["SECURITY"] = "off"
                         print("Authentication successful. Security disabled.")
                     else:
                         print("Authentication unsuccessful.")
@@ -1551,7 +1552,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 Removes /LjinuxRoot from path and puts it back
                 """
                 res = ""
-                hd = "/LjinuxRoot/home/" + ljinux.based.system_vars["USER"].lower()
+                userr = ljinux.based.system_vars["USER"].lower()
+                if userr != "root":
+                    hd = "/LjinuxRoot/home/" + ljinux.based.system_vars["USER"].lower()
+                else:
+                    hd = "/"
+                del userr
                 if back is None:
                     a = getcwd()
                     if a.startswith(hd):
