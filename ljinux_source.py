@@ -809,7 +809,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             "HOSTNAME": "pico",
             "TERM": "xterm-256color",
             "LANG": "en_GB.UTF-8",
-            "BOARD": board.board_id.replace("_"," "),
+            "BOARD": board.board_id.replace("_", " "),
             "IMPLEMENTATION": ".".join(map(str, list(implementation.version))),
         }
 
@@ -874,7 +874,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 + "\n\n",
                 end="",
             )
-            time.sleep(.6) # it's iconic staying here for a bit
+            time.sleep(0.6)  # it's iconic staying here for a bit
             try:
                 systemprints(2, "Mount /LjinuxRoot")
                 ljinux.io.start_sdcard()
