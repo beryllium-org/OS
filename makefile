@@ -1,14 +1,14 @@
-# I HAAAATE MAKE
 SHELL = bash
-all: prepperms kerncomp
-install: prepperms kerncomp rootfs donemsg
+all: kern donemsg
+kern: prepperms kerncomp
+install: kern rootfs donemsg
 compiletest: prepperms ctest
 debug: prepperms kerncompd
 
 donemsg:
 	@echo -e "\nSyncing changes.."
 	@sync
-	@echo -e "\nDone. "
+	@echo -e "\n   ---Operation completed successfully---\n\nTry running make connection"
 rootfs:
 	@echo -e "\nUpdating the board's rootfs:\n"
 	@sync
@@ -20,14 +20,14 @@ prepperms:
 kerncomp:
 	@echo -e "\nCommencing kernel compilation..\n"
 	@sync
-	@time ./scripts/make_kernel.sh
+	@./scripts/make_kernel.sh
 kerncompd:
 	@echo -e "\nCommencing debug kernel compilation..\n"
 	@sync
-	@time ./scripts/make_kernel_debug.sh
+	@./scripts/make_kernel_debug.sh
 ctest:
 	@echo -e "Commencing kernel compile test\nNote: This should only be used to verify the kernel compiles!\n"
-	@time ./scripts/make_kernel_test.sh
+	@./scripts/make_kernel_test.sh
 connection:
 	@echo -n "Ensuring GNU/Screen is installed.. "
 	@command -v screen >/dev/null && echo "Found" || (echo -e "Not found\nInstalling.." && ./scripts/installscreen.sh)

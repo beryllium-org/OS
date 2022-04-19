@@ -1551,9 +1551,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 Removes /LjinuxRoot from path and puts it back
                 """
                 res = ""
+                hd = "/LjinuxRoot/home/" + ljinux.based.system_vars["USER"].lower()
                 if back is None:
                     a = getcwd()
-                    if a == "/":
+                    if a.startswith(hd):
+                        res = "~" + a[len(hd):]
+                    elif a == "/":
                         res = "board/"
                     elif a == "/LjinuxRoot":
                         res = "/"
@@ -1564,14 +1567,23 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     del a
                 else:  # resolve path back to normal
                     if back.startswith("board"):
+                        """
+                        if the path starts with board/ it means it understands the reality of the fs
+                        and we can just ommit the board part
+                        """
                         res = back[5:]
-                    elif back != "." and back[:2] != "..":
+                    elif back[0] == '/':
+                        #This is for absolute paths
                         res = "/LjinuxRoot"
                         if back != "/":
                             res += back
+                    elif back[0] == '~':
+                        res = hd
+                        if back != "~":
+                            res += back[1:]
                     else:
                         res = back
-                del back
+                del back, hd
                 return res
 
             def get_valid_options(inpt, vopts):
