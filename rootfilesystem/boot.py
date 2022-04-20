@@ -25,6 +25,7 @@ if devf:
     print("N", end="")
 else:
     from storage import disable_usb_drive
+
     disable_usb_drive()
     print("IN", end="")
 
