@@ -983,18 +983,16 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             file_lines[index] = item.strip()
                             ljinux.io.ledset(1)
 
-                        simplif = " ".join([str(i) for i in argj])
-                        simplif = simplif[:-1]
-
-                        ljinux.based.shell('argj = "{}"'.format(simplif), led=False)
+                        ljinux.based.shell('argj = "{}"'.format(" ".join([str(i) for i in argj]), led=False)
                         
-                        for commandd in lines:
+                        for commandd in file_lines:
                             ljinux.based.shell(commandd, led=False)
 
                         try:
                             del ljinux.based.user_vars["argj"]
                         except KeyError:
                             pass
+                        del file_lines
 
                 except OSError:
                     ljinux.io.ledset(1)
