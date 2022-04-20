@@ -985,9 +985,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
                         ljinux.based.shell('argj = "{}"'.format(" ".join([str(i) for i in argj]), led=False)
                         
-                        for commandd in file_lines: 
-                            ljinux.based.shell(commandd, led=False) 
-                        
+                        for commandd in file_lines:
+                            ljinux.based.shell(commandd, led=False)
+
                         try:
                             del ljinux.based.user_vars["argj"]
                         except KeyError:
