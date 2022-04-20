@@ -2,8 +2,8 @@ try:
     if ljinux.based.user_vars["argj"].split()[1] == "-a":
         tt = time.localtime()
         print(
-            "Ljinux Raspberry Pi Pico "
-            + ljinux.based.system_vars["Version"]
+            "Ljinux " + ljinux.based.system_vars["BOARD"] + " "
+            + ljinux.based.system_vars["VERSION"]
             + " "
             + str(tt.tm_mday)
             + "/"

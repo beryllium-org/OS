@@ -14,7 +14,7 @@ except OSError:
 print("J", end="")
 
 if devf:
-    from storage import disable_usb_drive, getmount, remount
+    from storage import getmount, remount
 
     remount("/", readonly=False)
     print("I", end="")
@@ -24,6 +24,7 @@ if devf:
     remount("/", readonly=True)
     print("N", end="")
 else:
+    from storage import disable_usb_drive
     disable_usb_drive()
     print("IN", end="")
 
