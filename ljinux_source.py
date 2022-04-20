@@ -1637,9 +1637,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             }
             command_input = False
             if not term.enabled:
-                ljinux.io.ledset(4) # waiting for serial
+                ljinux.io.ledset(4)  # waiting for serial
                 term.start()
-                ljinux.io.ledset(1) # idle
+                ljinux.io.ledset(1)  # idle
                 term.trigger_dict = {
                     "inp_type": "prompt",
                     "enter": 0,
