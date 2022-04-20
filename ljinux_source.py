@@ -975,24 +975,24 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
                     with open(argj[0], "r") as file:
                         
-                        file_lines = file.readlines()
+                        filelines = file.readlines()
                         ljinux.io.ledset(1)
 
-                        for index, item in enumerate(file_lines):
+                        for index, item in enumerate(filelines):
                             ljinux.io.ledset(3)
-                            file_lines[index] = item.strip()
+                            filelines[index] = item.strip()
                             ljinux.io.ledset(1)
 
                         ljinux.based.shell('argj = "{}"'.format(" ".join([str(i) for i in argj]), led=False)
                         
-                        for commandd in file_lines: 
+                        for commandd in filelines: 
                             ljinux.based.shell(commandd, led=False) 
                         
                         try:
                             del ljinux.based.user_vars["argj"]
                         except KeyError:
                             pass
-                        del file_lines
+                        del filelines
 
                 except OSError:
                     ljinux.io.ledset(1)
