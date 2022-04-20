@@ -963,7 +963,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
             def execc(argj):
                 """
-                    Execution script
+                Execution script
                 """
                 global Exit
                 global Exit_code
@@ -973,13 +973,16 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
                 try:
                     with open(argj[0], "r") as filee:
-                        
+
                         for j in filee:
                             j = j.strip()
-                            
-                            ljinux.based.shell('argj = "{}"'.format(" ".join([str(i) for i in argj]), led=False)
+
+                            ljinux.based.shell(
+                                'argj = "{}"'.format(" ".join([str(i) for i in argj])),
+                                led=False,
+                            )
                             ljinux.based.shell(j, led=False)
-                            
+
                             del j
                 except OSError:
                     ljinux.based.error(4, argj[0])
