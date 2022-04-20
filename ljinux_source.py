@@ -684,7 +684,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             return str(cpu.frequency)
 
         def get_implementation_version():
-            return ljinux.based.system_vars['IMPLEMENTATION']
+            return ljinux.based.system_vars["IMPLEMENTATION"]
 
         def get_implementation():
             return implementation.name
@@ -809,7 +809,11 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
         def get_bins():
             try:
-                return [ dirr[:-4] for dirr in listdir("/LjinuxRoot/bin") if dirr.endswith(".lja") and not dirr.startswith(".") ]
+                return [
+                    dirr[:-4]
+                    for dirr in listdir("/LjinuxRoot/bin")
+                    if dirr.endswith(".lja") and not dirr.startswith(".")
+                ]
             except OSError:  # Yea no root, we cope
                 return list()
 
@@ -854,10 +858,10 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
             print(
                 "Welcome to lJinux wannabe Kernel {}!\n\n".format(
-                        ljinux.based.system_vars["VERSION"]
-                    ), 
-                end=""
-                )
+                    ljinux.based.system_vars["VERSION"]
+                ),
+                end="",
+            )
 
             time.sleep(0.6)  # it's iconic staying here for a bit
             try:
@@ -924,8 +928,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             time.sleep(0.5)
                             Exit = True
                             Exit_code = 244
-                                
-                
+
                 except KeyboardInterrupt:
                     print("based: Caught Ctrl + C")
             elif ljinux.based.system_vars["Init-type"] == "delayed-repeat":
