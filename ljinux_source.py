@@ -978,7 +978,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             j = j.strip()
                             
                             ljinux.based.shell('argj = "{}"'.format(" ".join([str(i) for i in argj]), led=False)
-                            ljinux.based.shell(commandd, led=False)
+                            ljinux.based.shell(j, led=False)
                             
                             del j
                 except OSError:
