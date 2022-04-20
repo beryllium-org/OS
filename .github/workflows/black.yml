@@ -1,0 +1,30 @@
+name: Black Formatting
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: psf/black@stable
+      
+        with:
+          options: "--verbose"
+          src: "."
+          version: "22.1.0"
+          
+      - name: Commit Changes
+        continue-on-error: true
+        run: |          
+          git add .
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "Black Code Formatting"
+      
+      - name: Push changes
+        continue-on-error: true
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.SECRET }}
+          branch: ${{ github.ref }}
