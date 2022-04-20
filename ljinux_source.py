@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.3.1"
+Version = "0.4.0"
 Circuitpython_supported_version = 7
 dmesg = []
 access_log = []

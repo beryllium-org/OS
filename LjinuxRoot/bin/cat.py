@@ -4,12 +4,11 @@ try:
     with open(
         ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]), "r"
     ) as f:
-        lines = f.readlines()
-        for line in lines:
+        for line in f:
             print(line, end="")
             ljinux.based.user_vars["return"] += line
             del line
-        del lines, f
+        del f
     gc.collect()
     gc.collect()
 
