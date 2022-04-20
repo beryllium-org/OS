@@ -12,7 +12,7 @@ jobs:
         with:
           options: "--verbose"
           src: "."
-          version: "22.1.0"
+          version: "22.3.0"
           
       - name: Commit Changes
         continue-on-error: true
