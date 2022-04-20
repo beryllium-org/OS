@@ -972,24 +972,28 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     argj = argj[1:]
 
                 try:
-                    with open(argj[0], "r") as filee:
+
+                    with open(argj[0], "r") as file:
                         
-                        filelines = filee.readlines()
+                        filelines = file.readlines()
                         ljinux.io.ledset(1)
-                        
+
                         for index, item in enumerate(filelines):
                             ljinux.io.ledset(3)
                             filelines[index] = item.strip()
                             ljinux.io.ledset(1)
-                        
+
                         ljinux.based.shell('argj = "{}"'.format(" ".join([str(i) for i in argj]), led=False)
                         
-                        for commandd in filelines:
-                            ljinux.based.shell(commandd, led=False)
+                        for commandd in filelines: 
+                            ljinux.based.shell(commandd, led=False) 
                         
-                        filee.close()
-                        del filelines, filee
-                
+                        try:
+                            del ljinux.based.user_vars["argj"]
+                        except KeyError:
+                            pass
+                        del filelines
+
                 except OSError:
                     ljinux.io.ledset(1)
                     print("based: '{}': No such file or directory\n".format(argj[0]))
