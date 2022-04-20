@@ -897,10 +897,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             systemprints(1, "History Reload")
             if ljinux.based.system_vars["Init-type"] == "oneshot":
                 systemprints(1, "Init complete")
-                systemprints(2, "Awaiting serial interface connection")
-                while not console.connected:
-                    time.sleep(1)
-                systemprints(1, "Serial is connected\n")
             elif ljinux.based.system_vars["Init-type"] == "reboot-repeat":
                 Exit = True
                 Exit_code = 245
@@ -1641,7 +1637,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             }
             command_input = False
             if not term.enabled:
+                ljinux.io.ledset(4) # waiting for serial
                 term.start()
+                ljinux.io.ledset(1) # idle
                 term.trigger_dict = {
                     "inp_type": "prompt",
                     "enter": 0,

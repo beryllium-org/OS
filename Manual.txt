@@ -341,3 +341,17 @@ Useful functions:
 jCurses does not depend onto ljinux.
 
 More documentation on jcurses will be added later.
+
+      /-------------|
+----<| Led activity |
+      \-------------|
+
+Ljinux supports both generic led's as well as neopixels for it's activity led.
+It is adviced to use the onboard led.
+
+Generic leds stay on when idle, and off on command activity.
+Neopixels stay green when idle,
+Glow more when special characters are being inputted,
+Red when an error occurs,
+Yellow on command activity and
+Blue when waiting for serial connection.
