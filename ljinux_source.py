@@ -684,13 +684,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             return str(cpu.frequency)
 
         def get_implementation_version():
-            return (
-                str(implementation.version[0])
-                + "."
-                + str(implementation.version[1])
-                + "."
-                + str(implementation.version[2])
-            )
+            return ljinux.based.system_vars['IMPLEMENTATION']
 
         def get_implementation():
             return implementation.name
@@ -815,12 +809,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
         def get_bins():
             try:
-                bins = listdir("/LjinuxRoot/bin")  # get /bin file list
-                l = [
-                    i[:-4] for i in bins if i.endswith(".lja") and not i.startswith(".")
-                ]
-                del bins  # no longer need the ls
-                return l
+                return [ dirr[:-4] for dirr in listdir("/LjinuxRoot/bin") if dirr.endswith(".lja") and not dirr.startswith(".") ]
             except OSError:  # Yea no root, we cope
                 return list()
 
@@ -843,7 +832,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 1: "Syntax Error",
                 2: "Input Error",
                 3: "Error",
-                4: str(f) + ": No such file or directory",
+                4: "'{}': No such file or directory".format(f),
                 5: "Network unavailable",
                 6: "Display not attached",
                 7: "Filesystem unwritable, board in developer mode",
@@ -860,20 +849,16 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             global Exit
             global Exit_code
             global Version
+
             ljinux.based.system_vars["VERSION"] = Version
-            ljinux.based.system_vars["IMPLEMENTATIONVERSION"] = (
-                str(implementation.version[0])
-                + "."
-                + str(implementation.version[1])
-                + "."
-                + str(implementation.version[2])
-            )
+
             print(
-                "\nWelcome to ljinux wanna-be kernel "
-                + ljinux.based.system_vars["VERSION"]
-                + "\n\n",
-                end="",
-            )
+                "Welcome to lJinux wannabe Kernel {}!\n\n".format(
+                        ljinux.based.system_vars["VERSION"]
+                    ), 
+                end=""
+                )
+
             time.sleep(0.6)  # it's iconic staying here for a bit
             try:
                 systemprints(2, "Mount /LjinuxRoot")
@@ -913,8 +898,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     time.sleep(1)
                 systemprints(1, "Serial is connected\n")
             elif ljinux.based.system_vars["Init-type"] == "reboot-repeat":
-                global Exit
-                global Exit_code
                 Exit = True
                 Exit_code = 245
                 print("based: Init complete. Restarting")
@@ -924,14 +907,10 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 except IndexError:
                     print("based: No delay specified! Waiting 60s.")
                     time.sleep(60)
-                    global Exit
-                    global Exit_code
                     Exit = True
                     Exit_code = 245
                     print("based: Init complete and delay finished. Restarting")
             elif ljinux.based.system_vars["Init-type"] == "oneshot-quit":
-                global Exit
-                global Exit_code
                 Exit = True
                 Exit_code = 244
                 print("based: Init complete. Halting")
@@ -940,17 +919,13 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     while not Exit:
                         for commandd in lines:
                             ljinux.based.shell(commandd)
-                        if (ljinux.io.buttonl.value == True) and (
-                            ljinux.io.buttonr.value == True
-                        ):
+
+                        if ljinux.io.buttonl.value and ljinux.io.buttonr.value:
                             time.sleep(0.5)
-                            if (ljinux.io.buttonl.value == True) and (
-                                ljinux.io.buttonr.value == True
-                            ):
-                                global Exit
-                                global Exit_code
-                                Exit = True
-                                Exit_code = 244
+                            Exit = True
+                            Exit_code = 244
+                                
+                
                 except KeyboardInterrupt:
                     print("based: Caught Ctrl + C")
             elif ljinux.based.system_vars["Init-type"] == "delayed-repeat":
@@ -963,17 +938,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     while not Exit:
                         for commandd in lines:
                             ljinux.based.shell(commandd)
-                        if (ljinux.io.buttonl.value == True) and (
-                            ljinux.io.buttonr.value == True
-                        ):
+
+                        if ljinux.io.buttonl.value and ljinux.io.buttonr.value:
                             time.sleep(0.5)
-                            if (ljinux.io.buttonl.value == True) and (
-                                ljinux.io.buttonr.value == True
-                            ):
-                                global Exit
-                                global Exit_code
-                                Exit = True
-                                Exit_code = 244
+                            Exit = True
+                            Exit_code = 244
+
                 except KeyboardInterrupt:
                     print("based: Caught Ctrl + C")
             else:
