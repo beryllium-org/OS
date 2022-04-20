@@ -38,7 +38,7 @@ class lJ_Colours:
         Coloured Text
     """
     reset_s_format = "\033[0m"
-    black_t = "1033[30m"
+    black_t = "\033[30m"
     red_t = "\033[31m"
     green_t = "\033[32m"
     yellow_t = "\033[33m"

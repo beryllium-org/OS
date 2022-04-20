@@ -10,5 +10,5 @@ else
     exit 1
 fi
 \cp -rv ./LjinuxRoot/ $picop/
-\cp -v ./Manual.txt $picop/LjinuxRoot/home/pi/Manual.txt
+\cp -v ./Manual.txt $picop/home/pi
 exit 0

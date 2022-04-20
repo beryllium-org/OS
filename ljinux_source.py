@@ -961,39 +961,44 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 print("based: " + errr[0] + ": command not found")
                 ljinux.based.user_vars["return"] = "1"
 
-            def execc(argj):  # exec a based script
+            def execc(argj):
+                """
+                    Execution script
+                """
                 global Exit
                 global Exit_code
+
                 if argj[0] == "exec":
-                    argj = argj[1:]  # we don't want to carry on the exec command itself
+                    argj = argj[1:]
+
                 try:
-                    ljinux.io.ledset(3)  # act
-                    f = open(argj[0], "r")  # open the file to run
-                    lines = f.readlines()  # get all lines
-                    count = 0
-                    ljinux.io.ledset(1)  # idle
-                    for line in lines:
-                        ljinux.io.ledset(3)  # act
-                        lines[count] = line.strip()  # command_split
-                        count += 1
-                        ljinux.io.ledset(1)  # idle
-                    simplif = ""
-                    for i in argj:
-                        simplif += i + " "
-                    simplif = simplif[:-1]
-                    ljinux.based.shell(
-                        'argj = "' + simplif + '"', led=False
-                    )  # provide arguments
-                    for commandd in lines:
-                        ljinux.based.shell(commandd, led=False)  # yes stonks
-                    f.close()
-                    try:
-                        del ljinux.based.user_vars["argj"]
-                    except KeyError:
-                        pass
+
+                    with open(argj[0], "r") as file:
+                        
+                        file_lines = file.readlines()
+                        ljinux.io.ledset(1)
+
+                        for index, item in enumerate(file_lines):
+                            ljinux.io.ledset(3)
+                            file_lines[index] = item.strip()
+                            ljinux.io.ledset(1)
+
+                        simplif = " ".join([str(i) for i in argj])
+                        simplif = simplif[:-1]
+
+                        ljinux.based.shell('argj = "{}"'.format(simplif), led=False)
+                        
+                        for commandd in lines:
+                            ljinux.based.shell(commandd, led=False)
+
+                        try:
+                            del ljinux.based.user_vars["argj"]
+                        except KeyError:
+                            pass
+
                 except OSError:
-                    ljinux.io.ledset(1)  # idle
-                    print("based: " + argj[0] + ": No such file or directory\n")
+                    ljinux.io.ledset(1)
+                    print("based: '{}': No such file or directory\n".format(argj[0]))
 
             def helpp(dictt):  # help
                 print(
