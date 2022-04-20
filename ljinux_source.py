@@ -983,8 +983,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             ljinux.io.ledset(1)
                         
                         ljinux.based.shell('argj = "{}"'.format(" ".join([str(i) for i in argj]), led=False)
-                        
-                        for commandd in filelines: # fmt: skip
+                        # fmt: skip
+                        for commandd in filelines:
                             ljinux.based.shell(commandd, led=False)
                             del command
                         filee.close()
