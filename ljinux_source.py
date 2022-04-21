@@ -862,7 +862,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 ),
                 end="",
             )
-                
+
             try:
                 systemprints(2, "Mount /LjinuxRoot")
                 ljinux.io.start_sdcard()
@@ -994,8 +994,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         end="           ".replace(" ", "", len(tool)),
                     )
                     if index % 7 == 6:
-                        stdout.write('\n') # stdout faster than print cuz no logic
-                stdout.write('\n')
+                        stdout.write("\n")  # stdout faster than print cuz no logic
+                stdout.write("\n")
 
                 try:
                     l = ljinux.based.get_bins()
