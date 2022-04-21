@@ -86,7 +86,6 @@ def dmtex(texx=None, end="\n", timing=True):
 
     if not term.dmtex_suppress:
         print(strr, end=end)  # using the provided end
-
     if (
         "\n" == oend
     ):  # if the oend of the last print is a newline we add a new entry, otherwise we go to the last one and we add it along with the old oend
@@ -496,7 +495,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             except OSError:
                 ljinux.based.error(4, filen)
 
-        def clear(filen):  
+        def clear(filen):
             try:
                 # deletes all history, from ram and storage
                 a = open(filen, "r")
@@ -902,16 +901,22 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             elif ljinux.based.system_vars["Init-type"] == "reboot-repeat":
                 Exit = True
                 Exit_code = 245
-                print(f"{colors.magenta_t}Based{colors.endc}: Init complete. Restarting")
+                print(
+                    f"{colors.magenta_t}Based{colors.endc}: Init complete. Restarting"
+                )
             elif ljinux.based.system_vars["Init-type"] == "delayed-reboot-repeat":
                 try:
                     time.sleep(float(ljinux.based.user_vars["repeat-delay"]))
                 except IndexError:
-                    print(f"{colors.magenta_t}Based{colors.endc}: No delay specified! Waiting 60s.")
+                    print(
+                        f"{colors.magenta_t}Based{colors.endc}: No delay specified! Waiting 60s."
+                    )
                     time.sleep(60)
                     Exit = True
                     Exit_code = 245
-                    print(f"{colors.magenta_t}Based{colors.endc}: Init complete and delay finished. Restarting")
+                    print(
+                        f"{colors.magenta_t}Based{colors.endc}: Init complete and delay finished. Restarting"
+                    )
             elif ljinux.based.system_vars["Init-type"] == "oneshot-quit":
                 Exit = True
                 Exit_code = 244
@@ -933,7 +938,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 try:
                     time.sleep(float(ljinux.based.user_vars["repeat-delay"]))
                 except IndexError:
-                    print(f"{colors.magenta_t}Based{colors.endc}: No delay specified! Waiting 60s.")
+                    print(
+                        f"{colors.magenta_t}Based{colors.endc}: No delay specified! Waiting 60s."
+                    )
                     time.sleep(60)
                 try:
                     while not Exit:
@@ -948,7 +955,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 except KeyboardInterrupt:
                     print(f"{colors.magenta_t}Based{colors.endc}: Caught Ctrl + C")
             else:
-                print(f"{colors.magenta_t}Based{colors.endc}: Init-type specified incorrectly, assuming oneshot")
+                print(
+                    f"{colors.magenta_t}Based{colors.endc}: Init-type specified incorrectly, assuming oneshot"
+                )
             ljinux.io.ledset(1)  # idle
             while not Exit:
                 try:
@@ -960,7 +969,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
         class command:
             def not_found(errr):  # command not found
-                print(f"{colors.magenta_t}Based{colors.endc}: '{errr[0]}': command not found")
+                print(
+                    f"{colors.magenta_t}Based{colors.endc}: '{errr[0]}': command not found"
+                )
                 ljinux.based.user_vars["return"] = "1"
 
             def execc(argj):
@@ -1063,9 +1074,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                 system_vars[inpt[0]] = new_var
                             else:
                                 print(
-                                    colors.error +
-                                    "Cannot edit system variables, security is enabled." +
-                                    colors.endc
+                                    colors.error
+                                    + "Cannot edit system variables, security is enabled."
+                                    + colors.endc
                                 )
                         else:
                             user_vars[inpt[0]] = new_var
@@ -1098,7 +1109,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                         :-1
                                     ]  # last word without last char (")
                                 else:
-                                    print(f"{colors.magenta_t}Based{colors.endc}: Input error")
+                                    print(
+                                        f"{colors.magenta_t}Based{colors.endc}: Input error"
+                                    )
                             else:
                                 txt += str(inpt[5])[1:-1]
                         else:
@@ -1210,7 +1223,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         system_vars["SECURITY"] = "off"
                         print("Authentication successful. Security disabled.")
                     else:
-                        print(colors.error + "Authentication unsuccessful." + colors.endc)
+                        print(
+                            colors.error + "Authentication unsuccessful." + colors.endc
+                        )
 
                     try:
                         del passwordarr
@@ -1228,7 +1243,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         system_vars["security"] = "off"
                         print("Authentication successful. Security disabled.")
                     else:
-                        print(colors.error + "Authentication unsuccessful." + colors.endc)
+                        print(
+                            colors.error + "Authentication unsuccessful." + colors.endc
+                        )
                 try:
                     del passwordarr
                 except NameError:
@@ -1317,7 +1334,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                                 raise KeyError
                                             del namee
                                         except KeyError:
-                                            print(f"{colors.magenta_t}Based{colors.endc}: Arg not in argj")
+                                            print(
+                                                f"{colors.magenta_t}Based{colors.endc}: Arg not in argj"
+                                            )
                                 elif condition[i] == "and":  # and what
                                     i += 1  # just read the argj, i'm not gonna copy the comments
                                     if val == 0:  # no need to keep goin, just break;
@@ -1333,7 +1352,10 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                 elif condition[i].isdigit():  # meth
                                     i += 1  # todo
                                 else:
-                                    print(f"{colors.magenta_t}Based{colors.endc}: Invalid action type: " + condition[i])
+                                    print(
+                                        f"{colors.magenta_t}Based{colors.endc}: Invalid action type: "
+                                        + condition[i]
+                                    )
                                     break
                             if val == 1:
                                 ljinux.based.shell(
@@ -1342,9 +1364,13 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             del next_part
                             del val
                         except KeyError:
-                            print(f"{colors.magenta_t}Based{colors.endc}: Invalid condition type")
+                            print(
+                                f"{colors.magenta_t}Based{colors.endc}: Invalid condition type"
+                            )
                     else:
-                        print(f"{colors.magenta_t}Based{colors.endc}: Incomplete condition")
+                        print(
+                            f"{colors.magenta_t}Based{colors.endc}: Incomplete condition"
+                        )
                 else:
                     ljinux.based.error(1)
                 del need_new_cond
@@ -1432,9 +1458,16 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     ljinux.based.user_vars["return"] = "1"
                     return
                 if not nl:
-                    print(f"Adafruit CircuitPython {ljinux.based.system_vars["IMPLEMENTATION"]} on lJinux {Version}; {ljinux.based.system_vars["BOARD"]}\n>>> {pcomm}")
+                    print(
+                        "Adafruit CircuitPython {} on lJinux {}; {}\n>>> {}".format(
+                            ljinux.based.system_vars["IMPLEMENTATION"],
+                            Version,
+                            ljinux.based.system_vars["BOARD"],
+                            pcomm,
+                        )
+                    )
                 try:
-                    exec(pcomm) # Vulnerability.exe
+                    exec(pcomm)  # Vulnerability.exe
                     del pcomm
                 except Exception as err:
                     print(
@@ -1450,7 +1483,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 global Version
                 nl = False
                 offs = 1
-                
+
                 try:
                     if "-n" in inpt[1]:
                         nl = True
@@ -1459,9 +1492,16 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     ljinux.based.error(9)
                     ljinux.based.user_vars["return"] = "1"
                     return
-                
+
                 if not nl:
-                    print(f"Adafruit CircuitPython {ljinux.based.system_vars["IMPLEMENTATION"]} on lJinux {Version}; {ljinux.based.system_vars["BOARD"]}\nRunning file: {inpt[offs]}")
+                    print(
+                        "Adafruit CircuitPython {} on lJinux {}; {}\nRunning file: {}".format(
+                            ljinux.based.system_vars["IMPLEMENTATION"],
+                            Version,
+                            ljinux.based.system_vars["BOARD"],
+                            inpt[offs],
+                        )
+                    )
                 try:
                     a = open(inpt[offs]).read()
                     exec(a)
