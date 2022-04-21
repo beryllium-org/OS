@@ -9,197 +9,185 @@
 
 help [COMMAND]
 
-OUTPUTS A BASIC LIST OF COMMANDS TO SERIAL OUT
+Outputs a basic list of commands to serial out
 
 
 cd [DIR]...
 
-CHANGES TO SPECIFIED DIRECTORY
+Changes to specified directory
+Please refer to the betterpath section, on more info on how does the ljinux filesystem appear.
 
 
 echo [DATA]...
 
-PRINT SOME VARIABLES OR TEXT ONTO SERIAL OUT
+Print some variables or text
 
 
 var [DATA]...
 
-CREATE A NEW VARIABLE. SYNTAX: var a = "ok"
-NUMBERS DO NOT NEED BRACKETS.
-THE COMMAND ITSELF IS OPTIONAL (a = "is also valid")
+Create a new variable. syntax: var a = "ok"
+Numbers do not need brackets.
+The command itself is optional (a = "is also valid")
 
 
 uname [-a]
 
-OUTPUTS THE INFO ABOUT THE DEVICE TO SERIAL OUT
+Print system information
 
 
 mkdir [DIR]...
 
-MAKE A NEW DIRECTORY
+Make a new directory
 
 
 rmdir [DIR]...
 
-DELETE A DIRECTORY
+Delete a directory
 
 
 rm [FILE]...
 
-DELETE A FILE
+Delete a file
 
 
 ls [OPTIONS]... [DIR]...
 
-OUTPUTS THE DIRECTORY LISTING TO SERIAL OUT
+Outputs the directory listing
 
 
 pwd
 
-OUTPUTS THE CURRENT DIRECTORY TO SERIAL OUT
+Outputs the current directory
 
 
 display [OPERATION] [OPERATION DATA]
 
-DISPLAYS SOMETHING ON THE I2C DISPLAY
-RETURNS OBJECT ID, DO NOT LOSE IT
-BUDGET DIDNT ALLOW PORTING WAYLAND, SO I MADE FARLAND
-OPERATIONS:
+Displays something on the i2c display
+Returns object id, do not lose it
+Budget didnt allow porting wayland, so i made farland
+operations:
 
 text
-
 dot
-
 line
-
 rectangle
-
 square
-
 circle
-
 rhombus
-
 move
-
 delete
 
 
 exec [FILE]
 
-LOADS AN .lja FILE AND EXECUTES IT'S COMMANDS
+Loads an .lja file and executes it's commands
 
 
 pexec [-n] [python commands]
 
-RUNS PYTHON COMMANDS
-with -n DOES NOT PRINT THE CIRUITPY TEXT
+Runs python commands
+-n suppresses the ciruitpy text
 
 
 fpexec [-n] [file]
 
-SAME AS pexec BUT USES A FILE INSTEAD
+Same as pexec but uses a file instead
 
 
 wait [TIME]
 
-IN SECONDS
-
-
-goto [LINE]
-
-GOTO INTERPRETED LINE AND RERUN FROM THERE
+[TIME] in seconds
 
 
 exit [CODE]
 
-EXIT THE CURRENT PROCESS WITH AN EXIT CODE, DEFAULT = 0
+Exit the current process with an exit code, default = 0
 
 
 timedate [set]...
 
-VIEW THE TIME, OR SET IT
-VALID FORMAT "time set dd mm yyyy hr mm ss"
+View the time, or set it
+Valid format "time set dd mm yyyy hr mm ss"
 
 
 su
 
-DISABLE SECURITY, ASKS FOR PASSWORD
-DEFAULT PASSWORD == Ljinux
+Disable security, asks for password
+Password can be found in /etc/passwd :)
 
 
 neofetch
 
-VIEW SOME SYSTEM INFO
+View some system info
 
 
 history [save/load/clear]
 
-DISPLAYS THE HISTORY
+Displays the history
 
 
 webserver [args]
 
-A INTEGRATED WEBSERVER
-UNLESS A PATH IS GIVEN AS AN ARGUMENT, IT WILL TRY TO SERVE /ljinux/var/www/default/
-SEND "webserver -k" TO KILL
+An integrated webserver
+Unless a path is given as an argument, it will try to serve /ljinux/var/www/default/
+Send "webserver -k" to kill
 
 
 devmode
 
-ENABLES USB ACCESS AND OTHER DEVELOPMENT FEATURES
-THIS PROHIBITS WRITE ACCESS TO THE BUILT IN FILESYSTEM
+Enables usb access and other development features
+This prohibits write access to the built in filesystem
 
 
 reboot [mode]
 
-REBOOTS THE MICROCONTROLLER
-OPTIONALLY YOU CAN PASS A REBOOT MODE (safemode, uf2, bootloader)
+Reboots the microcontroller
+Optionally you can pass a reboot [mode] (safemode, uf2, bootloader)
 
 
 dmesg
 
-PRINTS OUT THE DMESG LOG
+Prints out the dmesg log
 
 
 cat [file]
 
-PRINTS THE CONTENTS OF A FILE
+Prints the contents of file [file]
 
 
 head [n] [file]
 
-PRINT THE FIRST [-n number] LINES OF FILE [file].
+Print the first [-n number] lines of file [file].
 
 
 tail [n] [file]
 
-PRINT THE LAST [-n number] LINES OF FILE [file].
+Print the last [-n number] lines of file [file].
 
 
 sensors
 
-PRINTS THE CURRENT SYSTEM SENSORS DATA
+Prints the current system sensors data
 
 
 pinout
 
-PRINTS THE PICO PINOUT MAP
+Prints the current board's pinout map
 
 
 man [COMMAND]
 
-PRINT THE MANUAL FOR THE GIVEN [COMMAND]
+Print the manual for the given [COMMAND]
 
 
 detect
 
-Fetch the term.detect_size(for context updating)
+Fetch the term.detect_size() for context updating
 
 
 waitforserial
 
-Waits for a serial connection
+Waits for a serial connection. Should absolutely be used into Init.lja if you're gonna use jcurses.
 
 
 less [file]
@@ -370,3 +358,21 @@ Glow more when special characters are being inputted,
 Red when an error occurs,
 Yellow on command activity and
 Blue when waiting for serial connection.
+
+      /-----------|
+----<| BetterPath |
+      \-----------|
+
+The ljinux kernel is in the board's root, while the os root is under /LjinuxRoot.
+This is so that it is possible to use an sdcard as a root instead.
+Betterpath is a function that is integrated into ljinux to make the os appear and function as if /LjinuxRoot is the real root.
+It works by standing as a middleman between all os path requests.
+However it doesn't prohibit the access to the board's real root.
+It work by mapping:
+
+    Real path | Betterpath
+       "/"    |  "board/"
+"/LjinuxRoot" |    "/"   
+
+And treating all subsequent paths by that rule.
+It additionally maps "~" to the user's home directory.
