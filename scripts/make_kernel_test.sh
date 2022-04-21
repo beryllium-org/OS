@@ -30,11 +30,11 @@ else
     exit 1
 fi
 if [ $?==0 ];then
-    echo "[6/6] ds1302.py -> lib/ds1302.mpy"
+    echo -e "OK\n[6/6] ds1302.py -> lib/ds1302.mpy"
     $mpyn ./ds1302.py -s DS1302 -v -O4 -o $picop/lib/ds1302.mpy
 else
     echo -e "NOT OK\n"
     exit 1
 fi
-echo -e "OK\nCompile Test successful."
+echo -e "OK\nCompile Test successful.\n"
 exit 0
