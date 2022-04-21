@@ -985,25 +985,33 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     ljinux.based.error(4, argj[0])
 
             def helpp(dictt):
-                print("\033[35mLNL based\033[0m\n\033[33mThese shell commands are defined internally or are in PATH. Type 'help' to see this list.\033[0m\n")  # shameless
-                
+                print(
+                    "\033[35mLNL based\033[0m\n\033[33mThese shell commands are defined internally or are in PATH. Type 'help' to see this list.\033[0m\n"
+                )  # shameless
+
                 for index, tool in enumerate(dictt):
-                    print(colors.green_t + tool + colors.endc, end="           ".replace(" ", "", len(tool)))
-                    if index % 7 == 6: 
+                    print(
+                        colors.green_t + tool + colors.endc,
+                        end="           ".replace(" ", "", len(tool)),
+                    )
+                    if index % 7 == 6:
                         print()
                 print()
 
                 try:
                     l = ljinux.based.get_bins()
-                    
+
                     for index, tool in enumerate(l):
-                        print(colors.green_t + tool + colors.endc ,end="           ".replace(" ", "", len(tool))) 
-                        if index % 7 == 6: 
+                        print(
+                            colors.green_t + tool + colors.endc,
+                            end="           ".replace(" ", "", len(tool)),
+                        )
+                        if index % 7 == 6:
                             print()
 
-                    print('\n')
+                    print("\n")
                     del l
-                    
+
                 except OSError:
                     pass
 
