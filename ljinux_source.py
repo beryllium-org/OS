@@ -1454,12 +1454,16 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
             def pexecc(inpt):  # filtered & true source
                 global Version
-                pcomm = ljinux.based.raw_command_input.lstrip(ljinux.based.raw_command_input.split()[0]).replace(" ", "", 1)
+                pcomm = ljinux.based.raw_command_input.lstrip(
+                    ljinux.based.raw_command_input.split()[0]
+                ).replace(" ", "", 1)
                 nl = False
                 try:
                     if "-n" in inpt[1]:
                         nl = True
-                        pcomm = pcomm.lstrip(ljinux.based.raw_command_input.split()[1]).replace(" ", "", 1)
+                        pcomm = pcomm.lstrip(
+                            ljinux.based.raw_command_input.split()[1]
+                        ).replace(" ", "", 1)
                 except IndexError:
                     ljinux.based.error(9)
                     ljinux.based.user_vars["return"] = "1"
@@ -1828,7 +1832,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                         )
                                     else:
                                         ljinux.based.error(6)
-                                elif (command_split[1] == "="):
+                                elif command_split[1] == "=":
                                     res = function_dict["var"](command_split)
                                 else:
                                     raise IndexError
