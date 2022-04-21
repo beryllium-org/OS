@@ -1,7 +1,6 @@
 from sys import stdout, stdin
 from supervisor import runtime
 from jcurses_data import char_map
-from usb_cdc import console
 from time import sleep
 
 ESCK = "\033["
@@ -21,7 +20,6 @@ class jcurses:
         }  # bookmarks baby, bookmarks
         self.trigger_dict = None
         self.dmtex_suppress = False
-        self.context = []
         self.buf = [0, ""]
         self.focus = 0
         """
@@ -85,7 +83,6 @@ class jcurses:
             self.stop()
         self.enabled = True
         self.dmtex_suppress = True
-        self.detect_size()  # don't need it as by itself, I only want it to update the bookmarks.
         self.clear()
 
     def stop(self):
@@ -112,8 +109,6 @@ class jcurses:
         ):  # this whole ass fiasco is to combat user input during the ansi negotiation.
             try:
                 strr = ""
-                while not console.connected:
-                    sleep(0.3)
                 for i in range(3):
                     self.get_hw(i)
                 while not strr.endswith("R"):

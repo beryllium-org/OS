@@ -862,8 +862,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 ),
                 end="",
             )
-
-            time.sleep(0.6)  # it's iconic staying here for a bit
+                
             try:
                 systemprints(2, "Mount /LjinuxRoot")
                 ljinux.io.start_sdcard()
@@ -986,8 +985,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
             def helpp(dictt):
                 print(
-                    "\033[35mLNL based\033[0m\n\033[33mThese shell commands are defined internally or are in PATH. Type 'help' to see this list.\033[0m\n"
-                )  # shameless
+                    "LNL \033[35mbased\033[0m\nThese shell commands are defined internally or are in PATH. Type 'help' to see this list.\n"
+                )  # shameless, but without rgb spam
 
                 for index, tool in enumerate(dictt):
                     print(
@@ -995,8 +994,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         end="           ".replace(" ", "", len(tool)),
                     )
                     if index % 7 == 6:
-                        print()
-                print()
+                        stdout.write('\n') # stdout faster than print cuz no logic
+                stdout.write('\n')
 
                 try:
                     l = ljinux.based.get_bins()
@@ -2146,170 +2145,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             ljinux.farland.oled.pixel(i, j, col)
                 else:
                     ljinux.based.error(1)
-
-        # clock functions, to be made part of hs
-
-        # init the clock
-        def draw_init_clock():
-            ljinux.farland.oled.text(
-                "0", ljinux.farland.poss[0] + ljinux.farland.offs, 2, False
-            )
-            ljinux.farland.oled.text(
-                "0", ljinux.farland.poss[1] + ljinux.farland.offs, 2, False
-            )
-            ljinux.farland.oled.text(
-                "0", ljinux.farland.poss[2] + ljinux.farland.offs, 2, False
-            )
-            ljinux.farland.oled.text(
-                "0", ljinux.farland.poss[3] + ljinux.farland.offs, 2, False
-            )
-
-        # each time increments if monotonic has gone up
-        def draw_clock():
-            ljinux.farland.timm_in = int(time.monotonic())
-            if ljinux.farland.timm_in != ljinux.farland.timm_old:
-                ljinux.farland.timm_old = ljinux.farland.timm_in
-                if ljinux.farland.tp[3] != 9:
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[3]),
-                        ljinux.farland.poss[3] + ljinux.farland.offs,
-                        2,
-                        True,
-                    )
-                    ljinux.farland.tp[3] += 1
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[3]),
-                        ljinux.farland.poss[3] + ljinux.farland.offs,
-                        2,
-                        False,
-                    )
-                elif ljinux.farland.tp[2] != 5:
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[3]),
-                        ljinux.farland.poss[3] + ljinux.farland.offs,
-                        2,
-                        True,
-                    )
-                    ljinux.farland.tp[3] = 0
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[3]),
-                        ljinux.farland.poss[3] + ljinux.farland.offs,
-                        2,
-                        False,
-                    )
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[2]),
-                        ljinux.farland.poss[2] + ljinux.farland.offs,
-                        2,
-                        True,
-                    )
-                    ljinux.farland.tp[2] += 1
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[2]),
-                        ljinux.farland.poss[2] + ljinux.farland.offs,
-                        2,
-                        False,
-                    )
-                elif ljinux.farland.tp[1] != 9:
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[3]),
-                        ljinux.farland.poss[3] + ljinux.farland.offs,
-                        2,
-                        True,
-                    )
-                    ljinux.farland.tp[3] = 0
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[3]),
-                        ljinux.farland.poss[3] + ljinux.farland.offs,
-                        2,
-                        False,
-                    )
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[2]),
-                        ljinux.farland.poss[2] + ljinux.farland.offs,
-                        2,
-                        True,
-                    )
-                    ljinux.farland.tp[2] = 0
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[2]),
-                        ljinux.farland.poss[2] + ljinux.farland.offs,
-                        2,
-                        False,
-                    )
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[1]),
-                        ljinux.farland.poss[1] + ljinux.farland.offs,
-                        2,
-                        True,
-                    )
-                    ljinux.farland.tp[1] += 1
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[1]),
-                        ljinux.farland.poss[1] + ljinux.farland.offs,
-                        2,
-                        False,
-                    )
-                elif ljinux.farland.tp[0] != 5:
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[3]),
-                        ljinux.farland.poss[3] + ljinux.farland.offs,
-                        2,
-                        True,
-                    )
-                    ljinux.farland.tp[3] = 0
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[3]),
-                        ljinux.farland.poss[3] + ljinux.farland.offs,
-                        2,
-                        False,
-                    )
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[2]),
-                        ljinux.farland.poss[2] + ljinux.farland.offs,
-                        2,
-                        True,
-                    )
-                    ljinux.farland.tp[2] = 0
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[2]),
-                        ljinux.farland.poss[2] + ljinux.farland.offs,
-                        2,
-                        False,
-                    )
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[1]),
-                        ljinux.farland.poss[1] + ljinux.farland.offs,
-                        2,
-                        True,
-                    )
-                    ljinux.farland.tp[1] = 0
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[1]),
-                        ljinux.farland.poss[1] + ljinux.farland.offs,
-                        2,
-                        False,
-                    )
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[0]),
-                        ljinux.farland.poss[0] + ljinux.farland.offs,
-                        2,
-                        True,
-                    )
-                    ljinux.farland.tp[0] += 1
-                    ljinux.farland.oled.text(
-                        str(ljinux.farland.tp[0]),
-                        ljinux.farland.poss[0] + ljinux.farland.offs,
-                        2,
-                        False,
-                    )
-                ljinux.farland.poin = not (ljinux.farland.poin)
-                ljinux.farland.oled.text(
-                    ":",
-                    ljinux.farland.poss[4] + ljinux.farland.offs,
-                    2,
-                    ljinux.farland.poin,
-                )
 
         def fps():
             if ljinux.farland.frame_poi <= 9:

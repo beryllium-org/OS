@@ -191,6 +191,21 @@ man [COMMAND]
 
 PRINT THE MANUAL FOR THE GIVEN [COMMAND]
 
+
+detect
+
+Fetch the term.detect_size(for context updating)
+
+
+waitforserial
+
+Waits for a serial connection
+
+
+less [file]
+
+opposite for more, except we don't have more..
+
       /------------|
 ----<| Config.json |
       \------------|

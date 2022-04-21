@@ -1,7 +1,8 @@
 SHELL = "based"
 OS = "Ljinux"
 cd /home/pi
-exec .basedrc
 USER = "Pi"
 fpexec -n /LjinuxRoot/etc/hostname-reload.py
+waitforserial
+exec .basedrc
 SECURITY = "on"

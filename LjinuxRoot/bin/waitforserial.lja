@@ -1,0 +1,5 @@
+COMMENT Wait for the serial connection to occur
+ledset 4
+pexec -n while not console.connected: time.sleep(.3)
+ledset 1
+detect
