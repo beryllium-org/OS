@@ -5,7 +5,7 @@
   "fixrtc": true,
   
   "_comment3": "Board led, can be generic or neopixel",
-  "led": 0,
+  "led": -1,
   "ledtype": "generic",
   
   "_comment4": "Display i2c pins",

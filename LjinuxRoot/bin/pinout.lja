@@ -1,2 +1,1 @@
-cat /bin/pinout.map
-return = 0
+fpexec -n /LjinuxRoot/bin/pinout.py

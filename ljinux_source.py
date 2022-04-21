@@ -228,6 +228,7 @@ for optt in {
         )
 
 pintab = {  # Hardware pin allocations
+    0: board.GP0,
     1: board.GP1,
     2: board.GP2,
     3: board.GP3,
@@ -261,6 +262,8 @@ for optt in {"displaySCL", "displaySDA", "led"}:
         if pin in pin_alloc:
             dmtex("PIN ALLOCATED, EXITING")
             exit(0)
+        elif pin == -1:
+            pass
         else:
             pin_alloc.add(pin)
         dmtex(
@@ -276,7 +279,7 @@ for i in pin_alloc:
     dmtex(str(i), timing=False, end=" ")
 dmtex("", timing=False)
 
-if configg["led"] == 0:
+if configg["led"] == -1:
     boardLED = board.LED
 else:
     boardLED = pintab[configg["led"]]
