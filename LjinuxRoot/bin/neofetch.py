@@ -20,24 +20,26 @@ if neofetch_time > 0:
 else:
     uptimestr = uptimestr[:-2]
 
-Ccpu = "{} ({}) @ {}Mhz".format(platform, len(cpus), trunc(cpu.frequency / 1000000))
+Ccpu = f"{platform} ({len(cpus)}) @ {trunc(cpu.frequency / 1000000)}Mhz"
+
 gc.collect()
 gc.collect()
-Rram = "{}KiB / 264KiB".format(trunc(abs(264 - gc.mem_free() / 1000)))
+
+Rram = f"{trunc(abs(264 - gc.mem_free() / 1000))}KiB / 264KiB"
 
 print(
-    """\033[32m    `.::///+:/-.        --///+//-:``    {}@{} \033[0m
+    f"""\033[32m    `.::///+:/-.        --///+//-:``    {ljinux.based.system_vars["USER"]}@{ljinux.based.system_vars["HOSTNAME"]} \033[0m
 \033[32m   `+oooooooooooo:   `+oooooooooooo:  \033[0m  ---------
-\033[32m    /oooo++//ooooo:  ooooo+//+ooooo.  \033[0m  \033[31mOS\033[0m: \033[33mLjinux {}\033[0m
-\033[32m    `+ooooooo:-:oo-  +o+::/ooooooo:   \033[0m  \033[31mHost\033[0m: {}  
-\033[32m    `:oooooooo+``    `.oooooooo+-    \033[0m   \033[31mCircuitPython\033[0m: {}
-\033[32m      `:++ooo/.        :+ooo+/.`     \033[0m   \033[31mUptime\033[0m: {}
+\033[32m    /oooo++//ooooo:  ooooo+//+ooooo.  \033[0m  \033[31mOS\033[0m: \033[33mLjinux {ljinux.based.system_vars["VERSION"]}\033[0m
+\033[32m    `+ooooooo:-:oo-  +o+::/ooooooo:   \033[0m  \033[31mHost\033[0m: {ljinux.based.system_vars["BOARD"]}  
+\033[32m    `:oooooooo+``    `.oooooooo+-    \033[0m   \033[31mCircuitPython\033[0m: {ljinux.based.system_vars["IMPLEMENTATION"]}
+\033[32m      `:++ooo/.        :+ooo+/.`     \033[0m   \033[31mUptime\033[0m: {uptimestr}
 \033[91m         ...`  `.----.` ``..         \033[0m   \033[31mPackages\033[0m: 0 ()
 \033[91m        .::::-``:::::::::.`-:::-`    \033[0m   \033[31mShell\033[0m: \033[35mBased\033[0m
 \033[91m     -:::-`   .:::::::-`  `-:::-     \033[0m   \033[31mWM\033[0m: Farland
 \033[91m    `::.  `.--.`  `` `.---.``.::`    \033[0m   \033[31mTerminal\033[0m: TTYACM0
-\033[91m    `  ` `.::::::::`  -::::::::` ``   \033[0m  \033[31mCPU\033[0m: {}
-\033[91m   .::` .:::::::::- `::::::::::``::.  \033[0m  \033[31mMemory\033[0m: {}
+\033[91m    `  ` `.::::::::`  -::::::::` ``   \033[0m  \033[31mCPU\033[0m: {Ccpu}
+\033[91m   .::` .:::::::::- `::::::::::``::.  \033[0m  \033[31mMemory\033[0m: {Rram}
 \033[91m  -:::` ::::::::::.  ::::::::::.`:::- \033[0m
 \033[91m  ::::  -::::::::.   `-::::::::  :::: \033[0m
 \033[91m  -::-   .-:::-.``....``.-::-.   -::- \033[0m
@@ -49,16 +51,7 @@ print(
 \033[91m       `...`  `...--..`  `...`       \033[0m
 \033[91m             .::::::::::             \033[0m
 \033[91m              `.-::::-`              \033[0m
-""".format(
-        ljinux.based.system_vars["USER"],
-        ljinux.based.system_vars["HOSTNAME"],
-        ljinux.based.system_vars["VERSION"],
-        ljinux.based.system_vars["BOARD"],
-        ljinux.based.system_vars["IMPLEMENTATION"],
-        uptimestr,
-        Ccpu,
-        Rram,
-    )
+"""
 )
 
 del Rram, Ccpu
