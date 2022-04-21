@@ -962,9 +962,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 ljinux.based.user_vars["return"] = "1"
 
             def execc(argj):
-                """
-                Execution script
-                """
                 global Exit
                 global Exit_code
 
@@ -987,38 +984,27 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 except OSError:
                     ljinux.based.error(4, argj[0])
 
-            def helpp(dictt):  # help
-                print(
-                    "LNL based\nThese shell commands are defined internally or are in PATH. Type `help' to see this list."
-                )  # shameless
-                j = 0
-                for (
-                    i
-                ) in (
-                    dictt.keys()
-                ):  # the passed dict keys is the list of based internal keys
-                    if j < 2:
-                        print(
-                            i, end="                 ".replace(" ", "", len(i))
-                        )  # basically the 3 wide collumn
-                        j += 1
-                    else:
-                        print(i)  # this gives us \n
-                        j = 0
+            def helpp(dictt):
+                print("\033[35mLNL based\033[0m\n\033[33mThese shell commands are defined internally or are in PATH. Type 'help' to see this list.\033[0m\n")  # shameless
+                
+                for index, tool in enumerate(dictt):
+                    print(colors.green_t + tool + colors.endc, end="           ".replace(" ", "", len(tool)))
+                    if index % 7 == 6: 
+                        print()
+                print()
+
                 try:
                     l = ljinux.based.get_bins()
-                    for i in l:
-                        if j < 2:
-                            print(
-                                i, end="                 ".replace(" ", "", len(i))
-                            )  # basically the 3 wide collumn
-                            j += 1
-                        else:
-                            print(i)  # this gives us a very needed \n
-                            j = 0
+                    
+                    for index, tool in enumerate(l):
+                        print(colors.green_t + tool + colors.endc ,end="           ".replace(" ", "", len(tool))) 
+                        if index % 7 == 6: 
+                            print()
+
+                    print('\n')
                     del l
-                    print("\n", end="")
-                except OSError:  # Yea no root, we cope
+                    
+                except OSError:
                     pass
 
             def var(inpt, user_vars, system_vars):  # system & user variables setter
