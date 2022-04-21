@@ -795,6 +795,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
     class based:
         silent = False
+        raw_command_input = ""
 
         user_vars = {
             "history-file": "/LjinuxRoot/home/pi/.history",
@@ -1031,7 +1032,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 except OSError:
                     pass
 
-            def var(inpt, user_vars, system_vars):  # system & user variables setter
+            def var(inpt):  # system & user variables setter
                 valid = True
                 if inpt[0] == "var":
                     temp = inpt
@@ -1072,9 +1073,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         ljinux.based.error(1)
                         valid = False
                     if valid:
-                        if inpt[0] in system_vars:
-                            if not (system_vars["SECURITY"] == "on"):
-                                system_vars[inpt[0]] = new_var
+                        if inpt[0] in ljinux.based.system_vars:
+                            if not (ljinux.based.system_vars["SECURITY"] == "on"):
+                                ljinux.based.system_vars[inpt[0]] = new_var
                             else:
                                 print(
                                     colors.error
@@ -1082,7 +1083,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     + colors.endc
                                 )
                         else:
-                            user_vars[inpt[0]] = new_var
+                            ljinux.based.user_vars[inpt[0]] = new_var
                 except IndexError:
                     ljinux.based.error(1)
 
@@ -1210,7 +1211,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 else:
                     ljinux.based.error(1)
 
-            def suuu(inpt, system_vars):  # su command but worse
+            def suuu(inpt):  # su command but worse
                 global dfpasswd
                 passwordarr = {}
                 try:
@@ -1222,10 +1223,13 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                 del dt, line
                     except OSError:
                         pass
+                    ljinux.io.ledset(2)
                     if passwordarr["root"] == getpass():
-                        system_vars["SECURITY"] = "off"
+                        ljinux.based.system_vars["SECURITY"] = "off"
                         print("Authentication successful. Security disabled.")
                     else:
+                        ljinux.io.ledset(3)
+                        time.sleep(2)
                         print(
                             colors.error + "Authentication unsuccessful." + colors.endc
                         )
@@ -1243,7 +1247,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         pass
 
                     if dfpasswd == getpass():
-                        system_vars["security"] = "off"
+                        ljinux.based.system_vars["security"] = "off"
                         print("Authentication successful. Security disabled.")
                     else:
                         print(
@@ -1448,14 +1452,14 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             def do_nothin(inpt):
                 pass  # really this is needed
 
-            def pexecc(inpt, rc):  # filtered & true source
+            def pexecc(inpt):  # filtered & true source
                 global Version
-                pcomm = rc.lstrip(rc.split()[0]).replace(" ", "", 1)
+                pcomm = ljinux.based.raw_command_input.lstrip(ljinux.based.raw_command_input.split()[0]).replace(" ", "", 1)
                 nl = False
                 try:
                     if "-n" in inpt[1]:
                         nl = True
-                        pcomm = pcomm.lstrip(rc.split()[1]).replace(" ", "", 1)
+                        pcomm = pcomm.lstrip(ljinux.based.raw_command_input.split()[1]).replace(" ", "", 1)
                 except IndexError:
                     ljinux.based.error(9)
                     ljinux.based.user_vars["return"] = "1"
@@ -1794,6 +1798,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         gc.collect()
                         gc.collect()
                         if (not "|" in command_input) and (not "&&" in command_input):
+                            ljinux.based.raw_command_input = command_input
                             command_split = (
                                 command_input.split()
                             )  # making it an arr of words
@@ -1808,18 +1813,11 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     command_split[0]
                                     not in [
                                         "error",
-                                        "var",
                                         "help",
                                         "display",
-                                        "su",
-                                        "pexec",
                                     ]
                                 ):  # those are special bois, they will not be special when I make the api great
                                     res = function_dict[command_split[0]](command_split)
-                                elif command_split[0] == "pexec":
-                                    res = function_dict["pexec"](
-                                        command_split, command_input
-                                    )
                                 elif command_split[0] == "help":
                                     res = function_dict["help"](function_dict)
                                 elif command_split[0] == "display":
@@ -1830,18 +1828,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                         )
                                     else:
                                         ljinux.based.error(6)
-                                elif command_split[0] == "su":
-                                    res = function_dict["su"](
-                                        command_split, ljinux.based.system_vars
-                                    )
-                                elif (command_split[1] == "=") or (
-                                    command_split[0] == "var"
-                                ):
-                                    res = function_dict["var"](
-                                        command_split,
-                                        ljinux.based.user_vars,
-                                        ljinux.based.system_vars,
-                                    )
+                                elif (command_split[1] == "="):
+                                    res = function_dict["var"](command_split)
                                 else:
                                     raise IndexError
                             except IndexError:
