@@ -467,11 +467,11 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             ljinux.history.historyy = list()
             try:
                 with open(filen, "r") as historyfile:
-                    lines = historyfile.readlines()
-                    for line in lines:
+                    for line in historyfile:
                         ljinux.io.ledset(3)  # act
                         ljinux.history.historyy.append(line.strip())
                         ljinux.io.ledset(1)  # idle
+                        del line
 
             except OSError:
                 ljinux.io.ledset(1)  # idle
@@ -496,10 +496,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             except OSError:
                 ljinux.based.error(4, filen)
 
-        def clear(filen):  # deletes all history, from ram and storage
+        def clear(filen):  
             try:
+                # deletes all history, from ram and storage
                 a = open(filen, "r")
                 a.close()
+                del a
                 with open(filen, "w") as historyfile:
                     historyfile.flush()
                 ljinux.history.historyy.clear()
@@ -510,8 +512,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             return str(ljinux.history.historyy[len(ljinux.history.historyy) - whichh])
 
         def getall():  # get the whole history, numbered, line by line
-            for i in range(len(ljinux.history.historyy)):
-                print(str(i + 1) + ": " + str(ljinux.history.historyy[i]))
+            for index, item in enumerate(ljinux.history.historyy):
+                print(f"{index + 1}: {item}")
+                del index, item
 
     class backrounding:
         webserver = False
@@ -560,7 +563,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
         def ledset(state):  # Set the led to a state
             if configg["ledtype"] == "generic":
-                if state in [0, 3]:
+                if state in {0, 3}:
                     ljinux.io.led.value = False
                 else:
                     ljinux.io.led.value = True
@@ -576,7 +579,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         b = f.read(2048)
                         yield b
             except OSError:
-                yield "CRITICAL: File Not Found"
+                yield f"CRITICAL: File '{filename}' Not Found"
 
         def init_net():
             cs = digitalio.DigitalInOut(board.GP13)
@@ -844,8 +847,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 9: "Missing arguments",
                 10: "File exists",
             }
-            print("based: " + errs[wh])
-            ljinux.io.ledset(1)  # idle
+            print(f"{colors.magenta_t}Based{colors.endc}: {errs[wh]}")
+            ljinux.io.ledset(1)
             del errs
 
         def autorun():
@@ -899,20 +902,20 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             elif ljinux.based.system_vars["Init-type"] == "reboot-repeat":
                 Exit = True
                 Exit_code = 245
-                print("based: Init complete. Restarting")
+                print(f"{colors.magenta_t}Based{colors.endc}: Init complete. Restarting")
             elif ljinux.based.system_vars["Init-type"] == "delayed-reboot-repeat":
                 try:
                     time.sleep(float(ljinux.based.user_vars["repeat-delay"]))
                 except IndexError:
-                    print("based: No delay specified! Waiting 60s.")
+                    print(f"{colors.magenta_t}Based{colors.endc}: No delay specified! Waiting 60s.")
                     time.sleep(60)
                     Exit = True
                     Exit_code = 245
-                    print("based: Init complete and delay finished. Restarting")
+                    print(f"{colors.magenta_t}Based{colors.endc}: Init complete and delay finished. Restarting")
             elif ljinux.based.system_vars["Init-type"] == "oneshot-quit":
                 Exit = True
                 Exit_code = 244
-                print("based: Init complete. Halting")
+                print(f"{colors.magenta_t}Based{colors.endc}: Init complete. Halting")
             elif ljinux.based.system_vars["Init-type"] == "repeat":
                 try:
                     while not Exit:
@@ -925,12 +928,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             Exit_code = 244
 
                 except KeyboardInterrupt:
-                    print("based: Caught Ctrl + C")
+                    print(f"{colors.magenta_t}Based{colors.endc}: Caught Ctrl + C")
             elif ljinux.based.system_vars["Init-type"] == "delayed-repeat":
                 try:
                     time.sleep(float(ljinux.based.user_vars["repeat-delay"]))
                 except IndexError:
-                    print("based: No delay specified! Waiting 60s.")
+                    print(f"{colors.magenta_t}Based{colors.endc}: No delay specified! Waiting 60s.")
                     time.sleep(60)
                 try:
                     while not Exit:
@@ -943,9 +946,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             Exit_code = 244
 
                 except KeyboardInterrupt:
-                    print("based: Caught Ctrl + C")
+                    print(f"{colors.magenta_t}Based{colors.endc}: Caught Ctrl + C")
             else:
-                print("based: Init-type specified incorrectly, assuming oneshot")
+                print(f"{colors.magenta_t}Based{colors.endc}: Init-type specified incorrectly, assuming oneshot")
             ljinux.io.ledset(1)  # idle
             while not Exit:
                 try:
@@ -957,7 +960,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
         class command:
             def not_found(errr):  # command not found
-                print("based: " + errr[0] + ": command not found")
+                print(f"{colors.magenta_t}Based{colors.endc}: '{errr[0]}': command not found")
                 ljinux.based.user_vars["return"] = "1"
 
             def execc(argj):
@@ -985,7 +988,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
             def helpp(dictt):
                 print(
-                    "LNL \033[35mbased\033[0m\nThese shell commands are defined internally or are in PATH. Type 'help' to see this list.\n"
+                    f"LNL {colors.magenta_t}based\nThese shell commands are defined internally or are in PATH. Type 'help' to see this list.\n"
                 )  # shameless, but without rgb spam
 
                 for index, tool in enumerate(dictt):
@@ -1060,7 +1063,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                 system_vars[inpt[0]] = new_var
                             else:
                                 print(
-                                    "Cannot edit system variables, security is enabled."
+                                    colors.error +
+                                    "Cannot edit system variables, security is enabled." +
+                                    colors.endc
                                 )
                         else:
                             user_vars[inpt[0]] = new_var
@@ -1093,14 +1098,14 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                         :-1
                                     ]  # last word without last char (")
                                 else:
-                                    print("based: Input error")
+                                    print(f"{colors.magenta_t}Based{colors.endc}: Input error")
                             else:
                                 txt += str(inpt[5])[1:-1]
                         else:
-                            print("based: Input error")
+                            print(f"{colors.magenta_t}Based{colors.endc}: Input error")
                         ljinux.farland.text(txt, xi, yi, col)
                     except ValueError:
-                        print("based: Input error")
+                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
                 elif typee == "dot":  # x,y,col
                     try:
                         xi = ljinux.based.fn.adv_input(inpt[2], int)
@@ -1108,7 +1113,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         col = ljinux.based.fn.adv_input(inpt[4], int)
                         ljinux.farland.pixel(xi, yi, col)
                     except ValueError:
-                        print("based: Input error")
+                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
                 elif (
                     typee == "rectangle"
                 ):  # x start, y start, x stop, y stop, color, mode (fill / border)
@@ -1121,7 +1126,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         modd = ljinux.based.fn.adv_input(inpt[7], str)
                         ljinux.farland.rect(xi, yi, xe, ye, col, modd)
                     except ValueError:
-                        print("based: Input error")
+                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
                 elif typee == "line":  # x start, y start, x stop, y stop, color
                     try:
                         xi = ljinux.based.fn.adv_input(inpt[2], int)
@@ -1131,7 +1136,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         col = ljinux.based.fn.adv_input(inpt[6], int)
                         ljinux.farland.line(xi, yi, xe, ye, col)
                     except ValueError:
-                        print("based: Input error")
+                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
                 elif (
                     typee == "circle"
                 ):  # x center, y center, rad, color, mode (fill/ border / template) TODO fix fill and do template
@@ -1146,7 +1151,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         else:
                             ljinux.farland.f_draw_circle(xi, yi, radd, col)
                     except ValueError:
-                        print("based: Input error")
+                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
                 elif (
                     typee == "triangle"
                 ):  # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
@@ -1167,13 +1172,13 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             for i in templ:
                                 ljinux.farland.ext_line(xz, yz, i[0], i[1], col)
                     except ValueError:
-                        print("based: Input error")
+                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
                 elif typee == "fill":  # color
                     try:
                         col = ljinux.based.fn.adv_input(inpt[2], int)
                         ljinux.farland.fill(col)
                     except ValueError:
-                        print("based: Input error")
+                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
                 elif typee == "rhombus":  # todo
                     pass
                 elif typee == "move":  # todo
@@ -1195,20 +1200,17 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 try:
                     try:
                         with open("/LjinuxRoot/etc/passwd", "r") as data:
-                            lines = data.readlines()
-                            for line in lines:
+                            for line in data:
                                 dt = line.split()
                                 passwordarr[dt[0]] = dt[1]
-                                del dt
-                            data.close()
-                            del lines
+                                del dt, line
                     except OSError:
                         pass
                     if passwordarr["root"] == getpass():
                         system_vars["SECURITY"] = "off"
                         print("Authentication successful. Security disabled.")
                     else:
-                        print("Authentication unsuccessful.")
+                        print(colors.error + "Authentication unsuccessful." + colors.endc)
 
                     try:
                         del passwordarr
@@ -1226,7 +1228,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         system_vars["security"] = "off"
                         print("Authentication successful. Security disabled.")
                     else:
-                        print("Authentication unsuccessful.")
+                        print(colors.error + "Authentication unsuccessful." + colors.endc)
                 try:
                     del passwordarr
                 except NameError:
@@ -1241,7 +1243,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     elif inpt[1] == "save":
                         ljinux.history.save(ljinux.based.user_vars["history-file"])
                     else:
-                        print("based: Invalid option")
+                        print("{colors.magenta_t}Based{colors.endc}: Invalid option")
                 except IndexError:
                     ljinux.history.getall()
 
@@ -1315,7 +1317,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                                 raise KeyError
                                             del namee
                                         except KeyError:
-                                            print("based: Arg not in argj")
+                                            print(f"{colors.magenta_t}Based{colors.endc}: Arg not in argj")
                                 elif condition[i] == "and":  # and what
                                     i += 1  # just read the argj, i'm not gonna copy the comments
                                     if val == 0:  # no need to keep goin, just break;
@@ -1331,7 +1333,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                 elif condition[i].isdigit():  # meth
                                     i += 1  # todo
                                 else:
-                                    print("based: Invalid action type: " + condition[i])
+                                    print(f"{colors.magenta_t}Based{colors.endc}: Invalid action type: " + condition[i])
                                     break
                             if val == 1:
                                 ljinux.based.shell(
@@ -1340,9 +1342,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             del next_part
                             del val
                         except KeyError:
-                            print("based: Invalid condition type")
+                            print(f"{colors.magenta_t}Based{colors.endc}: Invalid condition type")
                     else:
-                        print("based: Incomplete condition")
+                        print(f"{colors.magenta_t}Based{colors.endc}: Incomplete condition")
                 else:
                     ljinux.based.error(1)
                 del need_new_cond
@@ -1430,20 +1432,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     ljinux.based.user_vars["return"] = "1"
                     return
                 if not nl:
-                    print(
-                        "Adafruit CircuitPython "
-                        + str(implementation.version[0])
-                        + "."
-                        + str(implementation.version[1])
-                        + "."
-                        + str(implementation.version[2])
-                        + " on Ljinux "
-                        + Version
-                        + "; Raspberry Pi Pico with rp2040\n>>> "
-                        + pcomm
-                    )
+                    print(f"Adafruit CircuitPython {ljinux.based.system_vars["IMPLEMENTATION"]} on lJinux {Version}; {ljinux.based.system_vars["BOARD"]}\n>>> {pcomm}")
                 try:
-                    exec(pcomm)
+                    exec(pcomm) # Vulnerability.exe
                     del pcomm
                 except Exception as err:
                     print(
@@ -1459,6 +1450,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 global Version
                 nl = False
                 offs = 1
+                
                 try:
                     if "-n" in inpt[1]:
                         nl = True
@@ -1467,19 +1459,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     ljinux.based.error(9)
                     ljinux.based.user_vars["return"] = "1"
                     return
+                
                 if not nl:
-                    print(
-                        "Adafruit CircuitPython "
-                        + str(implementation.version[0])
-                        + "."
-                        + str(implementation.version[1])
-                        + "."
-                        + str(implementation.version[2])
-                        + " on Ljinux "
-                        + Version
-                        + "; Raspberry Pi Pico with rp2040\nRunning file: "
-                        + inpt[offs]
-                    )
+                    print(f"Adafruit CircuitPython {ljinux.based.system_vars["IMPLEMENTATION"]} on lJinux {Version}; {ljinux.based.system_vars["BOARD"]}\nRunning file: {inpt[offs]}")
                 try:
                     a = open(inpt[offs]).read()
                     exec(a)
