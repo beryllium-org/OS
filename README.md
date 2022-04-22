@@ -37,7 +37,7 @@ The <code>Init.lja</code> has to be at <code>/LjinuxRoot/boot/</code> of the boa
 
 1) Install CircuitPython 7.X.X onto the board<br />
     Raspberry Pi Pico uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_board) & detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
-2) Clone (or download this project) and from within it run <code>make install</code>.<br />
+2) Clone (or download this project) and from within it run <code>make install</code>. (You need to have python3 installed)<br />
 3) Install the optional libraries for the hardware you want to connect to it. Details in Configuration.<br />
 <b>If you plan on using the board standalone, you don't need put any extra libraries in.</b><br />
 4) After these steps, eject the board and fully disconnect it from the pc. (It is important to power cycle it.)<br />
@@ -75,11 +75,6 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 -> [bill88t](https://github.com/bill88t) - @bill88t#4044
 <br />-> [Marios](https://github.com/mariospapaz) - @mariospapaz#2188
 <br />-> [mdaadoun](https://github.com/mdaadoun) - @mdaadoun#4475
-
-<h3>Build instructions for Linux / Macos:</h3>
-
-In order to build & upload a kernel binary different than the one provided to the board, enable developer mode from within ljinux and then from within the "source" folder of the project, run <code>make</code>. To update all the board files (commands, kernel, etc.) run <code>make install</code><br />
-The binary will be automatically uploaded to the board and be used upon the next reload/reboot of the device.<br />
 
 <h2>A complete Ljinux manual can also be found at:</h2>
 https://github.com/bill88t/ljinux/blob/main/Manual.txt<br /><br />
