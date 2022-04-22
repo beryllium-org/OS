@@ -9,5 +9,6 @@ jobs:
       - uses: actions/checkout@v2
     
       - name: Run make compiletest
+        working-directory: source
         run: |
           make compiletest

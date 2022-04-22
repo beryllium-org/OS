@@ -227,34 +227,8 @@ for optt in {
             timing=False,
         )
 
-pintab = {  # Hardware pin allocations
-    0: board.GP0,
-    1: board.GP1,
-    2: board.GP2,
-    3: board.GP3,
-    4: board.GP4,
-    5: board.GP5,
-    6: board.GP6,
-    7: board.GP7,
-    8: board.GP8,
-    9: board.GP9,
-    10: board.GP10,
-    11: board.GP11,
-    12: board.GP12,
-    13: board.GP13,
-    14: board.GP14,
-    15: board.GP15,
-    16: board.GP16,
-    17: board.GP17,
-    18: board.GP18,
-    19: board.GP19,
-    20: board.GP20,
-    24: board.GP24,
-    25: board.GP25,
-    26: board.GP26,
-    27: board.GP27,
-    28: board.GP28,
-}
+#dynamic pintab
+exec(f"from pintab_{board.board_id} import pintab")
 
 for optt in {"displaySCL", "displaySDA", "led"}:
     try:
@@ -286,6 +260,7 @@ else:
 
 del defaultoptions
 del pintab
+
 
 # basic checks
 if not configg["SKIPCP"]:  # beta testing
