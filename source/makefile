@@ -28,7 +28,7 @@ kerncompd:
 	@python3 ../scripts/make_kernel_debug.py
 ctest:
 	@echo -e "\nCommencing kernel compile test\nNote: This does not update any board files.\n"
-	@../scripts/make_kernel_test.sh
+	@python3 ../scripts/make_kernel_test.py
 connection:
 	@echo -n "Ensuring GNU/Screen is installed.. "
 	@command -v screen >/dev/null && echo "Found" || (echo -e "Not found\nInstalling.." && ./scripts/installscreen.sh)
