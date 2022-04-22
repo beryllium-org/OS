@@ -16,4 +16,4 @@ for filee in listdir("../pintabs/"):
     system(f"{mpyn} ../pintabs/{filee} -s {filee[:-3]} -v -O4 -o /dev/null")
 
 print()
-del ami, picop, mpyn
+del mpyn
