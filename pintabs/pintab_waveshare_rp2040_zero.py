@@ -26,6 +26,7 @@ from board import (
     GP27,
     GP28,
 )
+
 pintab = {
     0: GP0,
     1: GP1,

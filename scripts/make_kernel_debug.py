@@ -13,14 +13,16 @@ elif system("test -d /Volumes/LJINUX") == 0:
 elif system("test -d /Volumes/CIRCUITPY") == 0:
     picop = "/Volumes/CIRCUITPY"
 else:
-    print("Error: Board not found.\nMake sure it is attached and mounted before you run make")
+    print(
+        "Error: Board not found.\nMake sure it is attached and mounted before you run make"
+    )
     exit(1)
-    
+
 print(f"Using board path: {picop}\n")
 if system(f"test -d {picop}/lib") != 0:
     print("Created lib directory.")
     mkdir(f"{picop}/lib")
-    
+
 print("[1/3] Compiling source files\n")
 for filee in listdir():
     if filee.endswith(".py"):
@@ -35,7 +37,9 @@ for filee in listdir("../rootfilesystem/"):
 print("\n[3/3] Compiling Pin allocation tabs\n")
 for filee in listdir("../pintabs/"):
     print(f"-> {filee[:-3]}")
-    system(f"{mpyn} ../pintabs/{filee} -s {filee[:-3]} -v -o {picop}/lib/{filee[:-3]}.mpy")
+    system(
+        f"{mpyn} ../pintabs/{filee} -s {filee[:-3]} -v -o {picop}/lib/{filee[:-3]}.mpy"
+    )
 
 system("sync")
 print()

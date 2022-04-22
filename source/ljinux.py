@@ -227,7 +227,7 @@ for optt in {
             timing=False,
         )
 
-#dynamic pintab
+# dynamic pintab
 exec(f"from pintab_{board.board_id} import pintab")
 
 for optt in {"displaySCL", "displaySDA", "led"}:
