@@ -3,7 +3,6 @@ from os import system, mkdir, listdir, uname
 mpyn = f"../mpy-crosses/mpy-cross-{uname().machine}"
 
 print(f"\nUsing mpycross: {mpyn}")
-print(f"Using board path: {picop}\n")
 
 print("[1/3] Compiling source files\n")
 for filee in listdir():
