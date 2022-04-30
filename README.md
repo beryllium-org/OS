@@ -18,11 +18,12 @@ At the moment the supported microcontrollers are:<br />
  - Waveshare RP2040-Zero <br />
 But it can probably run on many more.<br />
 The only real limiting factor should be ram, as about 150k are needed for the system to even function.<br />
-If you have gotten it running on an unsupported board, feel free to pr a configuration file.<br /><br />
+<i>(If you have gotten it running on an unsupported board, feel free to pr a configuration file)</i><br />
 
-<br />You can optionally attach a SSD1306 display for output, a ds1302 RTC <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(make sure to set <code>fixrtc</code> to false from <code>config</code> file)<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for persistent time or a w5500 networking breakout board for networking.<br />
+<br />You can optionally attach a SSD1306 display for a standalone display output<br />
+A ds1302 realtime clock for persistent time (make sure to set <code>fixrtc</code> to false from the board's config file),<br />
+A sdcard breakout board for more storage,<br />
+Or a w5500 networking breakout board for networking.<br />
 
 For the missing hardware the functions will be automatically deactivated. (The hardware will also be deactivated in case of missing libraries.)<br />
 It expects to find a <code>/LjinuxRoot</code> folder which uses as it's root. It can be on the built in fs, or an sd card.<br />
@@ -30,9 +31,12 @@ More info in Configuration.<br />
 
 It's structure:<br />
 
-It's shell which is named <b>based</b>, is equivelant to gnu bash.<br />Python can also be used with the pexec command.<br />
+It's shell which is named <b>based</b>, is equivelant to gnu bash.<br />
+Python can also be used with the pexec command.<br />
 You can execute commands over serial to it, or by feeding them from a <code>Init.lja</code> file.<br />
 The <code>Init.lja</code> has to be at <code>/LjinuxRoot/boot/</code> of the board's internal storage or on the <code>/boot/</code> of the attached sd card.<br />
+It has it's own curses library, jcurses.<br />
+And it's own display "compositor", farland.<br />
 
 <h2>Installation to a fresh board:</h2><br />
 
