@@ -5,9 +5,10 @@ A "linux" written in python, for CircuitPython powered microcontrollers.<br />
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 <br />
 
-Important note:<br />
+Important notes:<br />
 Do not take this project seriously.<br />
-This is not a real os / linux distribution, but here we are.<br /><br />
+This is not a real os / linux distribution, but here we are.<br />
+Also, it's still in an alpha state.<br /><br />
 
 <b><i>We also now have a [discord](https://discord.gg/V8AejwGpCv) server!<br />
 If you need support or want to hang out, feel free to join in!</i></b><br /><br />
