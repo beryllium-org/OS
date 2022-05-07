@@ -19,7 +19,9 @@ if display_availability:
             if (
                 ljinux.based.user_vars["argj"].split()[5].startswith('"')
             ):  # let's do some string proccessing!
-                countt = len(ljinux.based.user_vars["argj"].split())  # get the numb of args
+                countt = len(
+                    ljinux.based.user_vars["argj"].split()
+                )  # get the numb of args
                 if countt > 6:
                     txt += (
                         str(ljinux.based.user_vars["argj"].split()[5])[1:] + " "

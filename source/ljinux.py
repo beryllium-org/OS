@@ -17,6 +17,7 @@ try:
 except ImportError:
     print("O_O nope, i'm out")
     from sys import exit
+
     exit(1)
 
 print("[    0.00000] Core libs loaded")
