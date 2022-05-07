@@ -23,23 +23,16 @@ if system(f"test -d {picop}/lib") != 0:
     print("Created lib directory.")
     mkdir(f"{picop}/lib")
 
-print("[1/3] Compiling source files\n")
+print("[1/2] Compiling source files and pin allocation tabs\n")
 for filee in listdir():
     if filee.endswith(".py"):
         print(f"-> {filee[:-3]}")
         system(f"{mpyn} ./{filee} -s {filee[:-3]} -v -o {picop}/lib/{filee[:-3]}.mpy")
 
-print("\n[2/3] Copying base files\n")
+print("\n[2/2] Copying base files\n")
 for filee in listdir("../rootfilesystem/"):
     print(f"-> {filee}")
     system(f"cp -v ../rootfilesystem/{filee} {picop}/")
-
-print("\n[3/3] Compiling Pin allocation tabs\n")
-for filee in listdir("../pintabs/"):
-    print(f"-> {filee[:-3]}")
-    system(
-        f"{mpyn} ../pintabs/{filee} -s {filee[:-3]} -v -o {picop}/lib/{filee[:-3]}.mpy"
-    )
 
 system("sync")
 print()
