@@ -17,8 +17,7 @@ try:
 except ImportError:
     print("O_O nope, i'm out")
     from sys import exit
-
-    exit(0)
+    exit(1)
 
 print("[    0.00000] Core libs loaded")
 dmesg.append("[    0.00000] Core libs loaded")
@@ -732,14 +731,16 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             ext = filee.split(".")[-1]
             if ext in ("html", "htm"):
                 return "text/html"
-            if ext == "js":
+            elif ext == "js":
                 return "application/javascript"
-            if ext == "css":
+            elif ext == "css":
                 return "text/css"
-            if ext in ("jpg", "jpeg"):
+            elif ext in ("jpg", "jpeg"):
                 return "image/jpeg"
-            if ext == "png":
+            elif ext == "png":
                 return "image/png"
+            elif ext == "json":
+                return "application/json"
             return "text/plain"
 
         def serve_file(file_path):
@@ -841,12 +842,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 ]
             except OSError:  # Yea no root, we cope
                 return list()
-
-        class shellfuncs:
-            historypos = 0
-
-            def history_movement(action):
-                pass
 
         def error(wh=3, f=None):
             """
@@ -1852,80 +1847,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             ljinux.farland.public = [xpos0, ypos0, rad, col]
             if not f:
                 ljinux.based.command.fpexecc(
-                    ["fpexec", "-n", "/LjinuxRoot/bin/display_f/draw_circle.py"]
+                    [None, "-n", "/LjinuxRoot/bin/display_f/draw_circle.py"]
                 )
             else:
                 ljinux.based.command.fpexecc(
-                    ["fpexec", "-n", "/LjinuxRoot/bin/display_f/f_draw_circle.py"]
+                    [None, "-n", "/LjinuxRoot/bin/display_f/f_draw_circle.py"]
                 )
-
-        def line(x0, y0, x1, y1, col):
-            dx = abs(x1 - x0)
-            dy = abs(y1 - y0)
-            x, y = x0, y0
-            sx = -1 if x0 > x1 else 1
-            sy = -1 if y0 > y1 else 1
-            if dx > dy:
-                err = dx / 2.0
-                while x != x1:
-                    ljinux.farland.oled.pixel(int(x), int(y), col)
-                    err -= dy
-                    if err < 0:
-                        y += sy
-                        err += dx
-                    x += sx
-            else:
-                err = dy / 2.0
-                while y != y1:
-                    ljinux.farland.oled.pixel(int(x), int(y), col)
-                    err -= dx
-                    if err < 0:
-                        x += sx
-                        err += dy
-                    y += sy
-                ljinux.farland.oled.pixel(int(x), int(y), col)
-
-        def ext_line(x0, y0, x1, y1, col):
-            dx = abs(x1 - x0)
-            dy = abs(y1 - y0)
-            x, y = x0, y0
-            sx = -1 if x0 > x1 else 1
-            sy = -1 if y0 > y1 else 1
-            if dx > dy:
-                err = dx / 2.0
-                while x != x1:
-                    ljinux.farland.oled.pixel(int(x), int(y), col)
-                    ljinux.farland.oled.pixel(int(x) + 1, int(y), col)
-                    ljinux.farland.oled.pixel(int(x) - 1, int(y), col)
-                    ljinux.farland.oled.pixel(int(x), int(y) + 1, col)
-                    ljinux.farland.oled.pixel(int(x), int(y) - 1, col)
-                    err -= dy
-                    if err < 0:
-                        y += sy
-                        err += dx
-                    x += sx
-            else:
-                err = dy / 2.0
-                while y != y1:
-                    ljinux.farland.oled.pixel(int(x), int(y), col)
-                    if not isinstance(x, int):
-                        ljinux.farland.oled.pixel(int(x) + 1, int(y), col)
-                        ljinux.farland.oled.pixel(int(x) - 1, int(y), col)
-                    if not isinstance(y, int):
-                        ljinux.farland.oled.pixel(int(x), int(y) + 1, col)
-                        ljinux.farland.oled.pixel(int(x), int(y) - 1, col)
-                    err -= dx
-                    if err < 0:
-                        x += sx
-                        err += dy
-                    y += sy
-                ljinux.farland.oled.pixel(int(x), int(y), col)
-                if not isinstance(x, int):
-                    ljinux.farland.oled.pixel(int(x) + 1, int(y), col)
-                    ljinux.farland.oled.pixel(int(x) - 1, int(y), col)
-                if not isinstance(y, int):
-                    ljinux.farland.oled.pixel(int(x), int(y) + 1, col)
-                    ljinux.farland.oled.pixel(int(x), int(y) - 1, col)
 
         def virt_line(x0, y0, x1, y1):
             virt_l_tab = []
@@ -1954,44 +1881,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     y += sy
                 virt_l_tab.append([int(x), int(y)])
             return virt_l_tab
-
-        def rect(x0, y0, x1, y1, col, modee):
-            if modee == "border":
-                if x0 < x1:
-                    for i in range(x0, x1):
-                        ljinux.farland.oled.pixel(i, y0, col)
-                        ljinux.farland.oled.pixel(i, y1, col)
-                else:
-                    for i in range(x1, x0):
-                        ljinux.farland.oled.pixel(i, y0, col)
-                        ljinux.farland.oled.pixel(i, y1, col)
-                if y0 < y1:
-                    for i in range(y0, y1):
-                        ljinux.farland.oled.pixel(x0, i, col)
-                        ljinux.farland.oled.pixel(x1, i, col)
-                else:
-                    for i in range(x1, x0):
-                        ljinux.farland.oled.pixel(x0, i, col)
-                        ljinux.farland.oled.pixel(x1, i, col)
-            elif modee == "fill":
-                if (x0 < x1) and (y0 < y1):
-                    for i in range(x0, x1):
-                        for j in range(y0, y1):
-                            ljinux.farland.oled.pixel(i, j, col)
-                elif (x0 < x1) and (y1 > y0):
-                    for i in range(x0, x1):
-                        for j in range(y0, y1, -1):
-                            ljinux.farland.oled.pixel(i, j, col)
-                elif (x0 > x1) and (y1 < y0):
-                    for i in range(x0, x1, -1):
-                        for j in range(y0, y1):
-                            ljinux.farland.oled.pixel(i, j, col)
-                elif (x0 > x1) and (y1 > y0):
-                    for i in range(x0, x1, -1):
-                        for j in range(y0, y1, -1):
-                            ljinux.farland.oled.pixel(i, j, col)
-                else:
-                    ljinux.based.error(1)
 
         def fps():
             if ljinux.farland.frame_poi <= 9:

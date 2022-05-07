@@ -19,7 +19,7 @@ if display_availability:
             if (
                 ljinux.based.user_vars["argj"].split()[5].startswith('"')
             ):  # let's do some string proccessing!
-                countt = len(inpt)  # get the numb of args
+                countt = len(ljinux.based.user_vars["argj"].split())  # get the numb of args
                 if countt > 6:
                     txt += (
                         str(ljinux.based.user_vars["argj"].split()[5])[1:] + " "
@@ -77,7 +77,10 @@ if display_availability:
             modd = ljinux.based.fn.adv_input(
                 ljinux.based.user_vars["argj"].split()[7], str
             )
-            ljinux.farland.rect(xi, yi, xe, ye, col, modd)
+            ljinux.farland.public = [xi, yi, xe, ye, col, modd]
+            ljinux.based.command.fpexecc(
+                [None, "-n", "/LjinuxRoot/bin/display_f/rect.py"]
+            )
         except (IndexError, ValueError):
             ljinux.based.error(9)
     elif typee == "line":  # x start, y start, x stop, y stop, color
@@ -97,7 +100,10 @@ if display_availability:
             col = ljinux.based.fn.adv_input(
                 ljinux.based.user_vars["argj"].split()[6], int
             )
-            ljinux.farland.line(xi, yi, xe, ye, col)
+            ljinux.farland.public = [xi, yi, xe, ye, col]
+            ljinux.based.command.fpexecc(
+                [None, "-n", "/LjinuxRoot/bin/display_f/line.py"]
+            )
         except (IndexError, ValueError):
             ljinux.based.error(9)
     elif (
@@ -128,7 +134,7 @@ if display_availability:
         typee == "triangle"
     ):  # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
         ljinux.based.command.fpexecc(
-            ["fpexec", "-n", "/LjinuxRoot/bin/display_f/triangle_execution.py"]
+            [None, "-n", "/LjinuxRoot/bin/display_f/triangle_execution.py"]
         )
     elif typee == "fill":  # color
         try:
@@ -152,5 +158,6 @@ if display_availability:
         ljinux.farland.frame()
     else:
         ljinux.based.error(1)
+    del typee
 else:
     ljinux.based.error(6)
