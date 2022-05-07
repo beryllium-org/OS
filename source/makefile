@@ -31,12 +31,16 @@ ctest:
 	@echo -e "\nCommencing kernel compile test\nNote: This does not update any board files."
 	@python3 ../scripts/make_kernel_test.py
 connection:
-	@echo -n "Ensuring GNU/Screen is installed.. "
+	@echo -n "Ensuring GNU/Screen is installed.."
 	@command -v screen >/dev/null && echo "Found" || (echo -e "Not found\nInstalling.." && ./scripts/installscreen.sh)
-	@echo -e "\nRunning screen connection.. "
+	@echo -e "\nRunning screen connection.."
 	@../scripts/screenningg.sh
 blacktest:
-	@echo -n "Commencing black compatibility test.. "
+	@echo -n "Commencing black compatibility test.."
 	@command -v black >/dev/null && echo -e "Found black\n" || (echo -e "Not found\nInstalling.." && ./scripts/installblack.sh)
 	black --check .
 	@../scripts/returncheck.sh
+ccon:
+	@echo "Installing ccon to the machine.."
+	@python3 ../scripts/ccon.py
+	@echo -e "\nDone, now try running ccon\n"
