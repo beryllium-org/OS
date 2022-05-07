@@ -573,9 +573,18 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
         def init_net():
             global configg
-            if configg["w5500_SCSn"] != -1 and configg["w5500_SCLK"] != -1 and configg["w5500_MISO"] != -1 and configg["w5500_MOSI"] != -1:
-                cs = digitalio.DigitalInOut(pintab[configg["w5500_SCSn"]]) 
-                spi = busio.SPI(pintab[configg["w5500_SCLK"]], MOSI=pintab[configg["w5500_MOSI"]], MISO=pintab[configg["w5500_MISO"]])
+            if (
+                configg["w5500_SCSn"] != -1
+                and configg["w5500_SCLK"] != -1
+                and configg["w5500_MISO"] != -1
+                and configg["w5500_MOSI"] != -1
+            ):
+                cs = digitalio.DigitalInOut(pintab[configg["w5500_SCSn"]])
+                spi = busio.SPI(
+                    pintab[configg["w5500_SCLK"]],
+                    MOSI=pintab[configg["w5500_MOSI"]],
+                    MISO=pintab[configg["w5500_MISO"]],
+                )
                 ca = True
                 dmtex("Network bus ready")
             else:
@@ -628,7 +637,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     "adafruit_requests",
                     "adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver",
                     "adafruit_wsgi",
-                    "adafruit_wsgi.request"
+                    "adafruit_wsgi.request",
                 ]:
                     try:
                         exec(f"global {i};del {i};del modules[{i}]")
@@ -639,7 +648,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
         def start_sdcard():
             global sdcard_fs
-            if configg["sd_SCLK"] != -1 and configg["sd_SCSn"] != -1 and configg["sd_MISO"] != -1 and configg["sd_MOSI"] != -1:
+            if (
+                configg["sd_SCLK"] != -1
+                and configg["sd_SCSn"] != -1
+                and configg["sd_MISO"] != -1
+                and configg["sd_MOSI"] != -1
+            ):
                 spi = busio.SPI(board.GP2, MOSI=board.GP3, MISO=board.GP4)
                 cs = digitalio.DigitalInOut(board.GP5)
             else:
@@ -1011,15 +1025,15 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 print(
                     f"LNL {colors.magenta_t}based\nThese shell commands are defined internally or are in PATH.\nType 'help' to see this list.\n"
                 )  # shameless, but without rgb spam
-                
+
                 l = ljinux.based.get_bins() + list(dictt.keys())
-                
+
                 lenn = 0
                 for i in l:
                     if len(i) > lenn:
                         lenn = len(i)
                 lenn += 2
-                
+
                 for index, tool in enumerate(l):
                     print(
                         colors.green_t + tool + colors.endc,
@@ -1028,7 +1042,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     if index % 4 == 3:
                         stdout.write("\n")  # stdout faster than print cuz no logic
                 stdout.write("\n")
-                
+
                 del l
                 del lenn
 
@@ -1608,7 +1622,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     if len(candidates) > 1:
                                         stdout.write("\n")
                                         for i in candidates:
-                                            if not i.startswith('_'):
+                                            if not i.startswith("_"):
                                                 print("\t" + i)
                                     elif len(candidates) == 1:
                                         term.clear_line()
@@ -1801,7 +1815,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         # ---
 
         def setup():
-            ljinux.based.command.fpexecc(["fpexec", "-n", "/LjinuxRoot/bin/display_f/setup.py"])
+            ljinux.based.command.fpexecc(
+                ["fpexec", "-n", "/LjinuxRoot/bin/display_f/setup.py"]
+            )
             time.sleep(2)
 
         def frame():
@@ -1835,9 +1851,13 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         def draw_circle(xpos0, ypos0, rad, col, f):
             ljinux.farland.public = [xpos0, ypos0, rad, col]
             if not f:
-                ljinux.based.command.fpexecc(["fpexec", "-n", "/LjinuxRoot/bin/display_f/draw_circle.py"])
+                ljinux.based.command.fpexecc(
+                    ["fpexec", "-n", "/LjinuxRoot/bin/display_f/draw_circle.py"]
+                )
             else:
-                ljinux.based.command.fpexecc(["fpexec", "-n", "/LjinuxRoot/bin/display_f/f_draw_circle.py"])
+                ljinux.based.command.fpexecc(
+                    ["fpexec", "-n", "/LjinuxRoot/bin/display_f/f_draw_circle.py"]
+                )
 
         def line(x0, y0, x1, y1, col):
             dx = abs(x1 - x0)

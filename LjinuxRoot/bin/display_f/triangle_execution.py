@@ -16,4 +16,4 @@ try:
             ljinux.farland.ext_line(xz, yz, i[0], i[1], col)
     del xi, yi, xe, ye, xz, yz, col, modd
 except (IndexError, ValueError):
-    ljinux.based.error(9) 
+    ljinux.based.error(9)

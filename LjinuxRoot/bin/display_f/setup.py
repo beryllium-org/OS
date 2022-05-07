@@ -12,9 +12,7 @@ try:
     ljinux.farland.oled.show()
     display_availability = True
 except (RuntimeError, KeyError, NameError):
-    print(
-        "Failed to create display object, display functions will be unavailable"
-    )
+    print("Failed to create display object, display functions will be unavailable")
     try:
         del modules["adafruit_ssd1306"]
         del modules["adafruit_framebuf"]

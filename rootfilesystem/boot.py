@@ -14,6 +14,7 @@ except OSError:
 print("J", end="")
 
 from storage import getmount, remount
+
 remount("/", readonly=False)
 print("I", end="")
 m = getmount("/")

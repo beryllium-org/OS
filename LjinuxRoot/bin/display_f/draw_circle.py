@@ -8,14 +8,46 @@ dx = 1
 dy = 1
 err = dx - (ljinux.farland.public[2] << 1)
 while x >= y:
-    ljinux.farland.oled.pixel(ljinux.farland.public[0] + x, ljinux.farland.public[1] + y, ljinux.farland.public[3])
-    ljinux.farland.oled.pixel(ljinux.farland.public[0] + y, ljinux.farland.public[1] + x, ljinux.farland.public[3])
-    ljinux.farland.oled.pixel(ljinux.farland.public[0] - y, ljinux.farland.public[1] + x, ljinux.farland.public[3])
-    ljinux.farland.oled.pixel(ljinux.farland.public[0] - x, ljinux.farland.public[1] + y, ljinux.farland.public[3])
-    ljinux.farland.oled.pixel(ljinux.farland.public[0] - x, ljinux.farland.public[1] - y, ljinux.farland.public[3])
-    ljinux.farland.oled.pixel(ljinux.farland.public[0] - y, ljinux.farland.public[1] - x, ljinux.farland.public[3])
-    ljinux.farland.oled.pixel(ljinux.farland.public[0] + y, ljinux.farland.public[1] - x, ljinux.farland.public[3])
-    ljinux.farland.oled.pixel(ljinux.farland.public[0] + x, ljinux.farland.public[1] - y, ljinux.farland.public[3])
+    ljinux.farland.oled.pixel(
+        ljinux.farland.public[0] + x,
+        ljinux.farland.public[1] + y,
+        ljinux.farland.public[3],
+    )
+    ljinux.farland.oled.pixel(
+        ljinux.farland.public[0] + y,
+        ljinux.farland.public[1] + x,
+        ljinux.farland.public[3],
+    )
+    ljinux.farland.oled.pixel(
+        ljinux.farland.public[0] - y,
+        ljinux.farland.public[1] + x,
+        ljinux.farland.public[3],
+    )
+    ljinux.farland.oled.pixel(
+        ljinux.farland.public[0] - x,
+        ljinux.farland.public[1] + y,
+        ljinux.farland.public[3],
+    )
+    ljinux.farland.oled.pixel(
+        ljinux.farland.public[0] - x,
+        ljinux.farland.public[1] - y,
+        ljinux.farland.public[3],
+    )
+    ljinux.farland.oled.pixel(
+        ljinux.farland.public[0] - y,
+        ljinux.farland.public[1] - x,
+        ljinux.farland.public[3],
+    )
+    ljinux.farland.oled.pixel(
+        ljinux.farland.public[0] + y,
+        ljinux.farland.public[1] - x,
+        ljinux.farland.public[3],
+    )
+    ljinux.farland.oled.pixel(
+        ljinux.farland.public[0] + x,
+        ljinux.farland.public[1] - y,
+        ljinux.farland.public[3],
+    )
     if err <= 0:
         y += 1
         err += dy
