@@ -854,6 +854,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 8: "Missing files",
                 9: "Missing arguments",
                 10: "File exists",
+                11: "Not enough system memory",
             }
             print(f"{colors.magenta_t}Based{colors.endc}: {errs[wh]}")
             ljinux.io.ledset(1)
@@ -1084,128 +1085,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         else:
                             ljinux.based.user_vars[inpt[0]] = new_var
                 except IndexError:
-                    ljinux.based.error(1)
-
-            def display(inpt, objectss):  # the graphics drawing stuff
-                typee = inpt[
-                    1
-                ]  # "text / pixel / rectangle / line / circle / triangle / fill"
-                if typee == "text":  # x, y, color, text in ""
-                    try:
-                        xi = 0
-                        xi = ljinux.based.fn.adv_input(inpt[2], int)
-                        yi = ljinux.based.fn.adv_input(inpt[3], int)
-                        txt = ""  # inpt[5]
-                        col = ljinux.based.fn.adv_input(inpt[4], int)
-                        if inpt[5].startswith('"'):  # let's do some string proccessing!
-                            countt = len(inpt)  # get the numb of args
-                            if countt > 6:
-                                txt += (
-                                    str(inpt[5])[1:] + " "
-                                )  # get the first word, remove last char (")
-                                if inpt[countt - 1].endswith('"'):
-                                    for i in range(
-                                        6, countt - 1
-                                    ):  # make all the words one thicc string
-                                        txt += str(inpt[i]) + " "
-                                    txt += str(inpt[countt - 1])[
-                                        :-1
-                                    ]  # last word without last char (")
-                                else:
-                                    ljinux.based.error(9)
-                            else:
-                                txt += str(inpt[5])[1:-1]
-                        else:
-                            ljinux.based.error(9)
-                        ljinux.farland.text(txt, xi, yi, col)
-                    except (IndexError, ValueError):
-                        ljinux.based.error(9)
-                elif typee == "dot":  # x,y,col
-                    try:
-                        xi = ljinux.based.fn.adv_input(inpt[2], int)
-                        yi = ljinux.based.fn.adv_input(inpt[3], int)
-                        col = ljinux.based.fn.adv_input(inpt[4], int)
-                        ljinux.farland.pixel(xi, yi, col)
-                    except (IndexError, ValueError):
-                        ljinux.based.error(9)
-                elif (
-                    typee == "rectangle"
-                ):  # x start, y start, x stop, y stop, color, mode (fill / border)
-                    try:
-                        xi = ljinux.based.fn.adv_input(inpt[2], int)
-                        yi = ljinux.based.fn.adv_input(inpt[3], int)
-                        xe = ljinux.based.fn.adv_input(inpt[4], int)
-                        ye = ljinux.based.fn.adv_input(inpt[5], int)
-                        col = ljinux.based.fn.adv_input(inpt[6], int)
-                        modd = ljinux.based.fn.adv_input(inpt[7], str)
-                        ljinux.farland.rect(xi, yi, xe, ye, col, modd)
-                    except (IndexError, ValueError):
-                        ljinux.based.error(9)
-                elif typee == "line":  # x start, y start, x stop, y stop, color
-                    try:
-                        xi = ljinux.based.fn.adv_input(inpt[2], int)
-                        yi = ljinux.based.fn.adv_input(inpt[3], int)
-                        xe = ljinux.based.fn.adv_input(inpt[4], int)
-                        ye = ljinux.based.fn.adv_input(inpt[5], int)
-                        col = ljinux.based.fn.adv_input(inpt[6], int)
-                        ljinux.farland.line(xi, yi, xe, ye, col)
-                    except (IndexError, ValueError):
-                        ljinux.based.error(9)
-                elif (
-                    typee == "circle"
-                ):  # x center, y center, rad, color, mode (fill/ border / template) TODO fix fill and do template
-                    try:
-                        xi = ljinux.based.fn.adv_input(inpt[2], int)
-                        yi = ljinux.based.fn.adv_input(inpt[3], int)
-                        radd = ljinux.based.fn.adv_input(inpt[4], int)
-                        col = ljinux.based.fn.adv_input(inpt[5], int)
-                        modd = ljinux.based.fn.adv_input(inpt[6], int)
-                        if modd != "fill":
-                            ljinux.farland.draw_circle(xi, yi, radd, col)
-                        else:
-                            ljinux.farland.f_draw_circle(xi, yi, radd, col)
-                    except (IndexError, ValueError):
-                        ljinux.based.error(9)
-                elif (
-                    typee == "triangle"
-                ):  # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
-                    try:
-                        xi = ljinux.based.fn.adv_input(inpt[2], int)
-                        yi = ljinux.based.fn.adv_input(inpt[3], int)
-                        xe = ljinux.based.fn.adv_input(inpt[4], int)
-                        ye = ljinux.based.fn.adv_input(inpt[5], int)
-                        xz = ljinux.based.fn.adv_input(inpt[6], int)
-                        yz = ljinux.based.fn.adv_input(inpt[7], int)
-                        col = ljinux.based.fn.adv_input(inpt[8], int)
-                        modd = ljinux.based.fn.adv_input(inpt[9], str)
-                        ljinux.farland.line(xi, yi, xe, ye, col)
-                        ljinux.farland.line(xi, yi, xz, yz, col)
-                        ljinux.farland.line(xz, yz, xe, ye, col)
-                        if modd == "fill":
-                            templ = ljinux.farland.virt_line(xi, yi, xe, ye)
-                            for i in templ:
-                                ljinux.farland.ext_line(xz, yz, i[0], i[1], col)
-                    except (IndexError, ValueError):
-                        ljinux.based.error(9)
-                elif typee == "fill":  # color
-                    try:
-                        col = ljinux.based.fn.adv_input(inpt[2], int)
-                        ljinux.farland.fill(col)
-                    except (IndexError, ValueError):
-                        ljinux.based.error(9)
-                elif typee == "rhombus":  # todo
-                    pass
-                elif typee == "move":  # todo
-                    pass
-                elif typee == "delete":  # todo more
-                    optt = ljinux.based.fn.adv_input(inpt[2], int)
-                    if optt == "all":
-                        ljinux.farland.clear()
-                    else:
-                        ljinux.based.error(1)
-                elif typee == "refresh":
-                    ljinux.farland.frame()
-                else:
                     ljinux.based.error(1)
 
             def suuu(inpt):  # su command but worse
@@ -1627,7 +1506,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 elif whatever in act_dict:
                     res = act_dict[whatever]()
                 else:
-                    raise ValueError("Could not be found in Ljinux lists")
+                    res = whatever
                 return _type(res)
 
         def shell(
@@ -1640,7 +1519,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 "exec": ljinux.based.command.execc,
                 "help": ljinux.based.command.helpp,
                 "var": ljinux.based.command.var,
-                "display": ljinux.based.command.display,
                 "su": ljinux.based.command.suuu,
                 "history": ljinux.based.command.historgf,
                 "if": ljinux.based.command.iff,
@@ -1797,8 +1675,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     if led:
                         ljinux.io.ledset(3)  # act
                     if not (command_input == ""):
-                        gc.collect()
-                        gc.collect()
                         if (not "|" in command_input) and (not "&&" in command_input):
                             ljinux.based.raw_command_input = command_input
                             command_split = (
@@ -1816,20 +1692,13 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     not in [
                                         "error",
                                         "help",
-                                        "display",
                                     ]
                                 ):  # those are special bois, they will not be special when I make the api great
+                                    gc.collect()
+                                    gc.collect()
                                     res = function_dict[command_split[0]](command_split)
                                 elif command_split[0] == "help":
                                     res = function_dict["help"](function_dict)
-                                elif command_split[0] == "display":
-                                    global display_availability
-                                    if display_availability:
-                                        res = function_dict["display"](
-                                            command_split, ljinux.farland.entities
-                                        )
-                                    else:
-                                        ljinux.based.error(6)
                                 elif command_split[1] == "=":
                                     res = function_dict["var"](command_split)
                                 else:
@@ -1847,6 +1716,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                         certain = True
                                 del bins  # we no longer need the list
                                 if certain:
+                                    gc.collect()
+                                    gc.collect()
                                     res = function_dict["exec"](command_split)
                                 else:
                                     res = function_dict["error"](command_split)
@@ -1926,33 +1797,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         frames_suff = False
         # the display objects
         entities = []  # it will hold the drawn objects and allow their dynamic deletion
+        public = []
         # ---
 
         def setup():
-            global display_availability
-            ljinux.io.ledset(3)  # act
-            try:
-                i2c = busio.I2C(
-                    pintab[configg["displaySCL"]], pintab[configg["displaySDA"]]
-                )  # SCL, SDA
-                ljinux.farland.oled = adafruit_ssd1306.SSD1306_I2C(
-                    128, 64, i2c
-                )  # I use the i2c cuz it ez
-                del i2c
-                ljinux.farland.oled.fill(0)  # cuz why not
-                ljinux.farland.oled.show()
-                display_availability = True
-            except (RuntimeError, KeyError, NameError):
-                print(
-                    "Failed to create display object, display functions will be unavailable"
-                )
-                try:
-                    del modules["adafruit_ssd1306"]
-                    del modules["adafruit_framebuf"]
-                except KeyError:
-                    pass
-                dmtex("Unloaded display libraries")
-            ljinux.io.ledset(1)  # idle
+            ljinux.based.command.fpexecc(["fpexec", "-n", "/LjinuxRoot/bin/display_f/setup.py"])
+            time.sleep(2)
 
         def frame():
             global display_availability
@@ -1982,50 +1832,12 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             return int(ljinux.farland.oled.width)
 
         # privitive graphics
-        def draw_circle(xpos0, ypos0, rad, col):
-            x = rad - 1
-            top_l = None
-            top_r = None
-            bot_l = None
-            bot_r = None
-            y = 0
-            dx = 1
-            dy = 1
-            err = dx - (rad << 1)
-            while x >= y:
-                ljinux.farland.oled.pixel(xpos0 + x, ypos0 + y, col)
-                ljinux.farland.oled.pixel(xpos0 + y, ypos0 + x, col)
-                ljinux.farland.oled.pixel(xpos0 - y, ypos0 + x, col)
-                ljinux.farland.oled.pixel(xpos0 - x, ypos0 + y, col)
-                ljinux.farland.oled.pixel(xpos0 - x, ypos0 - y, col)
-                ljinux.farland.oled.pixel(xpos0 - y, ypos0 - x, col)
-                ljinux.farland.oled.pixel(xpos0 + y, ypos0 - x, col)
-                ljinux.farland.oled.pixel(xpos0 + x, ypos0 - y, col)
-                if err <= 0:
-                    y += 1
-                    err += dy
-                    dy += 2
-                if err > 0:
-                    x -= 1
-                    dx += 2
-                    err += dx - (rad << 1)
-
-        def f_draw_circle(xpos0, ypos0, rad, col):
-            rad -= 1
-            y = -rad
-            while y <= rad:
-                x = -rad
-                while x <= rad:
-                    if (x * 2 + y * 2) < (rad * rad + rad * 0.8):
-                        ljinux.farland.oled.pixel(xpos0 + x, ypos0 + y, col)
-                        # setpixel(origin.x+x, origin.y+y)
-                    x += 1
-                y += 1
-
-        def draw_top():  # to be made into an app
-            for i in range(128):
-                for j in range(11):
-                    ljinux.farland.oled.pixel(i, j, True)
+        def draw_circle(xpos0, ypos0, rad, col, f):
+            ljinux.farland.public = [xpos0, ypos0, rad, col]
+            if not f:
+                ljinux.based.command.fpexecc(["fpexec", "-n", "/LjinuxRoot/bin/display_f/draw_circle.py"])
+            else:
+                ljinux.based.command.fpexecc(["fpexec", "-n", "/LjinuxRoot/bin/display_f/f_draw_circle.py"])
 
         def line(x0, y0, x1, y1, col):
             dx = abs(x1 - x0)
@@ -2076,10 +1888,10 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 err = dy / 2.0
                 while y != y1:
                     ljinux.farland.oled.pixel(int(x), int(y), col)
-                    if not isInteger(x):
+                    if not isinstance(x, int):
                         ljinux.farland.oled.pixel(int(x) + 1, int(y), col)
                         ljinux.farland.oled.pixel(int(x) - 1, int(y), col)
-                    if not isInteger(y):
+                    if not isinstance(y, int):
                         ljinux.farland.oled.pixel(int(x), int(y) + 1, col)
                         ljinux.farland.oled.pixel(int(x), int(y) - 1, col)
                     err -= dx
@@ -2088,10 +1900,10 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         err += dy
                     y += sy
                 ljinux.farland.oled.pixel(int(x), int(y), col)
-                if not isInteger(x):
+                if not isinstance(x, int):
                     ljinux.farland.oled.pixel(int(x) + 1, int(y), col)
                     ljinux.farland.oled.pixel(int(x) - 1, int(y), col)
-                if not isInteger(y):
+                if not isinstance(y, int):
                     ljinux.farland.oled.pixel(int(x), int(y) + 1, col)
                     ljinux.farland.oled.pixel(int(x), int(y) - 1, col)
 

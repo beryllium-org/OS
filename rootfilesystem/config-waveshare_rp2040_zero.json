@@ -9,8 +9,8 @@
   "ledtype": "neopixel",
   
   "_comment4": "Display i2c pins",
-  "displaySCL": 3,
-  "displaySDA": 2,
+  "displaySCL": 27,
+  "displaySDA": 26,
 
   "_comment5": "Display height - width",
   "displayheight": 64,
