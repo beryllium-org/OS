@@ -1,3 +1,6 @@
+#python3
+# CircuitpythonCONnect also known as coc :)
+
 from os import system, listdir, uname
 
 if uname().sysname == "Darwin":
