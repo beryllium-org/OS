@@ -1,6 +1,6 @@
 from os import system, mkdir, listdir, uname
 
-mpyn = f"../mpy-crosses/mpy-cross-{uname().machine}"
+mpyn = f"../scripts/mpy-cross-{uname().machine}"
 
 print(f"\nUsing mpycross: {mpyn}")
 

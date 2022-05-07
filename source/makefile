@@ -17,6 +17,7 @@ rootfs:
 prepperms:
 	@echo -e "Preparing script permissions..\n"
 	@chmod +x ../scripts/*.sh
+	@chmod +x ../scripts/mpy*
 	@echo -e "OK"
 kerncomp:
 	@echo -e "\nCommencing kernel compilation.."

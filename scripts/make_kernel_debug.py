@@ -2,7 +2,7 @@ from os import system, mkdir, listdir, uname
 from getpass import getuser
 
 ami = getuser()
-mpyn = f"../mpy-crosses/mpy-cross-{uname().machine}"
+mpyn = f"../scripts/mpy-cross-{uname().machine}"
 print(f"\nUsing mpycross: {mpyn}")
 if system(f"test -d /media/{ami}/LJINUX") == 0:
     picop = f"/media/{ami}/LJINUX"
