@@ -1112,24 +1112,22 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                         :-1
                                     ]  # last word without last char (")
                                 else:
-                                    print(
-                                        f"{colors.magenta_t}Based{colors.endc}: Input error"
-                                    )
+                                    ljinux.based.error(9)
                             else:
                                 txt += str(inpt[5])[1:-1]
                         else:
-                            print(f"{colors.magenta_t}Based{colors.endc}: Input error")
+                            ljinux.based.error(9)
                         ljinux.farland.text(txt, xi, yi, col)
-                    except ValueError:
-                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
+                    except (IndexError, ValueError):
+                        ljinux.based.error(9)
                 elif typee == "dot":  # x,y,col
                     try:
                         xi = ljinux.based.fn.adv_input(inpt[2], int)
                         yi = ljinux.based.fn.adv_input(inpt[3], int)
                         col = ljinux.based.fn.adv_input(inpt[4], int)
                         ljinux.farland.pixel(xi, yi, col)
-                    except ValueError:
-                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
+                    except (IndexError, ValueError):
+                        ljinux.based.error(9)
                 elif (
                     typee == "rectangle"
                 ):  # x start, y start, x stop, y stop, color, mode (fill / border)
@@ -1141,8 +1139,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         col = ljinux.based.fn.adv_input(inpt[6], int)
                         modd = ljinux.based.fn.adv_input(inpt[7], str)
                         ljinux.farland.rect(xi, yi, xe, ye, col, modd)
-                    except ValueError:
-                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
+                    except (IndexError, ValueError):
+                        ljinux.based.error(9)
                 elif typee == "line":  # x start, y start, x stop, y stop, color
                     try:
                         xi = ljinux.based.fn.adv_input(inpt[2], int)
@@ -1151,8 +1149,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         ye = ljinux.based.fn.adv_input(inpt[5], int)
                         col = ljinux.based.fn.adv_input(inpt[6], int)
                         ljinux.farland.line(xi, yi, xe, ye, col)
-                    except ValueError:
-                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
+                    except (IndexError, ValueError):
+                        ljinux.based.error(9)
                 elif (
                     typee == "circle"
                 ):  # x center, y center, rad, color, mode (fill/ border / template) TODO fix fill and do template
@@ -1166,8 +1164,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             ljinux.farland.draw_circle(xi, yi, radd, col)
                         else:
                             ljinux.farland.f_draw_circle(xi, yi, radd, col)
-                    except ValueError:
-                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
+                    except (IndexError, ValueError):
+                        ljinux.based.error(9)
                 elif (
                     typee == "triangle"
                 ):  # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
@@ -1187,14 +1185,14 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             templ = ljinux.farland.virt_line(xi, yi, xe, ye)
                             for i in templ:
                                 ljinux.farland.ext_line(xz, yz, i[0], i[1], col)
-                    except ValueError:
-                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
+                    except (IndexError, ValueError):
+                        ljinux.based.error(9)
                 elif typee == "fill":  # color
                     try:
                         col = ljinux.based.fn.adv_input(inpt[2], int)
                         ljinux.farland.fill(col)
-                    except ValueError:
-                        print(f"{colors.magenta_t}Based{colors.endc}: Input error")
+                    except (IndexError, ValueError):
+                        ljinux.based.error(9)
                 elif typee == "rhombus":  # todo
                     pass
                 elif typee == "move":  # todo
