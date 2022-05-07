@@ -631,7 +631,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     "adafruit_wsgi.request"
                 ]:
                     try:
-                        exec(f"global {i};del {i};del modules[{i}}]")
+                        exec(f"global {i};del {i};del modules[{i}]")
                     except:
                         pass
                 dmtex("Unloaded networking libraries")
