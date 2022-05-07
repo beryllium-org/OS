@@ -8,6 +8,6 @@ else:
     print("Error: Unkown platform")
     exit(1)
 
-print(f"Running: \"{commd}\"")
+print(f'Running: "{commd}"')
 system(commd)
 del commd
