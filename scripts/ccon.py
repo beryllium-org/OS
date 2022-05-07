@@ -1,16 +1,8 @@
 #python3
 # CircuitpythonCONnect also known as coc :)
 
-from os import system, listdir, uname
-
-if uname().sysname == "Darwin":
-    pass
-elif uname().sysname == "Linux":
-    commd = "sudo cp ../scripts/screenningg.sh /bin/ccon"
-else:
-    print("Error: Unkown platform")
-    exit(1)
-
+from os import system
+commd = "sudo cp ../scripts/screenningg.sh /usr/local/bin/ccon"
 print(f'Running: "{commd}"')
 system(commd)
 del commd
