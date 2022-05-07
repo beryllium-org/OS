@@ -133,6 +133,11 @@ Unless a path is given as an argument, it will try to serve /ljinux/var/www/defa
 Send "webserver -k" to kill
 
 
+whois [name]
+
+Finds and returns the ip of the given domain.
+
+
 devmode
 
 Enables usb access and other development features

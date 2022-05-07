@@ -1,0 +1,2 @@
+fpexec -n /LjinuxRoot/bin/whois.py
+echo return

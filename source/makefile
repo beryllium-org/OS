@@ -19,7 +19,7 @@ prepperms:
 	@chmod +x ../scripts/*.sh
 	@echo -e "OK"
 kerncomp:
-	@echo -e "\nCommencing kernel compilation..\n"
+	@echo -e "\nCommencing kernel compilation.."
 	@sync
 	@python3 ../scripts/make_kernel.py
 kerncompd:
@@ -27,7 +27,7 @@ kerncompd:
 	@sync
 	@python3 ../scripts/make_kernel_debug.py
 ctest:
-	@echo -e "\nCommencing kernel compile test\nNote: This does not update any board files.\n"
+	@echo -e "\nCommencing kernel compile test\nNote: This does not update any board files."
 	@python3 ../scripts/make_kernel_test.py
 connection:
 	@echo -n "Ensuring GNU/Screen is installed.. "

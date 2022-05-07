@@ -1,0 +1,5 @@
+{
+    "NAME":"whois",
+    "SYNOPSIS":"whois [name]",
+    "DESCRIPTION":"Finds and returns the ip of the given domain."
+}

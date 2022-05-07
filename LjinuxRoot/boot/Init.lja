@@ -3,6 +3,7 @@ OS = "Ljinux"
 cd /home/pi
 USER = "Pi"
 fpexec -n /LjinuxRoot/etc/hostname-reload.py
-waitforserial
+_waitforserial
+_rebootprompt
 exec .basedrc
 SECURITY = "on"

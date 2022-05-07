@@ -13,17 +13,16 @@ except OSError:
 
 print("J", end="")
 
-if devf:
-    from storage import getmount, remount
+from storage import getmount, remount
+remount("/", readonly=False)
+print("I", end="")
+m = getmount("/")
+m.label = "Ljinux"
+del m
+remount("/", readonly=True)
+print("N", end="")
 
-    remount("/", readonly=False)
-    print("I", end="")
-    m = getmount("/")
-    m.label = "Ljinux"
-    del m
-    remount("/", readonly=True)
-    print("N", end="")
-else:
+if not devf:
     from storage import disable_usb_drive
 
     disable_usb_drive()

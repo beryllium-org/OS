@@ -126,7 +126,7 @@ try:
 
     from microcontroller import cpu, cpus
 
-    from storage import remount, VfsFat, mount
+    from storage import remount, VfsFat, mount, getmount
 
     from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove
 
@@ -178,19 +178,30 @@ except ImportError:
 dmtex("Options applied:")
 
 defaultoptions = {  # default configuration, in line with the manual
-    "displaySCL": (17, int),
-    "displaySDA": (16, int),
-    "displayheight": (64, int),  # SSD1306 spec
-    "displaywidth": (128, int),  # SSD1306 spec
-    "led": (0, int),
-    "ledtype": ("generic", str),
-    "fixrtc": (True, bool),
-    "SKIPTEMP": (False, bool),
-    "SKIPCP": (False, bool),
-    "DEVBOARD": (False, bool),
-    "DEBUG": (False, bool),
-    "DISPLAYONLYMODE": (False, bool),
+    "displaySCL": (-1, int, True),
+    "displaySDA": (-1, int, True),
+    "displayheight": (64, int, False),  # SSD1306 spec
+    "displaywidth": (128, int, False),  # SSD1306 spec
+    "led": (0, int, True),
+    "ledtype": ("generic", str, False),
+    "fixrtc": (True, bool, False),
+    "SKIPTEMP": (False, bool, False),
+    "SKIPCP": (False, bool, False),
+    "DEVBOARD": (False, bool, False),
+    "DEBUG": (False, bool, False),
+    "DISPLAYONLYMODE": (False, bool, False),
+    "w5500_MOSI": (-1, int, True),
+    "w5500_MISO": (-1, int, True),
+    "w5500_SCSn": (-1, int, True),
+    "w5500_SCLK": (-1, int, True),
+    "sd_SCLK": (-1, int, True),
+    "sd_SCSn": (-1, int, True),
+    "sd_MISO": (-1, int, True),
+    "sd_MOSI": (-1, int, True),
 }
+
+# dynamic pintab
+exec(f"from pintab_{board.board_id} import pintab")
 
 # General options
 for optt in {
@@ -204,6 +215,14 @@ for optt in {
     "displaywidth",
     "led",
     "ledtype",
+    "w5500_MOSI",
+    "w5500_MISO",
+    "w5500_SCSn",
+    "w5500_SCLK",
+    "sd_SCLK",
+    "sd_SCSn",
+    "sd_MISO",
+    "sd_MOSI",
 }:
     try:
         if isinstance(configg[optt], defaultoptions[optt][1]):
@@ -226,27 +245,23 @@ for optt in {
             'Missing / Invalid value for "' + optt + '" applied: ' + str(configg[optt]),
             timing=False,
         )
-
-# dynamic pintab
-exec(f"from pintab_{board.board_id} import pintab")
-
-for optt in {"displaySCL", "displaySDA", "led"}:
-    try:
-        pin = configg[optt]
-        if pin in pin_alloc:
-            dmtex("PIN ALLOCATED, EXITING")
-            exit(0)
-        elif pin == -1:
+    if defaultoptions[optt][2]:
+        try:
+            pin = configg[optt]
+            if pin in pin_alloc:
+                dmtex("PIN ALLOCATED, EXITING")
+                exit(0)
+            elif pin == -1:
+                pass
+            else:
+                pin_alloc.add(pin)
+            dmtex(
+                "\t" + colors.green_t + "√" + colors.endc + " " + optt + "=" + str(pin),
+                timing=False,
+            )
+            del pin
+        except KeyError:
             pass
-        else:
-            pin_alloc.add(pin)
-        dmtex(
-            "\t" + colors.green_t + "√" + colors.endc + " " + optt + "=" + str(pin),
-            timing=False,
-        )
-        del pin
-    except KeyError:
-        pass
 
 dmtex("Total pin alloc: ", end="")
 for i in pin_alloc:
@@ -259,8 +274,6 @@ else:
     boardLED = pintab[configg["led"]]
 
 del defaultoptions
-del pintab
-
 
 # basic checks
 if not configg["SKIPCP"]:  # beta testing
@@ -559,18 +572,24 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 yield f"CRITICAL: File '{filename}' Not Found"
 
         def init_net():
-            cs = digitalio.DigitalInOut(board.GP13)
-            spi = busio.SPI(board.GP10, MOSI=board.GP11, MISO=board.GP12)
-            dmtex("Network bus ready")
-            ca = True
-            try:
-                ljinux.io.network = WIZNET5K(spi, cs, is_dhcp=False)
-                dmtex("Eth interface created")
-            except (AssertionError, NameError):
-                dmtex("Eth interface creation failed")
+            global configg
+            if configg["w5500_SCSn"] != -1 and configg["w5500_SCLK"] != -1 and configg["w5500_MISO"] != -1 and configg["w5500_MOSI"] != -1:
+                cs = digitalio.DigitalInOut(pintab[configg["w5500_SCSn"]]) 
+                spi = busio.SPI(pintab[configg["w5500_SCLK"]], MOSI=pintab[configg["w5500_MOSI"]], MISO=pintab[configg["w5500_MISO"]])
+                ca = True
+                dmtex("Network bus ready")
+            else:
                 ca = False
-            del spi
-            del cs
+                dmtex("No pins for networking, skipping setup")
+            if ca:
+                try:
+                    ljinux.io.network = WIZNET5K(spi, cs, is_dhcp=False)
+                    dmtex("Eth interface created")
+                except (AssertionError, NameError):
+                    dmtex("Eth interface creation failed")
+                    ca = False
+                del spi
+                del cs
             if ca and ljinux.io.network.link_status:
                 dhcp_status = ljinux.io.network.set_dhcp(
                     hostname="Ljinux", response_timeout=10
@@ -599,26 +618,34 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     dmtex("DHCP failed")
             else:
                 dmtex("Ethernet cable not connected / interface unavailable")
-                try:
-                    del modules["adafruit_wiznet5k.adafruit_wiznet5k_dhcp"]
-                    del modules["adafruit_wiznet5k.adafruit_wiznet5k_socket"]
-                    del modules["adafruit_wiznet5k.adafruit_wiznet5k_dns"]
-                    del modules["adafruit_wiznet5k.adafruit_wiznet5k"]
-                    del modules["adafruit_wiznet5k"]
-                    del modules["adafruit_wsgi.wsgi_app"]
-                    del modules["adafruit_requests"]
-                    del modules["adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver"]
-                    del modules["adafruit_wsgi"]
-                    del modules["adafruit_wsgi.request"]
-                except KeyError:
-                    pass
+                for i in [
+                    "adafruit_wiznet5k.adafruit_wiznet5k_dhcp",
+                    "adafruit_wiznet5k.adafruit_wiznet5k_socket",
+                    "adafruit_wiznet5k.adafruit_wiznet5k_dns",
+                    "adafruit_wiznet5k.adafruit_wiznet5k",
+                    "adafruit_wiznet5k",
+                    "adafruit_wsgi.wsgi_app",
+                    "adafruit_requests",
+                    "adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver",
+                    "adafruit_wsgi",
+                    "adafruit_wsgi.request"
+                ]:
+                    try:
+                        exec(f"global {i};del {i};del modules[{i}}]")
+                    except:
+                        pass
                 dmtex("Unloaded networking libraries")
             del ca
 
         def start_sdcard():
             global sdcard_fs
-            spi = busio.SPI(board.GP2, MOSI=board.GP3, MISO=board.GP4)
-            cs = digitalio.DigitalInOut(board.GP5)
+            if configg["sd_SCLK"] != -1 and configg["sd_SCSn"] != -1 and configg["sd_MISO"] != -1 and configg["sd_MOSI"] != -1:
+                spi = busio.SPI(board.GP2, MOSI=board.GP3, MISO=board.GP4)
+                cs = digitalio.DigitalInOut(board.GP5)
+            else:
+                sdcard_fs = False
+                dmtex("No pins for sdcard, skipping setup")
+                return
             dmtex("SD bus ready")
             try:
                 sdcard = adafruit_sdcard.SDCard(spi, cs)
@@ -736,7 +763,10 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             dst,
                         )
                     )
-                    rtcc.write_datetime(nettime)
+                    try:
+                        rtcc.write_datetime(nettime)
+                    except NameError:
+                        dmtex("Cannot set time, since no rtc is attached")
                     del nettime
                     dmtex("Network time set for " + dat["abbreviation"])
                     del dat
@@ -978,34 +1008,28 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
             def helpp(dictt):
                 print(
-                    f"LNL {colors.magenta_t}based\nThese shell commands are defined internally or are in PATH. Type 'help' to see this list.\n"
+                    f"LNL {colors.magenta_t}based\nThese shell commands are defined internally or are in PATH.\nType 'help' to see this list.\n"
                 )  # shameless, but without rgb spam
-
-                for index, tool in enumerate(dictt):
+                
+                l = ljinux.based.get_bins() + list(dictt.keys())
+                
+                lenn = 0
+                for i in l:
+                    if len(i) > lenn:
+                        lenn = len(i)
+                lenn += 2
+                
+                for index, tool in enumerate(l):
                     print(
                         colors.green_t + tool + colors.endc,
-                        end="           ".replace(" ", "", len(tool)),
+                        end=(" " * lenn).replace(" ", "", len(tool)),
                     )
-                    if index % 7 == 6:
+                    if index % 4 == 3:
                         stdout.write("\n")  # stdout faster than print cuz no logic
                 stdout.write("\n")
-
-                try:
-                    l = ljinux.based.get_bins()
-
-                    for index, tool in enumerate(l):
-                        print(
-                            colors.green_t + tool + colors.endc,
-                            end="           ".replace(" ", "", len(tool)),
-                        )
-                        if index % 7 == 6:
-                            print()
-
-                    print("\n")
-                    del l
-
-                except OSError:
-                    pass
+                
+                del l
+                del lenn
 
             def var(inpt):  # system & user variables setter
                 valid = True
@@ -1708,7 +1732,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     if len(candidates) > 1:
                                         stdout.write("\n")
                                         for i in candidates:
-                                            print("\t" + i)
+                                            if not i.startswith('_'):
+                                                print("\t" + i)
                                     elif len(candidates) == 1:
                                         term.clear_line()
                                         term.buf[1] = candidates[0]

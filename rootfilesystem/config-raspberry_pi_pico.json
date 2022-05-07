@@ -19,8 +19,21 @@
   "_comment6": "Other display related options",
   "_comment7": "Makes the pi only bother with sensor io & not serial. Not yet implemented",
   "DISPLAYONLYMODE": false,
+  
+  "_comment8": "Networking",
+  "w5500_MOSI": 11,
+  "w5500_MISO": 12,
+  "w5500_SCLK": 10,
+  "w5500_SCSn": 13,
+  
+  "_comment9": "SD card",
+  
+  "sd_SCLK": 2,
+  "sd_SCSn": 5,
+  "sd_MISO": 4,
+  "sd_MOSI": 3,
 
-  "_comment8": "Debugging & extreme options",
+  "_comment10": "Debugging & extreme options",
   "SKIPTEMP": false,
   "SKIPCP": false,
   "DEBUG": false,
