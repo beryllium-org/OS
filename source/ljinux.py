@@ -23,8 +23,9 @@ except ImportError:
 print("[    0.00000] Core libs loaded")
 dmesg.append("[    0.00000] Core libs loaded")
 
-# Pin allocation table
+# Pin allocation tables
 pin_alloc = set()
+gpio_alloc = set()
 
 # Default password, aka the password if no /LjinuxRoot/etc/passwd is found
 dfpasswd = "Ljinux"
@@ -69,7 +70,7 @@ except ImportError:
     exit(0)
 
 
-def dmtex(texx=None, end="\n", timing=True):
+def dmtex(texx=None, end="\n", timing=True, force=False):
     # Persistent offset, Print "end=" preserver
     global uptimee, oend
 
@@ -84,7 +85,7 @@ def dmtex(texx=None, end="\n", timing=True):
     else:
         strr = texx  # the message as is
 
-    if not term.dmtex_suppress:
+    if (not term.dmtex_suppress) or force:
         print(strr, end=end)  # using the provided end
     if (
         "\n" == oend
@@ -161,6 +162,10 @@ try:
         configg = json.load(f)  # and parse it as a json
         f.close()
     del confign
+    for i in configg:
+        if i.startswith('_'):
+            del configg[i]
+    del i
 
 except (ValueError, OSError):
     configg = {}
@@ -1059,6 +1064,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             inpt[2].startswith('"')
                             or inpt[2].isdigit()
                             or inpt[2].startswith("/")
+                            or inpt[2].startswith("G")
                         ):
                             valid = False
                     else:
@@ -1077,6 +1083,20 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             else:
                                 ljinux.based.error(1)
                                 valid = False
+                        elif inpt[2].startswith("GP"):
+                            # gpio allocation
+                            if len(inpt[2]) > 2 and len(inpt[2]) <= 4:
+                                gpp = int(inpt[2][2:])
+                            else:
+                                ljinux.based.error(2)
+                                return '1'
+                            if gpp in pin_alloc:
+                                dmtex("PIN ALLOCATED, ABORT")
+                                return '1'
+                            else:
+                                gpio_alloc.update([inpt[0], digitalio.DigitalInOut(pintab[gpp])]) # HELP
+                                pin_alloc.add(gpp)
+                            del gpp
                         else:
                             new_var += str(inpt[2])
                     else:

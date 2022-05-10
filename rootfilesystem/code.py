@@ -90,3 +90,4 @@ exit_l = {
 }
 
 exit_l[Exit_code]()
+exit(Exit_code)
