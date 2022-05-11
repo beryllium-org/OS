@@ -27,7 +27,9 @@ print("[1/2] Compiling source files and pin allocation tabs\n")
 for filee in listdir():
     if filee.endswith(".py"):
         print(f"-> {filee[:-3]}")
-        a = system(f"{mpyn} ./{filee} -s {filee[:-3]} -v -o {picop}/lib/{filee[:-3]}.mpy")
+        a = system(
+            f"{mpyn} ./{filee} -s {filee[:-3]} -v -o {picop}/lib/{filee[:-3]}.mpy"
+        )
         if a != 0:
             print("Compilation error, exiting")
             exit(1)

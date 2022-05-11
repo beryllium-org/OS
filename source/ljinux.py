@@ -1071,14 +1071,21 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             else:
                                 if ljinux.based.fn.adv_input(inpt[0], str) == inpt[0]:
                                     gpio_alloc.update(
-                                        {inpt[0]: [digitalio.DigitalInOut(pintab[gpp]), gpp]}
+                                        {
+                                            inpt[0]: [
+                                                digitalio.DigitalInOut(pintab[gpp]),
+                                                gpp,
+                                            ]
+                                        }
                                     )
-                                    gpio_alloc[inpt[0]][0].switch_to_input(pull=digitalio.Pull.DOWN)
+                                    gpio_alloc[inpt[0]][0].switch_to_input(
+                                        pull=digitalio.Pull.DOWN
+                                    )
                                     pin_alloc.add(gpp)
                                 else:
                                     ljinux.based.error(12)
                             del gpp
-                            valid = False # skip the next stuff
+                            valid = False  # skip the next stuff
 
                         elif inpt[0] in gpio_alloc:
                             if inpt[2].isdigit():
@@ -1086,19 +1093,19 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     gpio_alloc[inpt[0]][0].direction
                                     != digitalio.Direction.OUTPUT
                                 ):
-                                    gpio_alloc[
-                                        inpt[0]
-                                    ][0].direction = digitalio.Direction.OUTPUT
+                                    gpio_alloc[inpt[0]][
+                                        0
+                                    ].direction = digitalio.Direction.OUTPUT
                                 gpio_alloc[inpt[0]][0].value = int(inpt[2])
-                                valid = False # skip the next stuff
+                                valid = False  # skip the next stuff
                         elif inpt[2] in gpio_alloc:
-                            pass # yes we really have to pass
+                            pass  # yes we really have to pass
                         else:
                             new_var += str(inpt[2])
                     else:
                         ljinux.based.error(1)
                         valid = False
-                    if valid: # now do the actual set
+                    if valid:  # now do the actual set
                         if inpt[0] in ljinux.based.system_vars:
                             if not (ljinux.based.system_vars["SECURITY"] == "on"):
                                 ljinux.based.system_vars[inpt[0]] = new_var
@@ -1112,16 +1119,20 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             inpt[0] == ljinux.based.fn.adv_input(inpt[0], str)
                             or inpt[0] in ljinux.based.user_vars
                         ):
-                            if inpt[2] in gpio_alloc: # if setting value is gpio
+                            if inpt[2] in gpio_alloc:  # if setting value is gpio
                                 if (
                                     gpio_alloc[inpt[2]][0].direction
                                     != digitalio.Direction.INPUT
                                 ):
-                                    gpio_alloc[
-                                        inpt[2]
-                                    ][0].direction = digitalio.Direction.INPUT
-                                    gpio_alloc[inpt[2]][0].switch_to_input(pull=digitalio.Pull.DOWN)
-                                ljinux.based.user_vars[inpt[0]] = str(int(gpio_alloc[inpt[2]][0].value))
+                                    gpio_alloc[inpt[2]][
+                                        0
+                                    ].direction = digitalio.Direction.INPUT
+                                    gpio_alloc[inpt[2]][0].switch_to_input(
+                                        pull=digitalio.Pull.DOWN
+                                    )
+                                ljinux.based.user_vars[inpt[0]] = str(
+                                    int(gpio_alloc[inpt[2]][0].value)
+                                )
                             else:
                                 ljinux.based.user_vars[inpt[0]] = new_var
                         else:
