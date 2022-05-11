@@ -163,7 +163,7 @@ try:
         f.close()
     del confign
     for i in configg:
-        if i.startswith('_'):
+        if i.startswith("_"):
             del configg[i]
     del i
 
@@ -697,7 +697,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             "temperature": lambda: str("%.2f" % cpu.temperature),
             "display-attached": lambda: str(display_availability),
             "memory": lambda: str(gc.mem_free()),
-            "implementation_version": lambda: ljinux.based.system_vars["IMPLEMENTATION"],
+            "implementation_version": lambda: ljinux.based.system_vars[
+                "IMPLEMENTATION"
+            ],
             "implementation": lambda: implementation.name,
             "frequency": lambda: str(cpu.frequency),
             "voltage": lambda: str(cpu.voltage),
@@ -1023,7 +1025,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
             def var(inpt):  # system & user variables setter
                 valid = True
-                if inpt[0] == "var": # check if the var is passed and trim it
+                if inpt[0] == "var":  # check if the var is passed and trim it
                     temp = inpt
                     del inpt
                     inpt = []
@@ -1036,13 +1038,13 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             valid = False
                             break
                     if inpt[1] != "=" or not (
-                            inpt[2].startswith('"')
-                            or inpt[2].isdigit()
-                            or inpt[2].startswith("/")
-                            or inpt[2].startswith("G")
-                        ):
-                            valid = False
-                    if valid: # if the basic checks are done we can procceed to work
+                        inpt[2].startswith('"')
+                        or inpt[2].isdigit()
+                        or inpt[2].startswith("/")
+                        or inpt[2].startswith("G")
+                    ):
+                        valid = False
+                    if valid:  # if the basic checks are done we can procceed to work
                         new_var = ""
                         if inpt[2].startswith('"'):
                             countt = len(inpt)
@@ -1056,31 +1058,36 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             else:
                                 ljinux.based.error(1)
                                 valid = False
-                        elif inpt[2].startswith("GP"): # gpio allocation
+                        elif inpt[2].startswith("GP"):  # gpio allocation
                             if len(inpt[2]) > 2 and len(inpt[2]) <= 4:
                                 gpp = int(inpt[2][2:])
                             else:
                                 ljinux.based.error(2)
-                                return '1'
+                                return "1"
                             global pin_alloc
                             global gpio_alloc
                             if gpp in pin_alloc:
                                 dmtex("PIN ALLOCATED, ABORT", force=True)
-                                return '1'
+                                return "1"
                             else:
                                 if ljinux.based.fn.adv_input(inpt[0], str) == inpt[0]:
-                                    gpio_alloc.update({
-                                        inpt[0]: digitalio.DigitalInOut(pintab[gpp])
-                                    })
+                                    gpio_alloc.update(
+                                        {inpt[0]: digitalio.DigitalInOut(pintab[gpp])}
+                                    )
                                     pin_alloc.add(gpp)
                                 else:
                                     ljinux.based.error(12)
                             del gpp
-                            
+
                         elif inpt[0] in gpio_alloc:
                             if inpt[2].isdigit():
-                                if gpio_alloc[inpt[0]].direction != digitalio.Direction.OUTPUT:
-                                    gpio_alloc[inpt[0]].direction = digitalio.Direction.OUTPUT
+                                if (
+                                    gpio_alloc[inpt[0]].direction
+                                    != digitalio.Direction.OUTPUT
+                                ):
+                                    gpio_alloc[
+                                        inpt[0]
+                                    ].direction = digitalio.Direction.OUTPUT
                                 gpio_alloc[inpt[0]].value = int(inpt[2])
                         else:
                             new_var += str(inpt[2])
@@ -1097,14 +1104,17 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     + "Cannot edit system variables, security is enabled."
                                     + colors.endc
                                 )
-                        elif inpt[0] == ljinux.based.fn.adv_input(inpt[0], str) or inpt[0] in ljinux.based.user_vars:
+                        elif (
+                            inpt[0] == ljinux.based.fn.adv_input(inpt[0], str)
+                            or inpt[0] in ljinux.based.user_vars
+                        ):
                             ljinux.based.user_vars[inpt[0]] = new_var
                         else:
                             ljinux.based.error(12)
                 except IndexError:
                     ljinux.based.error(1)
-            
-            def dell(inpt): # del variables, and dell computers
+
+            def dell(inpt):  # del variables, and dell computers
                 pass
 
             def suuu(inpt):  # su command but worse
