@@ -1032,16 +1032,13 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     for chh in inpt[0]:
                         if not (chh.islower() or chh.isupper() or chh == "-"):
                             valid = False
-                    if inpt[1] == "=":
-                        if not (
+                    if inpt[1] != "=" or not (
                             inpt[2].startswith('"')
                             or inpt[2].isdigit()
                             or inpt[2].startswith("/")
                             or inpt[2].startswith("G")
                         ):
                             valid = False
-                    else:
-                        valid = False
                     if valid:
                         new_var = ""
                         if inpt[2].startswith('"'):
@@ -1063,11 +1060,13 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             else:
                                 ljinux.based.error(2)
                                 return '1'
+                            global pin_alloc
+                            global gpio_alloc
                             if gpp in pin_alloc:
-                                dmtex("PIN ALLOCATED, ABORT")
+                                dmtex("PIN ALLOCATED, ABORT", force=True)
                                 return '1'
                             else:
-                                gpio_alloc.update([inpt[0], digitalio.DigitalInOut(pintab[gpp])]) # HELP
+                                gpio_alloc.update({inpt[0]: digitalio.DigitalInOut(pintab[gpp])})
                                 pin_alloc.add(gpp)
                             del gpp
                         else:
@@ -1089,6 +1088,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             ljinux.based.user_vars[inpt[0]] = new_var
                 except IndexError:
                     ljinux.based.error(1)
+            
+            def dell(inpt): # del variables, and dell computers
+                pass
 
             def suuu(inpt):  # su command but worse
                 global dfpasswd
@@ -1522,6 +1524,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 "exec": ljinux.based.command.execc,
                 "help": ljinux.based.command.helpp,
                 "var": ljinux.based.command.var,
+                "del": ljinux.based.command.dell,
                 "su": ljinux.based.command.suuu,
                 "history": ljinux.based.command.historgf,
                 "if": ljinux.based.command.iff,
