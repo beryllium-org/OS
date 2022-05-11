@@ -1064,31 +1064,31 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             else:
                                 ljinux.based.error(2)
                                 return "1"
-                            global pin_alloc
-                            global gpio_alloc
                             if gpp in pin_alloc:
                                 dmtex("PIN ALLOCATED, ABORT", force=True)
                                 return "1"
                             else:
                                 if ljinux.based.fn.adv_input(inpt[0], str) == inpt[0]:
                                     gpio_alloc.update(
-                                        {inpt[0]: digitalio.DigitalInOut(pintab[gpp])}
+                                        {inpt[0]: [digitalio.DigitalInOut(pintab[gpp]), gpp]}
                                     )
                                     pin_alloc.add(gpp)
                                 else:
                                     ljinux.based.error(12)
                             del gpp
+                            valid = False # skip the next stuff
 
                         elif inpt[0] in gpio_alloc:
                             if inpt[2].isdigit():
                                 if (
-                                    gpio_alloc[inpt[0]].direction
+                                    gpio_alloc[inpt[0]][0].direction
                                     != digitalio.Direction.OUTPUT
                                 ):
                                     gpio_alloc[
                                         inpt[0]
-                                    ].direction = digitalio.Direction.OUTPUT
-                                gpio_alloc[inpt[0]].value = int(inpt[2])
+                                    ][0].direction = digitalio.Direction.OUTPUT
+                                gpio_alloc[inpt[0]][0].value = int(inpt[2])
+                                valid = False # skip the next stuff
                         else:
                             new_var += str(inpt[2])
                     else:
@@ -1116,9 +1116,30 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
             def dell(inpt):  # del variables, and dell computers
                 try:
-                    pass
+                    a = inpt[1]
+                    if a == ljinux.based.fn.adv_input(a, str) and a not in gpio_alloc:
+                        ljinux.based.error(2)
+                    else:
+                        if a in gpio_alloc:
+                            gpio_alloc[a][0].deinit()
+                            pin_alloc.remove(gpio_alloc[a][1])
+                            del gpio_alloc[a]
+                        elif a in ljinux.based.system_vars:
+                            if not (ljinux.based.system_vars["SECURITY"] == "on"):
+                                del ljinux.based.system_vars[a]
+                            else:
+                                print(
+                                    colors.error
+                                    + "Cannot edit system variables, security is enabled."
+                                    + colors.endc
+                                )
+                        elif a in ljinux.based.user_vars:
+                            del ljinux.based.user_vars[a]
+                        else:
+                            raise IndexError
+                    del a
                 except IndexError:
-                    ljinux.based.error()
+                    ljinux.based.error(1)
 
             def suuu(inpt):  # su command but worse
                 global dfpasswd
@@ -1556,7 +1577,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 "exec": ljinux.based.command.execc,
                 "help": ljinux.based.command.helpp,
                 "var": ljinux.based.command.var,
-                "del": ljinux.based.command.dell,
+                "unset": ljinux.based.command.dell,
                 "su": ljinux.based.command.suuu,
                 "history": ljinux.based.command.historgf,
                 "if": ljinux.based.command.iff,

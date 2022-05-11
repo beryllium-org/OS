@@ -398,3 +398,26 @@ It work by mapping:
 
 And treating all subsequent paths by that rule.
 It additionally maps "~" to the user's home directory.
+
+      /-----------|
+----<| GPIO Usage |
+      \-----------|
+
+From within the based shell you can use the unused GPIO pins as variables.
+Example:
+
+    a = GP9
+    a = 1
+
+This would allocate GPIO 9 to variable 'a' and set it's value to 1.
+
+To deinit the pin, simply unset the variable like:
+Example 2:
+
+    unset a
+    
+To read a GPIO's value, it has to be already set into a variable (Example 1) and used like:
+Example 3:
+
+    b = a
+    echo b
