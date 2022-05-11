@@ -1023,7 +1023,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 del l
                 del lenn
 
-            def var(inpt):  # system & user variables setter
+            def var(inpt):  # variables setter / editor
                 valid = True
                 if inpt[0] == "var":  # check if the var is passed and trim it
                     temp = inpt
@@ -1041,7 +1041,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         inpt[2].startswith('"')
                         or inpt[2].isdigit()
                         or inpt[2].startswith("/")
-                        or inpt[2].startswith("G")
+                        or inpt[2].startswith("GP")
+                        or inpt[2] in gpio_alloc
                     ):
                         valid = False
                     if valid:  # if the basic checks are done we can procceed to work
@@ -1072,6 +1073,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     gpio_alloc.update(
                                         {inpt[0]: [digitalio.DigitalInOut(pintab[gpp]), gpp]}
                                     )
+                                    gpio_alloc[inpt[0]][0].switch_to_input(pull=digitalio.Pull.DOWN)
                                     pin_alloc.add(gpp)
                                 else:
                                     ljinux.based.error(12)
@@ -1089,12 +1091,14 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     ][0].direction = digitalio.Direction.OUTPUT
                                 gpio_alloc[inpt[0]][0].value = int(inpt[2])
                                 valid = False # skip the next stuff
+                        elif inpt[2] in gpio_alloc:
+                            pass # yes we really have to pass
                         else:
                             new_var += str(inpt[2])
                     else:
                         ljinux.based.error(1)
                         valid = False
-                    if valid:
+                    if valid: # now do the actual set
                         if inpt[0] in ljinux.based.system_vars:
                             if not (ljinux.based.system_vars["SECURITY"] == "on"):
                                 ljinux.based.system_vars[inpt[0]] = new_var
@@ -1108,7 +1112,18 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             inpt[0] == ljinux.based.fn.adv_input(inpt[0], str)
                             or inpt[0] in ljinux.based.user_vars
                         ):
-                            ljinux.based.user_vars[inpt[0]] = new_var
+                            if inpt[2] in gpio_alloc: # if setting value is gpio
+                                if (
+                                    gpio_alloc[inpt[2]][0].direction
+                                    != digitalio.Direction.INPUT
+                                ):
+                                    gpio_alloc[
+                                        inpt[2]
+                                    ][0].direction = digitalio.Direction.INPUT
+                                    gpio_alloc[inpt[2]][0].switch_to_input(pull=digitalio.Pull.DOWN)
+                                ljinux.based.user_vars[inpt[0]] = str(int(gpio_alloc[inpt[2]][0].value))
+                            else:
+                                ljinux.based.user_vars[inpt[0]] = new_var
                         else:
                             ljinux.based.error(12)
                 except IndexError:
