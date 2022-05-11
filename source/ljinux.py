@@ -25,7 +25,7 @@ dmesg.append("[    0.00000] Core libs loaded")
 
 # Pin allocation tables
 pin_alloc = set()
-gpio_alloc = set()
+gpio_alloc = {}
 
 # Default password, aka the password if no /LjinuxRoot/etc/passwd is found
 dfpasswd = "Ljinux"
@@ -843,6 +843,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 9: "Missing arguments",
                 10: "File exists",
                 11: "Not enough system memory",
+                12: "Based: Error, variable already used",
             }
             print(f"{colors.magenta_t}Based{colors.endc}: {errs[wh]}")
             ljinux.io.ledset(1)
@@ -1022,16 +1023,18 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
             def var(inpt):  # system & user variables setter
                 valid = True
-                if inpt[0] == "var":
+                if inpt[0] == "var": # check if the var is passed and trim it
                     temp = inpt
                     del inpt
                     inpt = []
                     for i in range(len(temp) - 1):
                         inpt.append(temp[i + 1])
                 try:
+                    # basic checks, if any of this fails, quit
                     for chh in inpt[0]:
                         if not (chh.islower() or chh.isupper() or chh == "-"):
                             valid = False
+                            break
                     if inpt[1] != "=" or not (
                             inpt[2].startswith('"')
                             or inpt[2].isdigit()
@@ -1039,7 +1042,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             or inpt[2].startswith("G")
                         ):
                             valid = False
-                    if valid:
+                    if valid: # if the basic checks are done we can procceed to work
                         new_var = ""
                         if inpt[2].startswith('"'):
                             countt = len(inpt)
@@ -1053,8 +1056,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             else:
                                 ljinux.based.error(1)
                                 valid = False
-                        elif inpt[2].startswith("GP"):
-                            # gpio allocation
+                        elif inpt[2].startswith("GP"): # gpio allocation
                             if len(inpt[2]) > 2 and len(inpt[2]) <= 4:
                                 gpp = int(inpt[2][2:])
                             else:
@@ -1066,9 +1068,20 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                 dmtex("PIN ALLOCATED, ABORT", force=True)
                                 return '1'
                             else:
-                                gpio_alloc.update({inpt[0]: digitalio.DigitalInOut(pintab[gpp])})
-                                pin_alloc.add(gpp)
+                                if ljinux.based.fn.adv_input(inpt[0], str) == inpt[0]:
+                                    gpio_alloc.update({
+                                        inpt[0]: digitalio.DigitalInOut(pintab[gpp])
+                                    })
+                                    pin_alloc.add(gpp)
+                                else:
+                                    ljinux.based.error(12)
                             del gpp
+                            
+                        elif inpt[0] in gpio_alloc:
+                            if inpt[2].isdigit():
+                                if gpio_alloc[inpt[0]].direction != digitalio.Direction.OUTPUT:
+                                    gpio_alloc[inpt[0]].direction = digitalio.Direction.OUTPUT
+                                gpio_alloc[inpt[0]].value = int(inpt[2])
                         else:
                             new_var += str(inpt[2])
                     else:
@@ -1084,8 +1097,10 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     + "Cannot edit system variables, security is enabled."
                                     + colors.endc
                                 )
-                        else:
+                        elif inpt[0] == ljinux.based.fn.adv_input(inpt[0], str) or inpt[0] in ljinux.based.user_vars:
                             ljinux.based.user_vars[inpt[0]] = new_var
+                        else:
+                            ljinux.based.error(12)
                 except IndexError:
                     ljinux.based.error(1)
             
@@ -1493,6 +1508,10 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 Parameters:
                     whatever : The name of the variable
                     _type : The type in which it should be returned
+                Returns:
+                    The result of the variable in the type
+                    specified if found
+                    Otherwise, it returns the input
                 """
                 res = None
                 act_dict = {
