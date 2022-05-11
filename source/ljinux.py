@@ -15,7 +15,7 @@ try:
     import board
     import digitalio
 except ImportError:
-    print("O_O nope, i'm out")
+    print("Critical libraries loading failed")
     from sys import exit
 
     exit(1)
@@ -114,7 +114,7 @@ dmtex("Basic Libraries loading")
 
 from sys import (
     implementation,
-    platform,  # needed for picofetch
+    platform,  # needed for neofetch
     modules,
     exit,
     stdout,
@@ -312,7 +312,7 @@ if not configg["SKIPTEMP"]:
     elif temp > 7:
         dmtex("Temperature OK: " + str(temp) + " Celcius")
     else:
-        dmtex("Now that a 'cool' pico! B)")
+        dmtex("Now that a 'cool' board! B)")
     del temp
 else:
     print("Temperature check skipped, rest in pieces cpu.")
@@ -691,43 +691,16 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         def enter_key():
             return ljinux.io.buttone.value
 
-        def get_sdcard_fs():
-            return str(sdcard_fs)
-
-        def get_uptime():
-            return str("%.5f" % (uptimee + time.monotonic()))
-
-        def get_temp():
-            return str("%.2f" % cpu.temperature)
-
-        def get_display_status():
-            return str(display_availability)
-
-        def get_mem_free():
-            return str(gc.mem_free())
-
-        def get_freq():
-            return str(cpu.frequency)
-
-        def get_implementation_version():
-            return ljinux.based.system_vars["IMPLEMENTATION"]
-
-        def get_implementation():
-            return implementation.name
-
-        def get_volt():
-            return str(cpu.voltage)
-
         sys_getters = {
-            "sdcard": get_sdcard_fs,
-            "uptime": get_uptime,
-            "temperature": get_temp,
-            "display-attached": get_display_status,
-            "memory": get_mem_free,
-            "implementation_version": get_implementation_version,
-            "implementation": get_implementation,
-            "frequency": get_freq,
-            "voltage": get_volt,
+            "sdcard": lambda: str(sdcard_fs),
+            "uptime": lambda: str("%.5f" % (uptimee + time.monotonic())),
+            "temperature": lambda: str("%.2f" % cpu.temperature),
+            "display-attached": lambda: str(display_availability),
+            "memory": lambda: str(gc.mem_free()),
+            "implementation_version": lambda: ljinux.based.system_vars["IMPLEMENTATION"],
+            "implementation": lambda: implementation.name,
+            "frequency": lambda: str(cpu.frequency),
+            "voltage": lambda: str(cpu.voltage),
         }
 
     class networking:
