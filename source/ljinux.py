@@ -1115,7 +1115,10 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     ljinux.based.error(1)
 
             def dell(inpt):  # del variables, and dell computers
-                pass
+                try:
+                    pass
+                except IndexError:
+                    ljinux.based.error()
 
             def suuu(inpt):  # su command but worse
                 global dfpasswd

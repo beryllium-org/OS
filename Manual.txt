@@ -293,6 +293,12 @@ CODE:
 10 : File exists
       A file that shouldn't exist, does exist.
 
+11 : Not enough system memory
+      POV: you are using a microcontroller.
+
+12 : Based: Error, variable already used:
+      The variable name specified is already in use, and can't be modified in this way.
+
       /----------|
 ----<| Functions |
       \----------|
@@ -302,12 +308,23 @@ CODE:
       ljinux.based.fn.[function_name](parameters)
       where [function_name] is one of the function below
 
-* def get_valid_options(inpt, vopts)
-      Return an options array if the given parameter start with the character '-'.
-      Return an empty array if there is none, duplicate or invalid character followind '-'.
-      Parameters:
-            inpt : string with the second user input ex:'-n'
-            vopts : string with valid option ex:'abc'
+      get_valid_options(inpt, vopts)
+        Return an options array if the given parameter start with the character '-'.
+        Return an empty array if there is none, duplicate or invalid character followind '-'.
+        Parameters:
+                inpt : string with the second user input ex:'-n'
+                vopts : string with valid option ex:'abc'
+
+      adv_input(whatever, _type)
+        Universal variable request
+        Returns the variable's value in the specified type
+        Parameters:
+            whatever : The name of the variable
+            _type : The type in which it should be returned
+        Returns:
+            The result of the variable in the type
+            specified if found
+            Otherwise, it returns the input
 
       /--------|
 ----<| jCurses |
