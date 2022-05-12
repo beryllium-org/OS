@@ -89,7 +89,7 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 <li><code>rootfilesystem</code>, the files needed in the root of the board. These should also be copied as is.</li>
 <li><code>scripts</code>, the files needed for compilation, and installation to a board. They should not be copied over,</li>
 <li><code>source</code>, the source files for ljinux and co. They should be compiled into .mpy files and put in /lib of the board.</li>
-</ul><br /><br />
+</ul><br />
 
 <h2>Contributors:</h2>
 
@@ -97,7 +97,7 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 <br />-> [Marios](https://github.com/mariospapaz) - @mariospapaz#2188
 <br />-> [mdaadoun](https://github.com/mdaadoun) - @mdaadoun#4475
 
-<br /><br /><h2>A complete Ljinux manual is available</h2>
+<br /><h2>A complete Ljinux manual is available</h2>
 https://github.com/bill88t/ljinux/blob/main/Manual.txt<br /><br />
 
 More stuff will be added later as the project spirals into chaos.
