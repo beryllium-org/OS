@@ -82,6 +82,14 @@ For GNU/Screen, if you are on linux, you need to be in the <code>dialout</code> 
 Example: <code>screen /dev/tty.usbmodem12210 115200</code><br /><br />
 To disconnect, press Ctrl + A, K and confirm with y.<br />
 To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dialout \<your username here\></code><br /><br />
+ 
+<h2>Directory structure:</h2>
+<ul>
+<li><code>LjinuxRoot</code>, the root filesystem for ljinux. It should be copied as is to the board.</li>
+<li><code>rootfilesystem</code>, the files needed in the root of the board. These should also be copied as is.</li>
+<li><code>scripts</code>, the files needed for compilation, and installation to a board. They should not be copied over,</li>
+<li><code>source</code>, the source files for ljinux and co. They should be compiled into .mpy files and put in /lib of the board.</li>
+</ul><br /><br />
 
 <h2>Contributors:</h2>
 
