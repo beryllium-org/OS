@@ -28,6 +28,15 @@ var [DATA]...
 Create a new variable. syntax: var a = "ok"
 Numbers do not need brackets.
 The command itself is optional (a = "is also valid")
+GPIO pins can be allocated like: a = GP9
+and used by setting them to either 0 or 1: a = 1
+
+
+unset [Variable]
+
+Deletes a Variable.
+Can also be used on GPIO variables.
+The GPIO will be deinit and free'ed.
 
 
 uname [-a]
