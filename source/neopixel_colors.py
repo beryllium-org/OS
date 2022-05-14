@@ -6,7 +6,7 @@ class neopixel_colors:
     idle = bytearray([3, 0, 0])  # for idling in terminal
     idletype = bytearray([2, 0, 0])  # alternative idle, to indicate input
 
-    activity = bytearray([5, 5, 0])  # loading nuclear launch codes
+    activity = bytearray([7, 7, 0])  # loading nuclear launch codes
 
     waiting = bytearray([0, 0, 5])  # done with init, waiting for serial
 

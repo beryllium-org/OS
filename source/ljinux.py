@@ -536,6 +536,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             5: nc.error,
             6: nc.killtheuser,
         }
+        
+        getled = 0
 
         led = digitalio.DigitalInOut(boardLED)
         led.direction = digitalio.Direction.OUTPUT
@@ -555,7 +557,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         network = None
         network_online = False
         network_name = "Offline"
-
+            
         def ledset(state):  # Set the led to a state
             if configg["ledtype"] == "generic":
                 if state in {0, 3}:
@@ -564,6 +566,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     ljinux.io.led.value = True
             elif configg["ledtype"] == "neopixel":
                 neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
+            ljinux.io.getled = state
 
         def get_static_file(filename, m="rb"):
             "Static file generator"
@@ -797,6 +800,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
     class based:
         silent = False
         olddir = None
+        pled = False # persistent led state for nested exec
         raw_command_input = ""
 
         user_vars = {
@@ -986,6 +990,17 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 try:
                     with open(argj[0], "r") as filee:
                         ljinux.based.olddir = getcwd()
+                        mine = False
+                        if not ljinux.based.pled:
+                            ljinux.based.pled = True
+                            ljinux.io.ledset(3)
+                            mine = True
+                        else:
+                            old = ljinux.io.getled
+                            ljinux.io.ledset(3)
+                            time.sleep(.03)
+                            ljinux.io.ledset(old)
+                            del old
                         for j in filee:
                             j = j.strip()
 
@@ -993,11 +1008,15 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                 'argj = "{}"'.format(" ".join([str(i) for i in argj])),
                                 led=False,
                             )
+                            
                             ljinux.based.shell(j, led=False)
 
                             del j
                         if ljinux.based.olddir != getcwd():
                             chdir(ljinux.based.olddir)
+                        if mine:
+                            ljinux.io.ledset(1)
+                        del mine
                 except OSError:
                     ljinux.based.error(4, argj[0])
 
@@ -1772,6 +1791,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                 if str(command_split[0])[:2] == "./":
                                     command_split[0] = str(command_split[0])[2:]
                                     if command_split[0] != "":
+                                        
                                         res = function_dict["exec"](command_split)
                                     else:
                                         print("Error: No file specified")
