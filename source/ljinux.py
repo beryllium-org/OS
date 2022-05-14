@@ -796,6 +796,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
     class based:
         silent = False
+        olddir = None
         raw_command_input = ""
 
         user_vars = {
@@ -984,7 +985,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
 
                 try:
                     with open(argj[0], "r") as filee:
-
+                        ljinux.based.olddir = getcwd()
                         for j in filee:
                             j = j.strip()
 
@@ -995,6 +996,8 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                             ljinux.based.shell(j, led=False)
 
                             del j
+                        if ljinux.based.olddir != getcwd():
+                            chdir(ljinux.based.olddir)
                 except OSError:
                     ljinux.based.error(4, argj[0])
 
