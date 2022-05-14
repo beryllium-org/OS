@@ -536,7 +536,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             5: nc.error,
             6: nc.killtheuser,
         }
-        
+
         getled = 0
 
         led = digitalio.DigitalInOut(boardLED)
@@ -557,7 +557,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         network = None
         network_online = False
         network_name = "Offline"
-            
+
         def ledset(state):  # Set the led to a state
             if configg["ledtype"] == "generic":
                 if state in {0, 3}:
@@ -800,7 +800,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
     class based:
         silent = False
         olddir = None
-        pled = False # persistent led state for nested exec
+        pled = False  # persistent led state for nested exec
         raw_command_input = ""
 
         user_vars = {
@@ -998,7 +998,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         else:
                             old = ljinux.io.getled
                             ljinux.io.ledset(3)
-                            time.sleep(.03)
+                            time.sleep(0.03)
                             ljinux.io.ledset(old)
                             del old
                         for j in filee:
@@ -1008,7 +1008,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                 'argj = "{}"'.format(" ".join([str(i) for i in argj])),
                                 led=False,
                             )
-                            
+
                             ljinux.based.shell(j, led=False)
 
                             del j
@@ -1791,7 +1791,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                 if str(command_split[0])[:2] == "./":
                                     command_split[0] = str(command_split[0])[2:]
                                     if command_split[0] != "":
-                                        
+
                                         res = function_dict["exec"](command_split)
                                     else:
                                         print("Error: No file specified")
