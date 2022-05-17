@@ -84,7 +84,6 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
         )
     else:
         strr = texx  # the message as is
-
     if (not term.dmtex_suppress) or force:
         print(strr, end=end)  # using the provided end
     if (
@@ -182,92 +181,71 @@ except ImportError:
 
 dmtex("Options applied:")
 
-defaultoptions = {  # default configuration, in line with the manual
-    "displaySCL": (-1, int, True),
-    "displaySDA": (-1, int, True),
-    "displayheight": (64, int, False),  # SSD1306 spec
-    "displaywidth": (128, int, False),  # SSD1306 spec
-    "led": (0, int, True),
-    "ledtype": ("generic", str, False),
-    "fixrtc": (True, bool, False),
-    "SKIPTEMP": (False, bool, False),
-    "SKIPCP": (False, bool, False),
-    "DEVBOARD": (False, bool, False),
-    "DEBUG": (False, bool, False),
-    "DISPLAYONLYMODE": (False, bool, False),
-    "w5500_MOSI": (-1, int, True),
-    "w5500_MISO": (-1, int, True),
-    "w5500_SCSn": (-1, int, True),
-    "w5500_SCLK": (-1, int, True),
-    "sd_SCLK": (-1, int, True),
-    "sd_SCSn": (-1, int, True),
-    "sd_MISO": (-1, int, True),
-    "sd_MOSI": (-1, int, True),
+defaultoptions = {  # default configuration, in line with the manual (default value, type, allocates pin bool, to parse in opt bool)
+    "displaySCL": (-1, int, True, False),
+    "displaySDA": (-1, int, True, False),
+    "displayheight": (64, int, False, True),  # SSD1306 spec
+    "displaywidth": (128, int, False, True),  # SSD1306 spec
+    "led": (0, int, True, True),
+    "ledtype": ("generic", str, False, True),
+    "fixrtc": (True, bool, False, True),
+    "SKIPTEMP": (False, bool, False, True),
+    "SKIPCP": (False, bool, False, True),
+    "DEVBOARD": (False, bool, False, True),
+    "DEBUG": (False, bool, False, True),
+    "DISPLAYONLYMODE": (False, bool, False, True),
+    "w5500_MOSI": (-1, int, True, True),
+    "w5500_MISO": (-1, int, True, True),
+    "w5500_SCSn": (-1, int, True, True),
+    "w5500_SCLK": (-1, int, True, True),
+    "sd_SCLK": (-1, int, True, True),
+    "sd_SCSn": (-1, int, True, True),
+    "sd_MISO": (-1, int, True, True),
+    "sd_MOSI": (-1, int, True, True),
+    "mem": (264, int, False, True),
 }
 
 # dynamic pintab
 exec(f"from pintab_{board.board_id} import pintab")
 
-# General options
-for optt in {
-    "fixrtc",
-    "SKIPTEMP",
-    "SKIPCP",
-    "DEBUG",
-    "DEVBOARD",
-    "DISPLAYONLYMODE",
-    "displayheight",
-    "displaywidth",
-    "led",
-    "ledtype",
-    "w5500_MOSI",
-    "w5500_MISO",
-    "w5500_SCSn",
-    "w5500_SCLK",
-    "sd_SCLK",
-    "sd_SCSn",
-    "sd_MISO",
-    "sd_MOSI",
-}:
-    try:
-        if isinstance(configg[optt], defaultoptions[optt][1]):
-            dmtex(
-                "\t"
-                + colors.green_t
-                + "√"
-                + colors.endc
-                + " "
-                + optt
-                + "="
-                + str(configg[optt]),
-                timing=False,
-            )
-        else:
-            raise KeyError
-    except KeyError:
-        configg.update({optt: defaultoptions[optt][0]})
-        dmtex(
-            'Missing / Invalid value for "' + optt + '" applied: ' + str(configg[optt]),
-            timing=False,
-        )
-    if defaultoptions[optt][2]:
-        try:
-            pin = configg[optt]
-            if pin in pin_alloc:
-                dmtex("PIN ALLOCATED, EXITING")
-                exit(0)
-            elif pin == -1:
-                pass
-            else:
-                pin_alloc.add(pin)
-            dmtex(
-                "\t" + colors.green_t + "√" + colors.endc + " " + optt + "=" + str(pin),
-                timing=False,
-            )
-            del pin
-        except KeyError:
-            pass
 
+# General options
+for optt in list(defaultoptions.keys()):
+    if defaultoptions[optt][3]:
+        try:
+            if isinstance(configg[optt], defaultoptions[optt][1]):
+                dmtex(
+                    "\t"
+                    + colors.green_t
+                    + "√"
+                    + colors.endc
+                    + " "
+                    + optt
+                    + "="
+                    + str(configg[optt]),
+                    timing=False
+                )
+            else:
+                raise KeyError
+        except KeyError:
+            configg.update({optt: defaultoptions[optt][0]})
+            dmtex(
+                'Missing / Invalid value for "' + optt + '" applied: ' + str(configg[optt]),
+                timing=False,
+            )
+        if defaultoptions[optt][2]:
+            try:
+                pin = configg[optt]
+                if pin in pin_alloc:
+                    dmtex("PIN ALLOCATED, EXITING")
+                    exit(0)
+                elif pin == -1:
+                    pass
+                else:
+                    pin_alloc.add(pin)
+                del pin
+            except KeyError:
+                pass
 dmtex("Total pin alloc: ", end="")
 for i in pin_alloc:
     dmtex(str(i), timing=False, end=" ")

@@ -32,8 +32,11 @@
   "sd_SCSn": 5,
   "sd_MISO": 4,
   "sd_MOSI": 3,
+  
+  "_comment10": "memsize",
+  "mem": 264,
 
-  "_comment10": "Debugging & extreme options",
+  "_comment11": "Debugging & extreme options",
   "SKIPTEMP": false,
   "SKIPCP": false,
   "DEBUG": false,

@@ -33,7 +33,10 @@
   "sd_MISO": -1,
   "sd_MOSI": -1,
   
-  "_comment10": "Debugging & extreme options",
+  "_comment10": "memsize",
+  "mem": 264,
+
+  "_comment11": "Debugging & extreme options",
   "SKIPTEMP": false,
   "SKIPCP": false,
   "DEBUG": false,

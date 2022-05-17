@@ -38,7 +38,7 @@ for filee in listdir():
 print("\n[2/2] Copying base files\n")
 for filee in listdir("../rootfilesystem/"):
     print(f"-> {filee}")
-    system(f"cp -v ../rootfilesystem/{filee} {picop}/")
+    system(f"cp ../rootfilesystem/{filee} {picop}/")
 
 system("sync")
 print()

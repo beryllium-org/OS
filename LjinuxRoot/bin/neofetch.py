@@ -5,12 +5,10 @@ neofetch_time = int(uptimee + time.monotonic())
 uptimestr = ""
 
 hours = neofetch_time // 3600  # Take out the hours
-
-neofetch_time -= hours * 3600  #
-
+neofetch_time -= hours * 3600
 minutes = neofetch_time // 60  # Take out the minutes
+neofetch_time -= minutes * 60
 
-neofetch_time -= minutes * 60  #
 if hours > 0:
     uptimestr += str(hours) + " hours, "
 if minutes > 0:
@@ -19,6 +17,7 @@ if neofetch_time > 0:
     uptimestr += str(neofetch_time) + " seconds"
 else:
     uptimestr = uptimestr[:-2]
+del hours, minutes, neofetch_time
 
 Ccpu = f"{platform} ({len(cpus)}) @ {trunc(cpu.frequency / 1000000)}Mhz"
 
@@ -28,33 +27,23 @@ gc.collect()
 Rram = f"{trunc(abs(264 - gc.mem_free() / 1000))}KiB / 264KiB"
 
 print(
-    f"""\033[32m    `.::///+:/-.        --///+//-:``    {ljinux.based.system_vars["USER"]}@{ljinux.based.system_vars["HOSTNAME"]} \033[0m
-\033[32m   `+oooooooooooo:   `+oooooooooooo:  \033[0m  ---------
-\033[32m    /oooo++//ooooo:  ooooo+//+ooooo.  \033[0m  \033[31mOS\033[0m: \033[33mLjinux {ljinux.based.system_vars["VERSION"]}\033[0m
-\033[32m    `+ooooooo:-:oo-  +o+::/ooooooo:   \033[0m  \033[31mHost\033[0m: {ljinux.based.system_vars["BOARD"]}  
-\033[32m    `:oooooooo+``    `.oooooooo+-    \033[0m   \033[31mCircuitPython\033[0m: {ljinux.based.system_vars["IMPLEMENTATION"]}
-\033[32m      `:++ooo/.        :+ooo+/.`     \033[0m   \033[31mUptime\033[0m: {uptimestr}
-\033[91m         ...`  `.----.` ``..         \033[0m   \033[31mPackages\033[0m: 0 ()
-\033[91m        .::::-``:::::::::.`-:::-`    \033[0m   \033[31mShell\033[0m: \033[35mBased\033[0m
-\033[91m     -:::-`   .:::::::-`  `-:::-     \033[0m   \033[31mWM\033[0m: Farland
-\033[91m    `::.  `.--.`  `` `.---.``.::`    \033[0m   \033[31mTerminal\033[0m: TTYACM0
-\033[91m    `  ` `.::::::::`  -::::::::` ``   \033[0m  \033[31mCPU\033[0m: {Ccpu}
-\033[91m   .::` .:::::::::- `::::::::::``::.  \033[0m  \033[31mMemory\033[0m: {Rram}
-\033[91m  -:::` ::::::::::.  ::::::::::.`:::- \033[0m
-\033[91m  ::::  -::::::::.   `-::::::::  :::: \033[0m
-\033[91m  -::-   .-:::-.``....``.-::-.   -::- \033[0m
-\033[91m  .. ``       .::::::::.     `..`..  \033[0m
-\033[91m    -:::-`   -::::::::::`  .:::::`   \033[0m
-\033[91m    :::::::` -::::::::::` :::::::.   \033[0m
-\033[91m    .:::::::  -::::::::. ::::::::    \033[0m
-\033[91m     `-:::::`   ..--.`   ::::::.     \033[0m
-\033[91m       `...`  `...--..`  `...`       \033[0m
-\033[91m             .::::::::::             \033[0m
-\033[91m              `.-::::-`              \033[0m
+    f"""{colors.green_t}  ,----,{colors.endc}                     {colors.cyan_t}{ljinux.based.system_vars["USER"]}@{ljinux.based.system_vars["HOSTNAME"]} {colors.endc}
+{colors.green_t}  ,----.|{colors.endc}      {colors.magenta_t},----._    {colors.endc}  ---------
+{colors.green_t}  |LLL|l:{colors.endc}     {colors.magenta_t}.-- -.'j\   {colors.endc}  \033[31mOS{colors.endc}: \033[33mLjinux {ljinux.based.system_vars["VERSION"]}{colors.endc}
+{colors.green_t}  :LLL:l|{colors.endc}     {colors.magenta_t}|JJJJ|jjj:  {colors.endc}  \033[31mHost{colors.endc}: {ljinux.based.system_vars["BOARD"]}  
+{colors.green_t}  |LLL'l:{colors.endc}     {colors.magenta_t}:JJJJ;jjj|  {colors.endc}  \033[31mCircuitPython{colors.endc}: {ljinux.based.system_vars["IMPLEMENTATION"]}
+{colors.green_t}  ;LLL;l'{colors.endc}     {colors.magenta_t}:JJJJ|jjj|  {colors.endc}  \033[31mUptime{colors.endc}: {uptimestr}
+{colors.green_t}  'LLL|l|{colors.endc}     {colors.magenta_t}|JJJJ:jjj:  {colors.endc}  \033[31mPackages{colors.endc}: 0 ()
+{colors.green_t}  |LLL|l|{colors.endc}     {colors.magenta_t}:JJJJ|jjj:  {colors.endc}  \033[31mShell{colors.endc}: \033[35mBased{colors.endc}
+{colors.green_t}  'LLL:l;_____{colors.endc}{colors.magenta_t}|JJJJ;jjj|  {colors.endc}  \033[31mWM{colors.endc}: Farland
+{colors.green_t}  |LLL|;.____{colors.endc}{colors.magenta_t};lJJJJ|jjj|  {colors.endc}  \033[31mTerminal{colors.endc}: TTYACM0
+{colors.green_t}  ;LLL:{colors.endc} {colors.magenta_t}/JJJJ/\JJJJ/jjj:  {colors.endc}  \033[31mCPU{colors.endc}: {Ccpu}
+{colors.green_t}  |LLL,{colors.endc}{colors.magenta_t}/JJ../jj`..-jjjj,  {colors.endc}  \033[31mMemory{colors.endc}: {Rram}
+{colors.green_t}   ---'{colors.endc}{colors.magenta_t}\JJJJ\jjjjjjjjj;   {colors.endc}
+{colors.green_t}        {colors.endc}{colors.magenta_t}\JJJJ\jjjjjj,'    {colors.endc}  {colors.black_t}███{colors.endc}{colors.red_t}███{colors.endc}{colors.green_t}███{colors.endc}{colors.yellow_t}███{colors.endc}{colors.blue_t}███{colors.endc}{colors.magenta_t}███{colors.endc}{colors.cyan_t}███{colors.endc}{colors.white_t}███{colors.endc}
+{colors.magenta_t}         "---....--'      {colors.endc}  {colors.black_t}███{colors.endc}{colors.red_t}███{colors.endc}{colors.green_t}███{colors.endc}{colors.yellow_t}███{colors.endc}{colors.blue_t}███{colors.endc}{colors.magenta_t}███{colors.endc}{colors.cyan_t}███{colors.endc}{colors.white_t}███{colors.endc}
 """
 )
 
 del Rram, Ccpu
 del uptimestr
-del neofetch_time
-del hours, minutes
