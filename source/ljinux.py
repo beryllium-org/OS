@@ -1685,11 +1685,19 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                         1
                                     ]  # made into var for speed reasons
                                     candidates = []
-                                    bins = ljinux.based.get_bins()
-                                    for i in [function_dict, bins]:
-                                        for j in i:
-                                            if j.startswith(tofind):
-                                                candidates.append(j)
+                                    slicedd = tofind.split()
+                                    lent = len(slicedd)
+                                    if lent > 1: # suggesting files
+                                        files = listdir()
+                                        for i in files:
+                                            if i.startswith(slicedd[lent-1]): # only on the arg we are in
+                                                candidates.append(i)
+                                    else: # suggesting bins
+                                        bins = ljinux.based.get_bins()
+                                        for i in [function_dict, bins]:
+                                            for j in i:
+                                                if j.startswith(tofind):
+                                                    candidates.append(j)
                                     if len(candidates) > 1:
                                         stdout.write("\n")
                                         for i in candidates:
@@ -1697,13 +1705,15 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                                 print("\t" + i)
                                     elif len(candidates) == 1:
                                         term.clear_line()
-                                        term.buf[1] = candidates[0]
+                                        if lent > 1:
+                                            term.buf[1] = "".join(slicedd[:-1] + list(' ' + candidates[0]))
+                                        else:
+                                            term.buf[1] = candidates[0]
                                         term.focus = 0
                                     else:
                                         term.clear_line()
-                                    del bins
-                                    del tofind
-                                    del candidates
+                                        del bins
+                                    del candidates, lent, tofind, slicedd
                                     ljinux.io.ledset(1)  # idle
                                 elif term.buf[0] is 4:  # up
                                     ljinux.io.ledset(2)  # keyact
