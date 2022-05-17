@@ -223,14 +223,17 @@ for optt in list(defaultoptions.keys()):
                     + optt
                     + "="
                     + str(configg[optt]),
-                    timing=False
+                    timing=False,
                 )
             else:
                 raise KeyError
         except KeyError:
             configg.update({optt: defaultoptions[optt][0]})
             dmtex(
-                'Missing / Invalid value for "' + optt + '" applied: ' + str(configg[optt]),
+                'Missing / Invalid value for "'
+                + optt
+                + '" applied: '
+                + str(configg[optt]),
                 timing=False,
             )
         if defaultoptions[optt][2]:
@@ -1687,12 +1690,14 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     candidates = []
                                     slicedd = tofind.split()
                                     lent = len(slicedd)
-                                    if lent > 1: # suggesting files
+                                    if lent > 1:  # suggesting files
                                         files = listdir()
                                         for i in files:
-                                            if i.startswith(slicedd[lent-1]): # only on the arg we are in
+                                            if i.startswith(
+                                                slicedd[lent - 1]
+                                            ):  # only on the arg we are in
                                                 candidates.append(i)
-                                    else: # suggesting bins
+                                    else:  # suggesting bins
                                         bins = ljinux.based.get_bins()
                                         for i in [function_dict, bins]:
                                             for j in i:
@@ -1706,7 +1711,9 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                     elif len(candidates) == 1:
                                         term.clear_line()
                                         if lent > 1:
-                                            term.buf[1] = "".join(slicedd[:-1] + list(' ' + candidates[0]))
+                                            term.buf[1] = "".join(
+                                                slicedd[:-1] + list(" " + candidates[0])
+                                            )
                                         else:
                                             term.buf[1] = candidates[0]
                                         term.focus = 0

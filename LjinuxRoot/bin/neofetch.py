@@ -24,7 +24,9 @@ Ccpu = f"{platform} ({len(cpus)}) @ {trunc(cpu.frequency / 1000000)}Mhz"
 gc.collect()
 gc.collect()
 
-Rram = f"{trunc(abs(configg['mem'] - gc.mem_free() / 1000))}KiB / {str(configg['mem'])}KiB"
+Rram = (
+    f"{trunc(abs(configg['mem'] - gc.mem_free() / 1000))}KiB / {str(configg['mem'])}KiB"
+)
 
 print(
     f"""{colors.green_t}  ,----,{colors.endc}                     {colors.cyan_t}{ljinux.based.system_vars["USER"]}@{ljinux.based.system_vars["HOSTNAME"]} {colors.endc}
