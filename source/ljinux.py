@@ -1697,12 +1697,14 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                                 slicedd[lent - 1]
                                             ):  # only on the arg we are in
                                                 candidates.append(i)
+                                        del files
                                     else:  # suggesting bins
                                         bins = ljinux.based.get_bins()
                                         for i in [function_dict, bins]:
                                             for j in i:
                                                 if j.startswith(tofind):
                                                     candidates.append(j)
+                                        del bins
                                     if len(candidates) > 1:
                                         stdout.write("\n")
                                         for i in candidates:
@@ -1719,7 +1721,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                                         term.focus = 0
                                     else:
                                         term.clear_line()
-                                        del bins
                                     del candidates, lent, tofind, slicedd
                                     ljinux.io.ledset(1)  # idle
                                 elif term.buf[0] is 4:  # up
