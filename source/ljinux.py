@@ -176,8 +176,8 @@ try:
     print(colors.reset_s_format, end="")
     dmtex("Loaded lj_colours")
 except ImportError:
-    dmtex("FATAL: FAILED TO LOAD LJ_COLOURS")
-    dmtex("If you intent to disable colors, just rename lj_colours_placebo -> lj_colours")
+    dmtex(f"{colors.error}FATAL:{colors.endc} FAILED TO LOAD LJ_COLOURS")
+    dmtex("If you intented to disable colors, just rename lj_colours_placebo -> lj_colours")
     exit(0)
 
 dmtex("Options applied:")
@@ -442,7 +442,7 @@ def systemprints(mod, tx1, tx2=None):
 dmtex("Additional loading done")
 
 
-class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove them.
+class ljinux:
     class history:
         historyy = []
         nav = [0, 0, ""]
