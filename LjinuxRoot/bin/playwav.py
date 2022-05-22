@@ -9,24 +9,6 @@ if not NoAudio:
                 a.play(wav)
                 while a.playing:
                     time.sleep(0.2)
-                    if ljinux.io.buttone.value:
-                        if a.playing:
-                            a.pause()
-                            print("Paused")
-                            time.sleep(0.5)
-                            while a.paused:
-                                if (
-                                    ljinux.io.buttonl.value
-                                    and ljinux.io.buttonr.value
-                                    and not ljinux.io.buttone.value
-                                ):
-                                    a.stop()
-                                elif ljinux.io.buttone.value:
-                                    a.resume()
-                                    print("Resumed")
-                                    time.sleep(0.5)
-                                else:
-                                    time.sleep(0.1)
             except KeyboardInterrupt:
                 a.stop()
             a.deinit()

@@ -11,17 +11,6 @@ class lJ_Colours:
     error = "\033[91m"
 
     """
-        Other tools
-    """
-
-    clear_s = "\033[23"
-    m_mouse_tl = "\033[H"
-    m_mouse_to = "\033[r;cH"  # Mouse index starts at 1
-
-    hide_m = "\033[?25l"
-    del_from_m_till_endline = "1033[K"
-
-    """
         Styling
     """
     underline = "\033[4m"

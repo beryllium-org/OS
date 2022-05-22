@@ -15,7 +15,7 @@ try:
     import board
     import digitalio
 except ImportError:
-    print("Critical libraries loading failed")
+    print("FATAL: Core libraries loading failed")
     from sys import exit
 
     exit(1)
@@ -66,7 +66,7 @@ try:
     print("[    0.00000] Loaded jcurses")
     dmesg.append("[    0.00000] Loaded jcurses")
 except ImportError:
-    print("CRITICAL: FAILED TO LOAD JCURSES")
+    print("FATAL: FAILED TO LOAD JCURSES")
     exit(0)
 
 
@@ -139,7 +139,7 @@ try:
 
     dmtex("Basic libraries loaded")
 except ImportError:
-    dmtex("FATAL: CRITICAL LIBRARY LOAD FAILED")
+    dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
     exit(0)
 
 try:
@@ -148,7 +148,7 @@ try:
     try:  # we can't fail this part though
         from neopixel_colors import neopixel_colors as nc
     except ImportError:
-        dmtex("CRITICAL: FAILED TO LOAD NEOPIXEL_COLORS")
+        dmtex("FATAL: FAILED TO LOAD NEOPIXEL_COLORS")
         exit(1)
 except ImportError:
     pass  # no big deal, this just isn't a neopixel board
@@ -176,79 +176,87 @@ try:
     print(colors.reset_s_format, end="")
     dmtex("Loaded lj_colours")
 except ImportError:
-    dmtex("CRITICAL: FAILED TO LOAD LJ_COLOURS")
+    dmtex("FATAL: FAILED TO LOAD LJ_COLOURS")
+    dmtex("If you intent to disable colors, just rename lj_colours_placebo -> lj_colours")
     exit(0)
 
 dmtex("Options applied:")
 
-defaultoptions = {  # default configuration, in line with the manual (default value, type, allocates pin bool, to parse in opt bool)
-    "displaySCL": (-1, int, True, False),
-    "displaySDA": (-1, int, True, False),
-    "displayheight": (64, int, False, True),  # SSD1306 spec
-    "displaywidth": (128, int, False, True),  # SSD1306 spec
-    "led": (0, int, True, True),
-    "ledtype": ("generic", str, False, True),
-    "fixrtc": (True, bool, False, True),
-    "SKIPTEMP": (False, bool, False, True),
-    "SKIPCP": (False, bool, False, True),
-    "DEVBOARD": (False, bool, False, True),
-    "DEBUG": (False, bool, False, True),
-    "DISPLAYONLYMODE": (False, bool, False, True),
-    "w5500_MOSI": (-1, int, True, True),
-    "w5500_MISO": (-1, int, True, True),
-    "w5500_SCSn": (-1, int, True, True),
-    "w5500_SCLK": (-1, int, True, True),
-    "sd_SCLK": (-1, int, True, True),
-    "sd_SCSn": (-1, int, True, True),
-    "sd_MISO": (-1, int, True, True),
-    "sd_MOSI": (-1, int, True, True),
-    "mem": (264, int, False, True),
+defaultoptions = {  # default configuration, in line with the manual (default value, type, allocates pin bool)
+    "displaySCL": (-1, int, True),
+    "displaySDA": (-1, int, True),
+    "displayheight": (64, int, False),  # SSD1306 spec
+    "displaywidth": (128, int, False),  # SSD1306 spec
+    "led": (0, int, True),
+    "ledtype": ("generic", str, False),
+    "fixrtc": (True, bool, False),
+    "SKIPTEMP": (False, bool, False),
+    "SKIPCP": (False, bool, False),
+    "DEVBOARD": (False, bool, False),
+    "DEBUG": (False, bool, False),
+    "DISPLAYONLYMODE": (False, bool, False),
+    "w5500_MOSI": (-1, int, True),
+    "w5500_MISO": (-1, int, True),
+    "w5500_SCSn": (-1, int, True),
+    "w5500_SCLK": (-1, int, True),
+    "sd_SCLK": (-1, int, True),
+    "sd_SCSn": (-1, int, True),
+    "sd_MISO": (-1, int, True),
+    "sd_MOSI": (-1, int, True),
+    "mem": (264, int, False)
 }
 
 # dynamic pintab
-exec(f"from pintab_{board.board_id} import pintab")
+try:
+    exec(f"from pintab_{board.board_id} import pintab")
+except ImportError:
+    dmtex(f"{colors.error}ERROR:{colors.endc} Board config cannot be loaded")
+    if isinstance(configg["DEVBOARD"], bool) and configg["DEVBOARD"] == True:
+        dmtex("Continuing with generic Raspberry Pi Pico compatible pin layout")
+        try:
+            from pintab_raspberry_pi_pico import pintab
+        except ImportError:
+            dmtex(f"{colors.error}FATAL:{colors.endc} Generic Raspberry Pi Pico pin layout loading failed!")
+            exit(1)
 
 
 # General options
 for optt in list(defaultoptions.keys()):
-    if defaultoptions[optt][3]:
-        try:
-            if isinstance(configg[optt], defaultoptions[optt][1]):
-                dmtex(
-                    "\t"
-                    + colors.green_t
-                    + "√"
-                    + colors.endc
-                    + " "
-                    + optt
-                    + "="
-                    + str(configg[optt]),
-                    timing=False,
-                )
-            else:
-                raise KeyError
-        except KeyError:
-            configg.update({optt: defaultoptions[optt][0]})
+    try:
+        if isinstance(configg[optt], defaultoptions[optt][1]):
             dmtex(
-                'Missing / Invalid value for "'
+                "\t"
+                + colors.green_t
+                + "√"
+                + colors.endc
+                + " "
                 + optt
-                + '" applied: '
+                + "="
                 + str(configg[optt]),
                 timing=False,
             )
-        if defaultoptions[optt][2]:
-            try:
-                pin = configg[optt]
-                if pin in pin_alloc:
-                    dmtex("PIN ALLOCATED, EXITING")
-                    exit(0)
-                elif pin == -1:
-                    pass
-                else:
-                    pin_alloc.add(pin)
-                del pin
-            except KeyError:
-                pass
+        else:
+            raise KeyError
+    except KeyError:
+        configg.update({optt: defaultoptions[optt][0]})
+        dmtex(
+            'Missing / Invalid value for "'
+            + optt
+            + '" applied: '
+            + str(configg[optt]),
+            timing=False,
+        )
+    if defaultoptions[optt][2]:
+        pin = configg[optt]
+        if pin in pin_alloc:
+            dmtex("PIN ALLOCATED, EXITING")
+            exit(0)
+        elif pin == -1:
+            pass
+        else:
+            pin_alloc.add(pin)
+        del pin
+
 dmtex("Total pin alloc: ", end="")
 for i in pin_alloc:
     dmtex(str(i), timing=False, end=" ")
@@ -341,7 +349,7 @@ try:
     dmtex("Audio libraries loaded")
 except ImportError:
     NoAudio = True
-    dmtex(colors.error + "CRITICAL: " + colors.endc + "AUDIO LIBRARIES LOADING FAILED")
+    dmtex(colors.error + "Notice: " + colors.endc + "Audio libraries loading failed")
 
 # sd card
 try:
@@ -349,7 +357,7 @@ try:
 
     dmtex("Sdcard libraries loaded")
 except ImportError:
-    dmtex(colors.error + "CRITICAL: " + colors.endc + "SDCARD LIBRARIES LOADING FAILED")
+    dmtex(colors.error + "Notice: " + colors.endc + "SDcard libraries loading failed")
 
 # display
 try:
@@ -358,7 +366,7 @@ try:
     dmtex("Display libraries loaded")
 except ImportError:
     dmtex(
-        colors.error + "CRITICAL: " + colors.endc + "DISPLAY LIBRARIES LOADING FAILED"
+        colors.error + "Notice: " + colors.endc + "Display libraries loading failed"
     )
 
 # networking
@@ -373,9 +381,9 @@ try:
 except ImportError:
     dmtex(
         colors.error
-        + "CRITICAL: "
+        + "Notice: "
         + colors.endc
-        + "NETWORKING LIBRARIES LOADING FAILED"
+        + "Networking libraries loading failed"
     )
 
 if not configg["fixrtc"]:
@@ -410,7 +418,7 @@ if not configg["fixrtc"]:
         dmtex("RTC clock init done")
     except ImportError:
         dmtex(
-            colors.error + "CRITICAL: " + colors.endc + "RTC LIBRARIES LOADING FAILED"
+            colors.error + "Notice: " + colors.endc + "RTC libraries loading failed"
         )
 
 dmtex("Imports complete")
@@ -526,15 +534,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
             led.value = True
         elif configg["ledtype"] == "neopixel":
             neopixel_write(led, nc.idle)
-
-        # sd card
-        # L R and Enter keys for basic io
-        buttonl = digitalio.DigitalInOut(board.GP19)
-        buttonl.switch_to_input(pull=digitalio.Pull.DOWN)
-        buttonr = digitalio.DigitalInOut(board.GP18)
-        buttonr.switch_to_input(pull=digitalio.Pull.DOWN)
-        buttone = digitalio.DigitalInOut(board.GP20)
-        buttone.switch_to_input(pull=digitalio.Pull.DOWN)
+        
         network = None
         network_online = False
         network_name = "Offline"
@@ -558,7 +558,7 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         b = f.read(2048)
                         yield b
             except OSError:
-                yield f"CRITICAL: File '{filename}' Not Found"
+                yield f"Error: File '{filename}' Not Found"
 
         def init_net():
             global configg
@@ -665,15 +665,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                 del vfs
             except NameError:
                 pass
-
-        def left_key():
-            return ljinux.io.buttonl.value
-
-        def right_key():
-            return ljinux.io.buttonr.value
-
-        def enter_key():
-            return ljinux.io.buttone.value
 
         sys_getters = {
             "sdcard": lambda: str(sdcard_fs),
@@ -914,11 +905,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                         for commandd in lines:
                             ljinux.based.shell(commandd)
 
-                        if ljinux.io.buttonl.value and ljinux.io.buttonr.value:
-                            time.sleep(0.5)
-                            Exit = True
-                            Exit_code = 244
-
                 except KeyboardInterrupt:
                     print(f"{colors.magenta_t}Based{colors.endc}: Caught Ctrl + C")
             elif ljinux.based.system_vars["Init-type"] == "delayed-repeat":
@@ -933,11 +919,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     while not Exit:
                         for commandd in lines:
                             ljinux.based.shell(commandd)
-
-                        if ljinux.io.buttonl.value and ljinux.io.buttonr.value:
-                            time.sleep(0.5)
-                            Exit = True
-                            Exit_code = 244
 
                 except KeyboardInterrupt:
                     print(f"{colors.magenta_t}Based{colors.endc}: Caught Ctrl + C")
@@ -1577,11 +1558,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     Otherwise, it returns the input
                 """
                 res = None
-                act_dict = {
-                    "left_key": ljinux.io.left_key,
-                    "right_key": ljinux.io.right_key,
-                    "enter_key": ljinux.io.enter_key,
-                }
                 if whatever.isdigit():
                     res = int(whatever)
                 elif whatever in ljinux.based.user_vars:
@@ -1590,8 +1566,6 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
                     res = ljinux.based.system_vars[whatever]
                 elif whatever in ljinux.io.sys_getters:
                     res = ljinux.io.sys_getters[whatever]()
-                elif whatever in act_dict:
-                    res = act_dict[whatever]()
                 else:
                     res = whatever
                 return _type(res)
@@ -1995,16 +1969,3 @@ class ljinux:  # The parentheses are needed. Same as with jcurses. Don't remove 
         def frames_av():
             average = sum([1 / (ljinux.farland.frames[i] / 10) for i in range(10)])
             print(average)
-
-    class get_input:
-        def left_key():
-            return ljinux.io.buttonl.value
-
-        def right_key():
-            return ljinux.io.buttonr.value
-
-        def enter_key():
-            return ljinux.io.buttone.value
-
-        def serial():
-            return input()
