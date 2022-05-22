@@ -177,7 +177,9 @@ try:
     dmtex("Loaded lj_colours")
 except ImportError:
     dmtex(f"{colors.error}FATAL:{colors.endc} FAILED TO LOAD LJ_COLOURS")
-    dmtex("If you intented to disable colors, just rename lj_colours_placebo -> lj_colours")
+    dmtex(
+        "If you intented to disable colors, just rename lj_colours_placebo -> lj_colours"
+    )
     exit(0)
 
 dmtex("Options applied:")
@@ -203,7 +205,7 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "sd_SCSn": (-1, int, True),
     "sd_MISO": (-1, int, True),
     "sd_MOSI": (-1, int, True),
-    "mem": (264, int, False)
+    "mem": (264, int, False),
 }
 
 # dynamic pintab
@@ -216,7 +218,9 @@ except ImportError:
         try:
             from pintab_raspberry_pi_pico import pintab
         except ImportError:
-            dmtex(f"{colors.error}FATAL:{colors.endc} Generic Raspberry Pi Pico pin layout loading failed!")
+            dmtex(
+                f"{colors.error}FATAL:{colors.endc} Generic Raspberry Pi Pico pin layout loading failed!"
+            )
             exit(1)
 
 
@@ -240,10 +244,7 @@ for optt in list(defaultoptions.keys()):
     except KeyError:
         configg.update({optt: defaultoptions[optt][0]})
         dmtex(
-            'Missing / Invalid value for "'
-            + optt
-            + '" applied: '
-            + str(configg[optt]),
+            'Missing / Invalid value for "' + optt + '" applied: ' + str(configg[optt]),
             timing=False,
         )
     if defaultoptions[optt][2]:
@@ -365,9 +366,7 @@ try:
 
     dmtex("Display libraries loaded")
 except ImportError:
-    dmtex(
-        colors.error + "Notice: " + colors.endc + "Display libraries loading failed"
-    )
+    dmtex(colors.error + "Notice: " + colors.endc + "Display libraries loading failed")
 
 # networking
 try:
@@ -380,10 +379,7 @@ try:
     dmtex("Networking libraries loaded")
 except ImportError:
     dmtex(
-        colors.error
-        + "Notice: "
-        + colors.endc
-        + "Networking libraries loading failed"
+        colors.error + "Notice: " + colors.endc + "Networking libraries loading failed"
     )
 
 if not configg["fixrtc"]:
@@ -417,9 +413,7 @@ if not configg["fixrtc"]:
 
         dmtex("RTC clock init done")
     except ImportError:
-        dmtex(
-            colors.error + "Notice: " + colors.endc + "RTC libraries loading failed"
-        )
+        dmtex(colors.error + "Notice: " + colors.endc + "RTC libraries loading failed")
 
 dmtex("Imports complete")
 
@@ -534,7 +528,7 @@ class ljinux:
             led.value = True
         elif configg["ledtype"] == "neopixel":
             neopixel_write(led, nc.idle)
-        
+
         network = None
         network_online = False
         network_name = "Offline"
