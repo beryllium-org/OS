@@ -1876,7 +1876,6 @@ class ljinux:
             ljinux.based.command.fpexecc(
                 ["fpexec", "-n", "/LjinuxRoot/bin/display_f/setup.py"]
             )
-            time.sleep(2)
 
         def frame():
             global display_availability

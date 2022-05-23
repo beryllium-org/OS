@@ -12,34 +12,22 @@ try:
         gc.collect()
         gc.collect()
         sizee = term.detect_size()  # get the terminal size
-
+        
         # line splitting
-        lines2 = []
-        for i in lines1:
-            remaining = i
-            while len(remaining) > 0:
-                if len(remaining) > sizee[1]:
-                    """
-                    too long, has to be split
-                    has to be a "while", for page long lines
-                    """
-                    lines2.append(remaining[: sizee[1]])
-                    remaining = remaining[sizee[1] :]
-                else:
-                    lines2.append(remaining)
-                    remaining = ""
-            del remaining
-            del i
-        del lines1
+        ljinux.based.user_vars["input"] = lines1
+        ljinux.based.command.fpexecc(
+                    ["fpexec", "-n", "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
+                 )
+        del ljinux.based.user_vars["input"]
         gc.collect()
         gc.collect()
 
         # remove spaces from start of line
         lines3 = []
-        for i in lines2:
+        for i in ljinux.based.user_vars["output"]:
             lines3.append(i if not i.startswith(" ") else i[1:])
             del i
-        del lines2
+        del ljinux.based.user_vars["output"]
         gc.collect()
         gc.collect()
 
