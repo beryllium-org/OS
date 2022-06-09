@@ -136,7 +136,9 @@ try:
     import json
     from traceback import print_exception
     from math import trunc
-
+    
+    from fast_pexec import fast_fpexec
+    
     dmtex("Basic libraries loaded")
 except ImportError:
     dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
@@ -1569,7 +1571,10 @@ class ljinux:
             led=True,
         ):  # the shell function, warning do not touch, it has feelings - no I think I will 20/3/22
             global Exit
-            function_dict = {  # holds all built-in commands. The plan is to move as many as possible externally
+            function_dict = {
+                # holds all built-in commands. The plan is to move as many as possible externally
+                # yea, hello 9/6/22 here, we keepin bash-like stuff in, but we have to take the normal
+                # ones out, we almost there
                 "error": ljinux.based.command.not_found,
                 "exec": ljinux.based.command.execc,
                 "help": ljinux.based.command.helpp,
@@ -1582,6 +1587,7 @@ class ljinux:
                 "webserver": ljinux.based.command.webs,
                 "pexec": ljinux.based.command.pexecc,
                 "COMMENT": ljinux.based.command.do_nothin,
+                "#": ljinux.based.command.do_nothin,
                 "fpexec": ljinux.based.command.fpexecc,
             }
             command_input = False
