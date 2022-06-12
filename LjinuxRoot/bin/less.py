@@ -12,12 +12,12 @@ try:
         gc.collect()
         gc.collect()
         sizee = term.detect_size()  # get the terminal size
-        
+
         # line splitting
         ljinux.based.user_vars["input"] = lines1
         ljinux.based.command.fpexecc(
-                    ["fpexec", "-n", "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
-                 )
+            ["fpexec", "-n", "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
+        )
         del ljinux.based.user_vars["input"]
         gc.collect()
         gc.collect()

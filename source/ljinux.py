@@ -136,9 +136,9 @@ try:
     import json
     from traceback import print_exception
     from math import trunc
-    
+
     from fast_pexec import fast_fpexec
-    
+
     dmtex("Basic libraries loaded")
 except ImportError:
     dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
