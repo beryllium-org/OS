@@ -137,7 +137,7 @@ try:
     from traceback import print_exception
     from math import trunc
 
-    from fast_pexec import fast_fpexec
+    from fast_fpexec import fast_fpexec
 
     dmtex("Basic libraries loaded")
 except ImportError:
@@ -1449,18 +1449,7 @@ class ljinux:
                             inpt[offs],
                         )
                     )
-                try:
-                    a = open(inpt[offs]).read()
-                    exec(a)
-                    del a
-                except Exception as err:
-                    print(
-                        "Traceback (most recent call last):\n\t"
-                        + str(type(err))[8:-2]
-                        + ": "
-                        + str(err)
-                    )
-                    del err
+                fast_fpexec(inpt[offs])
                 del nl
                 del offs
 
