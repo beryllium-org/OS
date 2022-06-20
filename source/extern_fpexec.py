@@ -1,11 +1,11 @@
-def fast_fpexec(filee):
+def extern_fpexec(filee):
     try:
         with open(filee, "r") as f:
             a = f.read()
             f.close()
             del f
     except OSError:
-        print("fast_fpexec: File not found")
+        print("extern_fpexec: File not found")
         return
     try:
         exec(a)

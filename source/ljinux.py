@@ -6,7 +6,7 @@
 
 # Some important vars
 Version = "0.4.0"
-Circuitpython_supported_version = 7
+Circuitpython_supported = (7, 3) # don't bother with last digit
 dmesg = []
 access_log = []
 
@@ -137,8 +137,8 @@ try:
     from traceback import print_exception
     from math import trunc
 
-    from fast_fpexec import fast_fpexec
-
+    from extern_fpexec import extern_fpexec # no scope
+    
     dmtex("Basic libraries loaded")
 except ImportError:
     dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
@@ -274,7 +274,9 @@ del defaultoptions
 
 # basic checks
 if not configg["SKIPCP"]:  # beta testing
-    if implementation.version[0] == Circuitpython_supported_version:
+    if implementation.version[:2] == Circuitpython_supported or \
+      (implementation.version[0]  == Circuitpython_supported[0] and \
+       implementation.version[1]  <  Circuitpython_supported[1]):
         dmtex("Running on supported implementation")
     else:
         dmtex(
@@ -535,14 +537,31 @@ class ljinux:
         network_online = False
         network_name = "Offline"
 
-        def ledset(state):  # Set the led to a state
-            if configg["ledtype"] == "generic":
-                if state in {0, 3}:
-                    ljinux.io.led.value = False
-                else:
-                    ljinux.io.led.value = True
-            elif configg["ledtype"] == "neopixel":
-                neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
+        def ledset(state): 
+            """
+            Set the led to a state.
+            state can be int with one of the predifined states,
+            or a tuple like (10, 40, 255) for a custom color
+            """
+            if isinstance(state, int):
+                ## use preconfigured led states
+                if configg["ledtype"] == "generic":
+                    if state in {0, 3}:
+                        ljinux.io.led.value = False
+                    else:
+                        ljinux.io.led.value = True
+                elif configg["ledtype"] == "neopixel":
+                    neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
+            elif isinstance(state, tuple):
+                # a custom color
+                if configg["ledtype"] == "generic":
+                    if not (state[0]==0 and state[1]==0 and state[2]==0):
+                        # apply 1 if any of tuple >0
+                        ljinux.io.led.value = True
+                    else:
+                        ljinux.io.led.value = False
+                elif configg["ledtype"] == "neopixel":
+                    neopixel_write(ljinux.io.led, bytearray(state))
             ljinux.io.getled = state
 
         def get_static_file(filename, m="rb"):
@@ -1449,7 +1468,18 @@ class ljinux:
                             inpt[offs],
                         )
                     )
-                fast_fpexec(inpt[offs])
+                try:
+                    a = open(inpt[offs]).read()
+                    exec(a)
+                    del a
+                except Exception as err:
+                    print(
+                        "Traceback (most recent call last):\n\t"
+                        + str(type(err))[8:-2]
+                        + ": "
+                        + str(err)
+                    )
+                    del err
                 del nl
                 del offs
 
