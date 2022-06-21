@@ -137,8 +137,6 @@ try:
     from traceback import print_exception
     from math import trunc
 
-    from extern_fpexec import extern_fpexec  # no scope
-
     dmtex("Basic libraries loaded")
 except ImportError:
     dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
