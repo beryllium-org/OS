@@ -6,7 +6,7 @@
 
 # Some important vars
 Version = "0.4.0"
-Circuitpython_supported = (7, 3) # don't bother with last digit
+Circuitpython_supported = (7, 3)  # don't bother with last digit
 dmesg = []
 access_log = []
 
@@ -137,8 +137,8 @@ try:
     from traceback import print_exception
     from math import trunc
 
-    from extern_fpexec import extern_fpexec # no scope
-    
+    from extern_fpexec import extern_fpexec  # no scope
+
     dmtex("Basic libraries loaded")
 except ImportError:
     dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
@@ -274,9 +274,10 @@ del defaultoptions
 
 # basic checks
 if not configg["SKIPCP"]:  # beta testing
-    if implementation.version[:2] == Circuitpython_supported or \
-      (implementation.version[0]  == Circuitpython_supported[0] and \
-       implementation.version[1]  <  Circuitpython_supported[1]):
+    if implementation.version[:2] == Circuitpython_supported or (
+        implementation.version[0] == Circuitpython_supported[0]
+        and implementation.version[1] < Circuitpython_supported[1]
+    ):
         dmtex("Running on supported implementation")
     else:
         dmtex(
@@ -537,7 +538,7 @@ class ljinux:
         network_online = False
         network_name = "Offline"
 
-        def ledset(state): 
+        def ledset(state):
             """
             Set the led to a state.
             state can be int with one of the predifined states,
@@ -555,7 +556,7 @@ class ljinux:
             elif isinstance(state, tuple):
                 # a custom color
                 if configg["ledtype"] == "generic":
-                    if not (state[0]==0 and state[1]==0 and state[2]==0):
+                    if not (state[0] == 0 and state[1] == 0 and state[2] == 0):
                         # apply 1 if any of tuple >0
                         ljinux.io.led.value = True
                     else:
