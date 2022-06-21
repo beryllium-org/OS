@@ -15,7 +15,7 @@ If you need support or want to hang out, feel free to join in!</i></b><br /><br 
 
 Anyways, since you are still reading...<br /><br />
 <h2>Prerequisites & Optional hardware</h2>
-Depends on circuitpython 7.<br />
+Depends on circuitpython 7. (Supported 7.0.0 - 7.3.0)<br />
 At the moment the supported microcontrollers are:<br /><br />
 
  - Raspberry Pi Pico<br />
@@ -47,7 +47,7 @@ And it's own display "compositor", farland.<br /><br />
 <h2>Installation to a fresh board:</h2>
 <i>Note: Automatic Windows install not supported at the moment. Linux & MacOS only.</i><br /><br />
 
-1) Install CircuitPython 7.X.X onto the board<br />
+1) Install CircuitPython onto the board<br />
     Raspberry Pi Pico uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_board) & detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
 2) Clone (or download this repository) and from within the "source" folder, run <code>make install</code>.<br />
 &nbsp;&nbsp;&nbsp;&nbsp;(You need to have python3 installed, and the board attached.)<br />
