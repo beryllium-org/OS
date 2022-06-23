@@ -12,7 +12,6 @@ jobs:
         with:
           options: "--verbose"
           src: "."
-          version: "22.3.0"
           
       - name: Commit Changes
         continue-on-error: true
@@ -20,7 +19,7 @@ jobs:
           git add .
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git commit -m "Black Code Formatting"
+          git commit -m "Black Formatting"
       
       - name: Push changes
         continue-on-error: true

@@ -6,7 +6,7 @@
 
 # Some important vars
 Version = "0.4.0"
-Circuitpython_supported_version = 7
+Circuitpython_supported = (7, 3)  # don't bother with last digit
 dmesg = []
 access_log = []
 
@@ -272,7 +272,10 @@ del defaultoptions
 
 # basic checks
 if not configg["SKIPCP"]:  # beta testing
-    if implementation.version[0] == Circuitpython_supported_version:
+    if implementation.version[:2] == Circuitpython_supported or (
+        implementation.version[0] == Circuitpython_supported[0]
+        and implementation.version[1] < Circuitpython_supported[1]
+    ):
         dmtex("Running on supported implementation")
     else:
         dmtex(
@@ -533,14 +536,31 @@ class ljinux:
         network_online = False
         network_name = "Offline"
 
-        def ledset(state):  # Set the led to a state
-            if configg["ledtype"] == "generic":
-                if state in {0, 3}:
-                    ljinux.io.led.value = False
-                else:
-                    ljinux.io.led.value = True
-            elif configg["ledtype"] == "neopixel":
-                neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
+        def ledset(state):
+            """
+            Set the led to a state.
+            state can be int with one of the predifined states,
+            or a tuple like (10, 40, 255) for a custom color
+            """
+            if isinstance(state, int):
+                ## use preconfigured led states
+                if configg["ledtype"] == "generic":
+                    if state in {0, 3}:
+                        ljinux.io.led.value = False
+                    else:
+                        ljinux.io.led.value = True
+                elif configg["ledtype"] == "neopixel":
+                    neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
+            elif isinstance(state, tuple):
+                # a custom color
+                if configg["ledtype"] == "generic":
+                    if not (state[0] == 0 and state[1] == 0 and state[2] == 0):
+                        # apply 1 if any of tuple >0
+                        ljinux.io.led.value = True
+                    else:
+                        ljinux.io.led.value = False
+                elif configg["ledtype"] == "neopixel":
+                    neopixel_write(ljinux.io.led, bytearray(state))
             ljinux.io.getled = state
 
         def get_static_file(filename, m="rb"):
@@ -1569,7 +1589,10 @@ class ljinux:
             led=True,
         ):  # the shell function, warning do not touch, it has feelings - no I think I will 20/3/22
             global Exit
-            function_dict = {  # holds all built-in commands. The plan is to move as many as possible externally
+            function_dict = {
+                # holds all built-in commands. The plan is to move as many as possible externally
+                # yea, hello 9/6/22 here, we keepin bash-like stuff in, but we have to take the normal
+                # ones out, we almost there
                 "error": ljinux.based.command.not_found,
                 "exec": ljinux.based.command.execc,
                 "help": ljinux.based.command.helpp,
@@ -1582,6 +1605,7 @@ class ljinux:
                 "webserver": ljinux.based.command.webs,
                 "pexec": ljinux.based.command.pexecc,
                 "COMMENT": ljinux.based.command.do_nothin,
+                "#": ljinux.based.command.do_nothin,
                 "fpexec": ljinux.based.command.fpexecc,
             }
             command_input = False
@@ -1876,7 +1900,6 @@ class ljinux:
             ljinux.based.command.fpexecc(
                 ["fpexec", "-n", "/LjinuxRoot/bin/display_f/setup.py"]
             )
-            time.sleep(2)
 
         def frame():
             global display_availability
