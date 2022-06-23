@@ -33,14 +33,20 @@ ctest:
 connection:
 	@echo -n "Ensuring GNU/Screen is installed.."
 	@command -v screen >/dev/null && echo "Found" || (echo -e "Not found\nInstalling.." && ./scripts/installscreen.sh)
+	@echo -n "Ensuring user is in dialout group.."
+	@../scripts/groupadd.sh
 	@echo -e "\nRunning screen connection.."
 	@../scripts/screenningg.sh
 blacktest:
 	@echo -n "Commencing black compatibility test.."
 	@command -v black >/dev/null && echo -e "Found black\n" || (echo -e "Not found\nInstalling.." && ./scripts/installblack.sh)
-	black --check .
+	@black --check .
 	@../scripts/returncheck.sh
 ccon:
+	@echo -n "Ensuring GNU/Screen is installed.."
+	@command -v screen >/dev/null && echo "Found" || (echo -e "Not found\nInstalling.." && ./scripts/installscreen.sh)
+	@echo -n "Ensuring user is in dialout group.."
+	@../scripts/groupadd.sh
 	@echo "Installing ccon to the machine.."
 	@python3 ../scripts/ccon.py
 	@echo -e "\nDone, now try running ccon\n"
