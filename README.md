@@ -58,7 +58,11 @@ And it's own display "compositor", farland.<br /><br />
    An automated connection script exists in the form of <code>make connection</code><br />
 <b>IMPORTANT NOTE: To make the pi appear as a usb device on the host, run the ljinux command </b><code>devmode</code><br /><br />
 
-
+<h2>Updating a ljinux installation:</h2>
+Updating a ljinux installation can be done by running <code>make install</code> the same way as with the installation.<br />
+However some files like the command history may be overwritten.<br />
+To update only the wanna-be kernel, run <code>make</code>.<br />
+<br />
 <h2>Configuration</h2>
 <i>Each board has it's own different pin configuration. You can see the defaults and modify them from the board's respecive config file.</i><br /><br />
 
