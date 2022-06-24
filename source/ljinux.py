@@ -561,6 +561,8 @@ class ljinux:
                         ljinux.io.led.value = False
                 elif configg["ledtype"] == "neopixel":
                     neopixel_write(ljinux.io.led, bytearray(state))
+            else:
+                raise TypeError
             ljinux.io.getled = state
 
         def get_static_file(filename, m="rb"):
@@ -1424,7 +1426,7 @@ class ljinux:
                     return
                 if not nl:
                     print(
-                        "Adafruit CircuitPython {} on lJinux {}; {}\n>>> {}".format(
+                        "Adafruit CircuitPython {} on ljinux {}; {}\n>>> {}".format(
                             ljinux.based.system_vars["IMPLEMENTATION"],
                             Version,
                             ljinux.based.system_vars["BOARD"],
@@ -1460,7 +1462,7 @@ class ljinux:
 
                 if not nl:
                     print(
-                        "Adafruit CircuitPython {} on lJinux {}; {}\nRunning file: {}".format(
+                        "Adafruit CircuitPython {} on ljinux {}; {}\nRunning file: {}".format(
                             ljinux.based.system_vars["IMPLEMENTATION"],
                             Version,
                             ljinux.based.system_vars["BOARD"],
