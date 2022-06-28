@@ -1,5 +1,4 @@
-a = \
-"""
+a = """
 from ulab.numpy import fft, ndarray, floor
 from random import seed, random
 from time import monotonic_ns, sleep, localtime
