@@ -22,12 +22,12 @@ try:
         del ljinux.based.user_vars["input"]
         gc.collect()
         gc.collect()
-        
+
         lines3 = ljinux.based.user_vars["output"]
         del ljinux.based.user_vars["output"]
         gc.collect()
         gc.collect()
-        
+
         term_old = term.trigger_dict
         term.trigger_dict = {
             "inp_type": "prompt",
@@ -41,23 +41,31 @@ try:
 
         # The real work
         lc = len(lines3)
-        target = (sizee[0] - 1) if (lc > sizee[0] - 1) else (lc - 1) # no of lines we have to display in the screen
-        pos = 0 # holds scroll offset
+        target = (
+            (sizee[0] - 1) if (lc > sizee[0] - 1) else (lc - 1)
+        )  # no of lines we have to display in the screen
+        pos = 0  # holds scroll offset
         ctl = [0, None]
+        endt = " (END)"
+        blank = ""
         while ctl[0] != 1:
-            term.trigger_dict["prefix"] = f"{colors.white_bg_black_bg}lines {str(target+pos)}/{str(lc)} {str(int((float(target+pos) / float(lc)) * 100))}%{" (END)" if pos == lc-target else ""}{colors.endc}"
+            term.trigger_dict[
+                "prefix"
+            ] = f"{colors.white_bg_black_bg} lines {str(target+pos)}/{str(lc)} {str(int(float(target+pos)*100/float(lc)))}%{endt if pos == lc-target else blank}{colors.endc}"
             for i in range(0, target):
-                stdout.write(lines3[i+pos] + "\n" if lines3[i+pos] != "\n" else "\n")
+                stdout.write(
+                    lines3[i + pos] + "\n" if lines3[i + pos] != "\n" else "\n"
+                )
                 # yes this may not make much sense, but it's correct. Try removing it :)
             ctl = term.program()
             if ctl[0] == 2:
                 if pos > 0:
                     pos -= 1
             elif ctl[0] == 3:
-                if pos < lc-target:
+                if pos < lc - target:
                     pos += 1
             term.clear()
-        del target, pos, lines3, lc
+        del target, pos, lines3, lc, blank, endt
     ljinux.based.user_vars["return"] += "0"
     stdout.write("\n")
     term.trigger_dict = term_old

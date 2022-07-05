@@ -1649,7 +1649,7 @@ class ljinux:
                         + colors.endc
                         + "]"
                         + colors.blue_t
-                        + ">"
+                        + "> "
                         + colors.endc
                     )
                     if inp is None:

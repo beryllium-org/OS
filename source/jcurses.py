@@ -254,7 +254,7 @@ class jcurses:
         return self.buf
 
     def termline(self):
-        print(self.trigger_dict["prefix"], self.buf[1], end="")
+        stdout.write(self.trigger_dict["prefix"] + self.buf[1])
         if self.focus > 0:
             stdout.write(ESCK + str(self.focus) + "D")
 
