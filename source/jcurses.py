@@ -35,11 +35,6 @@ class jcurses:
                 "echo": Can be "all" / "common" / "none".
             """
 
-    def map(self):
-        while True:
-            sleep(1)
-            print(str(self.register_char()))
-
     def backspace(self, n=1):
         for i in range(n):
             if len(self.buf[1]) - self.focus > 0:
@@ -49,15 +44,11 @@ class jcurses:
                 else:
                     stdout.write("\010")
                     insertion_pos = len(self.buf[1]) - self.focus - 1
-                    self.buf[1] = (
-                        self.buf[1][:insertion_pos] + self.buf[1][insertion_pos + 1 :]
-                    )  # backend
+                    self.buf[
+                        1
+                    ] = f"{self.buf[1][:insertion_pos]}{self.buf[1][insertion_pos + 1 :]}"  # backend
                     stdout.write(
-                        self.buf[1][insertion_pos:]
-                        + " "
-                        + ESCK
-                        + str(len(self.buf[1][insertion_pos:]) + 1)
-                        + "D"
+                        f"{self.buf[1][insertion_pos:]} {ESCK}{str(len(self.buf[1][insertion_pos:]) + 1)}D"
                     )  # frontend
                     del insertion_pos
 
@@ -70,7 +61,7 @@ class jcurses:
         del lb, df
 
     def end(self):
-        stdout.write((ESCK + "1C") * self.focus)
+        stdout.write(f"{ESCK}1C" * self.focus)
         self.focus = 0
 
     def delete(self, n=1):
@@ -95,15 +86,15 @@ class jcurses:
         """
         Clear the whole screen & goto top
         """
-        stdout.write(ESCK + "2J")
-        stdout.write(ESCK + "H")
+        stdout.write(f"{ESCK}2J")
+        stdout.write(f"{ESCK}H")
 
     def clear_line(self):
         """
         Clear the current line
         """
-        stdout.write(ESCK + "2K")
-        stdout.write(ESCK + "500D")
+        stdout.write(f"{ESCK}2K")
+        stdout.write(f"{ESCK}500D")
 
     def start(self):
         """
@@ -165,13 +156,13 @@ class jcurses:
     def get_hw(self, act):
         if act is 0:
             # save pos & goto the end
-            stdout.write(ESCK + "s" + ESCK + "500B" + ESCK + "500C")
+            stdout.write(f"{ESCK}s{ESCK}500B{ESCK}500C")
         elif act is 1:
             # ask position
-            stdout.write(ESCK + "6n")
+            stdout.write(f"{ESCK}6n")
         elif act is 2:
             # go back to original position
-            stdout.write(ESCK + "u")
+            stdout.write(f"{ESCK}u")
         elif act is 3:
             # get it
             return stdin.read(1)
@@ -324,23 +315,23 @@ class jcurses:
         if ctx is None:
             if x is not None and y is not None:
                 x, y = max(1, x), max(1, y)
-                stdout.write(ESCK + str(x) + ";" + str(y) + "H")
+                stdout.write(f"{ESCK}{str(x)};{str(y)}H")
         else:
             # no try except here, errors here are the user's fault
             thectx = self.ctx_dict[ctx]
-            stdout.write(ESCK + str(thectx[0]) + ";" + str(thectx[1]) + "H")
+            stdout.write(f"{ESCK}{str(thectx[0])};{str(thectx[1])}H")
             if x is not None:
                 if x + thectx[0] > 0:  # out of bounds check
                     if thectx[0] > 0:  # down
-                        stdout.write(ESCK + str(thectx[0]) + "B")
+                        stdout.write(f"{ESCK}{str(thectx[0])}B")
                     else:  # up
-                        stdout.write(ESCK + str(-thectx[0]) + "A")
+                        stdout.write(f"{ESCK}{str(-thectx[0])}A")
             if y is not None:
                 if y + thectx[1] > 0:  # out of bounds check
                     if thectx[1] > 0:  # right
-                        stdout.write(ESCK + str(thectx[1]) + "C")
+                        stdout.write(f"{ESCK}{str(thectx[1])}C")
                     else:  # left
-                        stdout.write(ESCK + str(-thectx[1]) + "D")
+                        stdout.write(f"{ESCK}{str(-thectx[1])}D")
             del thectx
 
     def ctx_reg(self, namee):
