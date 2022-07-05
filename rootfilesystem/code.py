@@ -16,6 +16,7 @@ jrub = lambda text: print(f"jrub> {text}")
 
 try:
     import ljinux
+
     jrub("Ljinux basic init done")
 except ImportError:
     jrub("Ljinux wanna-be kernel binary not found, cannot continue..")
@@ -23,11 +24,11 @@ except ImportError:
 
 oss = ljinux.ljinux()
 
-jrub("Ljinux object init complete") 
+jrub("Ljinux object init complete")
 
 oss.farland.setup()
 
-jrub("Display init complete") 
+jrub("Display init complete")
 
 oss.io.init_net()
 
@@ -45,7 +46,7 @@ oss.farland.frame()
 jrub("Running Ljinux autorun..")
 
 try:
-    Exit_code = (oss.based.autorun())  
+    Exit_code = oss.based.autorun()
     jrub(f"Shell exited with exit code {Exit_code}")
 except EOFError:
     jrub("\nAlert: Serial Ctrl + D caught, exiting\n")
@@ -77,10 +78,11 @@ oss.io.led.value = True
 try:
     oss.io.led.value = False
     from storage import umount
+
     umount("/ljinux")
     jrub("Unmounted /ljinux")
     oss.io.led.value = True
-    
+
 except OSError:
     jrub("Could not unmount /ljinux")
 
