@@ -4,10 +4,12 @@ from time import sleep
 jrub = lambda text: print(f"jrub> {text}")
 
 try:
-    from ljinux import ljinux
+    from ljinux import (
+        ljinux,
+    )  # if you touch this line or line 17 ever again, I will break your legs
 
-    # if you touch this line or line 14 ever again, I will break your legs
     jrub("Ljinux basic init done")
+
 except ImportError:
     jrub("Ljinux wanna-be kernel binary not found, cannot continue..")
     exit(1)
