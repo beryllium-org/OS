@@ -34,6 +34,10 @@ Depends on circuitpython 7. (Supported 7.0.0 - 7.3.0)<br />
 At the moment the supported microcontrollers are:<br /><br />
 
  - Raspberry Pi Pico<br />
+ - Raspberry Pi Pico W <br />
+   <sub><sup>At the moment no CircuitPython uf2 image exists
+   is instead relies on the normal Pico's uf2.
+   This results to some bugs, the led & wifi don't work.<br />
  - Waveshare RP2040-Zero <br />
 
 But it can probably run on many more.<br />
