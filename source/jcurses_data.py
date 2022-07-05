@@ -51,7 +51,7 @@ char_map = {  # you need to add 0x
     "58": "X",
     "59": "Y",
     "5a": "Z",
-    "31": "1",   # numbers
+    "31": "1",  # numbers
     "32": "2",
     "33": "3",
     "34": "4",
@@ -61,7 +61,7 @@ char_map = {  # you need to add 0x
     "38": "8",
     "39": "9",
     "30": "0",
-    "60": "`",   # from here on out it's random chars I captured
+    "60": "`",  # from here on out it's random chars I captured
     "2d": "-",
     "5f": "_",
     "3d": "=",
@@ -69,11 +69,11 @@ char_map = {  # you need to add 0x
     "5b": "[",
     "5d": "]",
     "5c": "\\",  # Never gonna give you up
-    "2f": "/",   # Never gonna let you down
-    "2e": ".",   # Never gonna run around and desert you
-    "2c": ",",   # Never gonna make you cry
-    "27": "'",   # Never gonna say goodbye
-    "3b": ";",   # Never gonna tell a lie and hurt you
+    "2f": "/",  # Never gonna let you down
+    "2e": ".",  # Never gonna run around and desert you
+    "2c": ",",  # Never gonna make you cry
+    "27": "'",  # Never gonna say goodbye
+    "3b": ";",  # Never gonna tell a lie and hurt you
     "7b": "{",
     "7d": "}",
     "22": '"',
