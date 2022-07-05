@@ -35,3 +35,8 @@ class lJ_Colours:
     magenta_t = "\033[35m"
     cyan_t = "\033[36m"
     white_t = "\033[37m"
+
+    """
+        Backround color
+    """
+    white_bg_black_bg = "\033[38;5;0m\033[48;5;255m"

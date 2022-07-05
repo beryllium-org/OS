@@ -1,1 +1,1 @@
-fpexec -n /LjinuxRoot/bin/rm.py
+fpexec -n /bin/rm.py

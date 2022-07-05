@@ -52,7 +52,8 @@ except EOFError:
     exit_l[0]()
 
 except Exception as err:
-    print(f"\n\nLjinux crashed with:\t {str(type(err))[8:-2]}: {err}")
+
+    print(f"\n\nLjinux crashed with:\n\t{str(type(err))[8:-2]}: {str(err)}")
     del err
     exit_l[1]()
 

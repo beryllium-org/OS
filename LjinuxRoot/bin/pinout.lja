@@ -1,1 +1,1 @@
-fpexec -n /LjinuxRoot/bin/pinout.py
+fpexec -n /bin/pinout.py

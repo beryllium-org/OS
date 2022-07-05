@@ -1,1 +1,1 @@
-fpexec -n /LjinuxRoot/bin/timedate.py
+fpexec -n /bin/timedate.py

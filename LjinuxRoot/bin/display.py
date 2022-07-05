@@ -136,7 +136,7 @@ if display_availability:
         typee == "triangle"
     ):  # x point 1, y point 1, x point 2, y point 2, x point 3, y point 3, color, mode (fill/ border)
         ljinux.based.command.fpexecc(
-            [None, "-n", "/LjinuxRoot/bin/display_f/triangle_execution.py"]
+            [None, "-n", "/bin/display_f/triangle_execution.py"]
         )
     elif typee == "fill":  # color
         try:

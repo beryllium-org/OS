@@ -1,1 +1,1 @@
-fpexec -n /LjinuxRoot/bin/headtail.py 
+fpexec -n /bin/headtail.py 
