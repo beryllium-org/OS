@@ -1,4 +1,4 @@
-COMMENT Testing binary for argj temp user variable
+# Testing binary for argj temp user variable
 echo argj 
 pexec -n print("Using python .split() : " + str(ljinux.based.user_vars["argj"].split()))
 pexec -n print("Using python .split()[0] : " + str(ljinux.based.user_vars["argj"].split()[0]))

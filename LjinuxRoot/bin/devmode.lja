@@ -1,2 +1,2 @@
 COMMENT enable developer mode
-fpexec -n /LjinuxRoot/bin/devmode.py
+fpexec -n /bin/devmode.py

@@ -1,2 +1,2 @@
-COMMENT uname command
-fpexec -n /LjinuxRoot/bin/uname.py
+# uname command
+fpexec -n /bin/uname.py

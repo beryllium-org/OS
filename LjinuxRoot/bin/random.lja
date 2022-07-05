@@ -1,1 +1,1 @@
-fpexec -n /LjinuxRoot/bin/random.py
+fpexec -n /bin/random.py

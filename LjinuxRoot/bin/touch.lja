@@ -1,2 +1,2 @@
-COMMENT touch cat
-fpexec -n /LjinuxRoot/bin/touch.py
+# touch cat
+fpexec -n /bin/touch.py

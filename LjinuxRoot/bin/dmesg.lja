@@ -1,1 +1,1 @@
-fpexec -n /LjinuxRoot/bin/dmesg.py
+fpexec -n /bin/dmesg.py

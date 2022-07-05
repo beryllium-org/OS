@@ -1,2 +1,2 @@
-COMMENT The reboot command
-fpexec -n /LjinuxRoot/bin/reboot.py
+# The reboot command
+fpexec -n /bin/reboot.py

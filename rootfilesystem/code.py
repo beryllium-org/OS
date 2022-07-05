@@ -41,7 +41,7 @@ except EOFError:
     jrub("\nAlert: Serial Ctrl + D caught, exiting\n")
     Exit_code = 0
 except Exception as err:
-    print("\n\nLjinux crashed with:\t" + str(type(err))[8:-2] + ": " + str(err))
+    print("\n\nLjinux crashed with:\n\t" + str(type(err))[8:-2] + ": " + str(err))
     del err
     Exit_code = 1
 oss.io.ledset(0)  # idle

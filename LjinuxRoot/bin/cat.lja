@@ -1,2 +1,2 @@
 COMMENT kot command :)
-fpexec -n /LjinuxRoot/bin/cat.py
+fpexec -n /bin/cat.py

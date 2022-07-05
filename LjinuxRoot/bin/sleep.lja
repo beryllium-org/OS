@@ -1,2 +1,2 @@
 ledset 0
-fpexec -n /LjinuxRoot/bin/sleep.py
+fpexec -n /bin/sleep.py

@@ -1,3 +1,3 @@
-COMMENT it's better to do it with python than with the api, plus it's good practice using pexec
+# it's better to do it with python than with the api, plus it's good practice using pexec
 pexec -n print("cpu_thermal\nAdapter: Cpu device\ntemp1: +" + str(cpu.temperature)[:5] + "°C\nvoltage1: " + str(cpu.voltage) + "v")
 return = 0

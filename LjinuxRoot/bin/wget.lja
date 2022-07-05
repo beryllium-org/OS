@@ -1,1 +1,1 @@
-fpexec -n /LjinuxRoot/bin/wget.py
+fpexec -n /bin/wget.py

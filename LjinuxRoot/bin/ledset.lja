@@ -1,1 +1,1 @@
-fpexec -n /LjinuxRoot/bin/ledset.py
+fpexec -n /bin/ledset.py
