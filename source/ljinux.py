@@ -459,7 +459,9 @@ class ljinux:
                 ljinux.based.error(4, filen)
 
         def appen(itemm):  # add to history, but don't save to file
-            if (len(ljinux.history.historyy)>0 and itemm != ljinux.history.gett(1)) or len(ljinux.history.historyy) == 0:
+            if (
+                len(ljinux.history.historyy) > 0 and itemm != ljinux.history.gett(1)
+            ) or len(ljinux.history.historyy) == 0:
                 ljinux.history.historyy.append(itemm)
 
         def save(filen):
@@ -1524,7 +1526,7 @@ class ljinux:
                         """
                         res = back[5:]
                     elif back.startswith("/LjinuxRoot"):
-                        res = back # already good
+                        res = back  # already good
                     elif back[0] == "/":
                         # This is for absolute paths
                         res = "/LjinuxRoot"
