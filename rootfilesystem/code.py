@@ -48,12 +48,12 @@ jrub("Running Ljinux autorun..")
 try:
     Exit_code = oss.based.autorun()
     jrub(f"Shell exited with exit code {Exit_code}")
+
 except EOFError:
     jrub("\nAlert: Serial Ctrl + D caught, exiting\n")
     exit_l[0]()
 
 except Exception as err:
-
     print(f"\n\nLjinux crashed with:\n\t{str(type(err))[8:-2]}: {str(err)}")
     del err
     exit_l[1]()
@@ -63,7 +63,7 @@ oss.io.ledset(0)  # idle
 oss.farland.clear()
 jrub("Cleared display")
 
-oss.history.save(oss.based.user_vars["history-file"])
+oss.history.save(ljinux.based.user_vars["history-file"])
 jrub("History flushed")
 
 from os import chdir, sync
