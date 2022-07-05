@@ -61,6 +61,37 @@ class jcurses:
                     )  # frontend
                     del insertion_pos
 
+    def home(self):
+        lb = len(self.buf[1])
+        df = lb - self.focus
+        if df > 0:
+            self.focus = lb
+        stdout.write("\010" * df)
+        del lb, df
+        
+    
+    def end(self):
+        stdout.write((ESCK + "1C") * self.focus)
+        self.focus = 0
+    
+    def delete(self, n=1):
+        for i in range(n):
+            if len(self.buf[1]) > 0 and self.focus > 0:
+                if self.focus == len(self.buf[1]):
+                    self.buf[1] = self.buf[1][1:]
+                    stdout.write(f"{self.buf[1]} " + "\010" * self.focus)
+                    self.focus -= 1
+                else:
+                    insertion_pos = len(self.buf[1]) - self.focus
+                    self.buf[1] = (
+                        f"{self.buf[1][:insertion_pos]}{self.buf[1][insertion_pos + 1 :]}"
+                    )  # backend
+                    stdout.write(
+                        f"{self.buf[1][insertion_pos:]} {ESCK}{str(len(self.buf[1][insertion_pos:]) + 1)}D"
+                    )  # frontend
+                    self.focus -= 1
+                    del insertion_pos
+    
     def clear(self):
         """
         Clear the whole screen & goto top
@@ -146,6 +177,17 @@ class jcurses:
             # get it
             return stdin.read(1)
 
+    def training(self):
+        from time import sleep
+        sleep(3)
+        for i in range(0,10):
+            n = runtime.serial_bytes_available
+            if n > 0:
+                i = stdin.read(n)
+                for s in i:
+                    stdout.write(str(hex(ord(s)))[2:])
+        stdout.write("\n")
+    
     def register_char(self):
         """
         Complete all-in-one input character registration function.
@@ -176,15 +218,23 @@ class jcurses:
                             if charr != "5b":
                                 self.text_stepping = 0
                                 stack.extend(["alt", char_map[charr]])
-                            else:  # it's an arrow key
+                            else:
                                 self.text_stepping = 2
 
-                        # Arrow keys
-                        else:
-                            self.text_stepping = 0
+                        # the arrow keys and the six above
+                        elif self.text_stepping is 2:
+                            self.text_stepping = 3
                             stack.append(char_map[charr + "l"])
+                        
+                        else:
+                            if charr != "7e": # test if garbage
+                                if charr == "1b":
+                                    self.text_stepping = 1
+                                else:
+                                    stack.append(char_map[charr])
+                        
                     except KeyError:
-                        pass
+                        self.text_stepping = 0
         except KeyboardInterrupt:
             stack = ["ctrlC"]
         return stack
@@ -211,7 +261,15 @@ class jcurses:
                             self.softquit = True
                         elif i == "bck":
                             self.backspace()
+                        elif i == "del":
+                            self.delete()
+                        elif i == "home":
+                            self.home()
+                        elif i == "end":
+                            self.end()
                         elif i == "up":
+                            pass
+                        elif i == "ins":
                             pass
                         elif i == "left":
                             if len(self.buf[1]) > self.focus:

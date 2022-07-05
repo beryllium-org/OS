@@ -493,7 +493,10 @@ class ljinux:
                 ljinux.based.error(4, filen)
 
         def gett(whichh):  # get a specific history item, from loaded history
-            return str(ljinux.history.historyy[len(ljinux.history.historyy) - whichh])
+            obj = len(ljinux.history.historyy) - whichh
+            if obj < 0:
+                raise IndexError
+            return str(ljinux.history.historyy[obj])
 
         def getall():  # get the whole history, numbered, line by line
             for index, item in enumerate(ljinux.history.historyy):
@@ -1628,6 +1631,8 @@ class ljinux:
                     "tab": 3,
                     "up": 4,
                     "down": 7,
+                    "pgup": 11,
+                    "pgdw": 12,
                     "rest": "stack",
                     "rest_a": "common",
                     "echo": "common",
@@ -1755,7 +1760,8 @@ class ljinux:
                                             term.focus = ljinux.history.nav[1]
                                             ljinux.history.nav[0] = 0
                                     term.clear_line()
-                                    ljinux.io.ledset(1)  # idle
+                                elif term.buf[0] in [11, 12]:  # pgup / pgdw
+                                    term.clear_line()
                                 ljinux.backrounding.main_tick()
                                 try:
                                     if command_input[:1] != " " and command_input != "":

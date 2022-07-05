@@ -51,7 +51,7 @@ try:
         while ctl[0] != 1:
             term.trigger_dict[
                 "prefix"
-            ] = f"{colors.white_bg_black_bg} lines {str(target+pos)}/{str(lc)} {str(int(float(target+pos)*100/float(lc)))}%{endt if pos == lc-target else blank}{colors.endc}"
+            ] = f"{colors.white_bg_black_bg}lines {str(pos)}-{str(target+pos)}/{str(lc)} {str(int(float(target+pos)*100/float(lc)))}%{endt if pos == lc-target else blank}{colors.endc}"
             for i in range(0, target):
                 stdout.write(
                     lines3[i + pos] + "\n" if lines3[i + pos] != "\n" else "\n"

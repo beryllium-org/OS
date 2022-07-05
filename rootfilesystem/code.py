@@ -1,5 +1,16 @@
 from sys import exit
 from time import sleep
+from os import chdir
+
+exit_l = {
+    0: lambda: (jrub("Exiting"), chdir("/"), exit(0)),
+    1: lambda: (jrub("Exiting due to error"), chdir("/"), exit(1)),
+    241: lambda: (on_next_reset(RunMode.UF2), reset()),
+    242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
+    243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
+    244: lambda: (jrub("Reached target: Halt"), chdir("/"), sleep(36000)),
+    245: lambda: reset(),
+}
 
 jrub = lambda text: print(f"jrub> {text}")
 
@@ -12,7 +23,7 @@ try:
 
 except ImportError:
     jrub("Ljinux wanna-be kernel binary not found, cannot continue..")
-    exit(1)
+    exit_l[1]()
 
 oss = ljinux()
 
@@ -58,10 +69,7 @@ jrub("Cleared display")
 oss.history.save(oss.based.user_vars["history-file"])
 jrub("History flushed")
 
-from os import chdir, sync
-
-chdir("/")
-jrub("Switched to Picofs")
+from os import sync
 
 sync()
 jrub("Synced all volumes")
@@ -84,15 +92,4 @@ del oss
 
 from microcontroller import reset, RunMode, on_next_reset
 
-exit_l = {
-    0: lambda: (jrub("Exiting"), exit(0)),
-    1: lambda: (jrub("Exiting due to error"), exit(1)),
-    241: lambda: (on_next_reset(RunMode.UF2), reset()),
-    242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
-    243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
-    244: lambda: (jrub("Reached target: Halt"), sleep(36000)),
-    245: lambda: reset(),
-}
-
 exit_l[Exit_code]()
-exit(Exit_code)

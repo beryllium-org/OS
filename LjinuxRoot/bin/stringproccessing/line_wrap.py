@@ -13,4 +13,3 @@ for i in ljinux.based.user_vars["input"]:
             ljinux.based.user_vars["output"].append(remaining)
             remaining = ""
     del remaining
-    del i
