@@ -1,28 +1,17 @@
 from sys import exit
-from microcontroller import reset, RunMode, on_next_reset
 from time import sleep
-
-exit_l = {
-    0: lambda: (jrub("Exiting"), exit(0)),
-    1: lambda: (jrub("Exiting due to error"), exit(1)),
-    241: lambda: (on_next_reset(RunMode.UF2), reset()),
-    242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
-    243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
-    244: lambda: (jrub("Reached target: Halt"), sleep(36000)),
-    245: lambda: reset(),
-}
 
 jrub = lambda text: print(f"jrub> {text}")
 
 try:
-    import ljinux
-
+    from ljinux import ljinux
+    # if you touch this line or line 14 ever again, I will break your legs
     jrub("Ljinux basic init done")
 except ImportError:
     jrub("Ljinux wanna-be kernel binary not found, cannot continue..")
-    exit_l[1]()
+    exit(1)
 
-oss = ljinux.ljinux()
+oss = ljinux()
 
 jrub("Ljinux object init complete")
 
@@ -63,7 +52,7 @@ oss.io.ledset(0)  # idle
 oss.farland.clear()
 jrub("Cleared display")
 
-oss.history.save(ljinux.based.user_vars["history-file"])
+oss.history.save(oss.based.user_vars["history-file"])
 jrub("History flushed")
 
 from os import chdir, sync
@@ -89,6 +78,18 @@ except OSError:
 jrub("Reached target: Quit")
 oss.io.led.value = False
 del oss
+
+from microcontroller import reset, RunMode, on_next_reset
+
+exit_l = {
+    0: lambda: (jrub("Exiting"), exit(0)),
+    1: lambda: (jrub("Exiting due to error"), exit(1)),
+    241: lambda: (on_next_reset(RunMode.UF2), reset()),
+    242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
+    243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
+    244: lambda: (jrub("Reached target: Halt"), sleep(36000)),
+    245: lambda: reset(),
+}
 
 exit_l[Exit_code]()
 exit(Exit_code)
