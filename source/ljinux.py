@@ -1596,10 +1596,7 @@ class ljinux:
                 return _type(res)
 
         def shell(
-            inp=None,
-            led=True,
-            args=None,
-            nalias=False
+            inp=None, led=True, args=None, nalias=False
         ):  # the shell function, warning do not touch, it has feelings - no I think I will 20/3/22
             global Exit
             if inp is not None and args is not None:
@@ -1803,9 +1800,14 @@ class ljinux:
                                         res = function_dict["exec"](command_split)
                                     else:
                                         print("Error: No file specified")
-                                elif (not nalias) and (command_split[0] in ljinux.based.alias_dict):
+                                elif (not nalias) and (
+                                    command_split[0] in ljinux.based.alias_dict
+                                ):
                                     ljinux.based.shell(
-                                        ljinux.based.alias_dict[command_split[0]], led=False, args=command_split[1:], nalias=True
+                                        ljinux.based.alias_dict[command_split[0]],
+                                        led=False,
+                                        args=command_split[1:],
+                                        nalias=True,
                                     )
                                 elif (command_split[0] in function_dict) and (
                                     command_split[0]
