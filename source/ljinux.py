@@ -1498,6 +1498,29 @@ class ljinux:
                 ljinux.based.fn.[function_name](parameters)
             """
 
+            def isdir(dirr):
+                """
+                Checks if given item is file (returns 0) or directory (returns 1).
+                Returns 2 if it doesn't exist.
+                """
+                dirr = ljinux.based.fn.betterpath(dirr)
+                try:
+                    cddd = getcwd()
+                    chdir(dirr)
+                    chdir(cddd)
+                    del cddd
+                    return 1
+                except OSError:
+                    try:
+                        return (
+                            0
+                            if dirr[dirr.rfind("/") + 1 :]
+                            in listdir(dirr[: dirr.rfind("/")])
+                            else 2
+                        )
+                    except OSError:
+                        return 2  # we have had enough
+
             def betterpath(back=None):
                 """
                 Removes /LjinuxRoot from path and puts it back

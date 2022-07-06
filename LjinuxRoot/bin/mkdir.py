@@ -1,23 +1,44 @@
 global sdcard_fs
 try:
-    if not sdcard_fs:
-        remount("/", False)
-    mkdir(ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]))
-    if not sdcard_fs:
-        remount("/", True)
-except (OSError, RuntimeError) as errr:
-    if str(errr) == "[Errno 17] File exists":
-        print(
-            "mkdir: cannot create directory ‘"
-            + ljinux.based.user_vars["argj"].split()[1]
-            + "’: File exists"
-        )
+    wd = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
+    if ljinux.based.fn.isdir(wd) == 2:
+
+        if not sdcard_fs:
+            remount("/", False)
+
+        if ljinux.based.fn.isdir(wd[: wd.rfind("/")]) == 2:
+            fpaths = wd[: wd.find("/") + 1]
+            wd = wd[wd.find("/") + 1 :]
+            while wd.find("/") != -1:
+                fpaths += wd[: wd.find("/") + 1]
+                wd = wd[wd.find("/") + 1 :]
+                if ljinux.based.fn.isdir(fpaths) == 2:
+                    mkdir(fpaths)
+            wd = fpaths + wd
+            del fpaths
+        mkdir(wd)
+        del wd
+
+        if not sdcard_fs:
+            remount("/", True)
+
+        ljinux.based.user_vars["return"] = "0"
+
     else:
-        print(
-            "mkdir: cannot create directory ‘"
-            + ljinux.based.user_vars["argj"].split()[1]
-            + "’: Cannot write, the pi pico is in read only mode!\nMake sure to disable to usb drive to be able to access these functions!"
-        )
-    del errr
+        raise OSError
+
+except OSError:
+    print(
+        "mkdir: cannot create directory ‘"
+        + ljinux.based.user_vars["argj"].split()[1]
+        + "’: File exists"
+    )
+    ljinux.based.user_vars["return"] = "1"
+
+except RuntimeError:
+    ljinux.based.error(7)
+    ljinux.based.user_vars["return"] = "1"
+
 except IndexError:
-    pass
+    ljinux.based.error(1)
+    ljinux.based.user_vars["return"] = "1"

@@ -218,11 +218,12 @@ class jcurses:
                             stack.append(char_map[charr + "l"])
 
                         else:
-                            if charr != "7e":  # test if garbage
-                                if charr == "1b":
-                                    self.text_stepping = 1
-                                else:
-                                    stack.append(char_map[charr])
+                            if charr == "7e":  # garbage
+                                self.text_stepping = 0
+                            elif charr == "1b": # new special
+                                self.text_stepping = 1
+                            else: # other
+                                stack.append(char_map[charr])
 
                     except KeyError:
                         self.text_stepping = 0
