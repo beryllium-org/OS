@@ -7,6 +7,6 @@ is provided within the source repo: https://github.com/bill88t/ljinux
 Ljinux comes with ABSOLUTELY NO WARRANTY, to the extent
 permitted by applicable law.
 
-To view the manual, run "cat Manual.txt".
+To view the manual, run "less Manual.txt".
 To exit the GNU/Screen session press Ctrl + A then K and y.
 
