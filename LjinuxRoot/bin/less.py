@@ -35,6 +35,10 @@ try:
             "q": 1,
             "up": 2,
             "down": 3,
+            "pgup": 4,
+            "pgdw": 5,
+            "home": 6,
+            "end": 7,
             "rest": "ignore",
             "echo": "none",
         }
@@ -42,12 +46,13 @@ try:
         # The real work
         lc = len(lines3)
         target = (
-            (sizee[0] - 1) if (lc > sizee[0] - 1) else (lc - 1)
+            (sizee[0] - 1) if (lc > sizee[0] - 1) else lc
         )  # no of lines we have to display in the screen
         pos = 0  # holds scroll offset
         ctl = [0, None]
         endt = " (END)"
         blank = ""
+        term.clear()
         while ctl[0] != 1:
             term.trigger_dict[
                 "prefix"
@@ -64,10 +69,23 @@ try:
             elif ctl[0] == 3:
                 if pos < lc - target:
                     pos += 1
+            elif ctl[0] == 4:
+                if pos > target:
+                    pos -= target
+                else:
+                    pos = 0
+            elif ctl[0] == 5:
+                if pos < lc - 2*target:
+                    pos += target
+                else:
+                    pos = lc - target
+            elif ctl[0] == 6:
+                pos = 0 # ez -- blade 2020
+            elif ctl[0] == 7:
+                pos = lc - target
             term.clear()
         del target, pos, lines3, lc, blank, endt
     ljinux.based.user_vars["return"] += "0"
-    stdout.write("\n")
     term.trigger_dict = term_old
     del term_old
     gc.collect()
