@@ -220,9 +220,9 @@ class jcurses:
                         else:
                             if charr == "7e":  # garbage
                                 self.text_stepping = 0
-                            elif charr == "1b": # new special
+                            elif charr == "1b":  # new special
                                 self.text_stepping = 1
-                            else: # other
+                            else:  # other
                                 stack.append(char_map[charr])
 
                     except KeyError:
