@@ -75,12 +75,12 @@ try:
                 else:
                     pos = 0
             elif ctl[0] == 5:
-                if pos < lc - 2*target:
+                if pos < lc - 2 * target:
                     pos += target
                 else:
                     pos = lc - target
             elif ctl[0] == 6:
-                pos = 0 # ez -- blade 2020
+                pos = 0  # ez -- blade 2020
             elif ctl[0] == 7:
                 pos = lc - target
             term.clear()
