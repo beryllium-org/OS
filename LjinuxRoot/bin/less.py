@@ -7,7 +7,8 @@ try:
         ljinux.based.user_vars["input"] = []
         for i in lines:
             ljinux.based.user_vars["input"].append(
-                i.replace("\n", "") if i != "\n" else i)
+                i.replace("\n", "") if i != "\n" else i
+            )
         del lines
         sizee = term.detect_size()
 
@@ -35,9 +36,7 @@ try:
         }
 
         lc = len(lines3)
-        target = (
-            (sizee[0] - 1) if (lc > sizee[0] - 1) else lc
-        )  # no of lines per screen
+        target = (sizee[0] - 1) if (lc > sizee[0] - 1) else lc  # no of lines per screen
         pos = 0  # scroll offset
         ctl = [0, None]
         endt = " (END)"
@@ -50,9 +49,7 @@ try:
             ] = f"{colors.white_bg_black_bg}lines {pos}-{target+pos}/{lc} {int(float(target+pos)*100/float(lc))}%{endt if pos == lc-target else blank}{colors.endc}"
             for i in range(0, target):
                 l = lines3[i + pos]
-                stdout.write(
-                    l + (carry if l != carry else blank)
-                )
+                stdout.write(l + (carry if l != carry else blank))
                 del l
             ctl = term.program()
             if ctl[0] == 2:
