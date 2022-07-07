@@ -4,7 +4,7 @@ A "linux" written in python, for CircuitPython powered microcontrollers.<br />
 [![Black Formatting](https://github.com/bill88t/ljinux/actions/workflows/black.yml/badge.svg)](https://github.com/bill88t/ljinux/actions/workflows/black.yml)
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 <br />
-![](https://github.com/bill88t/ljinux/blob/main/other/screenshots/bneofetch.png)
+![neofetch](https://github.com/bill88t/ljinux/blob/main/other/screenshots/bneofetch.png)
 <br />
 Important notes:<br />
 Do not take this project seriously.<br />
@@ -130,6 +130,10 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 
  https://github.com/bill88t/ljinux/blob/main/Manual.txt<br />
  <br />
+
+## Additional screenshots
+![less](https://github.com/bill88t/ljinux/blob/main/other/screenshots/less.png)
+![extra commands](https://github.com/bill88t/ljinux/blob/main/other/screenshots/some.png)
 
 ## Useful resources that helped with the development of this project
  https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797<br />
