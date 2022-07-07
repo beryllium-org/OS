@@ -3,30 +3,21 @@ try:
         ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]), "r"
     ) as f:
 
-        # prep work
         lines = f.readlines()
-        lines1 = []
+        ljinux.based.user_vars["input"] = []
         for i in lines:
-            lines1.append(i.replace("\n", "") if i != "\n" else i)
+            ljinux.based.user_vars["input"].append(
+                i.replace("\n", "") if i != "\n" else i)
         del lines
-        gc.collect()
-        gc.collect()
-        sizee = term.detect_size()  # get the terminal size
+        sizee = term.detect_size()
 
-        # line splitting
-        ljinux.based.user_vars["input"] = lines1
-        del lines1
         ljinux.based.command.fpexecc(
             ["fpexec", "-n", "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
         )
         del ljinux.based.user_vars["input"]
-        gc.collect()
-        gc.collect()
 
         lines3 = ljinux.based.user_vars["output"]
         del ljinux.based.user_vars["output"]
-        gc.collect()
-        gc.collect()
 
         term_old = term.trigger_dict
         term.trigger_dict = {
@@ -43,25 +34,26 @@ try:
             "echo": "none",
         }
 
-        # The real work
         lc = len(lines3)
         target = (
             (sizee[0] - 1) if (lc > sizee[0] - 1) else lc
-        )  # no of lines we have to display in the screen
-        pos = 0  # holds scroll offset
+        )  # no of lines per screen
+        pos = 0  # scroll offset
         ctl = [0, None]
         endt = " (END)"
         blank = ""
+        carry = "\n"
         term.clear()
         while ctl[0] != 1:
             term.trigger_dict[
                 "prefix"
-            ] = f"{colors.white_bg_black_bg}lines {str(pos)}-{str(target+pos)}/{str(lc)} {str(int(float(target+pos)*100/float(lc)))}%{endt if pos == lc-target else blank}{colors.endc}"
+            ] = f"{colors.white_bg_black_bg}lines {pos}-{target+pos}/{lc} {int(float(target+pos)*100/float(lc))}%{endt if pos == lc-target else blank}{colors.endc}"
             for i in range(0, target):
+                l = lines3[i + pos]
                 stdout.write(
-                    lines3[i + pos] + "\n" if lines3[i + pos] != "\n" else "\n"
+                    l + (carry if l != carry else blank)
                 )
-                # yes this may not make much sense, but it's correct. Try removing it :)
+                del l
             ctl = term.program()
             if ctl[0] == 2:
                 if pos > 0:
@@ -84,12 +76,11 @@ try:
             elif ctl[0] == 7:
                 pos = lc - target
             term.clear()
-        del target, pos, lines3, lc, blank, endt
+        del target, pos, lines3, ctl
+        del lc, blank, endt, carry
     ljinux.based.user_vars["return"] += "0"
     term.trigger_dict = term_old
     del term_old
-    gc.collect()
-    gc.collect()
 
 except OSError:
     ljinux.based.error(4, ljinux.based.user_vars["argj"].split()[1])
