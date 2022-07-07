@@ -3,30 +3,22 @@ try:
         ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]), "r"
     ) as f:
 
-        # prep work
-        lines = f.readlines()
-        lines1 = []
-        for i in lines:
-            lines1.append(i.replace("\n", "") if i != "\n" else i)
-        del lines
-        gc.collect()
-        gc.collect()
         sizee = term.detect_size()  # get the terminal size
 
         # line splitting
-        ljinux.based.user_vars["input"] = lines1
-        del lines1
+        ljinux.based.user_vars["input"] = [ 
+            line.replace('\n', '') for line in f if line != '\n' else line
+        ]   
+        
         ljinux.based.command.fpexecc(
             ["fpexec", "-n", "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
         )
+        
         del ljinux.based.user_vars["input"]
-        gc.collect()
-        gc.collect()
+
 
         lines3 = ljinux.based.user_vars["output"]
         del ljinux.based.user_vars["output"]
-        gc.collect()
-        gc.collect()
 
         term_old = term.trigger_dict
         term.trigger_dict = {
@@ -53,15 +45,17 @@ try:
         endt = " (END)"
         blank = ""
         term.clear()
+        
         while ctl[0] != 1:
             term.trigger_dict[
                 "prefix"
-            ] = f"{colors.white_bg_black_bg}lines {str(pos)}-{str(target+pos)}/{str(lc)} {str(int(float(target+pos)*100/float(lc)))}%{endt if pos == lc-target else blank}{colors.endc}"
-            for i in range(0, target):
+            ] = f"{colors.white_bg_black_bg}lines {pos}-{target+pos}/{lc} {int(target+pos*100/lc)}%{endt if pos == lc-target else blank}{colors.endc}"
+            
+            for i in range(target):
                 stdout.write(
                     lines3[i + pos] + "\n" if lines3[i + pos] != "\n" else "\n"
                 )
-                # yes this may not make much sense, but it's correct. Try removing it :)
+
             ctl = term.program()
             if ctl[0] == 2:
                 if pos > 0:
