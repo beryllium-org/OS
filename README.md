@@ -4,7 +4,8 @@ A "linux" written in python, for CircuitPython powered microcontrollers.<br />
 [![Black Formatting](https://github.com/bill88t/ljinux/actions/workflows/black.yml/badge.svg)](https://github.com/bill88t/ljinux/actions/workflows/black.yml)
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 <br />
-
+![](https://github.com/bill88t/ljinux/blob/main/other/screenshots/bneofetch.png)
+<br />
 Important notes:<br />
 Do not take this project seriously.<br />
 This is not a real os / linux distribution, but here we are.<br />
