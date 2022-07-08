@@ -1469,16 +1469,21 @@ class ljinux:
 
                 if not ("n" in fpargs):
                     print(
-                        f"Adafruit CircuitPython {ljinux.based.system_vars["IMPLEMENTATION"]} on ljinux {Version}; {ljinux.based.system_vars["BOARD"]}\nRunning file: {inpt[offs]}\n"
+                        "Adafruit CircuitPython {} on ljinux {}; {}\nRunning file: {}".format(
+                            ljinux.based.system_vars["IMPLEMENTATION"],
+                            Version,
+                            ljinux.based.system_vars["BOARD"],
+                            inpt[offs],
+                        )
                     )
                 try:
                     a = open(ljinux.based.fn.betterpath(inpt[offs])).read()
                     if not ("t" in fpargs or "l" in fpargs):
                         exec(a)
-                    elif "l" in fpargs:
-                        exec(a, locals())
                     elif "i" in fpargs:
                         exec(a, dict(), dict())
+                    elif "l" in fpargs:
+                        exec(a, locals())
                     del a
                 except Exception as err:
                     print(
@@ -1503,7 +1508,7 @@ class ljinux:
                 Returns 2 if it doesn't exist.
                 """
                 dirr = ljinux.based.fn.betterpath(dirr)
-                
+
                 try:
                     cddd = getcwd()
                     chdir(dirr)
@@ -1515,7 +1520,9 @@ class ljinux:
                         return (
                             0
                             if dirr[dirr.rfind("/") + 1 :]
-                            in listdir(dirr[: dirr.rfind("/")] if rdir is None else rdir)
+                            in listdir(
+                                dirr[: dirr.rfind("/")] if rdir is None else rdir
+                            )
                             else 2
                         )
                     except OSError:

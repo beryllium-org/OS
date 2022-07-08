@@ -44,7 +44,7 @@ print("\n[3/4] Copying Adafruit hashlib files\n")
 for filee in listdir("../other/adafruit_hashlib"):
     print(f"-> {filee}")
     system(f"cp ../other/adafruit_hashlib/{filee} {picop}/lib/adafruit_hashlib/")
-    
+
 print("\n[4/4] Copying Adafruit hid files\n")
 for filee in listdir("../other/adafruit_hid"):
     print(f"-> {filee}")
