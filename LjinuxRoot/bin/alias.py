@@ -9,7 +9,7 @@ try:
         alcmd = alcmd[1:]
         while not alcmd.endswith('"'):
             offs += 1
-            alcmd += " " + {ljinux.based.user_vars["argj"].split()[offs]}
+            alcmd += " " + ljinux.based.user_vars["argj"].split()[offs]
         del offs
         alcmd = alcmd[:-1]
     else:

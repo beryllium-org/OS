@@ -1,1 +1,3 @@
 cat /etc/motd
+alias ifpexec="fpexec -i"
+alias lfpexec="fpexec -l"

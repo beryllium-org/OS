@@ -1455,30 +1455,30 @@ class ljinux:
 
             def fpexecc(inpt):  # file pexec
                 global Version
-                nl = False
+                fpargs = list()
                 offs = 1
 
                 try:
-                    if "-n" in inpt[1]:
-                        nl = True
-                        offs = 2
+                    while inpt[offs].startswith("-"):
+                        fpargs += list(inpt[offs][1:])
+                        offs += 1
                 except IndexError:
                     ljinux.based.error(9)
                     ljinux.based.user_vars["return"] = "1"
                     return
 
-                if not nl:
+                if not ("n" in fpargs):
                     print(
-                        "Adafruit CircuitPython {} on ljinux {}; {}\nRunning file: {}".format(
-                            ljinux.based.system_vars["IMPLEMENTATION"],
-                            Version,
-                            ljinux.based.system_vars["BOARD"],
-                            inpt[offs],
-                        )
+                        f"Adafruit CircuitPython {ljinux.based.system_vars["IMPLEMENTATION"]} on ljinux {Version}; {ljinux.based.system_vars["BOARD"]}\nRunning file: {inpt[offs]}\n"
                     )
                 try:
                     a = open(ljinux.based.fn.betterpath(inpt[offs])).read()
-                    exec(a)
+                    if not ("t" in fpargs or "l" in fpargs):
+                        exec(a)
+                    elif "l" in fpargs:
+                        exec(a, locals())
+                    elif "i" in fpargs:
+                        exec(a, dict(), dict())
                     del a
                 except Exception as err:
                     print(
@@ -1488,8 +1488,7 @@ class ljinux:
                         + str(err)
                     )
                     del err
-                del nl
-                del offs
+                del offs, fpargs
 
         class fn:
             """
@@ -1498,12 +1497,13 @@ class ljinux:
                 ljinux.based.fn.[function_name](parameters)
             """
 
-            def isdir(dirr):
+            def isdir(dirr, rdir=None):
                 """
                 Checks if given item is file (returns 0) or directory (returns 1).
                 Returns 2 if it doesn't exist.
                 """
                 dirr = ljinux.based.fn.betterpath(dirr)
+                
                 try:
                     cddd = getcwd()
                     chdir(dirr)
@@ -1515,7 +1515,7 @@ class ljinux:
                         return (
                             0
                             if dirr[dirr.rfind("/") + 1 :]
-                            in listdir(dirr[: dirr.rfind("/")])
+                            in listdir(dirr[: dirr.rfind("/")] if rdir is None else rdir)
                             else 2
                         )
                     except OSError:

@@ -13,7 +13,7 @@ try:
         sizee = term.detect_size()
 
         ljinux.based.command.fpexecc(
-            ["fpexec", "-n", "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
+            [None, "-n", "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
         )
         del ljinux.based.user_vars["input"]
 
@@ -75,7 +75,7 @@ try:
             term.clear()
         del target, pos, lines3, ctl
         del lc, blank, endt, carry
-    ljinux.based.user_vars["return"] += "0"
+    ljinux.based.user_vars["return"] = "0"
     term.trigger_dict = term_old
     del term_old
 

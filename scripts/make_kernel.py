@@ -23,7 +23,7 @@ if system(f"test -d {picop}/lib") != 0:
     print("Created lib directory.")
     mkdir(f"{picop}/lib")
 
-print("[1/3] Compiling source files and pin allocation tabs\n")
+print("[1/4] Compiling source files and pin allocation tabs\n")
 for filee in listdir():
     if filee.endswith(".py"):
         print(f"-> {filee[:-3]}")
@@ -35,15 +35,20 @@ for filee in listdir():
             exit(1)
         del a
 
-print("\n[2/3] Copying base files\n")
+print("\n[2/4] Copying base files\n")
 for filee in listdir("../rootfilesystem/"):
     print(f"-> {filee}")
     system(f"cp ../rootfilesystem/{filee} {picop}/")
 
-print("\n[3/3] Copying Adafruit hashlib files\n")
+print("\n[3/4] Copying Adafruit hashlib files\n")
 for filee in listdir("../other/adafruit_hashlib"):
     print(f"-> {filee}")
     system(f"cp ../other/adafruit_hashlib/{filee} {picop}/lib/adafruit_hashlib/")
+    
+print("\n[4/4] Copying Adafruit hid files\n")
+for filee in listdir("../other/adafruit_hid"):
+    print(f"-> {filee}")
+    system(f"cp ../other/adafruit_hid/{filee} {picop}/lib/adafruit_hid/")
 
 system("sync")
 print()
