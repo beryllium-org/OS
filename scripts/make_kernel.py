@@ -41,11 +41,17 @@ for filee in listdir("../rootfilesystem/"):
     system(f"cp ../rootfilesystem/{filee} {picop}/")
 
 print("\n[3/4] Copying Adafruit hashlib files\n")
+if system(f"test -d {picop}/lib/adafruit_hashlib") != 0:
+    print("Created adafruit_hashlib directory.")
+    mkdir(f"{picop}/lib/adafruit_hashlib")
 for filee in listdir("../other/adafruit_hashlib"):
     print(f"-> {filee}")
     system(f"cp ../other/adafruit_hashlib/{filee} {picop}/lib/adafruit_hashlib/")
 
 print("\n[4/4] Copying Adafruit hid files\n")
+if system(f"test -d {picop}/lib/adafruit_hid") != 0:
+    print("Created adafruit_hid directory.")
+    mkdir(f"{picop}/lib/adafruit_hid")
 for filee in listdir("../other/adafruit_hid"):
     print(f"-> {filee}")
     system(f"cp ../other/adafruit_hid/{filee} {picop}/lib/adafruit_hid/")

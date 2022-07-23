@@ -22,6 +22,7 @@ class jcurses:
         self.dmtex_suppress = False
         self.buf = [0, ""]
         self.focus = 0
+        self.semi = None # a register for when we need to clear stdin
         """
             trigger_dict : What to do when what key along with other intructions.
             
@@ -36,6 +37,9 @@ class jcurses:
             """
 
     def backspace(self, n=1):
+        """
+        Arguably most used key
+        """
         for i in range(n):
             if len(self.buf[1]) - self.focus > 0:
                 if self.focus == 0:
@@ -53,6 +57,9 @@ class jcurses:
                     del insertion_pos
 
     def home(self):
+        """
+        Go to start of buf
+        """
         lb = len(self.buf[1])
         df = lb - self.focus
         if df > 0:
@@ -61,10 +68,16 @@ class jcurses:
         del lb, df
 
     def end(self):
+        """
+        Go to end of buf
+        """
         stdout.write(f"{ESCK}1C" * self.focus)
         self.focus = 0
 
     def delete(self, n=1):
+        """
+        Key delete. Like, yea, the del you have on your keyboard under insert
+        """
         for i in range(n):
             if len(self.buf[1]) > 0 and self.focus > 0:
                 if self.focus == len(self.buf[1]):
@@ -104,7 +117,7 @@ class jcurses:
             self.stop()
         self.enabled = True
         self.dmtex_suppress = True
-        self.clear()
+        #self.clear()
 
     def stop(self):
         """
@@ -124,36 +137,85 @@ class jcurses:
         """
         detect terminal size, returns [rows, collumns]
         """
-        done = False
-        while (
-            not done
-        ):  # this whole ass fiasco is to combat user input during the ansi negotiation.
+        d = True
+        res = None
+        while d:
             try:
-                strr = ""
+                strr = "" # cannot be None
+                
+                # clearing stdin in case of fast pasting
+                self.rem_gib()
+                
                 for i in range(3):
                     self.get_hw(i)
-                while not strr.endswith("R"):
+                while not strr.endswith("R"): # this is an actual loop
                     strr += self.get_hw(3)
                 strr = strr[2:-1]  # this is critical as find will break with <esc>.
                 res = [int(strr[: strr.find(";")]), int(strr[strr.find(";") + 1 :])]
                 # Let's also update the move bookmarks.
                 self.ctx_dict["bottom_left"] = [res[0], 1]
-                done = True
+                del strr
+                d = False
             except ValueError:
                 pass
-        # Now let's return with the result.
-        del done
+        del d
         return res
 
     def detect_pos(self):
-        strr = ""
-        self.get_hw(1)
-        while not strr.endswith("R"):
-            strr += self.get_hw(3)
-        strr = strr[2:-1]  # this is critical as find will break with <esc>.
-        return [int(strr[: strr.find(";")]), int(strr[strr.find(";") + 1 :])]
+        """
+        detect cursor position, returns [rows, collumns]
+        """
+        d = True
+        res = None
+        while d:
+            try:
+                strr = ""
+                
+                # clearing stdin in case of fast pasting
+                self.rem_gib()
+                
+                self.get_hw(1) # we need cleared stdin for this
+                while not strr.endswith("R"):
+                    strr += self.get_hw(3)
+                strr = strr[2:-1]  # this is critical as find will break with <esc>.
+                res = [int(strr[: strr.find(";")]), int(strr[strr.find(";") + 1 :])]
+                del strr
+                d = False
+            except ValueError:
+                pass
+        del d
+        return res
+    
+    def rem_gib(self):
+        """
+        remove gibberrish from stdin when we need to read ansi escape codes
+        """
+        
+        d = True # done
+        got = False # we got at least a few
+        
+        while d:
+            n = runtime.serial_bytes_available
+            if n > 0:
+                got = True
+                if self.semi is None:
+                    self.semi = stdin.read(n)
+                else:
+                    self.semi += stdin.read(n)
+                if got:
+                    sleep(.0003)
+                    """
+                    'Nough time for at least a few more bytes to come, do not change
+                    Without it, the captures right after, would recieve all the garbage
+                    """
+            else:
+                d = False
+        del n, d, got
 
     def get_hw(self, act):
+        """
+        Used to send and recieve, position ansi requests
+        """
         if act is 0:
             # save pos & goto the end
             stdout.write(f"{ESCK}s{ESCK}500B{ESCK}500C")
@@ -167,16 +229,18 @@ class jcurses:
             # get it
             return stdin.read(1)
 
-    def training(self):
-        from time import sleep
+    def training(self, opt=False):
 
         sleep(3)
         for i in range(0, 10):
             n = runtime.serial_bytes_available
             if n > 0:
-                i = stdin.read(n)
-                for s in i:
-                    stdout.write(str(hex(ord(s)))[2:])
+                if not opt:
+                    i = stdin.read(n)
+                    for s in i:
+                        stdout.write(str(hex(ord(s)))[2:])
+                else:
+                    stdout.write(str(self.register_char()))
         stdout.write("\n")
 
     def register_char(self):
@@ -185,15 +249,22 @@ class jcurses:
         Returns list of input.
         Usually it's a list of one item, but if too much is inputted at once
         (for example, you are pasting text)
-        it will all come in one nice bundle. This is to improve performance & compatibility with advanced keyboard features.
+        it will all come in one nice bundle.
+        This is to improve performance & compatibility with advanced keyboard features.
 
         You need to loop this in a while true.
         """
         stack = []
         try:
             n = runtime.serial_bytes_available
-            if n > 0:
-                i = stdin.read(n)
+            if n > 0 or self.semi is not None:
+                i = None
+                if self.semi is not None:
+                    i = self.semi
+                    self.semi = None
+                else:
+                    i = stdin.read(n)
+                
                 for s in i:
                     try:
                         charr = str(hex(ord(s)))[2:]
@@ -228,7 +299,14 @@ class jcurses:
                     except KeyError:
                         self.text_stepping = 0
         except KeyboardInterrupt:
-            stack = ["ctrlC"]
+            d = True
+            while d:
+                try:
+                    stack = ["ctrlC"]
+                    d = False
+                except KeyboardInterrupt:
+                    pass
+            del d
         return stack
 
     def program(self):
@@ -318,7 +396,7 @@ class jcurses:
                 x, y = max(1, x), max(1, y)
                 stdout.write(f"{ESCK}{str(x)};{str(y)}H")
         else:
-            # no try except here, errors here are the user's fault
+            # no try except here, errors here are the developer's fault
             thectx = self.ctx_dict[ctx]
             stdout.write(f"{ESCK}{str(thectx[0])};{str(thectx[1])}H")
             if x is not None:

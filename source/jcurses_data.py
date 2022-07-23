@@ -61,7 +61,7 @@ char_map = {  # you need to add 0x
     "38": "8",
     "39": "9",
     "30": "0",
-    "60": "`",  # from here on out it's random chars I captured
+    "60": "`",  # specials
     "2d": "-",
     "5f": "_",
     "3d": "=",
@@ -82,12 +82,11 @@ char_map = {  # you need to add 0x
     "3f": "?",
     "3e": ">",
     "3c": "<",
-    "1b": "alt",
+    "1b": "alt", 
     "20": " ",
     "a": "enter",
     "9": "tab",
     "7e": "~",
-    "4": "ctrlD",
     "21": "!",
     "40": "@",
     "23": "#",
@@ -109,5 +108,14 @@ char_map = {  # you need to add 0x
     "36l": "pgdw",
     "33l": "del",
     "32l": "ins",
-    "ctrlC": "ctrlC",  # needed
+    "ctrlC": "ctrlC",  # Ctrl combs
+    "4": "ctrlD",
+    "18": "ctrlX",
+    "6": "ctrlF",
+    "7": "ctrlG",
+    "8": "ctrlH",
+    "b": "ctrlK",
+    "17": "ctrlW",
+    "5": "ctrlE",
+    "12": "ctrlR"
 }

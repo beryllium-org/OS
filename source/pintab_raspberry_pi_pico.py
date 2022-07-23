@@ -1,4 +1,5 @@
 from board import (
+    GP0,
     GP1,
     GP2,
     GP3,
@@ -27,6 +28,7 @@ from board import (
 )
 
 pintab = {
+    0: GP0,
     1: GP1,
     2: GP2,
     3: GP3,

@@ -1,7 +1,7 @@
 # -----------------
 #      Ljinux
 # Coded on a Raspberry Pi 400
-# Ma'am I swear this project is real
+# Ma'am I swear we are alright in the head
 # -----------------
 
 # Some important vars
@@ -837,7 +837,7 @@ class ljinux:
                 1: "Syntax Error",
                 2: "Input Error",
                 3: "Error",
-                4: "'{}': No such file or directory".format(f),
+                4: f"\"{f}\": No such file or directory",
                 5: "Network unavailable",
                 6: "Display not attached",
                 7: "Filesystem unwritable, board in developer mode",
@@ -846,6 +846,7 @@ class ljinux:
                 10: "File exists",
                 11: "Not enough system memory",
                 12: "Based: Error, variable already used",
+                13: f"Terminal too small, minimum size: {f}"
             }
             print(f"{colors.magenta_t}Based{colors.endc}: {errs[wh]}")
             ljinux.io.ledset(1)
@@ -860,7 +861,7 @@ class ljinux:
             ljinux.based.system_vars["VERSION"] = Version
 
             print(
-                "Welcome to lJinux wannabe Kernel {}!\n\n".format(
+                "\nWelcome to lJinux wannabe Kernel {}!\n\n".format(
                     ljinux.based.system_vars["VERSION"]
                 ),
                 end="",
@@ -1508,14 +1509,15 @@ class ljinux:
                 Returns 2 if it doesn't exist.
                 """
                 dirr = ljinux.based.fn.betterpath(dirr)
-
+                
+                cddd = getcwd()
                 try:
-                    cddd = getcwd()
                     chdir(dirr)
                     chdir(cddd)
                     del cddd
                     return 1
                 except OSError:
+                    del cddd # yes we need both
                     try:
                         return (
                             0
