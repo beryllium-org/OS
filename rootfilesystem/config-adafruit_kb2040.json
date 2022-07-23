@@ -6,7 +6,7 @@
   
   "_comment3": "Board led, can be generic or neopixel",
   "led": 17,
-  "ledtype": "generic",
+  "ledtype": "neopixel",
   
   "_comment4": "Display i2c pins",
   "displaySCL": 13,
