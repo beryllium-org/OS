@@ -82,7 +82,7 @@ char_map = {  # you need to add 0x
     "3f": "?",
     "3e": ">",
     "3c": "<",
-    "1b": "alt", 
+    "1b": "alt",
     "20": " ",
     "a": "enter",
     "9": "tab",
@@ -117,5 +117,5 @@ char_map = {  # you need to add 0x
     "b": "ctrlK",
     "17": "ctrlW",
     "5": "ctrlE",
-    "12": "ctrlR"
+    "12": "ctrlR",
 }

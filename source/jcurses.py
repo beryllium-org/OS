@@ -22,7 +22,7 @@ class jcurses:
         self.dmtex_suppress = False
         self.buf = [0, ""]
         self.focus = 0
-        self.semi = None # a register for when we need to clear stdin
+        self.semi = None  # a register for when we need to clear stdin
         """
             trigger_dict : What to do when what key along with other intructions.
             
@@ -117,7 +117,7 @@ class jcurses:
             self.stop()
         self.enabled = True
         self.dmtex_suppress = True
-        #self.clear()
+        # self.clear()
 
     def stop(self):
         """
@@ -141,14 +141,14 @@ class jcurses:
         res = None
         while d:
             try:
-                strr = "" # cannot be None
-                
+                strr = ""  # cannot be None
+
                 # clearing stdin in case of fast pasting
                 self.rem_gib()
-                
+
                 for i in range(3):
                     self.get_hw(i)
-                while not strr.endswith("R"): # this is an actual loop
+                while not strr.endswith("R"):  # this is an actual loop
                     strr += self.get_hw(3)
                 strr = strr[2:-1]  # this is critical as find will break with <esc>.
                 res = [int(strr[: strr.find(";")]), int(strr[strr.find(";") + 1 :])]
@@ -170,11 +170,11 @@ class jcurses:
         while d:
             try:
                 strr = ""
-                
+
                 # clearing stdin in case of fast pasting
                 self.rem_gib()
-                
-                self.get_hw(1) # we need cleared stdin for this
+
+                self.get_hw(1)  # we need cleared stdin for this
                 while not strr.endswith("R"):
                     strr += self.get_hw(3)
                 strr = strr[2:-1]  # this is critical as find will break with <esc>.
@@ -185,15 +185,15 @@ class jcurses:
                 pass
         del d
         return res
-    
+
     def rem_gib(self):
         """
         remove gibberrish from stdin when we need to read ansi escape codes
         """
-        
-        d = True # done
-        got = False # we got at least a few
-        
+
+        d = True  # done
+        got = False  # we got at least a few
+
         while d:
             n = runtime.serial_bytes_available
             if n > 0:
@@ -203,7 +203,7 @@ class jcurses:
                 else:
                     self.semi += stdin.read(n)
                 if got:
-                    sleep(.0003)
+                    sleep(0.0003)
                     """
                     'Nough time for at least a few more bytes to come, do not change
                     Without it, the captures right after, would recieve all the garbage
@@ -264,7 +264,7 @@ class jcurses:
                     self.semi = None
                 else:
                     i = stdin.read(n)
-                
+
                 for s in i:
                     try:
                         charr = str(hex(ord(s)))[2:]

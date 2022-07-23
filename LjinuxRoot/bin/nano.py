@@ -68,72 +68,70 @@ if sizee[0] > 14 and sizee[1] > 102:
     sps2 = " " * (spz + 6)
     del spz, filee
 
-    toptxt = (
-        f"{colors.white_bg_black_bg}  LNL nano {versionn}{sps1}{fnam}{sps2}{colors.endc}\n"
-    )
+    toptxt = f"{colors.white_bg_black_bg}  LNL nano {versionn}{sps1}{fnam}{sps2}{colors.endc}\n"
     del versionn, sps1, sps2, fnam
 
     bottxt = f"{colors.white_bg_black_bg}{weltxt}{colors.endc}\n"
     bottxt_offs = int((sizee[1] - len(weltxt)) / 2)
     del weltxt
 
-    toolsplit = " " * int(sizee[1]/8 - 13)
+    toolsplit = " " * int(sizee[1] / 8 - 13)
     toolbar_txt = f"""{colors.white_bg_black_bg}^G{colors.endc} Help      {toolsplit}{colors.white_bg_black_bg}^O{colors.endc} Write Out {toolsplit}{colors.white_bg_black_bg}^W{colors.endc} Where Is  {toolsplit}{colors.white_bg_black_bg}^K{colors.endc} Cut       {toolsplit}{colors.white_bg_black_bg}^T{colors.endc} Execute   {toolsplit}{colors.white_bg_black_bg}^C{colors.endc} Location  {toolsplit}{colors.white_bg_black_bg}M-U{colors.endc} Undo     {toolsplit}{colors.white_bg_black_bg}M-A{colors.endc} Set Mark
-{colors.white_bg_black_bg}^X{colors.endc} Exit      {toolsplit}{colors.white_bg_black_bg}^R{colors.endc} Read File {toolsplit}{colors.white_bg_black_bg}^\\{colors.endc} Replace   {toolsplit}{colors.white_bg_black_bg}^U{colors.endc} Paste     {toolsplit}{colors.white_bg_black_bg}^J{colors.endc} Justify   {toolsplit}{colors.white_bg_black_bg}^_{colors.endc} Go To Line{toolsplit}{colors.white_bg_black_bg}M-E{colors.endc} Redo     {toolsplit}{colors.white_bg_black_bg}M-6{colors.endc} Copy""" # the big ugly static string
+{colors.white_bg_black_bg}^X{colors.endc} Exit      {toolsplit}{colors.white_bg_black_bg}^R{colors.endc} Read File {toolsplit}{colors.white_bg_black_bg}^\\{colors.endc} Replace   {toolsplit}{colors.white_bg_black_bg}^U{colors.endc} Paste     {toolsplit}{colors.white_bg_black_bg}^J{colors.endc} Justify   {toolsplit}{colors.white_bg_black_bg}^_{colors.endc} Go To Line{toolsplit}{colors.white_bg_black_bg}M-E{colors.endc} Redo     {toolsplit}{colors.white_bg_black_bg}M-6{colors.endc} Copy"""  # the big ugly static string
     del toolsplit
 
     # while ctl[0] != 1:
     q = True
-    inb = False # in bottom box
-    bmod = None # 0 == saving, 1 == searching, more planned later
+    inb = False  # in bottom box
+    bmod = None  # 0 == saving, 1 == searching, more planned later
     savee = False
     term.clear()
     stdout.write(toptxt)
-    term.move(x = sizee[0]-2 , y = bottxt_offs)
+    term.move(x=sizee[0] - 2, y=bottxt_offs)
     stdout.write(bottxt)
     stdout.write(toolbar_txt)
     if len(dataa) > 1:
         ltd = (sizee[0] - 4) if (sizee[0] - 4) < len(dataa) else len(dataa)
-        for i in range(2, sizee[0]-2):
-            term.move(x = i, y = 0)
-            stdout.write(dataa[i-2])
+        for i in range(2, sizee[0] - 2):
+            term.move(x=i, y=0)
+            stdout.write(dataa[i - 2])
     while q:
         try:
             term.focus = 0
             term.buf[1] = dataa[cl]
-            term.move(x = cl-vl+2, y = len(term.buf[1]))
+            term.move(x=cl - vl + 2, y=len(term.buf[1]))
             term.clear_line()
             ctl = term.program()
             if ctl[0] == 1:
                 q = False
-            elif ctl[0] == 8: # down
+            elif ctl[0] == 8:  # down
                 dataa[cl] = term.buf[1]
                 cl += 1
                 if lc < cl:
                     dataa.append("")
                     lc += 1
-                if cl - vl > sizee[0]-5: # we are going out of screen
+                if cl - vl > sizee[0] - 5:  # we are going out of screen
                     term.clear_line()
                     vl += 1
-                    for i in range(2, sizee[0]-3): # shift data
-                        term.move(x = i, y = 0)
+                    for i in range(2, sizee[0] - 3):  # shift data
+                        term.move(x=i, y=0)
                         term.clear_line()
-                        stdout.write(dataa[vl+i-2])
-            
-            elif ctl[0] == 2: # up
+                        stdout.write(dataa[vl + i - 2])
+
+            elif ctl[0] == 2:  # up
                 term.focus = 0
                 dataa[cl] = term.buf[1]
                 if cl > 0:
                     cl -= 1
                     if cl - vl < 0:
                         vl -= 1
-                        for i in range(2, sizee[0]-2): # shift data
-                            term.move(x = i, y = 0)
+                        for i in range(2, sizee[0] - 2):  # shift data
+                            term.move(x=i, y=0)
                             term.clear_line()
-                            stdout.write(dataa[vl+i-2])
+                            stdout.write(dataa[vl + i - 2])
         except KeyboardInterrupt:
             pass
-                
+
     del q, ctl, cl, vl, target, toptxt, bottxt, bottxt_offs, toolbar_txt, inb
     term.clear()
     term.buf[1] = ""
@@ -143,5 +141,5 @@ if sizee[0] > 14 and sizee[1] > 102:
     del savee
     ljinux.based.user_vars["return"] = "0"
 else:
-    ljinux.based.error(13, "15x102") # minimum size error
+    ljinux.based.error(13, "15x102")  # minimum size error
     ljinux.based.user_vars["return"] = "1"

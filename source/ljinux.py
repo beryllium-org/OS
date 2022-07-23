@@ -837,7 +837,7 @@ class ljinux:
                 1: "Syntax Error",
                 2: "Input Error",
                 3: "Error",
-                4: f"\"{f}\": No such file or directory",
+                4: f'"{f}": No such file or directory',
                 5: "Network unavailable",
                 6: "Display not attached",
                 7: "Filesystem unwritable, board in developer mode",
@@ -846,7 +846,7 @@ class ljinux:
                 10: "File exists",
                 11: "Not enough system memory",
                 12: "Based: Error, variable already used",
-                13: f"Terminal too small, minimum size: {f}"
+                13: f"Terminal too small, minimum size: {f}",
             }
             print(f"{colors.magenta_t}Based{colors.endc}: {errs[wh]}")
             ljinux.io.ledset(1)
@@ -1509,7 +1509,7 @@ class ljinux:
                 Returns 2 if it doesn't exist.
                 """
                 dirr = ljinux.based.fn.betterpath(dirr)
-                
+
                 cddd = getcwd()
                 try:
                     chdir(dirr)
@@ -1517,7 +1517,7 @@ class ljinux:
                     del cddd
                     return 1
                 except OSError:
-                    del cddd # yes we need both
+                    del cddd  # yes we need both
                     try:
                         return (
                             0
