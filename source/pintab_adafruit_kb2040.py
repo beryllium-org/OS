@@ -24,7 +24,7 @@ from board import (
 )
 
 pintab = {
-    0: D0
+    0: D0,
     1: D1,
     2: D2,
     3: D3,
