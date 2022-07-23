@@ -38,6 +38,7 @@ pintab = {
     11: BUTTON,
     12: SDA,
     13: SCL,
+    17: NEOPIXEL,
     18: SCK,
     19: MOSI,
     20: MISO,
