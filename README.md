@@ -40,6 +40,7 @@ At the moment the supported microcontrollers are:<br /><br />
    is instead relies on the normal Pico's uf2.
    This results to some bugs, the led & wifi don't work.<br />
  - Waveshare RP2040-Zero <br />
+ - Adafruit KB2040 <br />
 
 But it can probably run on many more.<br />
 The only real limiting factor should be ram, as about 120k are needed for the system to even function.<br />
@@ -124,6 +125,7 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
  -> [bill88t](https://github.com/bill88t) - @bill88t#4044
  <br />-> [Marios](https://github.com/mariospapaz) - @mariospapaz#2188
  <br />-> [mdaadoun](https://github.com/mdaadoun) - @mdaadoun#4475
+ <br />-> [markbirss](https://github.com/markbirss)
  <br />
 
 ## A complete Ljinux manual is available
