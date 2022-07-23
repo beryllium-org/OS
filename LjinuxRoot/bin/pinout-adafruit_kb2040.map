@@ -1,0 +1,35 @@
+                                               ,----|   |----.
+                                           D+  |1   \---/   o| D-
+    [ PWM0A | SDA0 | TX0  | RX0  | GPIO0 ] D0  |o     usbC  o| RAW
+    [ PWM0B | SCL0 | RX0  | CSN0 | GPIO1 ] D1  |o +-+       o| GND
+                                          GND  |o |W|       o| RESET
+                                          GND  |o +-+       o| 3.3V
+    [ PWM1A | SDA1 | CTS0 | CSK0 | GPIO2 ] D2  |o    A      o| A3       [ GPIO29 | CSn1 | RX0  | SCL0 | PWM6B | ADC3 ]
+    [ PWM1B | SCL1 | RTS0 | TX0  | GPIO3 ] D3  |o   +---+   o| A2       [ GPIO28 | RX1  | TX0  | SDA0 | PWM6A | ADC2 ]
+    [ PWM2A | SDA0 | TX1  | RX0  | GPIO4 ] D4  |o   |RP2|   o| A1       [ GPIO27 | TX1  | RTS0 | SCL1 | PWM5B | ADC1 ]
+    [ PWM2B | SCL0 | RX1  | CSN0 | GPIO5 ] D5  |o   |040|   o| A0       [ GPIO26 | SCK1 | CTS1 | SDA1 | PWM5A | ADC0 ]
+    [ PWM3A | SDA1 | CTS1 | SCK0 | GPIO6 ] D6  |o   +---+   o| SCK      [ GPIO18 | SCK0 | CTS0 | SDA1 | PWM1A |      ]
+    [ PWM3B | SCL1 | RTS1 | TX0  | GPIO7 ] D7  |o           o| MISO     [ GPIO20 | RX0  | TX1  | SDA0 | PWM2A |      ]
+    [ PWM3A | SDA0 | TX1  | RX1  | GPIO8 ] D8  |o   C       o| MOSI     [ GPIO19 | TX0  | RTS0 | SCL1 | PWM1B |      ]
+    [ PWM3B | SCL0 | RX1  | CSN1 | GPIO9 ] D9  |o B  0000 B o| D10      [ GPIO10 | SCK1 | CTS1 | SDA1 | PWM5A |      ]
+                                               `-------------'
+                                                  ^  ^^^^ ^
+                                                  |  ||||  \
+[ PWM5B | SCL1 | RTS1 | TX1 | GPIO11 ] BUTTON ----' / |||   `- NEOPIXEL [ GPIO17 | CSN0 | RX0  | SCL0 | PWM0B |      ]
+                                          GND -----' / || 
+                                         3.3V ------' / |
+[ PWM6A | SDA0 | TX0  | RX1  | GPIO12 ]   SDA -------' / 
+[ PWM6B | SCL0 | RX0  | CSN1 | GPIO13 ]   SCL -------'
+
+Adafruit KB2040 Rev 1.0
+
+Revision           : 1.0
+SoC                : RP2040
+RAM                : 264KB
+Storage            : QSPI
+USB ports          : 1 (of which 0 USB3)
+Ethernet ports     : 0
+Wi-fi              : False
+Bluetooth          : False
+Camera ports (CSI) : 0
+Display ports (DSI): 0

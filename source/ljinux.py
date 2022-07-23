@@ -318,6 +318,7 @@ if not configg["DEVBOARD"]:
     boardactions = {
         "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
         "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
+        "adafruit_kb2040": lambda: dmtex("Runing on Adafruit KB2040."),
     }
 
     try:
