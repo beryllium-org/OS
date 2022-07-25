@@ -22,7 +22,6 @@ try:
 
         term_old = term.trigger_dict
         term.trigger_dict = {
-            "inp_type": "prompt",
             "ctrlC": 1,
             "q": 1,
             "up": 2,

@@ -27,7 +27,6 @@ class jcurses:
             trigger_dict : What to do when what key along with other intructions.
             
             trigger_dict values:
-                "inp_type": Can be: prompt / line / multiline / graphical, prompt needs a "prefix"
                 "*any value from char_map*": exit the program with the value as an exit code.
                     For instance: "enter": 1. The program will exit when enter is pressed with exit code 1.
                 "rest": what to do with the rest of keys, type string, can be "stack" / "ignore"
@@ -238,7 +237,7 @@ class jcurses:
                 if not opt:
                     i = stdin.read(n)
                     for s in i:
-                        stdout.write(str(hex(ord(s)))[2:])
+                        print(ord(s))
                 else:
                     stdout.write(str(self.register_char()))
         stdout.write("\n")
@@ -267,17 +266,17 @@ class jcurses:
 
                 for s in i:
                     try:
-                        charr = str(hex(ord(s)))[2:]
+                        charr = ord(s)
                         # Check for alt or process
                         if self.text_stepping is 0:
-                            if charr != "1b":
+                            if charr != 27:
                                 stack.append(char_map[charr])
                             else:
                                 self.text_stepping = 1
 
                         # Check skipped alt
                         elif self.text_stepping is 1:
-                            if charr != "5b":
+                            if charr != 91:
                                 self.text_stepping = 0
                                 stack.extend(["alt", char_map[charr]])
                             else:
@@ -286,12 +285,12 @@ class jcurses:
                         # the arrow keys and the six above
                         elif self.text_stepping is 2:
                             self.text_stepping = 3
-                            stack.append(char_map[charr + "l"])
+                            stack.append(char_map[300 + charr])
 
                         else:
-                            if charr == "7e":  # garbage
+                            if charr == 126:  # garbage
                                 self.text_stepping = 0
-                            elif charr == "1b":  # new special
+                            elif charr == 27:  # new special
                                 self.text_stepping = 1
                             else:  # other
                                 stack.append(char_map[charr])
@@ -316,67 +315,66 @@ class jcurses:
         """
         self.softquit = segmented = False
         self.buf[0] = 0
-        if self.trigger_dict["inp_type"] == "prompt":  # a terminal prompt
-            self.termline()
-            while not self.softquit:
-                tempstack = self.register_char()
-                if len(tempstack) > 0:
-                    for i in tempstack:
-                        if i == "alt":
-                            pass
-                        elif segmented:
-                            pass
-                        elif i in self.trigger_dict:
-                            self.buf[0] = self.trigger_dict[i]
-                            self.softquit = True
-                        elif i == "bck":
-                            self.backspace()
-                        elif i == "del":
-                            self.delete()
-                        elif i == "home":
-                            self.home()
-                        elif i == "end":
-                            self.end()
-                        elif i == "up":
-                            pass
-                        elif i == "ins":
-                            pass
-                        elif i == "left":
-                            if len(self.buf[1]) > self.focus:
+        self.termline()
+        while not self.softquit:
+            tempstack = self.register_char()
+            if len(tempstack) > 0:
+                for i in tempstack:
+                    if i == "alt":
+                        pass
+                    elif segmented:
+                        pass
+                    elif i in self.trigger_dict:
+                        self.buf[0] = self.trigger_dict[i]
+                        self.softquit = True
+                    elif i == "bck":
+                        self.backspace()
+                    elif i == "del":
+                        self.delete()
+                    elif i == "home":
+                        self.home()
+                    elif i == "end":
+                        self.end()
+                    elif i == "up":
+                        pass
+                    elif i == "ins":
+                        pass
+                    elif i == "left":
+                        if len(self.buf[1]) > self.focus:
+                            stdout.write("\010")
+                            self.focus += 1
+                    elif i == "right":
+                        if self.focus > 0:
+                            stdout.write(ESCK + "1C")
+                            self.focus -= 1
+                    elif i == "down":
+                        pass
+                    elif i == "tab":
+                        pass
+                    elif self.trigger_dict["rest"] == "stack" and (
+                        self.trigger_dict["rest_a"] == "common"
+                        and i not in {"alt", "ctrl", "ctrlD"}
+                    ):  # Arknights "PatriotExtra" theme starts playing
+                        if self.focus is 0:
+                            self.buf[1] += i
+                            if self.trigger_dict["echo"] in {"common", "all"}:
+                                stdout.write(i)
+                        else:
+                            insertion_pos = (
+                                len(self.buf[1]) - self.focus
+                            )  # backend insertion
+                            self.buf[1] = (
+                                self.buf[1][:insertion_pos]
+                                + i
+                                + self.buf[1][insertion_pos:]
+                            )
+                            # frontend insertion
+                            for d in self.buf[1][insertion_pos:]:
+                                stdout.write(d)
+                            steps_in = len(self.buf[1][insertion_pos:])
+                            for e in range(steps_in - 1):
                                 stdout.write("\010")
-                                self.focus += 1
-                        elif i == "right":
-                            if self.focus > 0:
-                                stdout.write(ESCK + "1C")
-                                self.focus -= 1
-                        elif i == "down":
-                            pass
-                        elif i == "tab":
-                            pass
-                        elif self.trigger_dict["rest"] == "stack" and (
-                            self.trigger_dict["rest_a"] == "common"
-                            and i not in {"alt", "ctrl", "ctrlD"}
-                        ):  # Arknights "PatriotExtra" theme starts playing
-                            if self.focus is 0:
-                                self.buf[1] += i
-                                if self.trigger_dict["echo"] in {"common", "all"}:
-                                    stdout.write(i)
-                            else:
-                                insertion_pos = (
-                                    len(self.buf[1]) - self.focus
-                                )  # backend insertion
-                                self.buf[1] = (
-                                    self.buf[1][:insertion_pos]
-                                    + i
-                                    + self.buf[1][insertion_pos:]
-                                )
-                                # frontend insertion
-                                for d in self.buf[1][insertion_pos:]:
-                                    stdout.write(d)
-                                steps_in = len(self.buf[1][insertion_pos:])
-                                for e in range(steps_in - 1):
-                                    stdout.write("\010")
-                                del steps_in, insertion_pos
+                            del steps_in, insertion_pos
                 del tempstack
         del segmented
         return self.buf
