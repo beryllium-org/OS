@@ -121,10 +121,14 @@ from sys import (
 
 dmtex("System libraries loaded")
 
+
 try:
     import busio
 
-    from microcontroller import cpu, cpus
+    from microcontroller import cpu
+    #from microcontroller import cpus
+    cpus = []
+    cpus.append(cpu)
 
     from storage import remount, VfsFat, mount, getmount
 
