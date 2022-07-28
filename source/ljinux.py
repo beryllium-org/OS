@@ -124,8 +124,6 @@ dmtex("System libraries loaded")
 try:
     import busio
 
-    from microcontroller import cpu, cpus
-
     from storage import remount, VfsFat, mount, getmount
 
     from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove
@@ -141,6 +139,12 @@ try:
 except ImportError:
     dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
     exit(0)
+
+cpu_s_available = True
+try:
+    from microcontroller import cpu, cpus
+except ImportError:
+    cpu_s_available = False
 
 try:
     from neopixel_write import neopixel_write
@@ -211,18 +215,9 @@ defaultoptions = {  # default configuration, in line with the manual (default va
 # dynamic pintab
 try:
     exec(f"from pintab_{board.board_id} import pintab")
-except ImportError:
+except:
     dmtex(f"{colors.error}ERROR:{colors.endc} Board config cannot be loaded")
-    if isinstance(configg["DEVBOARD"], bool) and configg["DEVBOARD"] == True:
-        dmtex("Continuing with generic Raspberry Pi Pico compatible pin layout")
-        try:
-            from pintab_raspberry_pi_pico import pintab
-        except ImportError:
-            dmtex(
-                f"{colors.error}FATAL:{colors.endc} Generic Raspberry Pi Pico pin layout loading failed!"
-            )
-            exit(1)
-
+    exit(1)
 
 # General options
 for optt in list(defaultoptions.keys()):
@@ -292,7 +287,7 @@ if not configg["SKIPCP"]:  # beta testing
 else:
     print("Skipped CircuitPython version checking, happy beta testing!")
 
-if not configg["SKIPTEMP"]:
+if not (configg["SKIPTEMP"] or cpu_s_available):
     """
     Taking measures in case of unordinary temperature readings.
     The override exists in case of hardware failure.
@@ -310,34 +305,30 @@ if not configg["SKIPTEMP"]:
 else:
     print("Temperature check skipped, rest in pieces cpu.")
 
-if not configg["DEVBOARD"]:
-    """
-    Enable to skip board checks and patches.
-    """
-    print("Running board detection")
-    boardactions = {
-        "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
-        "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
-        "adafruit_kb2040": lambda: dmtex("Runing on Adafruit KB2040."),
-    }
 
-    try:
-        boardactions[board.board_id]()
-    except KeyError:
-        dmtex(
-            colors.error
-            + "Unknown board. "
-            + colors.endc
-            + "Please open an issue in "
-            + colors.cyan_t
-            + "https://github.com/bill88t/ljinux"
-            + colors.endc
-            + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible."
-        )
-        time.sleep(20)
-    del boardactions
-else:
-    dmtex("Board detection skipped. Enjoy experimenting!")
+print("Running board detection")
+boardactions = {
+    "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
+    "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
+    "adafruit_kb2040": lambda: dmtex("Runing on an Adafruit KB2040."),
+    "waveshare_esp32s2_pico": lambda: dmtex("Runing on Waveshare ESP32-S2-Pico."),
+}
+
+try:
+    boardactions[board.board_id]()
+except KeyError:
+    dmtex(
+        colors.error
+        + "Unknown board. "
+        + colors.endc
+        + "Please open an issue in "
+        + colors.cyan_t
+        + "https://github.com/bill88t/ljinux"
+        + colors.endc
+        + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible."
+    )
+    time.sleep(20)
+del boardactions
 
 gc.collect()
 gc.collect()

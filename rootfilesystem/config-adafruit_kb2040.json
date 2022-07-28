@@ -40,5 +40,7 @@
   "SKIPTEMP": false,
   "SKIPCP": false,
   "DEBUG": true,
-  "DEVBOARD": false
+  
+  "_comment12": "Module changes",
+  "NOCPU": false
 }
