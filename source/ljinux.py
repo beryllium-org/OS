@@ -123,7 +123,7 @@ dmtex("System libraries loaded")
 
 singleCPU = False
 try:
-    from microcontroller import cpus
+    from microcontroller import cpu, cpus
 except ImportError:
     singleCPU = True
 
@@ -132,7 +132,7 @@ if singleCPU:
         from microcontroller import cpu
         cpus = []
         cpus.append(cpu)
-    except:
+    except ImportError:
         dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
         exit(0)
 del singleCPU
