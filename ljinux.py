@@ -17,6 +17,7 @@ try:
 except ImportError:
     print("FATAL: Core libraries loading failed")
     from sys import exit
+
     exit(1)
 
 print("[    0.00000] Core libs loaded")
@@ -122,7 +123,7 @@ dmtex("System libraries loaded")
 
 singleCPU = False
 try:
-    from microcontroller import cpus
+    from microcontroller import cpu, cpus
 except ImportError:
     singleCPU = True
 
@@ -131,7 +132,7 @@ if singleCPU:
         from microcontroller import cpu
         cpus = []
         cpus.append(cpu)
-    except:
+    except ImportError:
         dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
         exit(0)
 del singleCPU
