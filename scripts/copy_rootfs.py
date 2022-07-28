@@ -16,6 +16,8 @@ if system(f"test -d /media/{ami}/LJINUX") == 0:
     picop = f"/media/{ami}/LJINUX"
 elif system(f"test -d /media/{ami}/CIRCUITPY") == 0:
     picop = f"/media/{ami}/CIRCUITPY"
+elif system(f"test -d /media/CIRCUITPY") == 0:
+    picop = f"/media/CIRCUITPY"
 elif system("test -d /Volumes/LJINUX") == 0:
     picop = "/Volumes/LJINUX"
 elif system("test -d /Volumes/CIRCUITPY") == 0:
