@@ -32,7 +32,7 @@ from board import (
     IO43,
     IO44,
     IO45,
-    IO46
+    IO46,
 )
 
 pintab = {
@@ -69,5 +69,5 @@ pintab = {
     43: IO43,
     44: IO44,
     45: IO45,
-    46: IO46
+    46: IO46,
 }
