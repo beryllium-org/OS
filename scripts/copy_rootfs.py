@@ -40,7 +40,7 @@ if picop == "":
 
 print("\n[Copying root files\n")
 if uname().system == "Linux":
-    print("cp -rv ../LjinuxRoot/* "+picop+"/")
+    print("cp -rv ../LjinuxRoot/* "+picop+"/LjinuxRoot/")
     system(f"cp -rv ../LjinuxRoot/* {picop}/")
     print("cp -v ../Manual.txt "+picop+"/LjinuxRoot/home/pi/")
     system(f"cp -v ../Manual.txt {picop}/LjinuxRoot/home/pi/")
