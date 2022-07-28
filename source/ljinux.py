@@ -124,6 +124,8 @@ dmtex("System libraries loaded")
 try:
     import busio
 
+    from microcontroller import cpu
+    
     from storage import remount, VfsFat, mount, getmount
 
     from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove
@@ -140,11 +142,10 @@ except ImportError:
     dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
     exit(0)
 
-cpu_s_available = True
 try:
-    from microcontroller import cpu, cpus
+    from microcontroller import cpus
 except ImportError:
-    cpu_s_available = False
+    pass
 
 try:
     from neopixel_write import neopixel_write
@@ -287,7 +288,7 @@ if not configg["SKIPCP"]:  # beta testing
 else:
     print("Skipped CircuitPython version checking, happy beta testing!")
 
-if not (configg["SKIPTEMP"] or cpu_s_available):
+if not configg["SKIPTEMP"]:
     """
     Taking measures in case of unordinary temperature readings.
     The override exists in case of hardware failure.
