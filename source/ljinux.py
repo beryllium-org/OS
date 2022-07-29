@@ -313,23 +313,21 @@ boardactions = {
     "waveshare_esp32s2_pico": lambda: dmtex("Runing on Waveshare ESP32-S2-Pico."),
 }
 
-    try:
-        boardactions[board.board_id]()
-    except KeyError:
-        dmtex(
-            colors.error
-            + "Unknown board. "
-            + colors.endc
-            + "Please open an issue in "
-            + colors.cyan_t
-            + "https://github.com/bill88t/ljinux"
-            + colors.endc
-            + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible."
-        )
-        time.sleep(20)
-    del boardactions
-else:
-    dmtex("Board detection skipped. Enjoy experimenting!")
+try:
+    boardactions[board.board_id]()
+except KeyError:
+    dmtex(
+        colors.error
+        + "Unknown board. "
+        + colors.endc
+        + "Please open an issue in "
+        + colors.cyan_t
+        + "https://github.com/bill88t/ljinux"
+        + colors.endc
+        + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible."
+    )
+    time.sleep(20)
+del boardactions
 
 gc.collect()
 gc.collect()
