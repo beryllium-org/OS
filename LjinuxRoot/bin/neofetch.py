@@ -25,7 +25,7 @@ try:
 
     Ccpu += f" ({len(cpus)})"
 except:
-    pass
+    Ccpu += " (1)"
 Ccpu += f" @ {trunc(cpu.frequency / 1000000)}Mhz"
 
 gc.collect()
