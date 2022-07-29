@@ -11,26 +11,24 @@ if sizee[0] > 14 and sizee[1] > 102:
     except IndexError:
         pass
 
-    if filee is not None: # there is arg
+    if filee is not None:  # there is arg
         exists = ljinux.based.fn.isdir(filee, rdir=getcwd())
 
-    if exists == 1: # it is dir
+    if exists == 1:  # it is dir
         filee = None
         exists = 2
         weltxt = "[ {} is a directory ]".format(filee[filee.rfind("/") + 1 :])
 
     dataa = [""]
 
-    lc = 0 # line count
-    if exists == 0: # is file
+    lc = 0  # line count
+    if exists == 0:  # is file
         with open(filee, "r") as f:
             ll = f.readlines()
             ljinux.based.user_vars["input"] = []
             for i in range(0, len(ll)):
                 if ll[i] != "\n":
-                    ljinux.based.user_vars["input"].append(
-                        ll[i].replace("\n", "")
-                    )
+                    ljinux.based.user_vars["input"].append(ll[i].replace("\n", ""))
                 else:
                     ljinux.based.user_vars["input"].append("")
             del ll
@@ -103,9 +101,9 @@ if sizee[0] > 14 and sizee[1] > 102:
             term.move(x=cl - vl + 2, y=len(term.buf[1]))
             term.clear_line()
             ctl = term.program()
-            if ctl[0] == 9: # kill
+            if ctl[0] == 9:  # kill
                 q = False
-            elif ctl[0] == 1: # save
+            elif ctl[0] == 1:  # save
                 pass
             elif ctl[0] == 8:  # down
                 dataa[cl] = term.buf[1]
@@ -132,13 +130,13 @@ if sizee[0] > 14 and sizee[1] > 102:
                             term.move(x=i, y=0)
                             term.clear_line()
                             stdout.write(dataa[vl + i - 2])
-            
+
             elif ctl[0] == 10:  # insert empty line (enter)
                 term.focus = 0
                 dataa[cl] = term.buf[1]
-                dataa.append(lc) # last line to new line
-                for i in range(lc, cl+1): # all lines from the end to here
-                    dataa[i] = dataa[i-1]
+                dataa.append(lc)  # last line to new line
+                for i in range(lc, cl + 1):  # all lines from the end to here
+                    dataa[i] = dataa[i - 1]
                 dataa[cl] = ""
                 term.buf[1] = ""
         except KeyboardInterrupt:
