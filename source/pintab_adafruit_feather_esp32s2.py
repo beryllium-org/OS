@@ -21,7 +21,7 @@ from board import (
     D6,
     D5,
     RX,
-    TX
+    TX,
 )
 
 pintab = {
@@ -47,5 +47,5 @@ pintab = {
     36: SCK,
     37: MISO,
     38: RX,
-    39: TX
+    39: TX,
 }
