@@ -4,7 +4,7 @@ from getpass import getuser
 
 if uname().system == "Linux":
     slash = "/"
-    copy = "cp" 
+    copy = "cp"
 else:
     slash = "\\"
     copy = "copy"
@@ -21,11 +21,11 @@ elif system("test -d /Volumes/LJINUX") == 0:
     picop = "/Volumes/LJINUX"
 elif system("test -d /Volumes/CIRCUITPY") == 0:
     picop = "/Volumes/CIRCUITPY"
-elif uname().system == 'Windows':
+elif uname().system == "Windows":
     mpyn = f"..\scripts\mpy-cross-windows"
-    drives = [ chr(x) + ":" for x in range(65,91) if path.exists(chr(x) + ":") ]
+    drives = [chr(x) + ":" for x in range(65, 91) if path.exists(chr(x) + ":")]
     for _ in drives:
-        vol = popen("vol "+_)
+        vol = popen("vol " + _)
         if vol.readline()[:-1].split(" ")[-1].upper() == "CIRCUITPY":
             picop = f"%s" % _
         vol.close()
@@ -40,16 +40,18 @@ if picop == "":
 print(f"\nUsing mpycross: {mpyn}")
 
 print(f"Using board path: {picop}\n")
-if system(f"test -d {picop}/lib".replace("/",slash)) != 0:
+if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
     print("Created lib directory.")
-    mkdir(f"{picop}/lib".replace("/",slash))
+    mkdir(f"{picop}/lib".replace("/", slash))
 
 print("[1/4] Compiling source files and pin allocation tabs\n")
 for filee in listdir():
     if filee.endswith(".py"):
         print(f"-> {filee[:-3]}")
         a = system(
-            f"{mpyn} ./{filee} -s {filee[:-3]} -v -O4 -o {picop}/lib/{filee[:-3]}.mpy".replace("/",slash)
+            f"{mpyn} ./{filee} -s {filee[:-3]} -v -O4 -o {picop}/lib/{filee[:-3]}.mpy".replace(
+                "/", slash
+            )
         )
         if a != 0:
             print("Compilation error, exiting")
@@ -57,25 +59,35 @@ for filee in listdir():
         del a
 
 print("\n[2/4] Copying base files\n")
-for filee in listdir("../rootfilesystem/".replace("/",slash)):
+for filee in listdir("../rootfilesystem/".replace("/", slash)):
     print(f"-> {filee}")
-    system(f"cp ../rootfilesystem/{filee} {picop}/".replace("/",slash).replace("cp",copy))
+    system(
+        f"cp ../rootfilesystem/{filee} {picop}/".replace("/", slash).replace("cp", copy)
+    )
 
 print("\n[3/4] Copying Adafruit hashlib files\n")
-if system(f"test -d {picop}/lib/adafruit_hashlib".replace("/",slash)) != 0:
+if system(f"test -d {picop}/lib/adafruit_hashlib".replace("/", slash)) != 0:
     print("Created adafruit_hashlib directory.")
-    mkdir(f"{picop}/lib/adafruit_hashlib".replace("/",slash))
-for filee in listdir("../other/adafruit_hashlib".replace("/",slash)):
+    mkdir(f"{picop}/lib/adafruit_hashlib".replace("/", slash))
+for filee in listdir("../other/adafruit_hashlib".replace("/", slash)):
     print(f"-> {filee}")
-    system(f"cp ../other/adafruit_hashlib/{filee} {picop}/lib/adafruit_hashlib/".replace("/",slash).replace("cp",copy))
+    system(
+        f"cp ../other/adafruit_hashlib/{filee} {picop}/lib/adafruit_hashlib/".replace(
+            "/", slash
+        ).replace("cp", copy)
+    )
 
 print("\n[4/4] Copying Adafruit hid files\n")
-if system(f"test -d {picop}/lib/adafruit_hid".replace("/",slash)) != 0:
+if system(f"test -d {picop}/lib/adafruit_hid".replace("/", slash)) != 0:
     print("Created adafruit_hid directory.")
-    mkdir(f"{picop}/lib/adafruit_hid".replace("/",slash))
-for filee in listdir("../other/adafruit_hid".replace("/",slash)):
+    mkdir(f"{picop}/lib/adafruit_hid".replace("/", slash))
+for filee in listdir("../other/adafruit_hid".replace("/", slash)):
     print(f"-> {filee}")
-    system(f"cp ../other/adafruit_hid/{filee} {picop}/lib/adafruit_hid/".replace("/",slash).replace("cp",copy))
+    system(
+        f"cp ../other/adafruit_hid/{filee} {picop}/lib/adafruit_hid/".replace(
+            "/", slash
+        ).replace("cp", copy)
+    )
 
 system("sync")
 print()
