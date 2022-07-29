@@ -31,7 +31,7 @@ Table of Contents
 
 ## Prerequisites and optional hardware
 
-Depends on circuitpython 7. (Supported 7.0.0 - 7.3.0)<br />
+Depends on circuitpython 7. (7.3.x is the latest supported version as of now)<br />
 At the moment the supported microcontrollers are:<br /><br />
 
  - Raspberry Pi Pico<br />
