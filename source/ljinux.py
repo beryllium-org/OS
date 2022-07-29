@@ -194,7 +194,6 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "fixrtc": (True, bool, False),
     "SKIPTEMP": (False, bool, False),
     "SKIPCP": (False, bool, False),
-    "DEVBOARD": (False, bool, False),
     "DEBUG": (False, bool, False),
     "DISPLAYONLYMODE": (False, bool, False),
     "w5500_MOSI": (-1, int, True),
@@ -300,7 +299,6 @@ if not configg["SKIPTEMP"]:
     del temp
 else:
     print("Temperature check skipped, rest in pieces cpu.")
-
 
 print("Running board detection")
 boardactions = {
