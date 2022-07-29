@@ -210,10 +210,9 @@ defaultoptions = {  # default configuration, in line with the manual (default va
 # dynamic pintab
 try:
     exec(f"from pintab_{board.board_id} import pintab")
-except ImportError:
+except:
     dmtex(f"{colors.error}ERROR:{colors.endc} Board config cannot be loaded")
     exit(1)
-
 
 # General options
 for optt in list(defaultoptions.keys()):
@@ -301,15 +300,11 @@ if not configg["SKIPTEMP"]:
 else:
     print("Temperature check skipped, rest in pieces cpu.")
 
-
-"""
-Enable to skip board checks and patches.
-"""
 print("Running board detection")
 boardactions = {
     "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
     "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
-    "adafruit_kb2040": lambda: dmtex("Runing on Adafruit KB2040."),
+    "adafruit_kb2040": lambda: dmtex("Runing on an Adafruit KB2040."),
     "waveshare_esp32s2_pico": lambda: dmtex("Runing on Waveshare ESP32-S2-Pico."),
 }
 

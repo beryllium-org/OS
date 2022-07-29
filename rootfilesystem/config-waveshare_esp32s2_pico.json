@@ -5,12 +5,12 @@
   "fixrtc": true,
   
   "_comment3": "Board led, can be generic or neopixel",
-  "led": 17,
-  "ledtype": "neopixel",
+  "led": 9,
+  "ledtype": "generic",
   
   "_comment4": "Display i2c pins",
-  "displaySCL": 13,
-  "displaySDA": 12,
+  "displaySCL": -1,
+  "displaySDA": -1,
 
   "_comment5": "Display height - width",
   "displayheight": 64,
@@ -19,8 +19,8 @@
   "_comment6": "Other display related options",
   "_comment7": "Makes the pi only bother with sensor io & not serial. Not yet implemented",
   "DISPLAYONLYMODE": false,
-  
-  "_comment8": "Networking",
+
+  "_comment8": "w5500 networking",
   "w5500_MOSI": -1,
   "w5500_MISO": -1,
   "w5500_SCLK": -1,
@@ -34,10 +34,10 @@
   "sd_MOSI": -1,
   
   "_comment10": "memsize in kb",
-  "mem": 264,
+  "mem": 8200,
 
   "_comment11": "Debugging & extreme options",
   "SKIPTEMP": false,
   "SKIPCP": false,
-  "DEBUG": true
+  "DEBUG": false
 }

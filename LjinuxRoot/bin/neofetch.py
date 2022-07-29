@@ -19,7 +19,12 @@ else:
     uptimestr = uptimestr[:-2]
 del hours, minutes, neofetch_time
 
-Ccpu = f"{platform} ({len(cpus)}) @ {trunc(cpu.frequency / 1000000)}Mhz"
+Ccpu = f"{platform}"
+try:
+    Ccpu += f" ({len(cpus)})"
+except NameError:
+    pass
+Ccpu += f" @ {trunc(cpu.frequency / 1000000)}Mhz"
 
 gc.collect()
 gc.collect()
