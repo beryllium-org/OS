@@ -125,7 +125,7 @@ try:
     import busio
 
     from microcontroller import cpu
-    
+
     from storage import remount, VfsFat, mount, getmount
 
     from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove
