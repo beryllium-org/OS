@@ -41,6 +41,7 @@ At the moment the supported microcontrollers are:<br /><br />
    This results to some bugs, the led & wifi don't work.<br />
  - Waveshare RP2040-Zero <br />
  - Adafruit KB2040 <br />
+ - Waveshare ESP32-S2-Pico <br />
  - Adafruit Feather ESP32-S2 <br />
 
 But it can probably run on many more.<br />
