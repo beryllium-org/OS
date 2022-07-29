@@ -1745,7 +1745,9 @@ class ljinux:
                                                 for j in range(1, len(candidates)):
                                                     try:
                                                         if (
-                                                            not candidates[j][letters_match]
+                                                            not candidates[j][
+                                                                letters_match
+                                                            ]
                                                             == candidates[j - 1][
                                                                 letters_match
                                                             ]
