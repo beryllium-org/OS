@@ -306,7 +306,9 @@ boardactions = {
     "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
     "adafruit_kb2040": lambda: dmtex("Running on an Adafruit KB2040."),
     "waveshare_esp32s2_pico": lambda: dmtex("Running on a Waveshare ESP32-S2-Pico."),
-    "adafruit_feather_esp32s2": lambda: dmtex("Running on an Adafruit Feather ESP32-S2."),
+    "adafruit_feather_esp32s2": lambda: dmtex(
+        "Running on an Adafruit Feather ESP32-S2."
+    ),
 }
 
 try:
