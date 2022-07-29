@@ -30,7 +30,6 @@ if picop == "":
     )
     exit(1)
 
-print("\n[Copying root files\n")
 if uname().system == "Linux":
     if system(f"test -d {picop}/LjinuxRoot") != 0:
         print("Created LjinuxRoot")

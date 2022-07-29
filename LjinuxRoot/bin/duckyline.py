@@ -129,7 +129,6 @@ try:
     defaultDelay = 60
 
     ljinux.based.user_vars["return"] = "0"
-    print(lineee)
     cmd = (
         lineee[: lineee.find(" ", 0)].upper()
         if lineee.find(" ", 0) != -1

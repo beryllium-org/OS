@@ -11,25 +11,28 @@ if sizee[0] > 14 and sizee[1] > 102:
     except IndexError:
         pass
 
-    if filee is not None:
+    if filee is not None: # there is arg
         exists = ljinux.based.fn.isdir(filee, rdir=getcwd())
 
-    if exists == 1:
+    if exists == 1: # it is dir
         filee = None
         exists = 2
         weltxt = "[ {} is a directory ]".format(filee[filee.rfind("/") + 1 :])
 
     dataa = [""]
 
-    lc = 0
-    if exists == 0:
+    lc = 0 # line count
+    if exists == 0: # is file
         with open(filee, "r") as f:
             ll = f.readlines()
             ljinux.based.user_vars["input"] = []
             for i in range(0, len(ll)):
-                ljinux.based.user_vars["input"].append(
-                    ll[i].replace("\n", "") if ll[i] != "\n" else ll[i]
-                )
+                if ll[i] != "\n":
+                    ljinux.based.user_vars["input"].append(
+                        ll[i].replace("\n", "")
+                    )
+                else:
+                    ljinux.based.user_vars["input"].append("")
             del ll
 
         ljinux.based.command.fpexecc(
@@ -41,17 +44,15 @@ if sizee[0] > 14 and sizee[1] > 102:
 
     term_old = term.trigger_dict
     term.trigger_dict = {
-        "inp_type": "prompt",
         "ctrlX": 1,
+        "ctrlK": 9,
         "ctrlC": 0,
         "up": 2,
         "down": 8,
         "pgup": 4,
         "pgdw": 5,
-        "home": 6,
-        "end": 7,
-        "enter": 8,
-        "overflow": 8,
+        "enter": 10,
+        "overflow": 10,
         "rest": "stack",
         "rest_a": "common",
         "echo": "common",
@@ -102,15 +103,17 @@ if sizee[0] > 14 and sizee[1] > 102:
             term.move(x=cl - vl + 2, y=len(term.buf[1]))
             term.clear_line()
             ctl = term.program()
-            if ctl[0] == 1:
+            if ctl[0] == 9: # kill
                 q = False
+            elif ctl[0] == 1: # save
+                pass
             elif ctl[0] == 8:  # down
                 dataa[cl] = term.buf[1]
                 cl += 1
                 if lc < cl:
                     dataa.append("")
                     lc += 1
-                if cl - vl > sizee[0] - 5:  # we are going out of screen
+                if cl - vl > sizee[0] - 6:  # we are going out of screen
                     term.clear_line()
                     vl += 1
                     for i in range(2, sizee[0] - 3):  # shift data
@@ -129,6 +132,15 @@ if sizee[0] > 14 and sizee[1] > 102:
                             term.move(x=i, y=0)
                             term.clear_line()
                             stdout.write(dataa[vl + i - 2])
+            
+            elif ctl[0] == 10:  # insert empty line (enter)
+                term.focus = 0
+                dataa[cl] = term.buf[1]
+                dataa.append(lc) # last line to new line
+                for i in range(lc, cl+1): # all lines from the end to here
+                    dataa[i] = dataa[i-1]
+                dataa[cl] = ""
+                term.buf[1] = ""
         except KeyboardInterrupt:
             pass
 
