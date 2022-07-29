@@ -5,12 +5,12 @@
   "fixrtc": true,
   
   "_comment3": "Board led, can be generic or neopixel",
-  "led": 17,
+  "led": 33,
   "ledtype": "neopixel",
   
   "_comment4": "Display i2c pins",
-  "displaySCL": 13,
-  "displaySDA": 12,
+  "displaySCL": -1,
+  "displaySDA": -1,
 
   "_comment5": "Display height - width",
   "displayheight": 64,
@@ -39,6 +39,5 @@
   "_comment11": "Debugging & extreme options",
   "SKIPTEMP": false,
   "SKIPCP": false,
-  "DEBUG": true,
-  "DEVBOARD": false
+  "DEBUG": true
 }
