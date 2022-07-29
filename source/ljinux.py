@@ -1735,7 +1735,7 @@ class ljinux:
                                         stdout.write("\n")
                                         minn = 100
                                         for i in candidates:
-                                            if not i.startswith("_"): # discard those
+                                            if not i.startswith("_"):  # discard those
                                                 minn = min(minn, len(i))
                                                 print("\t" + i)
                                         letters_match = 0
@@ -1743,7 +1743,12 @@ class ljinux:
                                         while isMatch:
                                             for i in range(0, minn):
                                                 for j in range(1, len(candidates)):
-                                                    if not candidates[j][letters_match] == candidates[j-1][letters_match]:
+                                                    if (
+                                                        not candidates[j][letters_match]
+                                                        == candidates[j - 1][
+                                                            letters_match
+                                                        ]
+                                                    ):
                                                         isMatch = False
                                                     else:
                                                         letters_match += 1
@@ -1752,10 +1757,16 @@ class ljinux:
                                             term.clear_line()
                                             if lent > 1:
                                                 term.buf[1] = "".join(
-                                                    slicedd[:-1] + list(" " + candidates[0][:letters_match])
+                                                    slicedd[:-1]
+                                                    + list(
+                                                        " "
+                                                        + candidates[0][:letters_match]
+                                                    )
                                                 )
                                             else:
-                                                term.buf[1] = candidates[0][:letters_match]
+                                                term.buf[1] = candidates[0][
+                                                    :letters_match
+                                                ]
                                         term.focus = 0
                                         del letters_match
                                     elif len(candidates) == 1:
