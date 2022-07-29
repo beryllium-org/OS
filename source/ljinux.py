@@ -143,11 +143,6 @@ except ImportError:
     exit(0)
 
 try:
-    from microcontroller import cpus
-except ImportError:
-    pass
-
-try:
     from neopixel_write import neopixel_write
 
     try:  # we can't fail this part though
