@@ -1743,15 +1743,18 @@ class ljinux:
                                         while isMatch:
                                             for i in range(0, minn):
                                                 for j in range(1, len(candidates)):
-                                                    if (
-                                                        not candidates[j][letters_match]
-                                                        == candidates[j - 1][
-                                                            letters_match
-                                                        ]
-                                                    ):
+                                                    try:
+                                                        if (
+                                                            not candidates[j][letters_match]
+                                                            == candidates[j - 1][
+                                                                letters_match
+                                                            ]
+                                                        ):
+                                                            isMatch = False
+                                                        else:
+                                                            letters_match += 1
+                                                    except IndexError:
                                                         isMatch = False
-                                                    else:
-                                                        letters_match += 1
                                         del minn, isMatch
                                         if letters_match > 0:
                                             term.clear_line()
