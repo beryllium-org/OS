@@ -121,25 +121,11 @@ from sys import (
 
 dmtex("System libraries loaded")
 
-singleCPU = False
-try:
-    from microcontroller import cpu, cpus
-except ImportError:
-    singleCPU = True
-
-if singleCPU:
-    try:
-        from microcontroller import cpu
-        cpus = []
-        cpus.append(cpu)
-    except ImportError:
-        dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
-        exit(0)
-del singleCPU
-
 try:
     import busio
 
+    from microcontroller import cpu
+    
     from storage import remount, VfsFat, mount, getmount
 
     from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove
