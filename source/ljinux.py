@@ -194,7 +194,6 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "fixrtc": (True, bool, False),
     "SKIPTEMP": (False, bool, False),
     "SKIPCP": (False, bool, False),
-    "DEVBOARD": (False, bool, False),
     "DEBUG": (False, bool, False),
     "DISPLAYONLYMODE": (False, bool, False),
     "w5500_MOSI": (-1, int, True),
@@ -213,15 +212,7 @@ try:
     exec(f"from pintab_{board.board_id} import pintab")
 except ImportError:
     dmtex(f"{colors.error}ERROR:{colors.endc} Board config cannot be loaded")
-    if isinstance(configg["DEVBOARD"], bool) and configg["DEVBOARD"] == True:
-        dmtex("Continuing with generic Raspberry Pi Pico compatible pin layout")
-        try:
-            from pintab_raspberry_pi_pico import pintab
-        except ImportError:
-            dmtex(
-                f"{colors.error}FATAL:{colors.endc} Generic Raspberry Pi Pico pin layout loading failed!"
-            )
-            exit(1)
+    exit(1)
 
 
 # General options
@@ -310,16 +301,17 @@ if not configg["SKIPTEMP"]:
 else:
     print("Temperature check skipped, rest in pieces cpu.")
 
-if not configg["DEVBOARD"]:
-    """
-    Enable to skip board checks and patches.
-    """
-    print("Running board detection")
-    boardactions = {
-        "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
-        "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
-        "adafruit_kb2040": lambda: dmtex("Runing on Adafruit KB2040."),
-    }
+
+"""
+Enable to skip board checks and patches.
+"""
+print("Running board detection")
+boardactions = {
+    "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
+    "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
+    "adafruit_kb2040": lambda: dmtex("Runing on Adafruit KB2040."),
+    "waveshare_esp32s2_pico": lambda: dmtex("Runing on Waveshare ESP32-S2-Pico."),
+}
 
     try:
         boardactions[board.board_id]()
