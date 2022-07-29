@@ -22,6 +22,7 @@ del hours, minutes, neofetch_time
 Ccpu = f"{platform}"
 try:
     from microcontroller import cpus
+
     Ccpu += f" ({len(cpus)})"
 except:
     pass
