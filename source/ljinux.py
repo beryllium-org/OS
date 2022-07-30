@@ -128,7 +128,7 @@ try:
 
     from storage import remount, VfsFat, mount, getmount
 
-    from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove
+    from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove, sync
 
     from io import StringIO
     from usb_cdc import console

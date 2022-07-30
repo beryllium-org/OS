@@ -1,4 +1,4 @@
-ljinux.io.ledset(1)  # we don't want to pretend activity
+ljinux.io.ledset(1) # we don't want to pretend activity
 sizee = term.detect_size()
 if sizee[0] > 14 and sizee[1] > 102:
     filee = None
@@ -91,8 +91,11 @@ if sizee[0] > 14 and sizee[1] > 102:
     stdout.write(bottxt)
     stdout.write(toolbar_txt)
     if len(dataa) > 1:
-        ltd = (sizee[0] - 4) if (sizee[0] - 4) < len(dataa) else len(dataa)
-        for i in range(2, sizee[0] - 2):
+        sz = (sizee[0] - 2)
+        ld = len(dataa) + 2
+        ltd = sz if sz+2 < ld-2 else ld
+        del sz, ld
+        for i in range(2, ltd):
             term.move(x=i, y=0)
             stdout.write(dataa[i - 2])
     while q:
@@ -114,10 +117,10 @@ if sizee[0] > 14 and sizee[1] > 102:
                 if lc < cl:
                     dataa.append("")
                     lc += 1
-                if cl - vl > sizee[0] - 6:  # we are going out of screen
+                if cl - vl > sizee[0] - 5:  # we are going out of screen
                     term.clear_line()
                     vl += 1
-                    for i in range(2, sizee[0] - 3):  # shift data
+                    for i in range(2, sizee[0] - 2):  # shift data
                         term.move(x=i, y=0)
                         term.clear_line()
                         stdout.write(dataa[vl + i - 2])
@@ -137,9 +140,11 @@ if sizee[0] > 14 and sizee[1] > 102:
             elif ctl[0] == 10:  # insert empty line (enter)
                 term.focus = 0
                 dataa[cl] = term.buf[1]
-                dataa.append(lc)  # last line to new line
-                for i in range(lc, cl + 1):  # all lines from the end to here
+                dataa.append(dataa[lc])  # last line to new line
+                lc += 1
+                for i in range(lc-1, cl, -1):  # all lines from the end to here
                     dataa[i] = dataa[i - 1]
+                cl += 1
                 dataa[cl] = ""
                 term.buf[1] = ""
         except KeyboardInterrupt:
@@ -149,9 +154,8 @@ if sizee[0] > 14 and sizee[1] > 102:
     term.clear()
     term.buf[1] = ""
     term.trigger_dict = term_old
-    del term_old
 
-    del savee
+    del savee, dataa, term_old
     ljinux.based.user_vars["return"] = "0"
 else:
     ljinux.based.error(13, "15x102")  # minimum size error
