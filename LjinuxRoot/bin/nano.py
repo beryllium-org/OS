@@ -1,4 +1,4 @@
-ljinux.io.ledset(1) # we don't want to pretend activity
+ljinux.io.ledset(1)  # we don't want to pretend activity
 sizee = term.detect_size()
 if sizee[0] > 14 and sizee[1] > 102:
     filee = None
@@ -91,9 +91,9 @@ if sizee[0] > 14 and sizee[1] > 102:
     stdout.write(bottxt)
     stdout.write(toolbar_txt)
     if len(dataa) > 1:
-        sz = (sizee[0] - 2)
+        sz = sizee[0] - 2
         ld = len(dataa) + 2
-        ltd = sz if sz+2 < ld-2 else ld
+        ltd = sz if sz + 2 < ld - 2 else ld
         del sz, ld
         for i in range(2, ltd):
             term.move(x=i, y=0)
@@ -142,7 +142,7 @@ if sizee[0] > 14 and sizee[1] > 102:
                 dataa[cl] = term.buf[1]
                 dataa.append(dataa[lc])  # last line to new line
                 lc += 1
-                for i in range(lc-1, cl, -1):  # all lines from the end to here
+                for i in range(lc - 1, cl, -1):  # all lines from the end to here
                     dataa[i] = dataa[i - 1]
                 cl += 1
                 dataa[cl] = ""
