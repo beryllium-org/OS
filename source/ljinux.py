@@ -308,7 +308,7 @@ boardactions = {
     "adafruit_kb2040": lambda: dmtex("Running on an Adafruit KB2040."),
     "waveshare_esp32s2_pico": lambda: dmtex("Running on a Waveshare ESP32-S2-Pico."),
     "adafruit_feather_esp32s2": lambda: exec(
-        "dmtex(\"Running on an Adafruit Feather ESP32-S2.\"); boardLEDinvert = True"
+        'dmtex("Running on an Adafruit Feather ESP32-S2."); boardLEDinvert = True'
     ),
 }
 
@@ -542,21 +542,29 @@ class ljinux:
             """
             if isinstance(state, int):
                 ## use preconfigured led states
-                if configg["ledtype"] in ["generic" , "generic_invert"]:
+                if configg["ledtype"] in ["generic", "generic_invert"]:
                     if state in {0, 3}:
-                        ljinux.io.led.value = False if configg["ledtype"] == "generic" else True
+                        ljinux.io.led.value = (
+                            False if configg["ledtype"] == "generic" else True
+                        )
                     else:
-                        ljinux.io.led.value = True if configg["ledtype"] == "generic" else False
+                        ljinux.io.led.value = (
+                            True if configg["ledtype"] == "generic" else False
+                        )
                 elif configg["ledtype"] == "neopixel":
                     neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
             elif isinstance(state, tuple):
                 # a custom color
-                if configg["ledtype"] in ["generic" , "generic_invert"]:
+                if configg["ledtype"] in ["generic", "generic_invert"]:
                     if not (state[0] == 0 and state[1] == 0 and state[2] == 0):
                         # apply 1 if any of tuple >0
-                        ljinux.io.led.value = True if configg["ledtype"] == "generic" else False
+                        ljinux.io.led.value = (
+                            True if configg["ledtype"] == "generic" else False
+                        )
                     else:
-                        ljinux.io.led.value = False if configg["ledtype"] == "generic" else True
+                        ljinux.io.led.value = (
+                            False if configg["ledtype"] == "generic" else True
+                        )
                 elif configg["ledtype"] == "neopixel":
                     neopixel_write(ljinux.io.led, bytearray(state))
             else:
@@ -1988,9 +1996,7 @@ class ljinux:
         # ---
 
         def setup():
-            ljinux.based.command.fpexecc(
-                [None, "-n", "/bin/display_f/setup.py"]
-            )
+            ljinux.based.command.fpexecc([None, "-n", "/bin/display_f/setup.py"])
 
         def frame():
             global display_availability
