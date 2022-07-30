@@ -9,15 +9,15 @@ ESCK = "\033["
 class jcurses:
     def __init__(self):
         """
-            trigger_dict : What to do when what key along with other intructions.
+        trigger_dict : What to do when what key along with other intructions.
 
-            trigger_dict values:
-                "*any value from char_map*": exit the program with the value as an exit code.
-                    For instance: "enter": 1. The program will exit when enter is pressed with exit code 1.
-                "rest": what to do with the rest of keys, type string, can be "stack" / "ignore"
-                "rest_a": allowed keys to be parsed with "rest", not neccessary if rest is set to ignore.
-                    Valid values: "all" / "lettersnumbers" / "numbers" / "letters" / "common".
-                "echo": Can be "all" / "common" / "none".
+        trigger_dict values:
+            "*any value from char_map*": exit the program with the value as an exit code.
+                For instance: "enter": 1. The program will exit when enter is pressed with exit code 1.
+            "rest": what to do with the rest of keys, type string, can be "stack" / "ignore"
+            "rest_a": allowed keys to be parsed with "rest", not neccessary if rest is set to ignore.
+                Valid values: "all" / "lettersnumbers" / "numbers" / "letters" / "common".
+            "echo": Can be "all" / "common" / "none".
         """
         self.enabled = False  # jcurses has init'ed
         self.softquit = False  # internal bool to signal exiting
@@ -33,7 +33,6 @@ class jcurses:
         self.buf = [0, ""]
         self.focus = 0
         self.semi = None  # a register for when we need to clear stdin
-
 
     def backspace(self, n=1):
         """
