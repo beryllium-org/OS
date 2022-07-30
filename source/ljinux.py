@@ -257,6 +257,7 @@ if configg["led"] == -1:
     boardLED = board.LED
 else:
     boardLED = pintab[configg["led"]]
+boardLEDinvert = False
 
 del defaultoptions
 
@@ -306,8 +307,8 @@ boardactions = {
     "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
     "adafruit_kb2040": lambda: dmtex("Running on an Adafruit KB2040."),
     "waveshare_esp32s2_pico": lambda: dmtex("Running on a Waveshare ESP32-S2-Pico."),
-    "adafruit_feather_esp32s2": lambda: dmtex(
-        "Running on an Adafruit Feather ESP32-S2."
+    "adafruit_feather_esp32s2": lambda: exec(
+        "dmtex(\"Running on an Adafruit Feather ESP32-S2.\"); boardLEDinvert = True"
     ),
 }
 
@@ -524,6 +525,8 @@ class ljinux:
         led.direction = digitalio.Direction.OUTPUT
         if configg["ledtype"] == "generic":
             led.value = True
+        elif configg["ledtype"] == "generic_invert":
+            led.value = False
         elif configg["ledtype"] == "neopixel":
             neopixel_write(led, nc.idle)
 
@@ -539,21 +542,21 @@ class ljinux:
             """
             if isinstance(state, int):
                 ## use preconfigured led states
-                if configg["ledtype"] == "generic":
+                if configg["ledtype"] in ["generic" , "generic_invert"]:
                     if state in {0, 3}:
-                        ljinux.io.led.value = False
+                        ljinux.io.led.value = False if configg["ledtype"] == "generic" else True
                     else:
-                        ljinux.io.led.value = True
+                        ljinux.io.led.value = True if configg["ledtype"] == "generic" else False
                 elif configg["ledtype"] == "neopixel":
                     neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
             elif isinstance(state, tuple):
                 # a custom color
-                if configg["ledtype"] == "generic":
+                if configg["ledtype"] in ["generic" , "generic_invert"]:
                     if not (state[0] == 0 and state[1] == 0 and state[2] == 0):
                         # apply 1 if any of tuple >0
-                        ljinux.io.led.value = True
+                        ljinux.io.led.value = True if configg["ledtype"] == "generic" else False
                     else:
-                        ljinux.io.led.value = False
+                        ljinux.io.led.value = False if configg["ledtype"] == "generic" else True
                 elif configg["ledtype"] == "neopixel":
                     neopixel_write(ljinux.io.led, bytearray(state))
             else:
@@ -1653,6 +1656,7 @@ class ljinux:
                     "enter": 0,
                     "ctrlC": 1,
                     "ctrlD": 2,
+                    "ctrlL": 13,
                     "tab": 3,
                     "up": 4,
                     "down": 7,
@@ -1825,6 +1829,8 @@ class ljinux:
                                     term.clear_line()
                                 elif term.buf[0] in [11, 12]:  # pgup / pgdw
                                     term.clear_line()
+                                elif term.buf[0] is 13:
+                                    term.clear()
                                 ljinux.backrounding.main_tick()
                                 try:
                                     if command_input[:1] != " " and command_input != "":
@@ -1983,7 +1989,7 @@ class ljinux:
 
         def setup():
             ljinux.based.command.fpexecc(
-                ["fpexec", "-n", "/LjinuxRoot/bin/display_f/setup.py"]
+                [None, "-n", "/bin/display_f/setup.py"]
             )
 
         def frame():
@@ -2018,11 +2024,11 @@ class ljinux:
             ljinux.farland.public = [xpos0, ypos0, rad, col]
             if not f:
                 ljinux.based.command.fpexecc(
-                    [None, "-n", "/LjinuxRoot/bin/display_f/draw_circle.py"]
+                    [None, "-n", "/bin/display_f/draw_circle.py"]
                 )
             else:
                 ljinux.based.command.fpexecc(
-                    [None, "-n", "/LjinuxRoot/bin/display_f/f_draw_circle.py"]
+                    [None, "-n", "/bin/display_f/f_draw_circle.py"]
                 )
 
         def virt_line(x0, y0, x1, y1):

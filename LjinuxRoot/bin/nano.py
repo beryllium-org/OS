@@ -1,3 +1,4 @@
+ljinux.io.ledset(1) # we don't want to pretend activity
 sizee = term.detect_size()
 if sizee[0] > 14 and sizee[1] > 102:
     filee = None
@@ -100,7 +101,9 @@ if sizee[0] > 14 and sizee[1] > 102:
             term.buf[1] = dataa[cl]
             term.move(x=cl - vl + 2, y=len(term.buf[1]))
             term.clear_line()
+            ljinux.io.ledset(1)
             ctl = term.program()
+            ljinux.io.ledset(3)
             if ctl[0] == 9:  # kill
                 q = False
             elif ctl[0] == 1:  # save
