@@ -8,24 +8,9 @@ ESCK = "\033["
 
 class jcurses:
     def __init__(self):
-        self.enabled = False  # jcurses has init'ed
-        self.softquit = False  # internal bool to signal exiting
-        self.reset = False  # set to true to hard reset jcurses
-        self.text_stepping = (
-            0  # handy variable to make multi-action keys easily parsable
-        )
-        self.ctx_dict = {
-            "top_left": [1, 1],
-            "bottom_left": [1, 1],
-        }  # bookmarks baby, bookmarks
-        self.trigger_dict = None
-        self.dmtex_suppress = False
-        self.buf = [0, ""]
-        self.focus = 0
-        self.semi = None  # a register for when we need to clear stdin
         """
             trigger_dict : What to do when what key along with other intructions.
-            
+
             trigger_dict values:
                 "*any value from char_map*": exit the program with the value as an exit code.
                     For instance: "enter": 1. The program will exit when enter is pressed with exit code 1.
@@ -33,7 +18,22 @@ class jcurses:
                 "rest_a": allowed keys to be parsed with "rest", not neccessary if rest is set to ignore.
                     Valid values: "all" / "lettersnumbers" / "numbers" / "letters" / "common".
                 "echo": Can be "all" / "common" / "none".
-            """
+        """
+        self.enabled = False  # jcurses has init'ed
+        self.softquit = False  # internal bool to signal exiting
+        self.reset = False  # set to true to hard reset jcurses
+        # handy variable to make multi-action keys easily parsable
+        self.text_stepping = 0
+        self.ctx_dict = {
+            "top_left": [1, 1],
+            "bottom_left": [1, 1],
+        }
+        self.trigger_dict = None
+        self.dmtex_suppress = False
+        self.buf = [0, ""]
+        self.focus = 0
+        self.semi = None  # a register for when we need to clear stdin
+
 
     def backspace(self, n=1):
         """
@@ -360,20 +360,23 @@ class jcurses:
                             if self.trigger_dict["echo"] in {"common", "all"}:
                                 stdout.write(i)
                         else:
-                            insertion_pos = (
-                                len(self.buf[1]) - self.focus
-                            )  # backend insertion
+                            insertion_pos = len(self.buf[1]) - self.focus
+
                             self.buf[1] = (
                                 self.buf[1][:insertion_pos]
                                 + i
                                 + self.buf[1][insertion_pos:]
                             )
+
                             # frontend insertion
                             for d in self.buf[1][insertion_pos:]:
                                 stdout.write(d)
+
                             steps_in = len(self.buf[1][insertion_pos:])
+
                             for e in range(steps_in - 1):
                                 stdout.write("\010")
+
                             del steps_in, insertion_pos
                 del tempstack
         del segmented
@@ -382,7 +385,7 @@ class jcurses:
     def termline(self):
         stdout.write(self.trigger_dict["prefix"] + self.buf[1])
         if self.focus > 0:
-            stdout.write(ESCK + str(self.focus) + "D")
+            stdout.write(ESCK + self.focus + "D")
 
     def move(self, ctx=None, x=None, y=None):
         """
@@ -390,25 +393,26 @@ class jcurses:
         If you specified a bookmark, you can use x & y to add an offset.
         """
         if ctx is None:
-            if x is not None and y is not None:
-                x, y = max(1, x), max(1, y)
-                stdout.write(f"{ESCK}{str(x)};{str(y)}H")
+            x, y = max(1, x), max(1, y)
+            stdout.write(f"{ESCK}{x};{y}H")
         else:
-            # no try except here, errors here are the developer's fault
             thectx = self.ctx_dict[ctx]
-            stdout.write(f"{ESCK}{str(thectx[0])};{str(thectx[1])}H")
-            if x is not None:
-                if x + thectx[0] > 0:  # out of bounds check
-                    if thectx[0] > 0:  # down
-                        stdout.write(f"{ESCK}{str(thectx[0])}B")
-                    else:  # up
-                        stdout.write(f"{ESCK}{str(-thectx[0])}A")
-            if y is not None:
-                if y + thectx[1] > 0:  # out of bounds check
-                    if thectx[1] > 0:  # right
-                        stdout.write(f"{ESCK}{str(thectx[1])}C")
-                    else:  # left
-                        stdout.write(f"{ESCK}{str(-thectx[1])}D")
+            stdout.write(f"{ESCK}{thectx[0]};{thectx[1]}H")
+
+            # out of bounds check for up and down
+            if x + thectx[0] > 0:
+                if thectx[0] > 0:
+                    stdout.write(f"{ESCK}{thectx[0]}B")
+                else:
+                    stdout.write(f"{ESCK}{-thectx[0]}A")
+
+            # out of bounds check for right and left
+            if y + thectx[1] > 0:
+                if thectx[1] > 0:
+                    stdout.write(f"{ESCK}{thectx[1]}C")
+                else:  # left
+                    stdout.write(f"{ESCK}{-thectx[1]}D")
+
             del thectx
 
     def ctx_reg(self, namee):
