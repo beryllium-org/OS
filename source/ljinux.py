@@ -69,12 +69,13 @@ except ImportError:
     print("FATAL: FAILED TO LOAD JCURSES")
     exit(0)
 
+
 def dmtex(texx=None, end="\n", timing=True, force=False):
     # Persistent offset, Print "end=" preserver
 
     # current time since ljinux start rounded to 5 digits
     ct = "%.5f" % (uptimee + time.monotonic())
-    
+
     # used to disable the time print
     strr = (
         "[{u}{upt}] {tx}".format(
@@ -86,25 +87,24 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
 
     if (not term.dmtex_suppress) or force:
         print(strr, end=end)  # using the provided end
-    
+
     global oend
     """
     if the oend of the last print is a newline we add a new entry
     otherwise we go to the last one and we add it along with the old oend
     """
-    a = len(dmesg) - 1  # the last entry
+
     if "\n" == oend:
         dmesg.append(strr)
-    elif (len(oend.replace("\n", "")) > 0) and (
-        "\n" in oend
-    ):  # there is hanging text in old oend
-        dmesg[a] += oend.replace("\n", "")
+    elif len(oend.replace("\n", "")) > 0 and "\n" in oend:
+        dmesg[-1] += oend.replace("\n", "")
         dmesg.append(strr)
     else:
-        dmesg[a] += oend + strr
+        dmesg[-1] += oend + strr
+
     oend = end  # oend for next
-    
-    del a, ct, strr
+
+    del ct, strr
 
 
 print("[    0.00000] Timings reset")
@@ -158,16 +158,15 @@ except ImportError:
 
 # Kernel cmdline.txt
 try:
-    confign = "/config-" + board.board_id + ".json"
-    with open(confign, "r") as f:  # load the config file
-        dmtex("Loaded " + confign)
-        configg = json.load(f)  # and parse it as a json
-        f.close()
-    del confign
-    for i in configg:
-        if i.startswith("_"):
-            del configg[i]
-    del i
+
+    with open(board_config := f"/config-{board.board_id}.json") as config_file:
+        dmtex(f"Loaded {board_config}")
+        new_board_config = json.load(config_file)
+        del config_file
+
+    for config in new_board_config:
+        if config.startswith("_"):
+            del new_board_config[config]
 
 except (ValueError, OSError):
     configg = {}
@@ -236,10 +235,8 @@ for optt in list(defaultoptions.keys()):
             raise KeyError
     except KeyError:
         configg.update({optt: defaultoptions[optt][0]})
-        dmtex(
-            'Missing / Invalid value for "' + optt + '" applied: ' + str(configg[optt]),
-            timing=False,
-        )
+        dmtex(f'Missing / Invalid value for "{optt}" applied: {configg[optt]}', timing=False)
+
     if defaultoptions[optt][2]:
         pin = configg[optt]
         if pin in pin_alloc:
@@ -252,8 +249,8 @@ for optt in list(defaultoptions.keys()):
         del pin
 
 dmtex("Total pin alloc: ", end="")
-for i in pin_alloc:
-    dmtex(str(i), timing=False, end=" ")
+for pin in pin_alloc:
+    dmtex(str(pin), timing=False, end=" ")
 dmtex("", timing=False)
 
 if configg["led"] == -1:
@@ -267,8 +264,8 @@ del defaultoptions
 # basic checks
 if not configg["SKIPCP"]:  # beta testing
     if implementation.version[:2] == Circuitpython_supported or (
-        implementation.version[0] == Circuitpython_supported[0]
-        and implementation.version[1] < Circuitpython_supported[1]
+            implementation.version[0] == Circuitpython_supported[0]
+            and implementation.version[1] < Circuitpython_supported[1]
     ):
         dmtex("Running on supported implementation")
     else:
@@ -392,11 +389,13 @@ if not configg["fixrtc"]:
         rtcdata = digitalio.DigitalInOut(board.GP7)
         rtcce = digitalio.DigitalInOut(board.GP8)
 
+
         # to make it suitable for system
         class RTC:
             @property
             def datetime(self):
                 return rtcc.read_datetime()
+
 
         try:
             rtcc = ds1302.DS1302(rtcclk, rtcdata, rtcce)
@@ -453,7 +452,7 @@ class ljinux:
 
         def appen(itemm):  # add to history, but don't save to file
             if (
-                len(ljinux.history.historyy) > 0 and itemm != ljinux.history.gett(1)
+                    len(ljinux.history.historyy) > 0 and itemm != ljinux.history.gett(1)
             ) or len(ljinux.history.historyy) == 0:
                 ljinux.history.historyy.append(itemm)
 
@@ -588,10 +587,10 @@ class ljinux:
         def init_net():
             global configg
             if (
-                configg["w5500_SCSn"] != -1
-                and configg["w5500_SCLK"] != -1
-                and configg["w5500_MISO"] != -1
-                and configg["w5500_MOSI"] != -1
+                    configg["w5500_SCSn"] != -1
+                    and configg["w5500_SCLK"] != -1
+                    and configg["w5500_MISO"] != -1
+                    and configg["w5500_MOSI"] != -1
             ):
                 cs = digitalio.DigitalInOut(pintab[configg["w5500_SCSn"]])
                 spi = busio.SPI(
@@ -662,29 +661,32 @@ class ljinux:
 
         def start_sdcard():
             global sdcard_fs
-            if (
-                configg["sd_SCLK"] != -1
-                and configg["sd_SCSn"] != -1
-                and configg["sd_MISO"] != -1
-                and configg["sd_MOSI"] != -1
-            ):
+
+            if -1 not in {
+                configg["sd_SCLK"],
+                configg["sd_SCSn"],
+                configg["sd_MISO"],
+                configg["sd_MOSI"]
+            }:
                 spi = busio.SPI(board.GP2, MOSI=board.GP3, MISO=board.GP4)
                 cs = digitalio.DigitalInOut(board.GP5)
             else:
                 sdcard_fs = False
                 dmtex("No pins for sdcard, skipping setup")
                 return
+
             dmtex("SD bus ready")
             try:
                 sdcard = adafruit_sdcard.SDCard(spi, cs)
+                del spi, cs
                 vfs = VfsFat(sdcard)
                 dmtex("SD mount attempted")
                 mount(vfs, "/LjinuxRoot")
                 sdcard_fs = True
+
             except NameError:
                 dmtex("SD libraries not present, aborting.")
-            del spi
-            del cs
+
             try:
                 del sdcard
                 del vfs
@@ -1049,11 +1051,11 @@ class ljinux:
                             valid = False
                             break
                     if inpt[1] != "=" or not (
-                        inpt[2].startswith('"')
-                        or inpt[2].isdigit()
-                        or inpt[2].startswith("/")
-                        or inpt[2].startswith("GP")
-                        or inpt[2] in gpio_alloc
+                            inpt[2].startswith('"')
+                            or inpt[2].isdigit()
+                            or inpt[2].startswith("/")
+                            or inpt[2].startswith("GP")
+                            or inpt[2] in gpio_alloc
                     ):
                         valid = False
                     if valid:  # if the basic checks are done we can procceed to work
@@ -1101,8 +1103,8 @@ class ljinux:
                         elif inpt[0] in gpio_alloc:
                             if inpt[2].isdigit():
                                 if (
-                                    gpio_alloc[inpt[0]][0].direction
-                                    != digitalio.Direction.OUTPUT
+                                        gpio_alloc[inpt[0]][0].direction
+                                        != digitalio.Direction.OUTPUT
                                 ):
                                     gpio_alloc[inpt[0]][
                                         0
@@ -1127,13 +1129,13 @@ class ljinux:
                                     + colors.endc
                                 )
                         elif (
-                            inpt[0] == ljinux.based.fn.adv_input(inpt[0], str)
-                            or inpt[0] in ljinux.based.user_vars
+                                inpt[0] == ljinux.based.fn.adv_input(inpt[0], str)
+                                or inpt[0] in ljinux.based.user_vars
                         ):
                             if inpt[2] in gpio_alloc:  # if setting value is gpio
                                 if (
-                                    gpio_alloc[inpt[2]][0].direction
-                                    != digitalio.Direction.INPUT
+                                        gpio_alloc[inpt[2]][0].direction
+                                        != digitalio.Direction.INPUT
                                 ):
                                     gpio_alloc[inpt[2]][
                                         0
@@ -1259,38 +1261,38 @@ class ljinux:
                                 if condition[i] == "argj":  # this is an argument check
                                     i += 1  # we can move on as we know of the current situation
                                     if (
-                                        condition[i] == "has"
+                                            condition[i] == "has"
                                     ):  # check if condition is present
                                         i += 1  # we have to keep moving
                                         if (
-                                            condition[i]
-                                            in ljinux.based.user_vars["argj"]
+                                                condition[i]
+                                                in ljinux.based.user_vars["argj"]
                                         ):  # it's in!
                                             val = True
                                         else:
                                             val = False
                                         need_new_cond = True
                                     elif (
-                                        condition[i].startswith('"')
-                                        and condition[i].endswith('"')
+                                            condition[i].startswith('"')
+                                            and condition[i].endswith('"')
                                     ) and (
-                                        (condition[i + 1] == "is")
-                                        or (condition[i + 1] == "==")
-                                        or (condition[i + 1] == "=")
+                                            (condition[i + 1] == "is")
+                                            or (condition[i + 1] == "==")
+                                            or (condition[i + 1] == "=")
                                     ):  # check next arg for name and the one ahead of it for value
                                         namee = condition[i][1:-1]  # remove ""
                                         i += 2
                                         try:
                                             if (
-                                                namee in ljinux.based.user_vars["argj"]
+                                                    namee in ljinux.based.user_vars["argj"]
                                             ):  # it's in!
                                                 pos = ljinux.based.user_vars[
                                                     "argj"
                                                 ].find(namee)
                                                 sz = len(namee)
                                                 nextt = ljinux.based.user_vars["argj"][
-                                                    pos + sz + 1 :
-                                                ]
+                                                        pos + sz + 1:
+                                                        ]
                                                 cut = nextt.find(" ") + 1
                                                 del sz
                                                 del pos
@@ -1524,8 +1526,8 @@ class ljinux:
                     try:
                         return (
                             0
-                            if dirr[dirr.rfind("/") + 1 :]
-                            in listdir(
+                            if dirr[dirr.rfind("/") + 1:]
+                               in listdir(
                                 dirr[: dirr.rfind("/")] if rdir is None else rdir
                             )
                             else 2
@@ -1547,7 +1549,7 @@ class ljinux:
                 if back is None:
                     a = getcwd()
                     if a.startswith(hd):
-                        res = "~" + a[len(hd) :]
+                        res = "~" + a[len(hd):]
                     elif a == "/":
                         res = "board/"
                     elif a == "/LjinuxRoot":
@@ -1631,7 +1633,7 @@ class ljinux:
                 return _type(res)
 
         def shell(
-            inp=None, led=True, args=None, nalias=False
+                inp=None, led=True, args=None, nalias=False
         ):  # the shell function, warning do not touch, it has feelings - no I think I will 20/3/22
             global Exit
             if inp is not None and args is not None:
@@ -1679,25 +1681,25 @@ class ljinux:
                 }
             if not Exit:
                 while (
-                    (command_input == False) or (command_input == "\n")
+                        (command_input == False) or (command_input == "\n")
                 ) and not Exit:
                     term.trigger_dict["prefix"] = (
-                        "["
-                        + colors.cyan_t
-                        + ljinux.based.system_vars["USER"]
-                        + colors.endc
-                        + "@"
-                        + colors.cyan_t
-                        + ljinux.based.system_vars["HOSTNAME"]
-                        + colors.endc
-                        + "| "
-                        + colors.yellow_t
-                        + ljinux.based.fn.betterpath()
-                        + colors.endc
-                        + "]"
-                        + colors.blue_t
-                        + "> "
-                        + colors.endc
+                            "["
+                            + colors.cyan_t
+                            + ljinux.based.system_vars["USER"]
+                            + colors.endc
+                            + "@"
+                            + colors.cyan_t
+                            + ljinux.based.system_vars["HOSTNAME"]
+                            + colors.endc
+                            + "| "
+                            + colors.yellow_t
+                            + ljinux.based.fn.betterpath()
+                            + colors.endc
+                            + "]"
+                            + colors.blue_t
+                            + "> "
+                            + colors.endc
                     )
                     if inp is None:
                         command_input = False
@@ -1738,7 +1740,7 @@ class ljinux:
                                         files = listdir()
                                         for i in files:
                                             if i.startswith(
-                                                slicedd[lent - 1]
+                                                    slicedd[lent - 1]
                                             ):  # only on the arg we are in
                                                 candidates.append(i)
                                         del files
@@ -1763,12 +1765,12 @@ class ljinux:
                                                 for j in range(1, len(candidates)):
                                                     try:
                                                         if (
-                                                            not candidates[j][
-                                                                letters_match
-                                                            ]
-                                                            == candidates[j - 1][
-                                                                letters_match
-                                                            ]
+                                                                not candidates[j][
+                                                                        letters_match
+                                                                    ]
+                                                                    == candidates[j - 1][
+                                                                        letters_match
+                                                                    ]
                                                         ):
                                                             isMatch = False
                                                         else:
@@ -1788,8 +1790,8 @@ class ljinux:
                                                 )
                                             else:
                                                 term.buf[1] = candidates[0][
-                                                    :letters_match
-                                                ]
+                                                              :letters_match
+                                                              ]
                                         term.focus = 0
                                         del letters_match
                                     elif len(candidates) == 1:
@@ -1840,18 +1842,18 @@ class ljinux:
                                     term.clear_line()
                                 elif term.buf[0] in [11, 12]:  # pgup / pgdw
                                     term.clear_line()
-                                elif term.buf[0] is 13: # Ctrl + L (clear screen)
+                                elif term.buf[0] is 13:  # Ctrl + L (clear screen)
                                     term.buf[1] = ""
                                     term.focus = 0
                                     term.clear()
-                                    
+
                                 ljinux.backrounding.main_tick()
                                 try:
                                     if command_input[:1] != " " and command_input != "":
                                         ljinux.history.appen(command_input.strip())
                                 except (
-                                    AttributeError,
-                                    TypeError,
+                                        AttributeError,
+                                        TypeError,
                                 ):  # idk why this is here, forgor
                                     pass
                             except KeyboardInterrupt:  # duplicate code as by ^C^C you could escape somehow
@@ -1880,7 +1882,7 @@ class ljinux:
                                     else:
                                         print("Error: No file specified")
                                 elif (not nalias) and (
-                                    command_split[0] in ljinux.based.alias_dict
+                                        command_split[0] in ljinux.based.alias_dict
                                 ):
                                     ljinux.based.shell(
                                         ljinux.based.alias_dict[command_split[0]],
@@ -1889,11 +1891,11 @@ class ljinux:
                                         nalias=True,
                                     )
                                 elif (command_split[0] in function_dict) and (
-                                    command_split[0]
-                                    not in [
-                                        "error",
-                                        "help",
-                                    ]
+                                        command_split[0]
+                                        not in [
+                                            "error",
+                                            "help",
+                                        ]
                                 ):  # those are special bois, they will not be special when I make the api great
                                     gc.collect()
                                     gc.collect()
@@ -1909,10 +1911,10 @@ class ljinux:
                                 certain = False
                                 for i in bins:
                                     if (
-                                        command_split[0] == i
+                                            command_split[0] == i
                                     ) and not certain:  # check if currently examined file is same as command
                                         command_split[0] = (
-                                            "/LjinuxRoot/bin/" + i + ".lja"
+                                                "/LjinuxRoot/bin/" + i + ".lja"
                                         )  # we have to fill in the full path
                                         certain = True
                                 del bins  # we no longer need the list
@@ -1924,7 +1926,7 @@ class ljinux:
                                     res = function_dict["error"](command_split)
                                 del certain
                         elif ("|" in command_input) and not (
-                            "&&" in command_input
+                                "&&" in command_input
                         ):  # this is a pipe  :)
                             ljinux.based.silent = True
                             the_pipe_pos = command_input.find("|", 0)
@@ -1933,25 +1935,25 @@ class ljinux:
                             )
                             ljinux.based.silent = False
                             ljinux.based.shell(
-                                command_input[the_pipe_pos + 2 :]
+                                command_input[the_pipe_pos + 2:]
                                 + " "
                                 + ljinux.based.user_vars["return"],
                                 led=False,
                             )
                             del the_pipe_pos
                         elif ("&&" in command_input) and not (
-                            "|" in command_input
+                                "|" in command_input
                         ):  # this is a dirty pipe  :)
                             the_pipe_pos = command_input.find("&&", 0)
                             ljinux.based.shell(
                                 command_input[: the_pipe_pos - 1], led=False
                             )
                             ljinux.based.shell(
-                                command_input[the_pipe_pos + 2 :], led=False
+                                command_input[the_pipe_pos + 2:], led=False
                             )
                             del the_pipe_pos
                         elif ("&&" in command_input) and (
-                            "|" in command_input
+                                "|" in command_input
                         ):  # this pipe was used to end me :(
                             the_pipe_pos_1 = command_input.find("|", 0)
                             the_pipe_pos_2 = command_input.find("&&", 0)
@@ -1960,7 +1962,7 @@ class ljinux:
                                 ljinux.based.shell(command_input[: the_pipe_pos_1 - 1])
                                 ljinux.based.silent = False
                                 ljinux.based.shell(
-                                    command_input[the_pipe_pos_1 + 2 :]
+                                    command_input[the_pipe_pos_1 + 2:]
                                     + " "
                                     + ljinux.based.user_vars["return"]
                                 )
@@ -1969,7 +1971,7 @@ class ljinux:
                                     command_input[: the_pipe_pos_2 - 1], led=False
                                 )
                                 ljinux.based.shell(
-                                    command_input[the_pipe_pos_2 + 2 :], led=False
+                                    command_input[the_pipe_pos_2 + 2:], led=False
                                 )
                             del the_pipe_pos_1
                             del the_pipe_pos_2
@@ -2076,7 +2078,7 @@ class ljinux:
             if ljinux.farland.frame_poi <= 9:
                 ljinux.farland.time_new = time.monotonic()
                 ljinux.farland.frames[ljinux.farland.frame_poi] = (
-                    ljinux.farland.time_new - ljinux.farland.time_old
+                        ljinux.farland.time_new - ljinux.farland.time_old
                 )
                 ljinux.farland.time_old = time.monotonic()
                 if ljinux.farland.frames_suff:
