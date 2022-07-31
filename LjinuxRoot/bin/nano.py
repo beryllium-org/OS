@@ -41,7 +41,7 @@ if sizee[0] > 14 and sizee[1] > 105:
         dataa = ljinux.based.user_vars["output"]
         lc = len(dataa)
         del ljinux.based.user_vars["output"]
-    
+
     # in case of empty file
     if dataa == []:
         dataa = [""]
@@ -81,7 +81,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     del weltxt
 
     toolsplit = " " * int(sizee[1] / 8 - 13)
-    
+
     toolbar_items = [
         "^G",
         " Help      ",
@@ -114,13 +114,19 @@ if sizee[0] > 14 and sizee[1] > 105:
         "M-E",
         " Redo      ",
         "M-6",
-        " Copy"
+        " Copy",
     ]
 
     toolbar_txt = ""
 
     for i in range(0, len(toolbar_items), 2):
-        toolbar_txt += colors.white_bg_black_bg + toolbar_items[i] + colors.endc + toolbar_items[i+1] + toolsplit
+        toolbar_txt += (
+            colors.white_bg_black_bg
+            + toolbar_items[i]
+            + colors.endc
+            + toolbar_items[i + 1]
+            + toolsplit
+        )
     del toolbar_items
 
     q = True
@@ -129,7 +135,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     savee = 0
     term.clear()
     stdout.write(toptxt)
-    del toptxt # not gonna use it again
+    del toptxt  # not gonna use it again
     term.move(x=sizee[0] - 2, y=bottxt_offs)
     stdout.write(bottxt)
     del bottxt, bottxt_offs
@@ -164,17 +170,19 @@ if sizee[0] > 14 and sizee[1] > 105:
                 term.clear_line()
                 stdout.write(f" Y{colors.endc} Yes\n")
                 term.clear_line()
-                stdout.write(f"{colors.white_bg_black_bg} N{colors.endc} No        {toolsplit}{colors.white_bg_black_bg}^C{colors.endc} Cancel")
+                stdout.write(
+                    f"{colors.white_bg_black_bg} N{colors.endc} No        {toolsplit}{colors.white_bg_black_bg}^C{colors.endc} Cancel"
+                )
                 term.move(x=sizee[0] - 2, y=23)
                 stdout.write(colors.white_bg_black_bg)
                 del spsz
                 savee += 1
-                
+
             elif ctl[0] == 8 and not savee:  # down
                 term.focus = 0
                 dataa[cl] = term.buf[1]
                 cl += 1
-                if lc-1 <= cl:
+                if lc - 1 <= cl:
                     dataa.append("")
                     lc += 1
                 if cl - vl > sizee[0] - 5:  # we are going out of screen
@@ -200,13 +208,15 @@ if sizee[0] > 14 and sizee[1] > 105:
             elif ctl[0] == 10:  # insert empty line (enter)
                 if not savee:
                     dataa[cl] = term.buf[1]
-                    dataa.append(dataa[lc-1])  # last line to new line
+                    dataa.append(dataa[lc - 1])  # last line to new line
                     noffs = 0
                     if len(term.buf[1]) == term.focus:
                         noffs -= 1
                     else:
                         term.focus = 0
-                    for i in range(lc - 1, cl+1+noffs, -1):  # all lines from the end to here
+                    for i in range(
+                        lc - 1, cl + 1 + noffs, -1
+                    ):  # all lines from the end to here
                         dataa[i] = dataa[i - 1]
                     lc += 1
                     cl += 1
@@ -214,32 +224,36 @@ if sizee[0] > 14 and sizee[1] > 105:
                         dataa[cl] = ""
                         term.buf[1] = ""
                     else:
-                        dataa[cl-1] = ""
+                        dataa[cl - 1] = ""
                     del noffs
                     # shift data
-                    for i in range(2, (sizee[0] - 2) if (lc > (sizee[0] - 2)) else lc+2):
+                    for i in range(
+                        2, (sizee[0] - 2) if (lc > (sizee[0] - 2)) else lc + 2
+                    ):
                         term.move(x=i)
                         term.clear_line()
                         stdout.write(dataa[vl + i - 2])
                 elif savee == 1:
                     # the "save y/n" prompt
                     if term.buf[1] in ["n", "N"]:
-                        q = False # abandon all hope (, ye who enter here)
+                        q = False  # abandon all hope (, ye who enter here)
                     elif term.buf[1] in ["y", "Y"]:
                         term.buf[1] = ""
                         term.focus = 0
-                        savee += 1 # 2
-                        
+                        savee += 1  # 2
+
                         # the "choose file name" prompt
                         term.move(x=sizee[0] - 2)
-                        #show the file name suggested
+                        # show the file name suggested
                         term.clear_line()
                         stdout.write("File name to write:" + (" " * (sizee[1] - 19)))
                         term.move(x=sizee[0] - 1)
                         term.clear_line()
                         term.move(x=sizee[0])
                         term.clear_line()
-                        stdout.write(f"^C{colors.endc} Cancel{colors.white_bg_black_bg}")
+                        stdout.write(
+                            f"^C{colors.endc} Cancel{colors.white_bg_black_bg}"
+                        )
                         ffname = ""
                         try:
                             ffname = ljinux.based.user_vars["argj"].split()[1]
@@ -260,7 +274,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                         if not sdcard_fs:
                             remount("/", True)
                         q = False
-                    except Exception as err: # anything
+                    except Exception as err:  # anything
                         nbottxt = f'[ Failed to save "{err}" ]'
                         term.move(x=sizee[0] - 2)
                         term.clear_line()
@@ -272,8 +286,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                         term.focus = 0
                         term.move(x=sizee[0] - 1)
                         stdout.write(toolbar_txt)
-                        
-                    
+
             elif ctl[0] == 0 and savee:  # Ctrl C, abort saving
                 savee = 0
                 term.focus = 0
@@ -281,11 +294,11 @@ if sizee[0] > 14 and sizee[1] > 105:
                 stdout.write(colors.endc + (" " * sizee[1]))
                 term.move(x=sizee[0] - 1)
                 stdout.write(toolbar_txt)
-            
+
             elif savee:
                 # counter visual bug
                 stdout.write(len(term.buf[1]) * "\010")
-                
+
         except KeyboardInterrupt:
             pass
 
