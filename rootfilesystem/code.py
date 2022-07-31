@@ -1,11 +1,22 @@
 from sys import exit
 from time import sleep
-from os import chdir, sync
+from microcontroller import reset, RunMode, on_next_reset
+
+exit_l = {
+    0: lambda: (jrub("Exiting"), chdir("/"), exit(0)),
+    1: lambda: (jrub("Exiting due to error"), chdir("/"), exit(1)),
+    241: lambda: (on_next_reset(RunMode.UF2), reset()),
+    242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
+    243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
+    244: lambda: (jrub("Reached target: Halt"), chdir("/"), sleep(36000)),
+    245: lambda: reset(),
+}
 
 jrub = lambda text: print(f"jrub> {text}")
 
 try:
     from ljinux import ljinux
+
     jrub("Ljinux basic init done")
 except ImportError:
     jrub("Ljinux wanna-be kernel binary not found, cannot continue..")
@@ -53,33 +64,24 @@ jrub("Cleared display")
 oss.history.save(oss.based.user_vars["history-file"])
 jrub("History flushed")
 
+from os import chdir, sync
+
 sync()
 jrub("Synced all volumes")
-oss.io.led.value = True
+oss.io.ledset(1)
 
 try:
-    oss.io.led.value = False
+    oss.io.ledset(0)
     from storage import umount
+
     umount("/ljinux")
     jrub("Unmounted /ljinux")
-    oss.io.led.value = True
+    oss.io.ledset(1)
 except OSError:
     jrub("Could not unmount /ljinux")
 
 jrub("Reached target: Quit")
-oss.io.led.value = False
+oss.io.ledset(0)
 del oss
-
-from microcontroller import reset, RunMode, on_next_reset
-
-exit_l = {
-    0: lambda: (jrub("Exiting"), chdir("/"), exit(0)),
-    1: lambda: (jrub("Exiting due to error"), chdir("/"), exit(1)),
-    241: lambda: (on_next_reset(RunMode.UF2), reset()),
-    242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
-    243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
-    244: lambda: (jrub("Reached target: Halt"), chdir("/"), sleep(36000)),
-    245: lambda: reset(),
-}
 
 exit_l[Exit_code]()

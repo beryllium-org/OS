@@ -21,6 +21,7 @@ print("I", end="")
 lj_mount = getmount("/")
 lj_mount.label = "lJinux"
 del lj_mount
+
 remount("/", readonly=True)
 print("N", end="")
 
@@ -30,5 +31,5 @@ if not devf:
 
 disable_autoreload()
 print("UX boot core\n" + "-" * 16 + "\nOutput:\n" + stash)
-del stash
-del devf
+
+del devf, stash, disable_autoreload, disable_usb_drive, remount, getmount
