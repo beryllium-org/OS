@@ -69,37 +69,42 @@ except ImportError:
     print("FATAL: FAILED TO LOAD JCURSES")
     exit(0)
 
-
 def dmtex(texx=None, end="\n", timing=True, force=False):
     # Persistent offset, Print "end=" preserver
-    global uptimee, oend
 
-    ct = "%.5f" % (
-        uptimee + time.monotonic()
-    )  # current time since ljinux start rounded to 5 digits
-    if timing:
-        # timing is used to disable the time print in case you want to make a print(blah,end='')
-        strr = "[{u}{upt}] {tx}".format(
+    # current time since ljinux start rounded to 5 digits
+    ct = "%.5f" % (uptimee + time.monotonic())
+    
+    # used to disable the time print
+    strr = (
+        "[{u}{upt}] {tx}".format(
             u="           ".replace(" ", "", len(ct)), upt=str(ct), tx=texx
         )
-    else:
-        strr = texx  # the message as is
+        if timing
+        else texx
+    )
+
     if (not term.dmtex_suppress) or force:
         print(strr, end=end)  # using the provided end
-    if (
-        "\n" == oend
-    ):  # if the oend of the last print is a newline we add a new entry, otherwise we go to the last one and we add it along with the old oend
+    
+    global oend
+    """
+    if the oend of the last print is a newline we add a new entry
+    otherwise we go to the last one and we add it along with the old oend
+    """
+    a = len(dmesg) - 1  # the last entry
+    if "\n" == oend:
         dmesg.append(strr)
     elif (len(oend.replace("\n", "")) > 0) and (
         "\n" in oend
-    ):  # special case, there is hanging text in old oend
-        a = len(dmesg) - 1  # the last entry
-        dmesg[a] += oend.replace("\n", "")  # add the spare text
-        dmesg.append(strr)  # do the new entry now
-    else:  # append to the last entry
-        a = len(dmesg) - 1  # the last entry
-        dmesg[a] += oend + strr  # with the ending ofc
-    oend = end  # then we save the new oend for the next go
+    ):  # there is hanging text in old oend
+        dmesg[a] += oend.replace("\n", "")
+        dmesg.append(strr)
+    else:
+        dmesg[a] += oend + strr
+    oend = end  # oend for next
+    
+    del a, ct, strr
 
 
 print("[    0.00000] Timings reset")
@@ -108,16 +113,14 @@ dmesg.append("[    0.00000] Timings reset")
 # Now we can use this function to get a timing
 dmtex("Basic Libraries loading")
 
-# Basic libs
-# These are absolutely needed
-
+# Basic absolutely needed libs
 from sys import (
     implementation,
-    platform,  # needed for neofetch
+    platform,  # needed for neofetch btw
     modules,
     exit,
     stdout,
-)  # if this import fails, idk
+)
 
 dmtex("System libraries loaded")
 
@@ -1837,8 +1840,11 @@ class ljinux:
                                     term.clear_line()
                                 elif term.buf[0] in [11, 12]:  # pgup / pgdw
                                     term.clear_line()
-                                elif term.buf[0] is 13:
+                                elif term.buf[0] is 13: # Ctrl + L (clear screen)
+                                    term.buf[1] = ""
+                                    term.focus = 0
                                     term.clear()
+                                    
                                 ljinux.backrounding.main_tick()
                                 try:
                                     if command_input[:1] != " " and command_input != "":
@@ -1993,6 +1999,7 @@ class ljinux:
         # the display objects
         entities = []  # it will hold the drawn objects and allow their dynamic deletion
         public = []
+
         # ---
 
         def setup():

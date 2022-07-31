@@ -1,6 +1,6 @@
 from sys import exit
 from time import sleep
-from os import chdir
+from microcontroller import reset, RunMode, on_next_reset
 
 exit_l = {
     0: lambda: (jrub("Exiting"), chdir("/"), exit(0)),
@@ -15,12 +15,9 @@ exit_l = {
 jrub = lambda text: print(f"jrub> {text}")
 
 try:
-    from ljinux import (
-        ljinux,
-    )  # if you touch this line or line 17 ever again, I will break your legs
+    from ljinux import ljinux
 
     jrub("Ljinux basic init done")
-
 except ImportError:
     jrub("Ljinux wanna-be kernel binary not found, cannot continue..")
     exit_l[1]()
@@ -51,11 +48,9 @@ jrub("Running Ljinux autorun..")
 try:
     Exit_code = oss.based.autorun()
     jrub(f"Shell exited with exit code {Exit_code}")
-
 except EOFError:
     jrub("\nAlert: Serial Ctrl + D caught, exiting\n")
     exit_l[0]()
-
 except Exception as err:
     print(f"\n\nLjinux crashed with:\n\t{str(type(err))[8:-2]}: {str(err)}")
     del err
@@ -69,27 +64,24 @@ jrub("Cleared display")
 oss.history.save(oss.based.user_vars["history-file"])
 jrub("History flushed")
 
-from os import sync
+from os import chdir, sync
 
 sync()
 jrub("Synced all volumes")
+oss.io.ledset(1)
 
-oss.io.led.value = True
 try:
-    oss.io.led.value = False
+    oss.io.ledset(0)
     from storage import umount
 
     umount("/ljinux")
     jrub("Unmounted /ljinux")
-    oss.io.led.value = True
-
+    oss.io.ledset(1)
 except OSError:
     jrub("Could not unmount /ljinux")
 
 jrub("Reached target: Quit")
-oss.io.led.value = False
+oss.io.ledset(0)
 del oss
-
-from microcontroller import reset, RunMode, on_next_reset
 
 exit_l[Exit_code]()
