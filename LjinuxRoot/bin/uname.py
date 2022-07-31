@@ -4,7 +4,7 @@ try:
         print(
             f"lJinux { ljinux.based.system_vars['BOARD'] } { ljinux.based.system_vars['VERSION'] }"
             + f" {tt.tm_mday}/{tt.tm_mon}/{tt.tm_year} {tt.tm_hour}:{tt.tm_min}:{tt.tm_sec}"
-            + " circuitpython Ljinux"
+            + " circuitpython lJinux"
         )
         del tt
 except IndexError:
