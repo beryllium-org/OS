@@ -1,17 +1,6 @@
 from sys import exit
 from time import sleep
 from os import chdir, sync
-from microcontroller import reset, RunMode, on_next_reset
-
-exit_l = {
-    0: lambda: (jrub("Exiting"), chdir("/"), exit(0)),
-    1: lambda: (jrub("Exiting due to error"), chdir("/"), exit(1)),
-    241: lambda: (on_next_reset(RunMode.UF2), reset()),
-    242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
-    243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
-    244: lambda: (jrub("Reached target: Halt"), chdir("/"), sleep(36000)),
-    245: lambda: reset(),
-}
 
 jrub = lambda text: print(f"jrub> {text}")
 
@@ -80,5 +69,17 @@ except OSError:
 jrub("Reached target: Quit")
 oss.io.led.value = False
 del oss
+
+from microcontroller import reset, RunMode, on_next_reset
+
+exit_l = {
+    0: lambda: (jrub("Exiting"), chdir("/"), exit(0)),
+    1: lambda: (jrub("Exiting due to error"), chdir("/"), exit(1)),
+    241: lambda: (on_next_reset(RunMode.UF2), reset()),
+    242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
+    243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
+    244: lambda: (jrub("Reached target: Halt"), chdir("/"), sleep(36000)),
+    245: lambda: reset(),
+}
 
 exit_l[Exit_code]()
