@@ -12,6 +12,14 @@ access_log = []
 
 # Core board libs
 try:
+    import gc
+    
+    gc.enable()
+    gc.collect()
+    gc.collect()
+    gc.collect()
+    usable_ram = gc.mem_free()
+    
     import board
     import digitalio
 except ImportError:
@@ -49,12 +57,6 @@ uptimee = (
 )  # using uptimee as an offset, this way uptime + time.monotonic = 0 at this very moment and it goes + from here on out
 print("[    0.00000] Got time zero")
 dmesg.append("[    0.00000] Got time zero")
-
-import gc
-
-gc.enable()
-print("[    0.00000] Garbage collector loaded and enabled")
-dmesg.append("[    0.00000] Garbage collector loaded and enabled")
 
 # dmtex previous end holder
 oend = "\n"  # needed to mask print
@@ -208,7 +210,6 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "sd_SCSn": (-1, int, True),
     "sd_MISO": (-1, int, True),
     "sd_MOSI": (-1, int, True),
-    "mem": (264, int, False),
 }
 
 # dynamic pintab
@@ -332,8 +333,7 @@ except KeyError:
     time.sleep(20)
 del boardactions
 
-gc.collect()
-gc.collect()
+dmtex(("Board memory: " + str(usable_ram) + " bytes"))
 dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
 dmtex("Basic checks done")
 

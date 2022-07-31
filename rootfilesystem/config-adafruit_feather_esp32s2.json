@@ -32,11 +32,8 @@
   "sd_SCSn": -1,
   "sd_MISO": -1,
   "sd_MOSI": -1,
-  
-  "_comment10": "memsize",
-  "mem": 2048,
 
-  "_comment11": "Debugging & extreme options",
+  "_comment10": "Debugging & extreme options",
   "SKIPTEMP": false,
   "SKIPCP": false,
   "DEBUG": true

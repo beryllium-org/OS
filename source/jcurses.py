@@ -384,9 +384,9 @@ class jcurses:
     def termline(self):
         stdout.write(self.trigger_dict["prefix"] + self.buf[1])
         if self.focus > 0:
-            stdout.write(ESCK + self.focus + "D")
+            stdout.write(f"{ESCK}{self.focus}D")
 
-    def move(self, ctx=None, x=None, y=None):
+    def move(self, ctx=None, x=0, y=0):
         """
         Move to a specified coordinate or a bookmark.
         If you specified a bookmark, you can use x & y to add an offset.
