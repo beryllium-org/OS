@@ -69,12 +69,13 @@ except ImportError:
     print("FATAL: FAILED TO LOAD JCURSES")
     exit(0)
 
+
 def dmtex(texx=None, end="\n", timing=True, force=False):
     # Persistent offset, Print "end=" preserver
 
     # current time since ljinux start rounded to 5 digits
     ct = "%.5f" % (uptimee + time.monotonic())
-    
+
     # used to disable the time print
     strr = (
         "[{u}{upt}] {tx}".format(
@@ -86,7 +87,7 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
 
     if (not term.dmtex_suppress) or force:
         print(strr, end=end)  # using the provided end
-    
+
     global oend
     """
     if the oend of the last print is a newline we add a new entry
@@ -103,7 +104,7 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
     else:
         dmesg[a] += oend + strr
     oend = end  # oend for next
-    
+
     del a, ct, strr
 
 
@@ -1840,11 +1841,11 @@ class ljinux:
                                     term.clear_line()
                                 elif term.buf[0] in [11, 12]:  # pgup / pgdw
                                     term.clear_line()
-                                elif term.buf[0] is 13: # Ctrl + L (clear screen)
+                                elif term.buf[0] is 13:  # Ctrl + L (clear screen)
                                     term.buf[1] = ""
                                     term.focus = 0
                                     term.clear()
-                                    
+
                                 ljinux.backrounding.main_tick()
                                 try:
                                     if command_input[:1] != " " and command_input != "":
