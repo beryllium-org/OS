@@ -1,9 +1,6 @@
 argss_in = {}
-
 in_l = 0
-
 aa = ll = False
-
 rett = ""
 
 directory_listing = listdir()
@@ -49,7 +46,7 @@ for dir in directory_listing:
     in_l += 1
 
 if not ll:
-    print("\n", end="")
+    print()
     rett += "\n"
 
 ljinux.based.user_vars["return"] = rett

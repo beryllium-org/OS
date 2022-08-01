@@ -1,15 +1,15 @@
-aaa = ljinux.based.user_vars["argj"].split()
+args = ljinux.based.user_vars["argj"].split()
 try:
-    if aaa[1] == "set":
+    if args[1] == "set":
         try:
             the_time = time.struct_time(
                 (
-                    int(aaa[4]),
-                    int(aaa[3]),
-                    int(aaa[2]),
-                    int(aaa[5]),
-                    int(aaa[6]),
-                    int(aaa[7]),
+                    int(args[4]),
+                    int(args[3]),
+                    int(args[2]),
+                    int(args[5]),
+                    int(args[6]),
+                    int(args[7]),
                     1,
                     -1,
                     -1,
@@ -21,18 +21,7 @@ try:
 except IndexError:
     tt = time.localtime()
     print(
-        "Current time: "
-        + str(tt.tm_mday)
-        + "/"
-        + str(tt.tm_mon)
-        + "/"
-        + str(tt.tm_year)
-        + " "
-        + str(tt.tm_hour)
-        + ":"
-        + str(tt.tm_min)
-        + ":"
-        + str(tt.tm_sec)
+        f"Current time: {tt.tm_mday}/{tt.tm_mon}/{tt.tm_year} {tt.tm_hour}:{tt.tm_min}:{tt.tm_sec}"
     )
     del tt
-del aaa
+del args

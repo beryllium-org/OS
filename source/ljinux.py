@@ -95,19 +95,18 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
     if the oend of the last print is a newline we add a new entry
     otherwise we go to the last one and we add it along with the old oend
     """
-    a = len(dmesg) - 1  # the last entry
     if "\n" == oend:
         dmesg.append(strr)
     elif (len(oend.replace("\n", "")) > 0) and (
         "\n" in oend
     ):  # there is hanging text in old oend
-        dmesg[a] += oend.replace("\n", "")
+        dmesg[-1] += oend.replace("\n", "")
         dmesg.append(strr)
     else:
-        dmesg[a] += oend + strr
+        dmesg[-1] += oend + strr
     oend = end  # oend for next
 
-    del a, ct, strr
+    del ct, strr
 
 
 print("[    0.00000] Timings reset")
@@ -161,17 +160,16 @@ except ImportError:
 
 # Kernel cmdline.txt
 try:
-    confign = "/config-" + board.board_id + ".json"
-    with open(confign, "r") as f:  # load the config file
-        dmtex("Loaded " + confign)
-        configg = json.load(f)  # and parse it as a json
-        f.close()
-    del confign
+    
+    with open(board_config := f"/config-{board.board_id}.json") as config_file:
+        dmtex(f"Loaded {board_config}")
+        configg = json.load(config_file)
+        del config_file, board_config   
+
     for i in configg:
         if i.startswith("_"):
             del configg[i]
-    del i
-
+    
 except (ValueError, OSError):
     configg = {}
     dmtex("Kernel config could not be found / parsed, applying defaults")
@@ -239,7 +237,7 @@ for optt in list(defaultoptions.keys()):
     except KeyError:
         configg.update({optt: defaultoptions[optt][0]})
         dmtex(
-            'Missing / Invalid value for "' + optt + '" applied: ' + str(configg[optt]),
+            f'Missing / Invalid value for "{optt}" applied: {configg[optt]}', 
             timing=False,
         )
     if defaultoptions[optt][2]:
@@ -254,8 +252,8 @@ for optt in list(defaultoptions.keys()):
         del pin
 
 dmtex("Total pin alloc: ", end="")
-for i in pin_alloc:
-    dmtex(str(i), timing=False, end=" ")
+for pin in pin_alloc:
+    dmtex(str(pin), timing=False, end=" ")
 dmtex("", timing=False)
 
 if configg["led"] == -1:
