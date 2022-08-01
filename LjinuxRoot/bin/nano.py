@@ -21,9 +21,8 @@ if sizee[0] > 14 and sizee[1] > 105:
         weltxt = "[ {} is a directory ]".format(filee[filee.rfind("/") + 1 :])
 
     dataa = [""]
-
     lc = 0  # line count
-    if exists == 0:  # is file
+    if exists is 0:  # is file
         with open(filee, "r") as f:
             ll = f.readlines()
             ljinux.based.user_vars["input"] = []
@@ -274,7 +273,6 @@ if sizee[0] > 14 and sizee[1] > 105:
                                 cl -= 1
                             else:
                                 cc = False
-                        dataa.append("")
                         del cc
                         if not sdcard_fs:
                             remount("/", False)

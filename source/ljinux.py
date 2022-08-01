@@ -1511,26 +1511,27 @@ class ljinux:
                 Returns 2 if it doesn't exist.
                 """
                 dirr = ljinux.based.fn.betterpath(dirr)
-
+                rdir = ljinux.based.fn.betterpath(rdir)
                 cddd = getcwd()
+                res = 2
                 try:
                     chdir(dirr)
                     chdir(cddd)
-                    del cddd
-                    return 1
+                    res = 1
                 except OSError:
-                    del cddd  # yes we need both
                     try:
-                        return (
-                            0
-                            if dirr[dirr.rfind("/") + 1 :]
-                            in listdir(
-                                dirr[: dirr.rfind("/")] if rdir is None else rdir
-                            )
-                            else 2
-                        )
+                        if dirr[dirr.rfind("/") + 1 :] in listdir(dirr[: dirr.rfind("/")]):
+                            res = 0
+                        else:
+                            raise OSError
                     except OSError:
-                        return 2  # we have had enough
+                        try:
+                            if dirr in (listdir(cddd) + (listdir(rdir) if rdir is not None else [])):
+                                res = 0
+                        except OSError:
+                            res = 2  # we have had enough
+                del cddd
+                return res
 
             def betterpath(back=None):
                 """
