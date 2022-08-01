@@ -197,7 +197,7 @@ if sizee[0] > 14 and sizee[1] > 105:
 
             elif term.buf[0] is 2 and not savee:  # up
                 term.focus = 0
-                
+
                 if cl > 0:
                     cl -= 1
                     if cl - vl < 0:
@@ -267,7 +267,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                 elif savee == 2:
                     try:
                         cc = True
-                        cl = lc-1
+                        cl = lc - 1
                         while cc:
                             if dataa[cl].isspace() or dataa[cl] == "":
                                 dataa.pop()
@@ -315,17 +315,17 @@ if sizee[0] > 14 and sizee[1] > 105:
                     # don't do it when in save mode
                     term.focus = 0
                     cl -= 1
-                    if dataa[cl+1] != "":
-                        dataa[cl] += dataa[cl+1]
-                    
+                    if dataa[cl + 1] != "":
+                        dataa[cl] += dataa[cl + 1]
+
                     # backend shift
                     for i in range(cl + 1, lc - 1):
-                        dataa[i] = dataa[i+1]
-                    
-                     # remove last
+                        dataa[i] = dataa[i + 1]
+
+                    # remove last
                     dataa.pop()
                     lc -= 1
-                    
+
                     # shift data
                     for i in range(
                         2, (sizee[0] - 2) if (lc > (sizee[0] - 2)) else lc + 2
@@ -335,7 +335,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                         stdout.write(dataa[vl + i - 2])
                     stdout.write("\n")
                     term.clear_line()
-                    
+
             elif term.buf[0] is 12:  # add tab
                 term.stdin = " " * 4
             elif savee:
@@ -356,4 +356,3 @@ if sizee[0] > 14 and sizee[1] > 105:
 else:
     ljinux.based.error(13, "15x106")  # minimum size error
     ljinux.based.user_vars["return"] = "1"
-
