@@ -55,6 +55,8 @@ if sizee[0] > 14 and sizee[1] > 105:
         "down": 8,
         "pgup": 4,
         "pgdw": 5,
+        "bck": 11,
+        "tab": 12,
         "enter": 10,
         "overflow": 10,
         "rest": "stack",
@@ -66,7 +68,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     target = sizee[0] - 3  # no of lines per screen
     cl = 0  # current line
     vl = 0  # 1st visible line
-    ctl = [0, None]
+    term.buf = [0, None]
     fnam = "New buffer" if exists == 2 else filee[filee.rfind("/") + 1 :]
     spz = int((sizee[1] - 11 - len(versionn) - len(fnam)) / 2)
     sps1 = " " * (spz - 5)
@@ -155,13 +157,14 @@ if sizee[0] > 14 and sizee[1] > 105:
                 term.move(x=cl - vl + 2, y=len(term.buf[1]))
                 term.clear_line()
             ljinux.io.ledset(1)
-            ctl = term.program()
+            term.program()
+            if not savee:
+                dataa[cl] = term.buf[1]
             ljinux.io.ledset(3)
-            if ctl[0] == 9:  # kill
+            if term.buf[0] is 9:  # kill
                 term.focus = 0
                 q = False
-            elif ctl[0] == 1 and not savee:  # save
-                dataa[cl] = term.buf[1]
+            elif term.buf[0] is 1 and not savee:  # save
                 term.buf[1] = ""
                 term.focus = 0
                 term.move(x=sizee[0] - 2)
@@ -178,9 +181,8 @@ if sizee[0] > 14 and sizee[1] > 105:
                 del spsz
                 savee += 1
 
-            elif ctl[0] == 8 and not savee:  # down
+            elif term.buf[0] is 8 and not savee:  # down
                 term.focus = 0
-                dataa[cl] = term.buf[1]
                 cl += 1
                 if lc - 1 <= cl:
                     dataa.append("")
@@ -193,9 +195,9 @@ if sizee[0] > 14 and sizee[1] > 105:
                         term.clear_line()
                         stdout.write(dataa[vl + i - 2])
 
-            elif ctl[0] == 2 and not savee:  # up
+            elif term.buf[0] is 2 and not savee:  # up
                 term.focus = 0
-                dataa[cl] = term.buf[1]
+                
                 if cl > 0:
                     cl -= 1
                     if cl - vl < 0:
@@ -205,9 +207,8 @@ if sizee[0] > 14 and sizee[1] > 105:
                             term.clear_line()
                             stdout.write(dataa[vl + i - 2])
 
-            elif ctl[0] == 10:  # insert empty line (enter)
+            elif term.buf[0] is 10:  # insert empty line (enter)
                 if not savee:
-                    dataa[cl] = term.buf[1]
                     dataa.append(dataa[lc - 1])  # last line to new line
                     noffs = 0
                     if len(term.buf[1]) == term.focus:
@@ -233,7 +234,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                         term.move(x=i)
                         term.clear_line()
                         stdout.write(dataa[vl + i - 2])
-                elif savee == 1:
+                elif savee is 1:
                     # the "save y/n" prompt
                     if term.buf[1] in ["n", "N"]:
                         q = False  # abandon all hope (, ye who enter here)
@@ -265,6 +266,16 @@ if sizee[0] > 14 and sizee[1] > 105:
                         del ffname
                 elif savee == 2:
                     try:
+                        cc = True
+                        cl = lc-1
+                        while cc:
+                            if dataa[cl].isspace() or dataa[cl] == "":
+                                dataa.pop()
+                                cl -= 1
+                            else:
+                                cc = False
+                        dataa.append("")
+                        del cc
                         if not sdcard_fs:
                             remount("/", False)
                         with open(ljinux.based.fn.betterpath(term.buf[1]), "w") as f:
@@ -287,7 +298,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                         term.move(x=sizee[0] - 1)
                         stdout.write(toolbar_txt)
 
-            elif ctl[0] == 0 and savee:  # Ctrl C, abort saving
+            elif term.buf[0] is 0 and savee:  # Ctrl C, abort saving
                 savee = 0
                 term.focus = 0
                 term.move(x=sizee[0] - 2)
@@ -295,6 +306,38 @@ if sizee[0] > 14 and sizee[1] > 105:
                 term.move(x=sizee[0] - 1)
                 stdout.write(toolbar_txt)
 
+            elif term.buf[0] is 11:  # backspace
+                if len(term.buf[1]) - term.focus > 0:
+                    term.backspace()
+                    if not savee:
+                        dataa[cl] = term.buf[1]
+                elif not savee and cl > 0:
+                    # don't do it when in save mode
+                    term.focus = 0
+                    cl -= 1
+                    if dataa[cl+1] != "":
+                        dataa[cl] += dataa[cl+1]
+                    
+                    # backend shift
+                    for i in range(cl + 1, lc - 1):
+                        dataa[i] = dataa[i+1]
+                    
+                     # remove last
+                    dataa.pop()
+                    lc -= 1
+                    
+                    # shift data
+                    for i in range(
+                        2, (sizee[0] - 2) if (lc > (sizee[0] - 2)) else lc + 2
+                    ):
+                        term.move(x=i)
+                        term.clear_line()
+                        stdout.write(dataa[vl + i - 2])
+                    stdout.write("\n")
+                    term.clear_line()
+                    
+            elif term.buf[0] is 12:  # add tab
+                term.stdin = " " * 4
             elif savee:
                 # counter visual bug
                 stdout.write(len(term.buf[1]) * "\010")
@@ -302,7 +345,7 @@ if sizee[0] > 14 and sizee[1] > 105:
         except KeyboardInterrupt:
             pass
 
-    del q, ctl, cl, vl, target, toolbar_txt, inb, toolsplit, filee, exists
+    del q, cl, vl, target, toolbar_txt, inb, toolsplit, filee, exists
     term.clear()
     term.buf[1] = ""
     stdout.write(colors.endc)
@@ -313,3 +356,4 @@ if sizee[0] > 14 and sizee[1] > 105:
 else:
     ljinux.based.error(13, "15x106")  # minimum size error
     ljinux.based.user_vars["return"] = "1"
+

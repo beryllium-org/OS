@@ -32,7 +32,7 @@ class jcurses:
         self.dmtex_suppress = False
         self.buf = [0, ""]
         self.focus = 0
-        self.semi = None  # a register for when we need to clear stdin
+        self.stdin = None  # a register for when we need to clear stdin
 
     def backspace(self, n=1):
         """
@@ -196,10 +196,10 @@ class jcurses:
             n = runtime.serial_bytes_available
             if n > 0:
                 got = True
-                if self.semi is None:
-                    self.semi = stdin.read(n)
+                if self.stdin is None:
+                    self.stdin = stdin.read(n)
                 else:
-                    self.semi += stdin.read(n)
+                    self.stdin += stdin.read(n)
                 if got:
                     sleep(0.0003)
                     """
@@ -255,11 +255,11 @@ class jcurses:
         stack = []
         try:
             n = runtime.serial_bytes_available
-            if n > 0 or self.semi is not None:
+            if n > 0 or self.stdin is not None:
                 i = None
-                if self.semi is not None:
-                    i = self.semi
-                    self.semi = None
+                if self.stdin is not None:
+                    i = self.stdin
+                    self.stdin = None
                 else:
                     i = stdin.read(n)
 

@@ -18,10 +18,17 @@ try:
             rtcc.write_datetime(the_time)
         except IndexError:
             ljinux.based.error(1)
+    else:
+        raise IndexError
 except IndexError:
     tt = time.localtime()
+    day = None
+    if tt.tm_wday is 1:
+        day = "Mon"
+    elif
     print(
-        f"Current time: {tt.tm_mday}/{tt.tm_mon}/{tt.tm_year} {tt.tm_hour}:{tt.tm_min}:{tt.tm_sec}"
+        f" {tt.tm_mday}/{tt.tm_mon}/{tt.tm_year} {tt.tm_hour}:{tt.tm_min}:{tt.tm_sec}"
     )
-    del tt
+    del tt, day
 del args
+ljinux.based.user_vars["return"] = "0"
