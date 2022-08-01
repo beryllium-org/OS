@@ -5,8 +5,12 @@ try:
             "Ljinux {} {} {}/{}/{} {}:{}:{} circuitpython Ljinux".format(
                 ljinux.based.system_vars["BOARD"],
                 ljinux.based.system_vars["VERSION"],
-                tt.tm_mday, tt.tm_mon, tt.tm_year,
-                tt.tm_hour, tt.tm_min, tt.tm_sec
+                tt.tm_mday,
+                tt.tm_mon,
+                tt.tm_year,
+                tt.tm_hour,
+                tt.tm_min,
+                tt.tm_sec,
             )
         )
         del tt

@@ -160,16 +160,16 @@ except ImportError:
 
 # Kernel cmdline.txt
 try:
-    
+
     with open(board_config := f"/config-{board.board_id}.json") as config_file:
         dmtex(f"Loaded {board_config}")
         configg = json.load(config_file)
-        del config_file, board_config   
+        del config_file, board_config
 
     for i in configg:
         if i.startswith("_"):
             del configg[i]
-    
+
 except (ValueError, OSError):
     configg = {}
     dmtex("Kernel config could not be found / parsed, applying defaults")
@@ -237,7 +237,7 @@ for optt in list(defaultoptions.keys()):
     except KeyError:
         configg.update({optt: defaultoptions[optt][0]})
         dmtex(
-            f'Missing / Invalid value for "{optt}" applied: {configg[optt]}', 
+            f'Missing / Invalid value for "{optt}" applied: {configg[optt]}',
             timing=False,
         )
     if defaultoptions[optt][2]:
