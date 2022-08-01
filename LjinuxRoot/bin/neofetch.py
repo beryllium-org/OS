@@ -32,7 +32,7 @@ gc.collect()
 gc.collect()
 
 Rram = (
-    f"{trunc(abs(configg['mem'] - gc.mem_free() / 1000))}KiB / {str(configg['mem'])}KiB"
+    f"{trunc((usable_ram - gc.mem_free()) / 1000)}KiB / {int(usable_ram/1000)}KiB"
 )
 
 print(
