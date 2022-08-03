@@ -25,7 +25,8 @@ except IndexError:
     day = None
     if tt.tm_wday is 1:
         day = "Mon"
-    elif
+    elif True:  # wip
+        pass
     print(
         f" {tt.tm_mday}/{tt.tm_mon}/{tt.tm_year} {tt.tm_hour}:{tt.tm_min}:{tt.tm_sec}"
     )

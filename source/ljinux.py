@@ -214,7 +214,7 @@ defaultoptions = {  # default configuration, in line with the manual (default va
 try:
     exec(f"from pintab_{board.board_id} import pintab")
 except:
-    dmtex(f"{colors.error}ERROR:{colors.endc} Board config cannot be loaded")
+    dmtex(f"{colors.error}ERROR:{colors.endc} Board pintab cannot be loaded")
     exit(1)
 
 # General options
@@ -310,9 +310,10 @@ boardactions = {
     "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
     "adafruit_kb2040": lambda: dmtex("Running on an Adafruit KB2040."),
     "waveshare_esp32s2_pico": lambda: dmtex("Running on a Waveshare ESP32-S2-Pico."),
-    "adafruit_feather_esp32s2": lambda: exec(
-        'dmtex("Running on an Adafruit Feather ESP32-S2."); boardLEDinvert = True'
+    "adafruit_feather_esp32s2": lambda: dmtex(
+        "Running on an Adafruit Feather ESP32-S2."
     ),
+    "pimoroni_picolipo_16mb": lambda: dmtex("Running on a Pimoroni Pico Lipo 16mb."),
 }
 
 try:
@@ -447,8 +448,16 @@ class ljinux:
                         del line
 
             except OSError:
+                try:
+                    if not sdcard_fs:
+                        remount("/", False)
+                    with open(filen, "w") as historyfile:
+                        pass
+                    if not sdcard_fs:
+                        remount("/", True)
+                except RuntimeError:
+                    ljinux.based.error(4, filen)
                 ljinux.io.ledset(1)  # idle
-                ljinux.based.error(4, filen)
 
         def appen(itemm):  # add to history, but don't save to file
             if (
@@ -458,19 +467,15 @@ class ljinux:
 
         def save(filen):
             try:
-                # File unused but I need to check it's existence
-                a = open(filen, "r")
-                a.close()
-                try:
-                    with open(filen, "w") as historyfile:
-                        for item in ljinux.history.historyy:
-                            historyfile.write(item + "\n")
-
-                        historyfile.flush()
-                except OSError:
-                    ljinux.based.error(7, filen)
-            except OSError:
-                ljinux.based.error(4, filen)
+                if not sdcard_fs:
+                    remount("/", False)
+                with open(filen, "w") as historyfile:
+                    for item in ljinux.history.historyy:
+                        historyfile.write(item + "\n")
+                if not sdcard_fs:
+                    remount("/", True)
+            except (OSError, RuntimeError):
+                ljinux.based.error(7, filen)
 
         def clear(filen):
             try:
@@ -478,10 +483,14 @@ class ljinux:
                 a = open(filen, "r")
                 a.close()
                 del a
+                if not sdcard_fs:
+                    remount("/", False)
                 with open(filen, "w") as historyfile:
                     historyfile.flush()
+                if not sdcard_fs:
+                    remount("/", True)
                 ljinux.history.historyy.clear()
-            except OSError:
+            except (OSError, RuntimeError):
                 ljinux.based.error(4, filen)
 
         def gett(whichh):  # get a specific history item, from loaded history
@@ -801,7 +810,7 @@ class ljinux:
         raw_command_input = ""
 
         user_vars = {
-            "history-file": "/LjinuxRoot/home/pi/.history",
+            "history-file": "/LjinuxRoot/home/board/.history",
             "return": "0",
         }
 
@@ -1520,13 +1529,18 @@ class ljinux:
                     res = 1
                 except OSError:
                     try:
-                        if dirr[dirr.rfind("/") + 1 :] in listdir(dirr[: dirr.rfind("/")]):
+                        if dirr[dirr.rfind("/") + 1 :] in listdir(
+                            dirr[: dirr.rfind("/")]
+                        ):
                             res = 0
                         else:
                             raise OSError
                     except OSError:
                         try:
-                            if dirr in (listdir(cddd) + (listdir(rdir) if rdir is not None else [])):
+                            if dirr in (
+                                listdir(cddd)
+                                + (listdir(rdir) if rdir is not None else [])
+                            ):
                                 res = 0
                         except OSError:
                             res = 2  # we have had enough

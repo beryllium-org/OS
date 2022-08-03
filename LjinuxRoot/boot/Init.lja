@@ -1,7 +1,7 @@
 SHELL = "based"
 OS = "Ljinux"
-cd /home/pi
-USER = "Pi"
+cd /home/board
+USER = "board"
 fpexec -n /LjinuxRoot/etc/hostname-reload.py
 _waitforserial
 _rebootprompt

@@ -1,0 +1,40 @@
+{
+  "_comment1": "Default Ljinux configuration, adjust to your needs",
+  
+  "_comment2": "As long as it's true, ram rtc will be used",
+  "fixrtc": true,
+  
+  "_comment3": "Board led, can be generic or neopixel",
+  "led": -1,
+  "ledtype": "generic",
+  
+  "_comment4": "Display i2c pins",
+  "displaySCL": -1,
+  "displaySDA": -1,
+
+  "_comment5": "Display height - width",
+  "displayheight": 64,
+  "displaywidth": 128,
+
+  "_comment6": "Other display related options",
+  "_comment7": "Makes the pi only bother with sensor io & not serial. Not yet implemented",
+  "DISPLAYONLYMODE": false,
+
+  "_comment8": "Networking",
+  "w5500_MOSI": -1,
+  "w5500_MISO": -1,
+  "w5500_SCLK": -1,
+  "w5500_SCSn": -1,
+  
+  "_comment9": "SD card",
+  
+  "sd_SCLK": -1,
+  "sd_SCSn": -1,
+  "sd_MISO": -1,
+  "sd_MOSI": -1,
+
+  "_comment10": "Debugging & extreme options",
+  "SKIPTEMP": false,
+  "SKIPCP": false,
+  "DEBUG": false
+}
