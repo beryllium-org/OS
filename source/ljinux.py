@@ -1783,10 +1783,14 @@ class ljinux:
                                                             ]
                                                         ):
                                                             isMatch = False
+                                                            break
                                                         else:
                                                             letters_match += 1
                                                     except IndexError:
                                                         isMatch = False
+                                                        break
+                                                if not isMatch:
+                                                    break
                                         del minn, isMatch
                                         if letters_match > 0:
                                             term.clear_line()
