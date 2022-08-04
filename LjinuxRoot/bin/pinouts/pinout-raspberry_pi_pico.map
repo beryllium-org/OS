@@ -28,12 +28,7 @@ Raspberry Pi Pico Rev 1.0
 Revision           : 1.0
 SoC                : RP2040
 RAM                : 264KB
-Storage            : MicroSD
+Storage            : SQPI (2MB)
 USB ports          : 1 (of which 0 USB3)
-Ethernet ports     : 1 (10Mbps max. speed)
 Wi-fi              : False
 Bluetooth          : False
-Camera ports (CSI) : 0
-Display ports (DSI): 0
-
-For further information, please refer to http://ljinux.cf/

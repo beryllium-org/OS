@@ -1563,21 +1563,19 @@ class ljinux:
                     if a.startswith(hd):
                         res = "~" + a[len(hd) :]
                     elif a == "/":
-                        res = "board/"
+                        res = "&/"
                     elif a == "/LjinuxRoot":
                         res = "/"
                     elif a.startswith("/LjinuxRoot"):
                         res = a[11:]
                     else:
-                        res = "board" + a
+                        res = "&" + a
                     del a
                 else:  # resolve path back to normal
-                    if back.startswith("board"):
-                        """
-                        if the path starts with board/ it means it understands the reality of the fs
-                        and we can just ommit the board part
-                        """
-                        res = back[5:]
+                    if back in ["&/", "&"]:  # board root
+                        res = "/"
+                    elif back.startswith("&/"):
+                        res = back[2:]
                     elif back.startswith("/LjinuxRoot"):
                         res = back  # already good
                     elif back[0] == "/":

@@ -21,15 +21,11 @@
 [ PWM6A | SDA0 | TX0  | RX1  | GPIO12 ]   SDA -------' / 
 [ PWM6B | SCL0 | RX0  | CSN1 | GPIO13 ]   SCL -------'
 
-Adafruit KB2040 Rev 1.0
+Adafruit KB2040
 
-Revision           : 1.0
 SoC                : RP2040
 RAM                : 264KB
 Storage            : QSPI
 USB ports          : 1 (of which 0 USB3)
-Ethernet ports     : 0
 Wi-fi              : False
 Bluetooth          : False
-Camera ports (CSI) : 0
-Display ports (DSI): 0

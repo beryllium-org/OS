@@ -31,10 +31,7 @@ Adafruit Feather ESP32-S2
 
 SoC                : ESP32-S2
 RAM                : 2048KB
-Storage            : QSPI
+Storage            : SOC (4MB)
 USB ports          : 1 (of which 0 USB3)
-Ethernet ports     : 0
 Wi-fi              : True
 Bluetooth          : True
-Camera ports (CSI) : 0
-Display ports (DSI): 0

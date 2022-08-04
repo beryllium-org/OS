@@ -22,14 +22,20 @@ try:
         raise IndexError
 except IndexError:
     tt = time.localtime()
-    day = None
-    if tt.tm_wday is 1:
-        day = "Mon"
-    elif True:  # wip
-        pass
+    daydict = {
+        1: "Mon",
+        2: "Tue",
+        3: "Wed",
+        4: "Thu",
+        5: "Fri",
+        6: "Sat",
+        7: "Sun",
+    }
+    day = daydict[tt.tm_wday]
+    del daydict
+
     print(
-        f" {tt.tm_mday}/{tt.tm_mon}/{tt.tm_year} {tt.tm_hour}:{tt.tm_min}:{tt.tm_sec}"
+        f"{day} {tt.tm_mday} {tt.tm_mon} {tt.tm_year} {tt.tm_hour}:{tt.tm_min}:{tt.tm_sec}"
     )
     del tt, day
 del args
-ljinux.based.user_vars["return"] = "0"
