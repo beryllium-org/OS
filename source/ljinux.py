@@ -12,6 +12,14 @@ access_log = []
 
 # Core board libs
 try:
+    import gc
+
+    gc.enable()
+    gc.collect()
+    gc.collect()
+    gc.collect()
+    usable_ram = gc.mem_free()
+
     import board
     import digitalio
 except ImportError:
@@ -50,12 +58,6 @@ uptimee = (
 print("[    0.00000] Got time zero")
 dmesg.append("[    0.00000] Got time zero")
 
-import gc
-
-gc.enable()
-print("[    0.00000] Garbage collector loaded and enabled")
-dmesg.append("[    0.00000] Garbage collector loaded and enabled")
-
 # dmtex previous end holder
 oend = "\n"  # needed to mask print
 
@@ -72,34 +74,39 @@ except ImportError:
 
 def dmtex(texx=None, end="\n", timing=True, force=False):
     # Persistent offset, Print "end=" preserver
-    global uptimee, oend
 
-    ct = "%.5f" % (
-        uptimee + time.monotonic()
-    )  # current time since ljinux start rounded to 5 digits
-    if timing:
-        # timing is used to disable the time print in case you want to make a print(blah,end='')
-        strr = "[{u}{upt}] {tx}".format(
+    # current time since ljinux start rounded to 5 digits
+    ct = "%.5f" % (uptimee + time.monotonic())
+
+    # used to disable the time print
+    strr = (
+        "[{u}{upt}] {tx}".format(
             u="           ".replace(" ", "", len(ct)), upt=str(ct), tx=texx
         )
-    else:
-        strr = texx  # the message as is
+        if timing
+        else texx
+    )
+
     if (not term.dmtex_suppress) or force:
         print(strr, end=end)  # using the provided end
-    if (
-        "\n" == oend
-    ):  # if the oend of the last print is a newline we add a new entry, otherwise we go to the last one and we add it along with the old oend
+
+    global oend
+    """
+    if the oend of the last print is a newline we add a new entry
+    otherwise we go to the last one and we add it along with the old oend
+    """
+    if "\n" == oend:
         dmesg.append(strr)
     elif (len(oend.replace("\n", "")) > 0) and (
         "\n" in oend
-    ):  # special case, there is hanging text in old oend
-        a = len(dmesg) - 1  # the last entry
-        dmesg[a] += oend.replace("\n", "")  # add the spare text
-        dmesg.append(strr)  # do the new entry now
-    else:  # append to the last entry
-        a = len(dmesg) - 1  # the last entry
-        dmesg[a] += oend + strr  # with the ending ofc
-    oend = end  # then we save the new oend for the next go
+    ):  # there is hanging text in old oend
+        dmesg[-1] += oend.replace("\n", "")
+        dmesg.append(strr)
+    else:
+        dmesg[-1] += oend + strr
+    oend = end  # oend for next
+
+    del ct, strr
 
 
 print("[    0.00000] Timings reset")
@@ -108,27 +115,25 @@ dmesg.append("[    0.00000] Timings reset")
 # Now we can use this function to get a timing
 dmtex("Basic Libraries loading")
 
-# Basic libs
-# These are absolutely needed
-
+# Basic absolutely needed libs
 from sys import (
     implementation,
-    platform,  # needed for neofetch
+    platform,  # needed for neofetch btw
     modules,
     exit,
     stdout,
-)  # if this import fails, idk
+)
 
 dmtex("System libraries loaded")
 
 try:
     import busio
 
-    from microcontroller import cpu, cpus
+    from microcontroller import cpu
 
     from storage import remount, VfsFat, mount, getmount
 
-    from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove
+    from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove, sync
 
     from io import StringIO
     from usb_cdc import console
@@ -155,16 +160,15 @@ except ImportError:
 
 # Kernel cmdline.txt
 try:
-    confign = "/config-" + board.board_id + ".json"
-    with open(confign, "r") as f:  # load the config file
-        dmtex("Loaded " + confign)
-        configg = json.load(f)  # and parse it as a json
-        f.close()
-    del confign
+
+    with open(board_config := f"/config-{board.board_id}.json") as config_file:
+        dmtex(f"Loaded {board_config}")
+        configg = json.load(config_file)
+        del config_file, board_config
+
     for i in configg:
         if i.startswith("_"):
             del configg[i]
-    del i
 
 except (ValueError, OSError):
     configg = {}
@@ -194,7 +198,6 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "fixrtc": (True, bool, False),
     "SKIPTEMP": (False, bool, False),
     "SKIPCP": (False, bool, False),
-    "DEVBOARD": (False, bool, False),
     "DEBUG": (False, bool, False),
     "DISPLAYONLYMODE": (False, bool, False),
     "w5500_MOSI": (-1, int, True),
@@ -205,24 +208,14 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "sd_SCSn": (-1, int, True),
     "sd_MISO": (-1, int, True),
     "sd_MOSI": (-1, int, True),
-    "mem": (264, int, False),
 }
 
 # dynamic pintab
 try:
     exec(f"from pintab_{board.board_id} import pintab")
-except ImportError:
-    dmtex(f"{colors.error}ERROR:{colors.endc} Board config cannot be loaded")
-    if isinstance(configg["DEVBOARD"], bool) and configg["DEVBOARD"] == True:
-        dmtex("Continuing with generic Raspberry Pi Pico compatible pin layout")
-        try:
-            from pintab_raspberry_pi_pico import pintab
-        except ImportError:
-            dmtex(
-                f"{colors.error}FATAL:{colors.endc} Generic Raspberry Pi Pico pin layout loading failed!"
-            )
-            exit(1)
-
+except:
+    dmtex(f"{colors.error}ERROR:{colors.endc} Board pintab cannot be loaded")
+    exit(1)
 
 # General options
 for optt in list(defaultoptions.keys()):
@@ -244,7 +237,7 @@ for optt in list(defaultoptions.keys()):
     except KeyError:
         configg.update({optt: defaultoptions[optt][0]})
         dmtex(
-            'Missing / Invalid value for "' + optt + '" applied: ' + str(configg[optt]),
+            f'Missing / Invalid value for "{optt}" applied: {configg[optt]}',
             timing=False,
         )
     if defaultoptions[optt][2]:
@@ -259,14 +252,15 @@ for optt in list(defaultoptions.keys()):
         del pin
 
 dmtex("Total pin alloc: ", end="")
-for i in pin_alloc:
-    dmtex(str(i), timing=False, end=" ")
+for pin in pin_alloc:
+    dmtex(str(pin), timing=False, end=" ")
 dmtex("", timing=False)
 
 if configg["led"] == -1:
     boardLED = board.LED
 else:
     boardLED = pintab[configg["led"]]
+boardLEDinvert = False
 
 del defaultoptions
 
@@ -310,37 +304,35 @@ if not configg["SKIPTEMP"]:
 else:
     print("Temperature check skipped, rest in pieces cpu.")
 
-if not configg["DEVBOARD"]:
-    """
-    Enable to skip board checks and patches.
-    """
-    print("Running board detection")
-    boardactions = {
-        "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
-        "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
-        "adafruit_kb2040": lambda: dmtex("Runing on Adafruit KB2040."),
-    }
+dmtex("Running board detection")
+boardactions = {
+    "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
+    "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
+    "adafruit_kb2040": lambda: dmtex("Running on an Adafruit KB2040."),
+    "waveshare_esp32s2_pico": lambda: dmtex("Running on a Waveshare ESP32-S2-Pico."),
+    "adafruit_feather_esp32s2": lambda: dmtex(
+        "Running on an Adafruit Feather ESP32-S2."
+    ),
+    "pimoroni_picolipo_16mb": lambda: dmtex("Running on a Pimoroni Pico Lipo 16mb."),
+}
 
-    try:
-        boardactions[board.board_id]()
-    except KeyError:
-        dmtex(
-            colors.error
-            + "Unknown board. "
-            + colors.endc
-            + "Please open an issue in "
-            + colors.cyan_t
-            + "https://github.com/bill88t/ljinux"
-            + colors.endc
-            + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible."
-        )
-        time.sleep(20)
-    del boardactions
-else:
-    dmtex("Board detection skipped. Enjoy experimenting!")
+try:
+    boardactions[board.board_id]()
+except KeyError:
+    dmtex(
+        colors.error
+        + "Unknown board. "
+        + colors.endc
+        + "Please open an issue in "
+        + colors.cyan_t
+        + "https://github.com/bill88t/ljinux"
+        + colors.endc
+        + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible."
+    )
+    time.sleep(20)
+del boardactions
 
-gc.collect()
-gc.collect()
+dmtex(("Board memory: " + str(usable_ram) + " bytes"))
 dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
 dmtex("Basic checks done")
 
@@ -456,8 +448,16 @@ class ljinux:
                         del line
 
             except OSError:
+                try:
+                    if not sdcard_fs:
+                        remount("/", False)
+                    with open(filen, "w") as historyfile:
+                        pass
+                    if not sdcard_fs:
+                        remount("/", True)
+                except RuntimeError:
+                    ljinux.based.error(4, filen)
                 ljinux.io.ledset(1)  # idle
-                ljinux.based.error(4, filen)
 
         def appen(itemm):  # add to history, but don't save to file
             if (
@@ -467,19 +467,15 @@ class ljinux:
 
         def save(filen):
             try:
-                # File unused but I need to check it's existence
-                a = open(filen, "r")
-                a.close()
-                try:
-                    with open(filen, "w") as historyfile:
-                        for item in ljinux.history.historyy:
-                            historyfile.write(item + "\n")
-
-                        historyfile.flush()
-                except OSError:
-                    ljinux.based.error(7, filen)
-            except OSError:
-                ljinux.based.error(4, filen)
+                if not sdcard_fs:
+                    remount("/", False)
+                with open(filen, "w") as historyfile:
+                    for item in ljinux.history.historyy:
+                        historyfile.write(item + "\n")
+                if not sdcard_fs:
+                    remount("/", True)
+            except (OSError, RuntimeError):
+                ljinux.based.error(7, filen)
 
         def clear(filen):
             try:
@@ -487,10 +483,14 @@ class ljinux:
                 a = open(filen, "r")
                 a.close()
                 del a
+                if not sdcard_fs:
+                    remount("/", False)
                 with open(filen, "w") as historyfile:
                     historyfile.flush()
+                if not sdcard_fs:
+                    remount("/", True)
                 ljinux.history.historyy.clear()
-            except OSError:
+            except (OSError, RuntimeError):
                 ljinux.based.error(4, filen)
 
         def gett(whichh):  # get a specific history item, from loaded history
@@ -536,6 +536,8 @@ class ljinux:
         led.direction = digitalio.Direction.OUTPUT
         if configg["ledtype"] == "generic":
             led.value = True
+        elif configg["ledtype"] == "generic_invert":
+            led.value = False
         elif configg["ledtype"] == "neopixel":
             neopixel_write(led, nc.idle)
 
@@ -551,21 +553,29 @@ class ljinux:
             """
             if isinstance(state, int):
                 ## use preconfigured led states
-                if configg["ledtype"] == "generic":
+                if configg["ledtype"] in ["generic", "generic_invert"]:
                     if state in {0, 3}:
-                        ljinux.io.led.value = False
+                        ljinux.io.led.value = (
+                            False if configg["ledtype"] == "generic" else True
+                        )
                     else:
-                        ljinux.io.led.value = True
+                        ljinux.io.led.value = (
+                            True if configg["ledtype"] == "generic" else False
+                        )
                 elif configg["ledtype"] == "neopixel":
                     neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
             elif isinstance(state, tuple):
                 # a custom color
-                if configg["ledtype"] == "generic":
+                if configg["ledtype"] in ["generic", "generic_invert"]:
                     if not (state[0] == 0 and state[1] == 0 and state[2] == 0):
                         # apply 1 if any of tuple >0
-                        ljinux.io.led.value = True
+                        ljinux.io.led.value = (
+                            True if configg["ledtype"] == "generic" else False
+                        )
                     else:
-                        ljinux.io.led.value = False
+                        ljinux.io.led.value = (
+                            False if configg["ledtype"] == "generic" else True
+                        )
                 elif configg["ledtype"] == "neopixel":
                     neopixel_write(ljinux.io.led, bytearray(state))
             else:
@@ -800,7 +810,7 @@ class ljinux:
         raw_command_input = ""
 
         user_vars = {
-            "history-file": "/LjinuxRoot/home/pi/.history",
+            "history-file": "/LjinuxRoot/home/board/.history",
             "return": "0",
         }
 
@@ -1510,26 +1520,32 @@ class ljinux:
                 Returns 2 if it doesn't exist.
                 """
                 dirr = ljinux.based.fn.betterpath(dirr)
-
+                rdir = ljinux.based.fn.betterpath(rdir)
                 cddd = getcwd()
+                res = 2
                 try:
                     chdir(dirr)
                     chdir(cddd)
-                    del cddd
-                    return 1
+                    res = 1
                 except OSError:
-                    del cddd  # yes we need both
                     try:
-                        return (
-                            0
-                            if dirr[dirr.rfind("/") + 1 :]
-                            in listdir(
-                                dirr[: dirr.rfind("/")] if rdir is None else rdir
-                            )
-                            else 2
-                        )
+                        if dirr[dirr.rfind("/") + 1 :] in listdir(
+                            dirr[: dirr.rfind("/")]
+                        ):
+                            res = 0
+                        else:
+                            raise OSError
                     except OSError:
-                        return 2  # we have had enough
+                        try:
+                            if dirr in (
+                                listdir(cddd)
+                                + (listdir(rdir) if rdir is not None else [])
+                            ):
+                                res = 0
+                        except OSError:
+                            res = 2  # we have had enough
+                del cddd
+                return res
 
             def betterpath(back=None):
                 """
@@ -1547,21 +1563,19 @@ class ljinux:
                     if a.startswith(hd):
                         res = "~" + a[len(hd) :]
                     elif a == "/":
-                        res = "board/"
+                        res = "&/"
                     elif a == "/LjinuxRoot":
                         res = "/"
                     elif a.startswith("/LjinuxRoot"):
                         res = a[11:]
                     else:
-                        res = "board" + a
+                        res = "&" + a
                     del a
                 else:  # resolve path back to normal
-                    if back.startswith("board"):
-                        """
-                        if the path starts with board/ it means it understands the reality of the fs
-                        and we can just ommit the board part
-                        """
-                        res = back[5:]
+                    if back in ["&/", "&"]:  # board root
+                        res = "/"
+                    elif back.startswith("&/"):
+                        res = back[2:]
                     elif back.startswith("/LjinuxRoot"):
                         res = back  # already good
                     elif back[0] == "/":
@@ -1665,6 +1679,7 @@ class ljinux:
                     "enter": 0,
                     "ctrlC": 1,
                     "ctrlD": 2,
+                    "ctrlL": 13,
                     "tab": 3,
                     "up": 4,
                     "down": 7,
@@ -1748,9 +1763,47 @@ class ljinux:
                                         del bins
                                     if len(candidates) > 1:
                                         stdout.write("\n")
+                                        minn = 100
                                         for i in candidates:
-                                            if not i.startswith("_"):
+                                            if not i.startswith("_"):  # discard those
+                                                minn = min(minn, len(i))
                                                 print("\t" + i)
+                                        letters_match = 0
+                                        isMatch = True
+                                        while isMatch:
+                                            for i in range(0, minn):
+                                                for j in range(1, len(candidates)):
+                                                    try:
+                                                        if (
+                                                            not candidates[j][
+                                                                letters_match
+                                                            ]
+                                                            == candidates[j - 1][
+                                                                letters_match
+                                                            ]
+                                                        ):
+                                                            isMatch = False
+                                                        else:
+                                                            letters_match += 1
+                                                    except IndexError:
+                                                        isMatch = False
+                                        del minn, isMatch
+                                        if letters_match > 0:
+                                            term.clear_line()
+                                            if lent > 1:
+                                                term.buf[1] = "".join(
+                                                    slicedd[:-1]
+                                                    + list(
+                                                        " "
+                                                        + candidates[0][:letters_match]
+                                                    )
+                                                )
+                                            else:
+                                                term.buf[1] = candidates[0][
+                                                    :letters_match
+                                                ]
+                                        term.focus = 0
+                                        del letters_match
                                     elif len(candidates) == 1:
                                         term.clear_line()
                                         if lent > 1:
@@ -1799,6 +1852,11 @@ class ljinux:
                                     term.clear_line()
                                 elif term.buf[0] in [11, 12]:  # pgup / pgdw
                                     term.clear_line()
+                                elif term.buf[0] is 13:  # Ctrl + L (clear screen)
+                                    term.buf[1] = ""
+                                    term.focus = 0
+                                    term.clear()
+
                                 ljinux.backrounding.main_tick()
                                 try:
                                     if command_input[:1] != " " and command_input != "":
@@ -1953,12 +2011,11 @@ class ljinux:
         # the display objects
         entities = []  # it will hold the drawn objects and allow their dynamic deletion
         public = []
+
         # ---
 
         def setup():
-            ljinux.based.command.fpexecc(
-                ["fpexec", "-n", "/LjinuxRoot/bin/display_f/setup.py"]
-            )
+            ljinux.based.command.fpexecc([None, "-n", "/bin/display_f/setup.py"])
 
         def frame():
             global display_availability
@@ -1992,11 +2049,11 @@ class ljinux:
             ljinux.farland.public = [xpos0, ypos0, rad, col]
             if not f:
                 ljinux.based.command.fpexecc(
-                    [None, "-n", "/LjinuxRoot/bin/display_f/draw_circle.py"]
+                    [None, "-n", "/bin/display_f/draw_circle.py"]
                 )
             else:
                 ljinux.based.command.fpexecc(
-                    [None, "-n", "/LjinuxRoot/bin/display_f/f_draw_circle.py"]
+                    [None, "-n", "/bin/display_f/f_draw_circle.py"]
                 )
 
         def virt_line(x0, y0, x1, y1):

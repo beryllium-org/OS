@@ -13,7 +13,7 @@ donemsg:
 rootfs:
 	@echo -e "\nUpdating the board's rootfs:\n"
 	@sync
-	@../scripts/copy_rootfs.sh
+	@python3 ../scripts/copy_rootfs.py
 prepperms:
 	@echo -e "Preparing script permissions..\n"
 	@chmod +x ../scripts/*.sh

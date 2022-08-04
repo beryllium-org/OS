@@ -60,7 +60,7 @@ char_map = {  # you need to add 0x
     55: "7",
     56: "8",
     57: "9",
-    58: "0",
+    48: "0",
     96: "`",  # specials
     45: "-",
     95: "_",
@@ -117,4 +117,5 @@ char_map = {  # you need to add 0x
     23: "ctrlW",
     5: "ctrlE",
     18: "ctrlR",
+    12: "ctrlL",
 }

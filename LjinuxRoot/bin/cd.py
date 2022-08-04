@@ -1,6 +1,14 @@
+capdir = getcwd()
 try:
-    chdir(ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]))
+    dirr = ljinux.based.user_vars["argj"].split()[1]
+    if dirr != "-":
+        chdir(ljinux.based.fn.betterpath(dirr))
+        if capdir != getcwd():
+            ljinux.based.user_vars["prevdir"] = capdir
+    else:
+        chdir(ljinux.based.user_vars["prevdir"])
     ljinux.based.olddir = getcwd()
+    del dirr
 except OSError:
     print(
         "Error: '{}' Directory does not exist".format(
@@ -9,3 +17,4 @@ except OSError:
     )
 except IndexError:
     pass
+del capdir

@@ -31,7 +31,7 @@ Table of Contents
 
 ## Prerequisites and optional hardware
 
-Depends on circuitpython 7. (Supported 7.0.0 - 7.3.0)<br />
+Depends on circuitpython 7. (7.3.x is the latest supported version as of now)<br />
 At the moment the supported microcontrollers are:<br /><br />
 
  - Raspberry Pi Pico<br />
@@ -41,6 +41,8 @@ At the moment the supported microcontrollers are:<br /><br />
    This results to some bugs, the led & wifi don't work.<br />
  - Waveshare RP2040-Zero <br />
  - Adafruit KB2040 <br />
+ - Waveshare ESP32-S2-Pico <br />
+ - Adafruit Feather ESP32-S2 <br />
 
 But it can probably run on many more.<br />
 The only real limiting factor should be ram, as about 120k are needed for the system to even function.<br />
@@ -126,6 +128,7 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
  <br />-> [Marios](https://github.com/mariospapaz) - @mariospapaz#2188
  <br />-> [mdaadoun](https://github.com/mdaadoun) - @mdaadoun#4475
  <br />-> [markbirss](https://github.com/markbirss)
+ <br />-> [RetiredWizard](https://github.com/RetiredWizard)
  <br />
 
 ## A complete Ljinux manual is available

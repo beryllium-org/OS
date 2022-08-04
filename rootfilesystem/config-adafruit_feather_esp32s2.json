@@ -1,16 +1,16 @@
 {
-  "_comment1": "Default Ljinux configuration, adjust to your needs",
+  "_comment1": "adafruit_feather_esp32s2 confguration",
   
   "_comment2": "As long as it's true, ram rtc will be used",
   "fixrtc": true,
   
   "_comment3": "Board led, can be generic or neopixel",
-  "led": -1,
-  "ledtype": "generic",
+  "led": 33,
+  "ledtype": "neopixel",
   
   "_comment4": "Display i2c pins",
-  "displaySCL": 17,
-  "displaySDA": 16,
+  "displaySCL": -1,
+  "displaySDA": -1,
 
   "_comment5": "Display height - width",
   "displayheight": 64,
@@ -21,20 +21,20 @@
   "DISPLAYONLYMODE": false,
   
   "_comment8": "Networking",
-  "w5500_MOSI": 11,
-  "w5500_MISO": 12,
-  "w5500_SCLK": 10,
-  "w5500_SCSn": 13,
+  "w5500_MOSI": -1,
+  "w5500_MISO": -1,
+  "w5500_SCLK": -1,
+  "w5500_SCSn": -1,
   
   "_comment9": "SD card",
   
-  "sd_SCLK": 2,
-  "sd_SCSn": 5,
-  "sd_MISO": 4,
-  "sd_MOSI": 3,
+  "sd_SCLK": -1,
+  "sd_SCSn": -1,
+  "sd_MISO": -1,
+  "sd_MOSI": -1,
 
   "_comment10": "Debugging & extreme options",
   "SKIPTEMP": false,
   "SKIPCP": false,
-  "DEBUG": false
+  "DEBUG": true
 }

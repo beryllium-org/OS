@@ -1,6 +1,7 @@
 try:
     with open(
-        ljinux.based.fn.betterpath("/bin/pinout-" + board.board_id + ".map"), "r"
+        ljinux.based.fn.betterpath("/bin/pinouts/pinout-" + board.board_id + ".map"),
+        "r",
     ) as f:
         for line in f:
             print(line, end="")

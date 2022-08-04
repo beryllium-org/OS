@@ -1,4 +1,10 @@
+# the splash 
+uname -a
 cat /etc/motd
+
+# nice aliases
 alias ifpexec="fpexec -i"
 alias lfpexec="fpexec -l"
 alias more="less"
+alias ll="ls -l"
+alias la="ls -la"

@@ -19,33 +19,40 @@ else:
     uptimestr = uptimestr[:-2]
 del hours, minutes, neofetch_time
 
-Ccpu = f"{platform} ({len(cpus)}) @ {trunc(cpu.frequency / 1000000)}Mhz"
+Ccpu = f"{platform}"
+try:
+    from microcontroller import cpus
+
+    Ccpu += f" ({len(cpus)})"
+except:
+    Ccpu += " (1)"
+Ccpu += f" @ {trunc(cpu.frequency / 1000000)}Mhz"
 
 gc.collect()
 gc.collect()
 
-Rram = (
-    f"{trunc(abs(configg['mem'] - gc.mem_free() / 1000))}KiB / {str(configg['mem'])}KiB"
-)
+Rram = f"{trunc((usable_ram - gc.mem_free()) / 1024)}KiB / {int(usable_ram/1024)}KiB"
+sizee = term.detect_size()
 
 print(
-    f"""{colors.green_t}  ,----,{colors.endc}                     {colors.cyan_t}{ljinux.based.system_vars["USER"]}@{ljinux.based.system_vars["HOSTNAME"]} {colors.endc}
+    f"""{colors.green_t}  ,----,{colors.endc}                    {colors.cyan_t}{ljinux.based.system_vars["USER"]}@{ljinux.based.system_vars["HOSTNAME"]} {colors.endc}
 {colors.green_t}  ,----.|{colors.endc}      {colors.magenta_t},----._    {colors.endc}  ---------
 {colors.green_t}  |LLL|l:{colors.endc}     {colors.magenta_t}.-- -.'j\   {colors.endc}  \033[31mOS{colors.endc}: \033[33mLjinux {ljinux.based.system_vars["VERSION"]}{colors.endc}
 {colors.green_t}  :LLL:l|{colors.endc}     {colors.magenta_t}|JJJJ|jjj:  {colors.endc}  \033[31mHost{colors.endc}: {ljinux.based.system_vars["BOARD"]}  
 {colors.green_t}  |LLL'l:{colors.endc}     {colors.magenta_t}:JJJJ;jjj|  {colors.endc}  \033[31mCircuitPython{colors.endc}: {ljinux.based.system_vars["IMPLEMENTATION"]}
 {colors.green_t}  ;LLL;l'{colors.endc}     {colors.magenta_t}:JJJJ|jjj|  {colors.endc}  \033[31mUptime{colors.endc}: {uptimestr}
-{colors.green_t}  'LLL|l|{colors.endc}     {colors.magenta_t}|JJJJ:jjj:  {colors.endc}  \033[31mPackages{colors.endc}: 0 ()
+{colors.green_t}  'LLL|l|{colors.endc}     {colors.magenta_t}|JJJJ:jjj:  {colors.endc}  \033[31mPackages{colors.endc}: 0 (jpkg)
 {colors.green_t}  |LLL|l|{colors.endc}     {colors.magenta_t}:JJJJ|jjj:  {colors.endc}  \033[31mShell{colors.endc}: \033[35mBased{colors.endc}
-{colors.green_t}  'LLL:l;_____{colors.endc}{colors.magenta_t}|JJJJ;jjj|  {colors.endc}  \033[31mWM{colors.endc}: Farland
-{colors.green_t}  |LLL|;.____{colors.endc}{colors.magenta_t};lJJJJ|jjj|  {colors.endc}  \033[31mTerminal{colors.endc}: TTYACM0
-{colors.green_t}  ;LLL:{colors.endc} {colors.magenta_t}/JJJJ/\JJJJ/jjj:  {colors.endc}  \033[31mCPU{colors.endc}: {Ccpu}
-{colors.green_t}  |LLL,{colors.endc}{colors.magenta_t}/JJ../jj`..-jjjj,  {colors.endc}  \033[31mMemory{colors.endc}: {Rram}
-{colors.green_t}   ---'{colors.endc}{colors.magenta_t}\JJJJ\jjjjjjjjj;   {colors.endc}
-{colors.green_t}        {colors.endc}{colors.magenta_t}\JJJJ\jjjjjj,'    {colors.endc}  {colors.black_t}███{colors.endc}{colors.red_t}███{colors.endc}{colors.green_t}███{colors.endc}{colors.yellow_t}███{colors.endc}{colors.blue_t}███{colors.endc}{colors.magenta_t}███{colors.endc}{colors.cyan_t}███{colors.endc}{colors.white_t}███{colors.endc}
-{colors.magenta_t}         "---....--'      {colors.endc}  {colors.black_t}███{colors.endc}{colors.red_t}███{colors.endc}{colors.green_t}███{colors.endc}{colors.yellow_t}███{colors.endc}{colors.blue_t}███{colors.endc}{colors.magenta_t}███{colors.endc}{colors.cyan_t}███{colors.endc}{colors.white_t}███{colors.endc}
+{colors.green_t}  'LLL:l;_____{colors.endc}{colors.magenta_t}|JJJJ;jjj|  {colors.endc}  \033[31mResolution:{colors.endc} {sizee[1]}x{sizee[0]}
+{colors.green_t}  |LLL|;.____{colors.endc}{colors.magenta_t};lJJJJ|jjj|  {colors.endc}  \033[31mWM{colors.endc}: Farland
+{colors.green_t}  ;LLL:{colors.endc} {colors.magenta_t}/JJJJ/\JJJJ/jjj:  {colors.endc}  \033[31mTerminal{colors.endc}: TTYACM0
+{colors.green_t}  |LLL,{colors.endc}{colors.magenta_t}/JJ../jj`..-jjjj,  {colors.endc}  \033[31mCPU{colors.endc}: {Ccpu}
+{colors.green_t}   ---'{colors.endc}{colors.magenta_t}\JJJJ\jjjjjjjjj;   {colors.endc}  \033[31mMemory{colors.endc}: {Rram}
+{colors.green_t}        {colors.endc}{colors.magenta_t}\JJJJ\jjjjjj,'    {colors.endc}  
+{colors.magenta_t}         "---....--'      {colors.endc}  {colors.black_t}███{colors.endc}{colors.red_t}███{colors.endc}{colors.green_t}███{colors.endc}{colors.yellow_t}███{colors.endc}{colors.blue_t}███{colors.endc}{colors.magenta_t}███{colors.endc}{colors.cyan_t}███{colors.endc}{colors.white_t}███{colors.endc}  
+                            {colors.black_t}███{colors.endc}{colors.red_t}███{colors.endc}{colors.green_t}███{colors.endc}{colors.yellow_t}███{colors.endc}{colors.blue_t}███{colors.endc}{colors.magenta_t}███{colors.endc}{colors.cyan_t}███{colors.endc}{colors.white_t}███{colors.endc}
 """
 )
 
-del Rram, Ccpu
+del Rram, Ccpu, sizee
 del uptimestr

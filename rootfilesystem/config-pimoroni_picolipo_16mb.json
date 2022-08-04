@@ -9,8 +9,8 @@
   "ledtype": "generic",
   
   "_comment4": "Display i2c pins",
-  "displaySCL": 17,
-  "displaySDA": 16,
+  "displaySCL": -1,
+  "displaySDA": -1,
 
   "_comment5": "Display height - width",
   "displayheight": 64,
@@ -19,19 +19,19 @@
   "_comment6": "Other display related options",
   "_comment7": "Makes the pi only bother with sensor io & not serial. Not yet implemented",
   "DISPLAYONLYMODE": false,
-  
+
   "_comment8": "Networking",
-  "w5500_MOSI": 11,
-  "w5500_MISO": 12,
-  "w5500_SCLK": 10,
-  "w5500_SCSn": 13,
+  "w5500_MOSI": -1,
+  "w5500_MISO": -1,
+  "w5500_SCLK": -1,
+  "w5500_SCSn": -1,
   
   "_comment9": "SD card",
   
-  "sd_SCLK": 2,
-  "sd_SCSn": 5,
-  "sd_MISO": 4,
-  "sd_MOSI": 3,
+  "sd_SCLK": -1,
+  "sd_SCSn": -1,
+  "sd_MISO": -1,
+  "sd_MOSI": -1,
 
   "_comment10": "Debugging & extreme options",
   "SKIPTEMP": false,
