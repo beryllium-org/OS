@@ -1,0 +1,2 @@
+# disk free
+fpexec -in /bin/df.py

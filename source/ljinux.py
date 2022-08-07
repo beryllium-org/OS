@@ -1642,9 +1642,9 @@ class ljinux:
                     res = whatever
                 return _type(res)
 
-        def shell(
-            inp=None, led=True, args=None, nalias=False
-        ):  # the shell function, warning do not touch, it has feelings - no I think I will 20/3/22
+        # the shell function, do not poke, it gets angry
+        def shell(inp=None, led=True, args=None, nalias=False):
+
             global Exit
             if inp is not None and args is not None:
                 for i in args:

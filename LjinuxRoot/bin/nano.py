@@ -5,7 +5,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.0"
+    versionn = "1.1"
 
     try:
         filee = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
@@ -48,7 +48,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     term_old = term.trigger_dict
     term.trigger_dict = {
         "ctrlX": 1,
-        "ctrlK": 9,
+        "ctrlK": 100,
         "ctrlC": 0,
         "up": 2,
         "down": 8,
@@ -210,8 +210,11 @@ if sizee[0] > 14 and sizee[1] > 105:
                 if not savee:
                     dataa.append(dataa[lc - 1])  # last line to new line
                     noffs = 0
-                    if len(term.buf[1]) == term.focus:
+                    copyover = False
+                    if len(term.buf[1]) == term.focus and len(term.buf[1]) is not 0:
                         noffs -= 1
+                    elif term.focus is not 0:
+                        copyover = True
                     else:
                         term.focus = 0
                     for i in range(
@@ -220,12 +223,16 @@ if sizee[0] > 14 and sizee[1] > 105:
                         dataa[i] = dataa[i - 1]
                     lc += 1
                     cl += 1
-                    if not noffs:
+                    if copyover:
+                        dataa[cl] = dataa[cl - 1][len(dataa[cl - 1]) - term.focus :]
+                        dataa[cl - 1] = dataa[cl - 1][: len(dataa[cl - 1]) - term.focus]
+                        term.buf[1] = dataa[cl]
+                    elif not noffs:
                         dataa[cl] = ""
                         term.buf[1] = ""
                     else:
-                        dataa[cl - 1] = ""
-                    del noffs
+                        dataa[cl + noffs] = ""
+                    del noffs, copyover
                     # shift data
                     for i in range(
                         2, (sizee[0] - 2) if (lc > (sizee[0] - 2)) else lc + 2
@@ -311,7 +318,6 @@ if sizee[0] > 14 and sizee[1] > 105:
                         dataa[cl] = term.buf[1]
                 elif not savee and cl > 0:
                     # don't do it when in save mode
-                    term.focus = 0
                     cl -= 1
                     if dataa[cl + 1] != "":
                         dataa[cl] += dataa[cl + 1]
