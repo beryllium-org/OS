@@ -53,14 +53,14 @@ print(" - [1/1] Compiling wifi drivers\n")
 print(f" ---> wifi")
 a = system(
     f"{mpyn} ../other/drivers/wifi.py -s driver_wifi -v -O4 -o {picop}/lib/drivers/driver_wifi.mpy".replace(
-    "/", slash
+        "/", slash
     )
 )
 
 print(f" ---> adafruit_requests")
 b = system(
     f"{mpyn} ../other/Adafruit_CircuitPython_Requests/adafruit_requests.py -s adafruit_requests -v -O4 -o {picop}/lib/adafruit_requests.mpy".replace(
-    "/", slash
+        "/", slash
     )
 )
 
