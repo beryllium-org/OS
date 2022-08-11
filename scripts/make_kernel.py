@@ -2,6 +2,7 @@ from os import system, mkdir, listdir, path, popen
 from platform import uname
 from getpass import getuser
 from sys import argv
+
 optimis = "-O4"
 try:
     if argv[1] == "debug":

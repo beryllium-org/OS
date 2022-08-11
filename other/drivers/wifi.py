@@ -15,7 +15,7 @@ class driver_wifi:
         # internal use only
         self._pool = None
         self._session = None
-        
+
         # public
         self.error = False
         self.connected = False
@@ -24,7 +24,7 @@ class driver_wifi:
 
     def connect(self, ssid, passwd):
         try:
-            wifi.radio.connect(ssid=ssid,password=passwd)
+            wifi.radio.connect(ssid=ssid, password=passwd)
         except ConnectionError:
             return 1
         self._pool = SocketPool(wifi.radio)
@@ -49,6 +49,6 @@ class driver_wifi:
 
     def get_ipconf(self):
         pass
-    
+
     def disconnect(self):
         wifi.radio.stop_station()
