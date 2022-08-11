@@ -1,6 +1,14 @@
 from os import system, mkdir, listdir, path, popen
 from platform import uname
 from getpass import getuser
+from sys import argv
+optimis = "-O4"
+try:
+    if argv[1] == "debug":
+        print("Alert: Compiling with debug enabled.")
+        optimis = ""
+except IndexError:
+    pass
 
 if uname().system == "Linux":
     slash = "/"
@@ -49,7 +57,7 @@ for filee in listdir():
     if filee.endswith(".py"):
         print(f"-> {filee[:-3]}")
         a = system(
-            f"{mpyn} ./{filee} -s {filee[:-3]} -v -O4 -o {picop}/lib/{filee[:-3]}.mpy".replace(
+            f"{mpyn} ./{filee} -s {filee[:-3]} -v {optimis} -o {picop}/lib/{filee[:-3]}.mpy".replace(
                 "/", slash
             )
         )
@@ -63,7 +71,7 @@ for filee in listdir("jcurses"):
     if filee.endswith(".py"):
         print(f"-> {filee[:-3]}")
         a = system(
-            f"{mpyn} ./jcurses/{filee} -s {filee[:-3]} -v -O4 -o {picop}/lib/{filee[:-3]}.mpy".replace(
+            f"{mpyn} ./jcurses/{filee} -s {filee[:-3]} -v {optimis} -o {picop}/lib/{filee[:-3]}.mpy".replace(
                 "/", slash
             )
         )
@@ -88,7 +96,7 @@ for filee in listdir(
 ):
     print(f"-> {filee}")
     a = system(
-        f"{mpyn} ../other/Adafruit_CircuitPython_hashlib/adafruit_hashlib/{filee} -s {filee[:-3]} -v -O4 -o {picop}/lib/adafruit_hashlib/{filee[:-3]}.mpy".replace(
+        f"{mpyn} ../other/Adafruit_CircuitPython_hashlib/adafruit_hashlib/{filee} -s {filee[:-3]} -v {optimis} -o {picop}/lib/adafruit_hashlib/{filee[:-3]}.mpy".replace(
             "/", slash
         )
     )
@@ -106,7 +114,7 @@ for filee in listdir(
 ):
     print(f"-> {filee}")
     a = system(
-        f"{mpyn} ../other/Adafruit_CircuitPython_HID/adafruit_hid/{filee} -s {filee[:-3]} -v -O4 -o {picop}/lib/adafruit_hid/{filee[:-3]}.mpy".replace(
+        f"{mpyn} ../other/Adafruit_CircuitPython_HID/adafruit_hid/{filee} -s {filee[:-3]} -v {optimis} -o {picop}/lib/adafruit_hid/{filee[:-3]}.mpy".replace(
             "/", slash
         )
     )
@@ -117,4 +125,4 @@ for filee in listdir(
 
 system("sync")
 print()
-del ami, picop, mpyn
+del ami, picop, mpyn, optimis

@@ -1,11 +1,12 @@
 SHELL = bash
+
 all: kern donemsg
-kern: moduleinit prepperms kerncomp
 install: kern rootfs donemsg
-compiletest: moduleinit prepperms ctest
-debug: moduleinit prepperms kerncompd
-test: moduleinit compiletest blacktest
-wifi: moduleinit driver_wifi
+debug: prep kerncompd
+wifi: prep driver_wifi
+
+kern: prep kerncomp
+prep: moduleinit prepperms
 
 driver_wifi:
 	@echo -e "Installing wifi driver"
@@ -36,10 +37,7 @@ kerncomp:
 kerncompd:
 	@echo -e "\nCommencing debug kernel compilation.."
 	@sync
-	@python3 ../scripts/make_kernel_debug.py
-ctest:
-	@echo -e "\nCommencing kernel compile test\nNote: This does not update any board files."
-	@python3 ../scripts/make_kernel_test.py
+	@python3 ../scripts/make_kernel.py debug
 connection:
 	@echo -n "Ensuring GNU/Screen is installed.."
 	@command -v screen >/dev/null && echo "Found" || (echo -e "Not found\nInstalling.." && ./scripts/installscreen.sh)
