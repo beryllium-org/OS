@@ -1,11 +1,21 @@
 SHELL = bash
 all: kern donemsg
-kern: prepperms kerncomp
+kern: moduleinit prepperms kerncomp
 install: kern rootfs donemsg
-compiletest: prepperms ctest
-debug: prepperms kerncompd
-test: compiletest blacktest
+compiletest: moduleinit prepperms ctest
+debug: moduleinit prepperms kerncompd
+test: moduleinit compiletest blacktest
+wifi: moduleinit driver_wifi
 
+driver_wifi:
+	@echo -e "Installing wifi driver"
+	@python3 ../scripts/copy_wifi.py
+	@sync
+	@echo -e "Wifi driver done"
+moduleinit:
+	@echo -e "Preparing git submodules.."
+	@git submodule update --init --recursive ..
+	@echo -e "Submodules ready"
 donemsg:
 	@echo -e "\nSyncing changes.."
 	@sync
