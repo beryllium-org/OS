@@ -430,3 +430,9 @@ Example 3:
 
     b = a
     echo b
+
+      /-----------------------------|
+----<| Contributions to the project |
+      \-----------------------------|
+
+To commit to the project, make sure you have pre-commit installed and you have run `pre-commit install`.
