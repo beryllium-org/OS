@@ -14,7 +14,7 @@ if argl is 0:
         "echo": "common",
         "prefix": f"{colors.green_t}[iwd]{colors.endc}# ",
     }
-    
+
     term.buf[1] = ""
 
     while True:

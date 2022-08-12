@@ -39,10 +39,10 @@ class driver_wifi:
 
     def get(self, host):
         if self._session is not None:
-    
+
             if not (host.startswith("http://") or host.startswith("https://")):
                 host = "https://" + host
-                
+
             return self._session.get(host)
         else:
             return None
@@ -55,7 +55,7 @@ class driver_wifi:
             net = [network.ssid for network in wifi.radio.start_scanning_networks()]
             wifi.radio.stop_scanning_networks()
             return net
-        
+
         return list()
 
     def get_ipconf(self):
@@ -74,12 +74,12 @@ class driver_wifi:
             "mac_pretty": str(wifi.radio.mac_address).replace("\\x", ":")[3:-3],
             "hostname": wifi.radio.hostname,
         }
-        
+
         try:
-            data['ssid'] = wifi.radio.ap_info.ssid
-            data['bssid'] = wifi.radio.ap_info.bssid
-            data['channel'] = wifi.radio.ap_info.channel,
-            data['country'] = wifi.radio.ap_info.country,
+            data["ssid"] = wifi.radio.ap_info.ssid
+            data["bssid"] = wifi.radio.ap_info.bssid
+            data["channel"] = (wifi.radio.ap_info.channel,)
+            data["country"] = (wifi.radio.ap_info.country,)
         except:
             pass
 
