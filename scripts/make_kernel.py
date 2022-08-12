@@ -67,7 +67,7 @@ for filee in listdir():
             exit(1)
         del a
 
-print("[2/5] Compiling jcurses\n")
+print("\n[2/5] Compiling jcurses\n")
 for filee in listdir("jcurses"):
     if filee.endswith(".py"):
         print(f"-> {filee[:-3]}")

@@ -1,6 +1,7 @@
 from sys import exit
 from time import sleep
 from microcontroller import reset, RunMode, on_next_reset
+from os import chdir, sync
 
 exit_l = {
     0: lambda: (jrub("Exiting"), chdir("/"), exit(0)),
@@ -30,17 +31,6 @@ oss.farland.setup()
 
 jrub("Display init complete")
 
-oss.io.init_net()
-
-jrub("Net init complete")
-
-if oss.io.network_online:
-    jrub("Network up")
-    oss.networking.timeset()
-    jrub("Time set complete")
-else:
-    jrub("Network down")
-
 oss.farland.frame()
 
 jrub("Running Ljinux autorun..")
@@ -63,8 +53,6 @@ jrub("Cleared display")
 
 oss.history.save(oss.based.user_vars["history-file"])
 jrub("History flushed")
-
-from os import chdir, sync
 
 sync()
 jrub("Synced all volumes")

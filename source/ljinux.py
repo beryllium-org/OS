@@ -200,10 +200,6 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "SKIPCP": (False, bool, False),
     "DEBUG": (False, bool, False),
     "DISPLAYONLYMODE": (False, bool, False),
-    "w5500_MOSI": (-1, int, True),
-    "w5500_MISO": (-1, int, True),
-    "w5500_SCSn": (-1, int, True),
-    "w5500_SCLK": (-1, int, True),
     "sd_SCLK": (-1, int, True),
     "sd_SCSn": (-1, int, True),
     "sd_MISO": (-1, int, True),
@@ -332,8 +328,8 @@ except KeyError:
     time.sleep(20)
 del boardactions
 
-dmtex(("Board memory: " + str(usable_ram) + " bytes"))
-dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
+dmtex((f"Board memory: {usable_ram} bytes"))
+dmtex((f"Memory free: {gc.mem_free()} bytes"))
 dmtex("Basic checks done")
 
 # audio
@@ -363,20 +359,6 @@ try:
     dmtex("Display libraries loaded")
 except ImportError:
     dmtex(colors.error + "Notice: " + colors.endc + "Display libraries loading failed")
-
-# networking
-try:
-    import adafruit_requests as requests
-    from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
-    import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
-    from adafruit_wsgi.wsgi_app import WSGIApp
-    import adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver as server
-
-    dmtex("Networking libraries loaded")
-except ImportError:
-    dmtex(
-        colors.error + "Notice: " + colors.endc + "Networking libraries loading failed"
-    )
 
 if not configg["fixrtc"]:
     # for rtc
@@ -433,6 +415,8 @@ dmtex("Additional loading done")
 
 
 class ljinux:
+    ljmodules = dict()
+    
     class history:
         historyy = []
         nav = [0, 0, ""]
@@ -504,19 +488,6 @@ class ljinux:
                 print(f"{index + 1}: {item}")
                 del index, item
 
-    class backrounding:
-        webserver = False
-
-        def main_tick(loud=False):  # this run in between of shell character captures
-            if ljinux.backrounding.webserver:
-                try:
-                    ljinux.networking.wsgiServer.update_poll()
-                except AttributeError:
-                    global access_log
-                    print("Error:\n" + str(access_log))
-            if loud:
-                print(str(gc.mem_free()))
-
     class io:
         # activity led
 
@@ -540,10 +511,6 @@ class ljinux:
             led.value = False
         elif configg["ledtype"] == "neopixel":
             neopixel_write(led, nc.idle)
-
-        network = None
-        network_online = False
-        network_name = "Offline"
 
         def ledset(state):
             """
@@ -593,81 +560,6 @@ class ljinux:
             except OSError:
                 yield f"Error: File '{filename}' Not Found"
 
-        def init_net():
-            global configg
-            if (
-                configg["w5500_SCSn"] != -1
-                and configg["w5500_SCLK"] != -1
-                and configg["w5500_MISO"] != -1
-                and configg["w5500_MOSI"] != -1
-            ):
-                cs = digitalio.DigitalInOut(pintab[configg["w5500_SCSn"]])
-                spi = busio.SPI(
-                    pintab[configg["w5500_SCLK"]],
-                    MOSI=pintab[configg["w5500_MOSI"]],
-                    MISO=pintab[configg["w5500_MISO"]],
-                )
-                ca = True
-                dmtex("Network bus ready")
-            else:
-                ca = False
-                dmtex("No pins for networking, skipping setup")
-            if ca:
-                try:
-                    ljinux.io.network = WIZNET5K(spi, cs, is_dhcp=False)
-                    dmtex("Eth interface created")
-                except (AssertionError, NameError):
-                    dmtex("Eth interface creation failed")
-                    ca = False
-                del spi
-                del cs
-            if ca and ljinux.io.network.link_status:
-                dhcp_status = ljinux.io.network.set_dhcp(
-                    hostname="Ljinux", response_timeout=10
-                )
-                dmtex("Ran dhcp")
-                if dhcp_status == 0:
-                    dmtex('Hostname set to "Ljinux"')
-                    requests.set_socket(socket, ljinux.io.network)
-                    dmtex("Eth set as socket")
-                    dmtex("Chip: " + ljinux.io.network.chip)
-                    macc = ""
-                    for i in ljinux.io.network.mac_address:
-                        macc += str(hex(i))[2:] + ":"
-                    dmtex("MAC eth0: " + macc[:-1])
-                    del macc
-                    dmtex(
-                        "IP address: "
-                        + ljinux.io.network.pretty_ip(ljinux.io.network.ip_address)
-                    )
-                    dmtex("Neworking init successful")
-                    ljinux.io.network_name = "eth0"
-                    ljinux.io.network_online = True
-                    server.set_interface(ljinux.io.network)
-                    server.socket.gc.enable()
-                else:
-                    dmtex("DHCP failed")
-            else:
-                dmtex("Ethernet cable not connected / interface unavailable")
-                for i in [
-                    "adafruit_wiznet5k.adafruit_wiznet5k_dhcp",
-                    "adafruit_wiznet5k.adafruit_wiznet5k_socket",
-                    "adafruit_wiznet5k.adafruit_wiznet5k_dns",
-                    "adafruit_wiznet5k.adafruit_wiznet5k",
-                    "adafruit_wiznet5k",
-                    "adafruit_wsgi.wsgi_app",
-                    "adafruit_requests",
-                    "adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver",
-                    "adafruit_wsgi",
-                    "adafruit_wsgi.request",
-                ]:
-                    try:
-                        exec(f"global {i};del {i};del modules[{i}]")
-                    except:
-                        pass
-                dmtex("Unloaded networking libraries")
-            del ca
-
         def start_sdcard():
             global sdcard_fs
             if (
@@ -712,95 +604,6 @@ class ljinux:
             "frequency": lambda: str(cpu.frequency),
             "voltage": lambda: str(cpu.voltage),
         }
-
-    class networking:
-        wsgiServer = None
-
-        def get_content_type(filee):
-            ext = filee.split(".")[-1]
-            if ext in ("html", "htm"):
-                return "text/html"
-            elif ext == "js":
-                return "application/javascript"
-            elif ext == "css":
-                return "text/css"
-            elif ext in ("jpg", "jpeg"):
-                return "image/jpeg"
-            elif ext == "png":
-                return "image/png"
-            elif ext == "json":
-                return "application/json"
-            return "text/plain"
-
-        def serve_file(file_path):
-            return (
-                "200 OK",
-                [("Content-Type", ljinux.networking.get_content_type(file_path))],
-                ljinux.io.get_static_file(file_path),
-            )
-
-        def timeset():
-            if ljinux.networking.test():
-                try:
-                    dmtex(
-                        "IP lookup worldtimeapi.org: %s"
-                        % ljinux.io.network.pretty_ip(
-                            ljinux.io.network.get_host_by_name("worldtimeapi.org")
-                        )
-                    )
-                    r = requests.get(
-                        "http://worldtimeapi.org/api/timezone/Europe/Athens"
-                    )
-                    dat = r.json()
-                    dmtex("Public IP: " + dat["client_ip"])
-                    dst = 1 if dat["dst"] == "True" else 0
-                    nettime = time.struct_time(
-                        (
-                            int(dat["datetime"][:4]),
-                            int(dat["datetime"][5:7]),
-                            int(dat["datetime"][8:10]),
-                            int(dat["datetime"][11:13]),
-                            int(dat["datetime"][14:16]),
-                            int(dat["datetime"][17:19]),
-                            int(dat["day_of_week"]),
-                            int(dat["day_of_year"]),
-                            dst,
-                        )
-                    )
-                    try:
-                        rtcc.write_datetime(nettime)
-                    except NameError:
-                        dmtex("Cannot set time, since no rtc is attached")
-                    del nettime
-                    dmtex("Network time set for " + dat["abbreviation"])
-                    del dat
-                    r.close()
-                except (ValueError, AssertionError):
-                    dmtex("Failed to fetch time data")
-            else:
-                dmtex("Network unavailable")
-
-        def test():
-            if ljinux.io.network_online and not ljinux.io.network.link_status:
-                ljinux.io.network_online = False
-                ljinux.io.network_name = "Offline"
-                dmtex("Network connection lost")
-                return False
-            return True
-
-        def resolve():
-            ljinux.networking.test()
-            if ljinux.io.network_online:
-                pass  # wip
-            else:
-                ljinux.based.error(5)
-
-        def packet(data):
-            ljinux.networking.test()
-            if ljinux.io.network_online:
-                pass  # same
-            else:
-                ljinux.based.error(5)
 
     class based:
         silent = False
@@ -1359,71 +1162,6 @@ class ljinux:
                 del complete
                 del condition
 
-            def ping(inpt):  # brok
-                print("Ping google.com: %d ms" % ljinux.io.network.ping("google.com"))
-
-            def webs(inpt):  # not nginx, more like njinx
-                ljinux.networking.test()
-                if ljinux.io.network_online:
-                    try:
-                        pathh = inpt[1]
-                    except IndexError:
-                        pathh = "/LjinuxRoot/var/www/default/"
-
-                    print("Ljinux Web Server")
-                    try:
-                        arg = inpt[1]
-                    except IndexError:
-                        arg = ""
-                    if arg != "-k":
-                        print("Starting in the backround, send webserver -k to kill.")
-                        web_app = WSGIApp()
-
-                        @web_app.route("/")
-                        def root(request):
-                            global access_log
-                            access_log.append("Root accessed")
-                            return (
-                                "200 OK",
-                                [],
-                                ljinux.io.get_static_file(pathh + "default.html"),
-                            )
-
-                        @web_app.route("/access_log")
-                        def root(request):
-                            global access_log
-                            access_log.append("Accessed log")
-                            return ("200 OK", [], [str(access_log)])
-
-                        @web_app.route("/<pagee>")
-                        def led_on(request, pagee):
-                            global access_log
-                            access_log.append("Accessed " + pagee)
-                            return ljinux.networking.serve_file(str(pathh + pagee))
-
-                        try:
-                            ljinux.networking.wsgiServer = server.WSGIServer(
-                                80, application=web_app
-                            )
-                            ljinux.networking.wsgiServer.start()
-                            ljinux.backrounding.webserver = True
-                        except RuntimeError:
-                            print("Out of sockets, please reboot")
-                            return
-                    elif ljinux.backrounding.webserver:
-                        ljinux.backrounding.webserver = (
-                            not ljinux.backrounding.webserver
-                        )
-                        del ljinux.networking.wsgiServer
-                        ljinux.networking.wsgiServer = None
-                        print(
-                            "Webserver unloaded, keep in mind sockets cannot be reused in the current implementation, and you might have to reboot to restart the webserver."
-                        )
-                    else:
-                        print("Error: Webserver not running")
-                else:
-                    print("Network unavailable")
-
             def do_nothin(inpt):
                 pass  # really this is needed
 
@@ -1662,8 +1400,6 @@ class ljinux:
                 "su": ljinux.based.command.suuu,
                 "history": ljinux.based.command.historgf,
                 "if": ljinux.based.command.iff,
-                "ping": ljinux.based.command.ping,
-                "webserver": ljinux.based.command.webs,
                 "pexec": ljinux.based.command.pexecc,
                 "COMMENT": ljinux.based.command.do_nothin,
                 "#": ljinux.based.command.do_nothin,
@@ -1675,7 +1411,6 @@ class ljinux:
                 term.start()
                 ljinux.io.ledset(1)  # idle
                 term.trigger_dict = {
-                    "inp_type": "prompt",
                     "enter": 0,
                     "ctrlC": 1,
                     "ctrlD": 2,
@@ -1861,7 +1596,6 @@ class ljinux:
                                     term.focus = 0
                                     term.clear()
 
-                                ljinux.backrounding.main_tick()
                                 try:
                                     if command_input[:1] != " " and command_input != "":
                                         ljinux.history.appen(command_input.strip())

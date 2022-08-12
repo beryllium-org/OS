@@ -1,0 +1,2 @@
+# load modules
+fpexec -n /bin/modprobe.py 

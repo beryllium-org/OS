@@ -34,12 +34,8 @@ if uname().system == "Linux":
     if system(f"test -d {picop}/LjinuxRoot") != 0:
         print("Created LjinuxRoot")
         mkdir(f"{picop}/LjinuxRoot")
-    print(f"cp -rv ../LjinuxRoot/* {picop}/LjinuxRoot/")
     system(f"cp -rv ../LjinuxRoot/* {picop}/LjinuxRoot/")
-    print(f"cp -v ../Manual.txt {picop}/LjinuxRoot/home/board/")
     system(f"cp -v ../Manual.txt {picop}/LjinuxRoot/home/board/")
 else:
-    print(f"xcopy /y/s ..\\LjinuxRoot\\* {picop}\\LjinuxRoot\\")
     system(f"xcopy /y/s ..\\LjinuxRoot\\* {picop}\\LjinuxRoot\\")
-    print(f"copy ..\\Manual.txt {picop}\\LjinuxRoot\\home\\board\\")
     system(f"copy ..\\Manual.txt {picop}\\LjinuxRoot\\home\\board\\")

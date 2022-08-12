@@ -15,7 +15,7 @@ driver_wifi:
 	@echo -e "Wifi driver done"
 moduleinit:
 	@echo -e "Preparing git submodules.."
-	@git submodule update --init --recursive ..
+	@git submodule update --init --recursive --remote ..
 	@echo -e "Submodules ready"
 donemsg:
 	@echo -e "\nSyncing changes.."
