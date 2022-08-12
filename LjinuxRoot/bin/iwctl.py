@@ -14,9 +14,10 @@ if argl is 0:
         "echo": "common",
         "prefix": f"{colors.green_t}[iwd]{colors.endc}# ",
     }
-    q = True
+    
     term.buf[1] = ""
-    while q:
+
+    while True:
         term.clear_line()
         term.focus = 0
         ljinux.io.ledset(1)
@@ -26,13 +27,13 @@ if argl is 0:
             continue
         ljinux.io.ledset(3)
         if term.buf[0] == 1:
-            q = False
+            break
         elif term.buf[0] == 0:
             data = term.buf[1].split()
             datal = len(data)
             if datal > 0:
                 if data[0] == "exit":
-                    q = False
+                    break
                 elif data[0] == "device":
                     if datal > 1:
                         if data[1] == "list":
@@ -57,5 +58,5 @@ if argl is 0:
         term.buf[1] = ""
         print()
     term.trigger_dict = term_old
-    del q, term_old
+    del term_old
 del args, argl

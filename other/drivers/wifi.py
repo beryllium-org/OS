@@ -39,56 +39,50 @@ class driver_wifi:
 
     def get(self, host):
         if self._session is not None:
+    
             if not (host.startswith("http://") or host.startswith("https://")):
                 host = "https://" + host
+                
             return self._session.get(host)
         else:
-            return none
+            return None
 
     def resolve(self, host):
         return ip_address(host)
 
     def scan(self):
-        netnames = []
         if wifi.radio.enabled:
-            for network in wifi.radio.start_scanning_networks():
-                netnames.append(network.ssid)
+            net = [network.ssid for network in wifi.radio.start_scanning_networks()]
             wifi.radio.stop_scanning_networks()
-        return netnames
+            return net
+        
+        return list()
 
     def get_ipconf(self):
-        data = dict()
+        data = {
+            "ssid": None,
+            "bssid": None,
+            "channel": None,
+            "country": None,
+            "ip": wifi.radio.ipv4_address,
+            "power": str(wifi.radio.enabled),
+            "gateway": wifi.radio.ipv4_gateway,
+            "mode": self.mode,
+            "dns": wifi.radio.ipv4_dns,
+            "subnet": wifi.radio.ipv4_subnet,
+            "mac": wifi.radio.mac_address,
+            "mac_pretty": str(wifi.radio.mac_address).replace("\\x", ":")[3:-3],
+            "hostname": wifi.radio.hostname,
+        }
+        
         try:
-            data.update(
-                {
-                    "ssid": wifi.radio.ap_info.ssid,
-                    "bssid": wifi.radio.ap_info.bssid,
-                    "channel": wifi.radio.ap_info.channel,
-                    "country": wifi.radio.ap_info.country,
-                }
-            )
+            data['ssid'] = wifi.radio.ap_info.ssid
+            data['bssid'] = wifi.radio.ap_info.bssid
+            data['channel'] = wifi.radio.ap_info.channel,
+            data['country'] = wifi.radio.ap_info.country,
         except:
-            data.update(
-                {
-                    "ssid": None,
-                    "bssid": None,
-                    "channel": None,
-                    "country": None,
-                }
-            )
-        data.update(
-            {
-                "ip": wifi.radio.ipv4_address,
-                "power": str(wifi.radio.enabled),
-                "gateway": wifi.radio.ipv4_gateway,
-                "mode": self.mode,
-                "dns": wifi.radio.ipv4_dns,
-                "subnet": wifi.radio.ipv4_subnet,
-                "mac": wifi.radio.mac_address,
-                "mac_pretty": str(wifi.radio.mac_address).replace("\\x", ":")[3:-3],
-                "hostname": wifi.radio.hostname,
-            }
-        )
+            pass
+
         return data
 
     def disconnect(self):
