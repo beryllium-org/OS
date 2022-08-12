@@ -16,13 +16,7 @@ if argl is not 0:
     try:
         exec(loadstr)
         if module not in ljinux.modules:
-            execstr = (
-                "ljinux.modules.update({\"" +
-                module +
-                "\": " +
-                module +
-                "()})"
-            )
+            execstr = 'ljinux.modules.update({"' + module + '": ' + module + "()})"
             exec(execstr)
             del execstr
         else:

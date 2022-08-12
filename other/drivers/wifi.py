@@ -85,7 +85,7 @@ class driver_wifi:
                 "dns": wifi.radio.ipv4_dns,
                 "subnet": wifi.radio.ipv4_subnet,
                 "mac": wifi.radio.mac_address,
-                "mac_pretty": str(wifi.radio.mac_address).replace("\\x",":")[3:-3],
+                "mac_pretty": str(wifi.radio.mac_address).replace("\\x", ":")[3:-3],
                 "hostname": wifi.radio.hostname,
             }
         )
@@ -95,11 +95,10 @@ class driver_wifi:
         wifi.radio.stop_station()
         self._pool = None
         self._session = None
-        
+
     def start(self):
         wifi.radio.enabled = True
-    
+
     def stop(self):
         self.disconnect()
         wifi.radio.enabled = False
-    

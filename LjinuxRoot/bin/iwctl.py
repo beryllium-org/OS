@@ -1,7 +1,7 @@
 args = ljinux.based.user_vars["argj"].split()[1:]
 argl = len(args)
 if argl is 0:
-    #interactive interface
+    # interactive interface
     term_old = term.trigger_dict
     term.trigger_dict = {
         "ctrlX": 100,
@@ -36,24 +36,18 @@ if argl is 0:
                 elif data[0] == "device":
                     if datal > 1:
                         if data[1] == "list":
-                            print('\n' + 26 * ' ' + "devices")
+                            print("\n" + 26 * " " + "devices")
                             print(60 * "-")
-                            print(
-                                "Name" +
-                                ' ' * 5 +
-                                "Mac address" +
-                                ' ' * 6 +
-                                "Power"
-                            )
+                            print("Name" + " " * 5 + "Mac address" + " " * 6 + "Power")
                             print(60 * "-")
                             if "network" in ljinux.modules:
                                 info = ljinux.modules["network"].get_ipconf()
                                 print(
-                                    ljinux.modules["network"].hw_name +
-                                    ' ' * 5 +
-                                    info["mac_pretty"] +
-                                    ' ' * 3 +
-                                    info["power"]
+                                    ljinux.modules["network"].hw_name
+                                    + " " * 5
+                                    + info["mac_pretty"]
+                                    + " " * 3
+                                    + info["power"]
                                 )
                                 del info
                     else:
