@@ -72,11 +72,10 @@ class driver_wifi:
         wifi.radio.stop_station()
         self._pool = None
         self._session = None
-        
+
     def start(self):
         wifi.radio.enabled = True
-    
+
     def stop(self):
         self.disconnect()
         wifi.radio.enabled = False
-    

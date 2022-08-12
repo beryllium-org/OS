@@ -1,7 +1,7 @@
 args = ljinux.based.user_vars["argj"].split()[1:]
 argl = len(args)
 if argl is 0:
-    #interactive interface
+    # interactive interface
     term_old = term.trigger_dict
     term.trigger_dict = {
         "ctrlX": 100,
