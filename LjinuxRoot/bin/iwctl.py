@@ -29,7 +29,37 @@ if argl is 0:
             q = False
         elif term.buf[0] == 0:
             data = term.buf[1].split()
-            del data
+            datal = len(data)
+            if datal > 0:
+                if data[0] == "exit":
+                    q = False
+                elif data[0] == "device":
+                    if datal > 1:
+                        if data[1] == "list":
+                            print('\n' + 26 * ' ' + "devices")
+                            print(60 * "-")
+                            print(
+                                "Name" +
+                                ' ' * 5 +
+                                "Mac address" +
+                                ' ' * 6 +
+                                "Power"
+                            )
+                            print(60 * "-")
+                            if "network" in ljinux.modules:
+                                info = ljinux.modules["network"].get_ipconf()
+                                print(
+                                    ljinux.modules["network"].hw_name +
+                                    ' ' * 5 +
+                                    info["mac_pretty"] +
+                                    ' ' * 3 +
+                                    info["power"]
+                                )
+                                del info
+                    else:
+                        print()
+                        ljinux.based.error(1)
+            del data, datal
         term.buf[1] = ""
         print()
     term.trigger_dict = term_old

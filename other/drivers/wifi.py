@@ -22,6 +22,8 @@ class driver_wifi:
         self.connected = False
         self.up = False
         self.internet = False
+        self.hw_name = "wifi"
+        self.mode = "station"
 
     def connect(self, ssid, passwd):
         try:
@@ -38,7 +40,7 @@ class driver_wifi:
     def get(self, host):
         if self._session is not None:
             if not (host.startswith("http://") or host.startswith("https://")):
-                host = f"https://{host}"
+                host = "https://" + host
             return self._session.get(host)
         else:
             return none
@@ -55,18 +57,39 @@ class driver_wifi:
         return netnames
 
     def get_ipconf(self):
-        return {
-            "ssid": wifi.radio.ap_info.ssid,
-            "bssid": wifi.radio.ap_info.bssid,
-            "channel": wifi.radio.ap_info.channel,
-            "country": wifi.radio.ap_info.country,
-            "ip": wifi.radio.ipv4_address,
-            "gateway": wifi.radio.ipv4_gateway,
-            "dns": wifi.radio.ipv4_dns,
-            "subnet": wifi.radio.ipv4_subnet,
-            "mac": wifi.radio.mac_address,
-            "hostname": wifi.radio.hostname,
-        }
+        data = dict()
+        try:
+            data.update(
+                {
+                    "ssid": wifi.radio.ap_info.ssid,
+                    "bssid": wifi.radio.ap_info.bssid,
+                    "channel": wifi.radio.ap_info.channel,
+                    "country": wifi.radio.ap_info.country,
+                }
+            )
+        except:
+            data.update(
+                {
+                    "ssid": None,
+                    "bssid": None,
+                    "channel": None,
+                    "country": None,
+                }
+            )
+        data.update(
+            {
+                "ip": wifi.radio.ipv4_address,
+                "power": str(wifi.radio.enabled),
+                "gateway": wifi.radio.ipv4_gateway,
+                "mode": self.mode,
+                "dns": wifi.radio.ipv4_dns,
+                "subnet": wifi.radio.ipv4_subnet,
+                "mac": wifi.radio.mac_address,
+                "mac_pretty": str(wifi.radio.mac_address).replace("\\x",":")[3:-3],
+                "hostname": wifi.radio.hostname,
+            }
+        )
+        return data
 
     def disconnect(self):
         wifi.radio.stop_station()

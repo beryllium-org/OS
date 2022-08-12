@@ -20,12 +20,6 @@
   "_comment7": "Makes the pi only bother with sensor io & not serial. Not yet implemented",
   "DISPLAYONLYMODE": false,
   
-  "_comment8": "Networking",
-  "w5500_MOSI": 11,
-  "w5500_MISO": 12,
-  "w5500_SCLK": 10,
-  "w5500_SCSn": 13,
-  
   "_comment9": "SD card",
   
   "sd_SCLK": 2,
