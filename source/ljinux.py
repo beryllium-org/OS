@@ -415,7 +415,7 @@ dmtex("Additional loading done")
 
 
 class ljinux:
-    ljmodules = dict()
+    modules = dict()
 
     class history:
         historyy = []

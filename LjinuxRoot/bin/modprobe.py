@@ -15,8 +15,8 @@ if argl is not 0:
     del ass
     try:
         exec(loadstr)
-        if module not in ljinux.ljmodules:
-            execstr = 'ljinux.ljmodules.update({"' + module + '": ' + module + "()})"
+        if module not in ljinux.modules:
+            execstr = 'ljinux.modules.update({"' + module + '": ' + module + "()})"
             exec(execstr)
             del execstr
         else:

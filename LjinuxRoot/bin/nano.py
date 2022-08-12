@@ -5,7 +5,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.1"
+    versionn = "1.2"
 
     try:
         filee = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
@@ -338,7 +338,6 @@ if sizee[0] > 14 and sizee[1] > 105:
                         term.clear_line()
                         stdout.write(dataa[vl + i - 2])
                     stdout.write("\n")
-                    term.clear_line()
 
             elif term.buf[0] is 12:  # add tab
                 term.stdin = " " * 4

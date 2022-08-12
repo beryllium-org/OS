@@ -6,16 +6,20 @@ debug: prep kerncompd
 wifi: prep driver_wifi
 
 kern: prep kerncomp
-prep: moduleinit prepperms
+prep: modules prepperms
 
 driver_wifi:
 	@echo -e "Installing wifi driver"
 	@python3 ../scripts/copy_wifi.py
 	@sync
 	@echo -e "Wifi driver done"
-moduleinit:
-	@echo -e "Preparing git submodules.."
+update_modules:
+	@echo -e "Updating git submodules from remotes.."
 	@git submodule update --init --recursive --remote ..
+	@echo -e "Submodules ready"
+modules:
+	@echo -e "Preparing git submodules.."
+	@git submodule update --init --recursive ..
 	@echo -e "Submodules ready"
 donemsg:
 	@echo -e "\nSyncing changes.."
