@@ -20,8 +20,6 @@ class driver_wifi:
         # public
         self.error = False
         self.connected = False
-        self.up = False
-        self.internet = False
         self.hw_name = "wifi"
         self.mode = "station"
 
@@ -32,6 +30,7 @@ class driver_wifi:
             return 1
         self._pool = SocketPool(wifi.radio)
         self._session = Session(self._pool, create_default_context())
+        self.connected = True
         return 0
 
     def ping(self, host):
@@ -52,7 +51,12 @@ class driver_wifi:
 
     def scan(self):
         if wifi.radio.enabled:
-            net = [network.ssid for network in wifi.radio.start_scanning_networks()]
+            net = dict()
+            for network in wifi.radio.start_scanning_networks():
+                sec = str(network.authmode)
+                sec = sec[sec.rfind(".") + 1 : -1]
+                net.update({network.ssid: [sec, network.rssi]})
+                del sec
             wifi.radio.stop_scanning_networks()
             return net
 
@@ -89,6 +93,7 @@ class driver_wifi:
         wifi.radio.stop_station()
         self._pool = None
         self._session = None
+        self.connected = False
 
     def start(self):
         wifi.radio.enabled = True
