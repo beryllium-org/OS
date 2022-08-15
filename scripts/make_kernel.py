@@ -53,7 +53,7 @@ if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
     print("Created lib directory.")
     mkdir(f"{picop}/lib".replace("/", slash))
 
-print("[1/4] Compiling source files\n")
+print("[1/6] Compiling source files\n")
 for filee in listdir():
     if filee.endswith(".py"):
         print(f"-> {filee[:-3]}")
@@ -67,7 +67,7 @@ for filee in listdir():
             exit(1)
         del a
 
-print("\n[2/5] Compiling jcurses\n")
+print("\n[2/6] Compiling jcurses\n")
 for filee in listdir("jcurses"):
     if filee.endswith(".py"):
         print(f"-> {filee[:-3]}")
@@ -88,7 +88,7 @@ for filee in listdir("../rootfilesystem/".replace("/", slash)):
         f"cp ../rootfilesystem/{filee} {picop}/".replace("/", slash).replace("cp", copy)
     )
 
-print("\n[4/5] Compiling Adafruit hashlib files\n")
+print("\n[4/6] Compiling Adafruit hashlib\n")
 if system(f"test -d {picop}/lib/adafruit_hashlib".replace("/", slash)) != 0:
     print("Created adafruit_hashlib directory.")
     mkdir(f"{picop}/lib/adafruit_hashlib".replace("/", slash))
@@ -106,7 +106,7 @@ for filee in listdir(
         exit(1)
     del a
 
-print("\n[5/5] Compiling Adafruit hid files\n")
+print("\n[5/6] Compiling Adafruit hid\n")
 if system(f"test -d {picop}/lib/adafruit_hid".replace("/", slash)) != 0:
     print("Created adafruit_hid directory.")
     mkdir(f"{picop}/lib/adafruit_hid".replace("/", slash))
@@ -123,6 +123,18 @@ for filee in listdir(
         print("Compilation error, exiting")
         exit(1)
     del a
+
+print("\n[6/6] Compiling Adafruit ntp\n")
+print(f"-> adafruit_ntp.py")
+a = system(
+    f"{mpyn} ../other/Adafruit_CircuitPython_NTP/adafruit_ntp.py -s adafruit_ntp -v {optimis} -o {picop}/lib/adafruit_ntp.mpy".replace(
+        "/", slash
+    )
+)
+if a != 0:
+    print("Compilation error, exiting")
+    exit(1)
+del a
 
 system("sync")
 print()

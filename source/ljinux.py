@@ -195,7 +195,6 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "displaywidth": (128, int, False),  # SSD1306 spec
     "led": (0, int, True),
     "ledtype": ("generic", str, False),
-    "fixrtc": (True, bool, False),
     "SKIPTEMP": (False, bool, False),
     "SKIPCP": (False, bool, False),
     "DEBUG": (False, bool, False),
@@ -359,39 +358,6 @@ try:
     dmtex("Display libraries loaded")
 except ImportError:
     dmtex(colors.error + "Notice: " + colors.endc + "Display libraries loading failed")
-
-if not configg["fixrtc"]:
-    # for rtc
-    # based off of https://github.com/afaonline/DS1302_CircuitPython
-    try:
-        import rtc
-        import ds1302
-
-        dmtex("RTC library loaded")
-        # rtc stuff @ init cuz otherwise system fails to access it
-        # the pins to connect it to:
-        rtcclk = digitalio.DigitalInOut(board.GP6)
-        rtcdata = digitalio.DigitalInOut(board.GP7)
-        rtcce = digitalio.DigitalInOut(board.GP8)
-
-        # to make it suitable for system
-        class RTC:
-            @property
-            def datetime(self):
-                return rtcc.read_datetime()
-
-        try:
-            rtcc = ds1302.DS1302(rtcclk, rtcdata, rtcce)
-            rtc.set_time_source(RTC())
-            del rtcclk
-            del rtcdata
-            del rtcce
-        except OSError:  # not sure how to catch if it's not available, TODO
-            pass
-
-        dmtex("RTC clock init done")
-    except ImportError:
-        dmtex(colors.error + "Notice: " + colors.endc + "RTC libraries loading failed")
 
 dmtex("Imports complete")
 
@@ -1251,6 +1217,21 @@ class ljinux:
             CODE:
                 ljinux.based.fn.[function_name](parameters)
             """
+
+            class fopen(object):
+                def __init__(self, fname, mod, ctx=None):
+                    self.fn = fname
+                    self.mod = mod
+
+                def __enter__(self):
+                    self.file = open(ljinux.based.fn.betterpath(self.fn), self.mod)
+                    del self.fn, self.mod
+                    return self.file
+
+                def __exit__(self, typee, value, traceback):
+                    self.file.flush()
+                    self.file.close()
+                    del self.file
 
             def isdir(dirr, rdir=None):
                 """

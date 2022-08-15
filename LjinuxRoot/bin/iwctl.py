@@ -1,6 +1,9 @@
 ljinux.based.user_vars["return"] = "0"
 args = ljinux.based.user_vars["argj"].split()[1:]
 argl = len(args)
+
+device_n = ljinux.modules["network"].hw_name if "network" in ljinux.modules else None
+
 if argl is 0:
     # interactive interface
     term_old = term.trigger_dict
@@ -15,10 +18,6 @@ if argl is 0:
     }
 
     term.buf[1] = ""
-
-    device_n = (
-        ljinux.modules["network"].hw_name if "network" in ljinux.modules else None
-    )
     networks = dict()
 
     # main loop
@@ -171,5 +170,41 @@ if argl is 0:
         term.buf[1] = ""
         print()
     term.trigger_dict = term_old
-    del term_old, device_n, networks
-del args, argl
+    del term_old, networks
+else:
+    passwd = None if args[0] != "--passphrase" else args[1]
+    if passwd is not None:
+        args = args[2:]
+        argl -= 2
+
+    if argl > 2 and args[0] == "station" and args[1] == device_n:
+        if argl > 3 and args[2] == "connect":
+            networks = ljinux.modules["network"].scan()
+            if args[3] in networks:
+                res = 1
+                if networks[args[3]][0] != "OPEN":
+                    if passwd is not None:
+                        res = ljinux.modules["network"].connect(args[3], passwd)
+                    else:
+                        print("Error: No password specified")
+                else:
+                    res = ljinux.modules["network"].connect(args[3])
+                if res is 0:
+                    print("Connected successfully.")
+                else:
+                    print("Connection failed.")
+                ljinux.based.user_vars["return"] = str(res)
+                del res
+            else:
+                print("Network not found")
+                ljinux.based.user_vars["return"] = "1"
+            del networks
+        elif args[2] == "disconnect":
+            ljinux.modules["network"].disconnect()
+            ljinux.based.user_vars["return"] = "0"
+        else:
+            ljinux.based.error(1)
+    else:
+        ljinux.based.error(1)
+
+del args, argl, device_n

@@ -2,7 +2,7 @@ args = ljinux.based.user_vars["argj"].split()
 try:
     if args[1] == "set":
         try:
-            the_time = time.struct_time(
+            rtc.RTC().datetime = time.struct_time(
                 (
                     int(args[4]),
                     int(args[3]),
@@ -15,7 +15,6 @@ try:
                     -1,
                 )
             )  # yr, mon, d, hr, m, s, ss, shit,shit,shit
-            rtcc.write_datetime(the_time)
         except IndexError:
             ljinux.based.error(1)
     else:
@@ -23,13 +22,13 @@ try:
 except IndexError:
     tt = time.localtime()
     daydict = {
-        1: "Mon",
-        2: "Tue",
-        3: "Wed",
-        4: "Thu",
-        5: "Fri",
-        6: "Sat",
-        7: "Sun",
+        0: "Mon",
+        1: "Tue",
+        2: "Wed",
+        3: "Thu",
+        4: "Fri",
+        5: "Sat",
+        6: "Sun",
     }
     day = daydict[tt.tm_wday]
     del daydict

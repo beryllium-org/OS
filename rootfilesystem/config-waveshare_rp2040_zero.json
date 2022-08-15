@@ -1,9 +1,6 @@
 {
   "_comment1": "Default Ljinux configuration, adjust to your needs",
   
-  "_comment2": "As long as it's true, ram rtc will be used",
-  "fixrtc": true,
-  
   "_comment3": "Board led, can be generic or neopixel",
   "led": 16,
   "ledtype": "neopixel",

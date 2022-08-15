@@ -40,12 +40,12 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
                 print("^C")
             print(f"--- {domain} ping statistics ---")
             print(f"{done} packets transmitted, {good} received, {bads} lost")
-            minn = round(min(timetab) * 1000, 1)
-            avgg = round((sum(timetab) / good) * 1000, 1)
-            maxx = round(max(timetab) * 1000, 1)
+            minn = round(min(timetab) * 1000, 1) if good else 0
+            avgg = round((sum(timetab) / good) * 1000, 1) if good else 0
+            maxx = round(max(timetab) * 1000, 1) if good else 0
             from ulab.numpy import std
 
-            mdev = round(std(timetab) * 1000, 1)
+            mdev = round(std(timetab) * 1000, 1) if good else 0
             print(f"rtt min/avg/max/mdev = {minn}/{avgg}/{maxx}/{mdev} ms")
             del done, good, bads, timetab, minn, avgg, maxx, mdev, std
         del domain, n

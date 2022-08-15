@@ -1,2 +1,0 @@
-fpexec -n /bin/whois.py
-echo return

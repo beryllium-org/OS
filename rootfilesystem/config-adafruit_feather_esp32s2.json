@@ -1,9 +1,6 @@
 {
   "_comment1": "adafruit_feather_esp32s2 confguration",
   
-  "_comment2": "As long as it's true, ram rtc will be used",
-  "fixrtc": true,
-  
   "_comment3": "Board led, can be generic or neopixel",
   "led": 33,
   "ledtype": "neopixel",

@@ -43,6 +43,7 @@ At the moment the supported microcontrollers are:<br /><br />
  - Adafruit KB2040 <br />
  - Waveshare ESP32-S2-Pico <br />
  - Adafruit Feather ESP32-S2 <br />
+ - Pimoroni Pico Lipo (16mb) <br />
 
 But it can probably run on many more.<br />
 The only real limiting factor should be ram, as about 120k are needed for the system to even function.<br />

@@ -13,3 +13,6 @@
 [submodule "source/jz"]
 	path = source/jz
 	url = https://github.com/bill88t/jz
+[submodule "other/Adafruit_CircuitPython_NTP"]
+	path = other/Adafruit_CircuitPython_NTP
+	url = https://github.com/adafruit/Adafruit_CircuitPython_NTP
