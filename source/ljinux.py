@@ -465,6 +465,7 @@ class ljinux:
             4: nc.waiting,
             5: nc.error,
             6: nc.killtheuser,
+            7: nc.waiting2,
         }
 
         getled = 0
@@ -487,7 +488,7 @@ class ljinux:
             if isinstance(state, int):
                 ## use preconfigured led states
                 if configg["ledtype"] in ["generic", "generic_invert"]:
-                    if state in {0, 3}:
+                    if state in [0, 3, 4, 5]:  # close tha led
                         ljinux.io.led.value = (
                             False if configg["ledtype"] == "generic" else True
                         )
