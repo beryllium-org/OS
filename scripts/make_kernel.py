@@ -139,7 +139,7 @@ if a != 0:
 del a
 
 print("\n[7/7] Compiling jz\n")
-print(f"-> jz.py")
+print(f"-> jz_board.py")
 a = system(
     f"{mpyn} ./jz/jz_board.py -s jz_board -v {optimis} -o {picop}/lib/jz.mpy".replace(
         "/", slash
