@@ -9,18 +9,18 @@ kern: prep kerncomp
 prep: modules prepperms
 
 driver_wifi:
-	@echo -e "Installing wifi driver"
+	@echo "Installing wifi driver"
 	@python3 ../scripts/copy_wifi.py
 	@sync
-	@echo -e "Wifi driver done"
+	@echo "Wifi driver done"
 update_modules:
-	@echo -e "Updating git submodules from remotes.."
+	@echo "Updating git submodules from remotes.."
 	@git submodule update --init --recursive --remote ..
-	@echo -e "Submodules ready"
+	@echo -e "Submodules ready\n\nMake sure to git commit before procceding to make!!"
 modules:
-	@echo -e "Preparing git submodules.."
+	@echo "Preparing git submodules.."
 	@git submodule update --init --recursive ..
-	@echo -e "Submodules ready"
+	@echo "Submodules ready"
 donemsg:
 	@echo -e "\nSyncing changes.."
 	@sync
@@ -33,7 +33,7 @@ prepperms:
 	@echo -e "Preparing script permissions..\n"
 	@chmod +x ../scripts/*.sh
 	@chmod +x ../scripts/mpy*
-	@echo -e "OK"
+	@echo "OK"
 kerncomp:
 	@echo -e "\nCommencing kernel compilation.."
 	@sync
