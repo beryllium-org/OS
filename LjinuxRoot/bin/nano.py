@@ -5,7 +5,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.2"
+    versionn = "1.3"
 
     try:
         filee = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
@@ -142,13 +142,14 @@ if sizee[0] > 14 and sizee[1] > 105:
     del bottxt, bottxt_offs
     stdout.write(toolbar_txt)
     if len(dataa) > 1:
-        sz = sizee[0] - 2
-        ld = len(dataa) + 2
-        ltd = sz if sz + 2 < ld - 2 else ld
+        sz = sizee[0] - 4
+        ld = len(dataa)
+        ltd = sz if sz < ld else ld
         del sz, ld
-        for i in range(2, ltd):
-            term.move(x=i)
-            stdout.write(dataa[i - 2])
+        for i in range(0, ltd):
+            term.move(x=i + 2)
+            stdout.write(dataa[i])
+        del ltd
     while q:
         try:
             if not savee:
@@ -251,6 +252,7 @@ if sizee[0] > 14 and sizee[1] > 105:
 
                         # the "choose file name" prompt
                         term.move(x=sizee[0] - 2)
+
                         # show the file name suggested
                         term.clear_line()
                         stdout.write("File name to write:" + (" " * (sizee[1] - 19)))
@@ -270,6 +272,12 @@ if sizee[0] > 14 and sizee[1] > 105:
                         term.buf[1] = ffname
                         term.focus = 0
                         del ffname
+                    else:
+                        stdout.write(
+                            "\010" * len(term.buf[1])
+                            + " " * len(term.buf[1])
+                            + "\010" * len(term.buf[1])
+                        )
                 elif savee == 2:
                     try:
                         cc = True
@@ -316,28 +324,57 @@ if sizee[0] > 14 and sizee[1] > 105:
                     term.backspace()
                     if not savee:
                         dataa[cl] = term.buf[1]
+                    else:
+                        stdout.write(
+                            "\010" * len(term.buf[1])
+                            + " " * len(term.buf[1])
+                            + "\010" * len(term.buf[1])
+                        )
                 elif not savee and cl > 0:
                     # don't do it when in save mode
-                    cl -= 1
-                    if dataa[cl + 1] != "":
-                        dataa[cl] += dataa[cl + 1]
+
+                    # treat last line
+                    if dataa[cl] != "":
+                        dataa[cl - 1] += dataa[cl]
+
+                    # from time import sleep
+
+                    # print("1 ok")
+                    # sleep(1)
 
                     # backend shift
-                    for i in range(cl + 1, lc - 1):
-                        dataa[i] = dataa[i + 1]
+                    for i in range(cl, lc):
+                        try:
+                            dataa[i] = dataa[i + 1]
+                        except IndexError:
+                            break
 
-                    # remove last
-                    dataa.pop()
-                    lc -= 1
+                    # print("2 ok")
+                    # sleep(1)
 
                     # shift data
-                    for i in range(
-                        2, (sizee[0] - 2) if (lc > (sizee[0] - 2)) else lc + 2
-                    ):
-                        term.move(x=i)
+                    td = False  # to delete last line
+                    tf = None  # range
+                    if lc > (sizee[0] - 2):
+                        tf = sizee[0] - 4
+                    else:
+                        tf = lc
+                        td = True  # need to clear_line after line prints
+                    for i in range(0, tf):
+                        term.move(x=i + 2)
                         term.clear_line()
-                        stdout.write(dataa[vl + i - 2])
-                    stdout.write("\n")
+                        stdout.write(dataa[vl + i])
+                    del tf
+                    if td:
+                        term.clear_line()
+                    del td
+
+                    # print("3 ok")
+                    # sleep(1)
+
+                    dataa.pop()
+                    lc -= 1
+                    cl -= 1
 
             elif term.buf[0] is 12:  # add tab
                 term.stdin = " " * 4
