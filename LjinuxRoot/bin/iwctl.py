@@ -41,10 +41,6 @@ if argl is 0:
             term.focus = 0
             datal = len(data)
             if datal > 0:
-                passwd = None if data[0] != "--passphrase" else data[1]
-                if passwd is not None:
-                    data = data[2:]
-
                 if data[0] == "exit":
                     print()
                     break
@@ -118,15 +114,13 @@ if argl is 0:
                         if data[3] in networks:
                             res = 1
                             if networks[data[3]][0] != "OPEN":
-                                if passwd is None:
-                                    ljinux.io.ledset(1)
-                                    try:
-                                        passwd = input(
-                                            f"\nEnter password for {data[3]}: "
-                                        )
-                                    except KeyboardInterrupt:
-                                        pass
-                                    ljinux.io.ledset(3)
+
+                                ljinux.io.ledset(1)
+                                try:
+                                    passwd = input(f"\nEnter password for {data[3]}: ")
+                                except KeyboardInterrupt:
+                                    pass
+                                ljinux.io.ledset(3)
 
                                 if passwd is not None:
                                     res = ljinux.modules["network"].connect(
@@ -172,10 +166,28 @@ if argl is 0:
     term.trigger_dict = term_old
     del term_old, networks
 else:
-    passwd = None if args[0] != "--passphrase" else args[1]
+    passwd = None
+    inc = 1
+    if args[0] == "--passphrase":
+        if args[1].startswith('"'):
+            while True:
+                if args[inc].endswith('"'):
+                    break
+                elif inc < argl:
+                    inc += 1
+                else:
+                    ljinux.based.error(1)
+                    inc = -1
+            if inc is not -1:
+                passwd = args[1] + " "
+                for i in range(2, inc + 1):
+                    passwd += args[i] + " "
+                passwd = passwd[1:-2]
     if passwd is not None:
-        args = args[2:]
-        argl -= 2
+        inc += 1
+        args = args[inc:]
+        argl -= inc
+    del inc
 
     if argl > 2 and args[0] == "station" and args[1] == device_n:
         if argl > 3 and args[2] == "connect":
@@ -189,9 +201,7 @@ else:
                         print("Error: No password specified")
                 else:
                     res = ljinux.modules["network"].connect(args[3])
-                if res is 0:
-                    print("Connected successfully.")
-                else:
+                if res is not 0:
                     print("Connection failed.")
                 ljinux.based.user_vars["return"] = str(res)
                 del res

@@ -21,6 +21,17 @@ try:
         raise IndexError
 except IndexError:
     tt = time.localtime()
+    dat = [
+        tt.tm_mday,
+        tt.tm_mon,
+        tt.tm_hour,
+        tt.tm_min,
+        tt.tm_sec,
+    ]
+
+    for i in range(0, 5):
+        dat[i] = f"0{dat[i]}" if len(str(dat[i])) < 2 else dat[i]
+
     daydict = {
         0: "Mon",
         1: "Tue",
@@ -33,8 +44,6 @@ except IndexError:
     day = daydict[tt.tm_wday]
     del daydict
 
-    print(
-        f"{day} {tt.tm_mday} {tt.tm_mon} {tt.tm_year} {tt.tm_hour}:{tt.tm_min}:{tt.tm_sec}"
-    )
-    del tt, day
+    print(f"{day} {dat[0]} {dat[1]} {tt.tm_year} {dat[2]}:{dat[3]}:{dat[4]}")
+    del tt, day, dat
 del args
