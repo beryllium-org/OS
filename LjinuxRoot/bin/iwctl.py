@@ -183,7 +183,11 @@ else:
                 for i in range(2, inc + 1):
                     passwd += args[i] + " "
                 passwd = passwd[1:-2]
-    if passwd is not None:
+        else:
+            passwd = args[1]
+    else:
+        inc = None
+    if inc is not None:
         inc += 1
         args = args[inc:]
         argl -= inc
