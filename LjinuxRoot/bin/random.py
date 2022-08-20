@@ -27,4 +27,6 @@ rett = random()
 """
 rett = 1
 exec(a, locals())
-print(str(rett))
+ljinux.based.user_vars["return"] = str(rett)
+if not ljinux.based.silent:
+    print(ljinux.based.user_vars["return"])
