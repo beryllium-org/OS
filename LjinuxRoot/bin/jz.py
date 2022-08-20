@@ -1,8 +1,8 @@
 args = ljinux.based.user_vars["argj"].split()[1:]
 argl = len(args)
-quiett = False
+quiett = ljinux.based.silent
 if argl > 1 and args[0] == "quiet":
-    quiett = True
+    quiett = True  # force silent
     args = args[1:]
     argl -= 1
 
