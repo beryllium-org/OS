@@ -5,7 +5,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.3"
+    versionn = "1.4"
 
     try:
         filee = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
@@ -234,13 +234,26 @@ if sizee[0] > 14 and sizee[1] > 105:
                     else:
                         dataa[cl + noffs] = ""
                     del noffs, copyover
+
                     # shift data
-                    for i in range(
-                        2, (sizee[0] - 2) if (lc > (sizee[0] - 2)) else lc + 2
-                    ):
-                        term.move(x=i)
+                    td = False  # to delete last line
+                    tf = None  # range
+
+                    if lc >= (sizee[0] - 2):
+                        tf = sizee[0] - 4
+                    else:
+                        tf = lc
+                        td = True  # need to clear_line after line prints
+
+                    for i in range(0, tf):
+                        term.move(x=i + 2)
                         term.clear_line()
-                        stdout.write(dataa[vl + i - 2])
+                        stdout.write(dataa[vl + i])
+                    del tf
+
+                    if td:
+                        term.clear_line()
+                    del td
                 elif savee is 1:
                     # the "save y/n" prompt
                     if term.buf[1] in ["n", "N"]:
@@ -337,11 +350,6 @@ if sizee[0] > 14 and sizee[1] > 105:
                     if dataa[cl] != "":
                         dataa[cl - 1] += dataa[cl]
 
-                    # from time import sleep
-
-                    # print("1 ok")
-                    # sleep(1)
-
                     # backend shift
                     for i in range(cl, lc):
                         try:
@@ -349,13 +357,14 @@ if sizee[0] > 14 and sizee[1] > 105:
                         except IndexError:
                             break
 
-                    # print("2 ok")
-                    # sleep(1)
+                    dataa.pop()
+                    lc -= 1
+                    cl -= 1
 
                     # shift data
                     td = False  # to delete last line
                     tf = None  # range
-                    if lc > (sizee[0] - 2):
+                    if lc >= (sizee[0] - 2):
                         tf = sizee[0] - 4
                     else:
                         tf = lc
@@ -368,13 +377,6 @@ if sizee[0] > 14 and sizee[1] > 105:
                     if td:
                         term.clear_line()
                     del td
-
-                    # print("3 ok")
-                    # sleep(1)
-
-                    dataa.pop()
-                    lc -= 1
-                    cl -= 1
 
             elif term.buf[0] is 12:  # add tab
                 term.stdin = " " * 4
