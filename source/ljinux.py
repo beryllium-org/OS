@@ -1512,12 +1512,9 @@ class ljinux:
                                         if letters_match > 0:
                                             term.clear_line()
                                             if lent > 1:
-                                                term.buf[1] = "".join(
+                                                term.buf[1] = " ".join(
                                                     slicedd[:-1]
-                                                    + list(
-                                                        " "
-                                                        + candidates[0][:letters_match]
-                                                    )
+                                                    + [candidates[0][:letters_match]]
                                                 )
                                             else:
                                                 term.buf[1] = candidates[0][
@@ -1528,8 +1525,8 @@ class ljinux:
                                     elif len(candidates) == 1:
                                         term.clear_line()
                                         if lent > 1:
-                                            term.buf[1] = "".join(
-                                                slicedd[:-1] + list(" " + candidates[0])
+                                            term.buf[1] = " ".join(
+                                                slicedd[:-1] + [candidates[0]]
                                             )
                                         else:
                                             term.buf[1] = candidates[0]
