@@ -1,0 +1,1 @@
+pexec -n if "devm" in listdir("/"): print(f"{colors.red_t}\nWarning:{colors.endc} Developer mode has been enabled!\nWhile it is enabled, Ljinux will only be able to access the file system {colors.red_t}READ ONLY{colors.endc}.\nTo disable it, {colors.red_t}delete{colors.endc} the file \"devm\" from the board's root\n");

@@ -1,9 +1,13 @@
 SHELL = "based"
 OS = "Ljinux"
+
 cd /home/board
 USER = "board"
 fpexec -n /LjinuxRoot/etc/hostname-reload.py
+
+# wait for serial connection
 _waitforserial
 _rebootprompt
+_devmodeprompt
 exec .basedrc
 SECURITY = "on"
