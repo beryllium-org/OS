@@ -1295,7 +1295,7 @@ class ljinux:
                     if back in ["&/", "&"]:  # board root
                         res = "/"
                     elif back.startswith("&/"):
-                        res = back[2:]
+                        res = back[1:]
                     elif back.startswith("/LjinuxRoot"):
                         res = back  # already good
                     elif back[0] == "/":
