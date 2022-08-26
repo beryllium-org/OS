@@ -101,7 +101,9 @@ while True:
 
         else:
             try:
-                exec(term.buf[1])
+                exec("cppy=" + term.buf[1])
+                print(str(cppy))
+                del cppy
             except Exception as Err:
                 print(str(Err))
             term.buf[1] = ""
