@@ -1582,18 +1582,18 @@ class ljinux:
                                     term.trigger_dict["prefix"] = "> "
                                     term.clear_line()
                                     term.program()
-                                    if term.buf[0] is 0:
+                                    if term.buf[0] is 0:  # enter
                                         ljinux.history.nav[0] = 0
                                         command_input = store + term.buf[1]
                                         term.buf[1] = ""
                                         stdout.write("\n")
-                                    elif term.buf[0] is 14:
+                                    elif term.buf[0] is 14:  # more lines
                                         store += term.buf[1]
                                         ljinux.history.nav[0] = 0
                                         term.buf[1] = ""
                                         term.focus = 0
                                         term.clear_line()
-                                    else:
+                                    else:  # not gonna
                                         term.buf[0] = ""
                                         term.focus = 0
                                         ljinux.history.nav[0] = 0
