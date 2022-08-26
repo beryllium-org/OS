@@ -1,2 +1,0 @@
-COMMENT A jcurses test script 
-pexec -n term.clear();term.move("top_left");term.line('-');time.sleep(1);term.clear()
