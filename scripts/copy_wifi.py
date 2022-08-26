@@ -2,6 +2,12 @@ from os import system, mkdir, listdir, path, popen
 from platform import uname
 from getpass import getuser
 
+
+def errexit():
+    print("Compilation error, exiting")
+    exit(1)
+
+
 if uname().system == "Linux":
     slash = "/"
     copy = "cp"
@@ -48,26 +54,45 @@ if system(f"test -d {picop}/lib/drivers".replace("/", slash)) != 0:
     print("Created lib/drivers directory.")
     mkdir(f"{picop}/lib/drivers".replace("/", slash))
 
-print(" - [1/1] Compiling wifi drivers\n")
+print("\n[1/4] Compiling Adafruit ntp\n-> adafruit_ntp")
+a = system(
+    f"{mpyn} ../other/Adafruit_CircuitPython_NTP/adafruit_ntp.py -s adafruit_ntp -v -O4 -o {picop}/lib/adafruit_ntp.mpy".replace(
+        "/", slash
+    )
+)
+if a != 0:
+    errexit()
+del a
 
-print(f" ---> wifi")
+print("\n[2/4] Compiling adafruit requests\n-> adafruit_requests")
+a = system(
+    f"{mpyn} ../other/Adafruit_CircuitPython_Requests/adafruit_requests.py -s adafruit_requests -v -O4 -o {picop}/lib/adafruit_requests.mpy".replace(
+        "/", slash
+    )
+)
+if a != 0:
+    errexit()
+del a
+
+print("\n[3/4] Compiling adafruit HTTPServer\n-> adafruit_httpserver")
+a = system(
+    f"{mpyn} ../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver.py -s adafruit_httpserver -v -O4 -o {picop}/lib/adafruit_httpserver.mpy".replace(
+        "/", slash
+    )
+)
+if a != 0:
+    errexit()
+del a
+
+print("\n[4/4] Compiling wifi drivers\n-> driver_wifi")
 a = system(
     f"{mpyn} ../other/drivers/wifi.py -s driver_wifi -v -O4 -o {picop}/lib/drivers/driver_wifi.mpy".replace(
         "/", slash
     )
 )
-
-print(f" ---> adafruit_requests")
-b = system(
-    f"{mpyn} ../other/Adafruit_CircuitPython_Requests/adafruit_requests.py -s adafruit_requests -v -O4 -o {picop}/lib/adafruit_requests.mpy".replace(
-        "/", slash
-    )
-)
-
-if a != 0 or b != 0:
-    print("Compilation error, exiting")
-    exit(1)
-del a, b
+if a != 0:
+    errexit()
+del a
 
 system("sync")
 print()
