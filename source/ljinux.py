@@ -1592,6 +1592,7 @@ class ljinux:
                                         ljinux.history.nav[0] = 0
                                         term.buf[1] = ""
                                         term.focus = 0
+                                        term.clear_line()
                                     else:
                                         term.buf[0] = ""
                                         term.focus = 0
