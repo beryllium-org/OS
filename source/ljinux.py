@@ -1402,6 +1402,7 @@ class ljinux:
                     "down": 7,
                     "pgup": 11,
                     "pgdw": 12,
+                    "overflow": 14,
                     "rest": "stack",
                     "rest_a": "common",
                     "echo": "common",
@@ -1574,6 +1575,28 @@ class ljinux:
                                     term.buf[1] = ""
                                     term.focus = 0
                                     term.clear()
+                                elif term.buf[0] is 14:  # overflow
+                                    store = term.buf[1]
+                                    term.focus = 0
+                                    term.buf[1] = ""
+                                    term.trigger_dict["prefix"] = "> "
+                                    term.clear_line()
+                                    term.program()
+                                    if term.buf[0] is 0:
+                                        ljinux.history.nav[0] = 0
+                                        command_input = store + term.buf[1]
+                                        term.buf[1] = ""
+                                        stdout.write("\n")
+                                    elif term.buf[0] is 14:
+                                        store += term.buf[1]
+                                        ljinux.history.nav[0] = 0
+                                        term.buf[1] = ""
+                                        term.focus = 0
+                                    else:
+                                        term.buf[0] = ""
+                                        term.focus = 0
+                                        ljinux.history.nav[0] = 0
+                                    del store
 
                                 try:
                                     if command_input[:1] != " " and command_input != "":

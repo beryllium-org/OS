@@ -16,3 +16,6 @@
 [submodule "other/Adafruit_CircuitPython_NTP"]
 	path = other/Adafruit_CircuitPython_NTP
 	url = https://github.com/adafruit/Adafruit_CircuitPython_NTP
+[submodule "other/Adafruit_CircuitPython_HTTPServer"]
+	path = other/Adafruit_CircuitPython_HTTPServer
+	url = https://github.com/adafruit/Adafruit_CircuitPython_HTTPServer

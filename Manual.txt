@@ -2,6 +2,8 @@
 /-Ljinux standalone documentation sheet--\
 \-----| bill88t |------------------------/
  \======================================/
+ 
+Official repository: [https://github.com/bill88t/ljinux]
 
       /---------------|
 ----<| Basic commands |
@@ -430,6 +432,23 @@ Example 3:
 
     b = a
     echo b
+
+      /----------------------|
+----<| Netowork driver usage |
+      \----------------------|
+      
+To use the built-in circuitpython module "wifi" as your network connection:
+  - Ensure you have run "make wifi" from the host computer.
+     If you haven't, run "devmode" from within ljinux, to enable usb access,
+     and perform the module installation. Then delete the file "devm" from
+     the board's root, and reboot ljinux.
+  - Run "modprobe driver_wifi as network" to load the ljinux wifi driver
+  - Use iwctl to configure the wifi connection.
+     For info on how to use iwctl, please refer to
+     [https://wiki.archlinux.org/title/iwd]
+       
+To use a w5500 ethernet module:
+  - Incomplete.
 
       /-----------------------------|
 ----<| Contributions to the project |
