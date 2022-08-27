@@ -8,16 +8,17 @@ if argl > 0 and args[0][0] == "-":
 
 rett = ""
 sps = "   "
-path = "."
+path = "./"
 
-directory_listing = None
-if not argl:
-    directory_listing = listdir()
-elif ljinux.based.fn.isdir(args[0]) is 1:
-    path = ljinux.based.fn.betterpath(args[0])
-    directory_listing = listdir(path)
-else:
-    ljinux.based.error(2)
+if argl:
+    if ljinux.based.fn.isdir(args[0]) is 1:
+        path = args[0]
+        if not path.endswith("/"):
+            path += "/"
+    else:
+        ljinux.based.error(2)
+
+directory_listing = listdir(ljinux.based.fn.betterpath(path))
 
 if "l" in argss_in:
     sps = "\n"
@@ -30,11 +31,13 @@ if "a" in argss_in:
 
 if directory_listing is not None:
     for dir in directory_listing:
+        col = "" if ljinux.based.fn.isdir(f"{path}{dir}") is 0 else colors.okcyan
         if dir[:1] == "." and not "a" in argss_in:
             continue
         else:
-            print(colors.magenta_t + dir + colors.endc, end=sps)
+            print(col + dir + colors.endc, end=sps)
             rett += dir + sps
+        del col
 
 if not "l" in argss_in:
     print()

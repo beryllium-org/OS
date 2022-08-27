@@ -1241,20 +1241,35 @@ class ljinux:
                 """
                 dirr = ljinux.based.fn.betterpath(dirr)
                 rdir = ljinux.based.fn.betterpath(rdir)
-                cddd = getcwd()
+                cddd = getcwd() if rdir is not None else rdir
+
                 res = 2
+
                 try:
                     chdir(dirr)
                     chdir(cddd)
                     res = 1
                 except OSError:
+                    rr = "/"
                     try:
-                        if dirr[dirr.rfind("/") + 1 :] in listdir(
-                            dirr[: dirr.rfind("/")]
-                        ):
+                        # browsing deep
+                        if dirr.count(rr) not in [0, 1] and dirr[
+                            dirr.rfind(rr) + 1 :
+                        ] in listdir(dirr[: dirr.rfind(rr)]):
                             res = 0
+                        elif dirr.count(rr) is 1 and dirr.startswith(rr):
+                            # browsing root
+                            if dirr[1:] in listdir(rr):
+                                res = 0
                         else:
-                            raise OSError
+                            # browsing dum
+                            if dirr[dirr.rfind(rr) + 1 :] in listdir(
+                                dirr[: dirr.rfind(rr)]
+                            ):
+                                res = 0
+                            else:
+                                raise OSError
+
                     except OSError:
                         try:
                             if dirr in (
@@ -1264,6 +1279,7 @@ class ljinux:
                                 res = 0
                         except OSError:
                             res = 2  # we have had enough
+                    del rr
                 del cddd
                 return res
 
