@@ -50,8 +50,7 @@ The only real limiting factor should be ram, as about 120k are needed for the sy
 <i>(If you have gotten it running on an unsupported board, feel free to pr a configuration file)</i><br />
 
 <br />Optional hardware compatible with ljinux:<br />
- - SSD1306 displays for a standalone display output<br />
- - ds1302 realtime clocks for persistent time (make sure to set <code>fixrtc</code> to false from the board's config file)<br />
+ - SSD1306 displays for display output<br />
  - sdcard breakout boards for more storage<br />
  - w5500 networking breakouts board for networking.<br />
 
