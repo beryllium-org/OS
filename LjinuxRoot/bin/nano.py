@@ -5,7 +5,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.4"
+    versionn = "1.5"
 
     try:
         filee = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
@@ -236,24 +236,13 @@ if sizee[0] > 14 and sizee[1] > 105:
                     del noffs, copyover
 
                     # shift data
-                    td = False  # to delete last line
-                    tf = None  # range
-
-                    if lc >= (sizee[0] - 2):
-                        tf = sizee[0] - 4
-                    else:
-                        tf = lc
-                        td = True  # need to clear_line after line prints
+                    tf = lc if not lc >= (sizee[0] - 3) else sizee[0] - 4
 
                     for i in range(0, tf):
                         term.move(x=i + 2)
                         term.clear_line()
                         stdout.write(dataa[vl + i])
                     del tf
-
-                    if td:
-                        term.clear_line()
-                    del td
                 elif savee is 1:
                     # the "save y/n" prompt
                     if term.buf[1] in ["n", "N"]:
@@ -364,19 +353,22 @@ if sizee[0] > 14 and sizee[1] > 105:
                     # shift data
                     td = False  # to delete last line
                     tf = None  # range
-                    if lc >= (sizee[0] - 2):
-                        tf = sizee[0] - 4
+                    magic = sizee[0] - 4
+                    if lc > magic:
+                        tf = magic
                     else:
                         tf = lc
-                        td = True  # need to clear_line after line prints
+                        if lc < magic:
+                            # we have at least one empty from the weltext
+                            td = True  # need to clear_line after line prints
                     for i in range(0, tf):
                         term.move(x=i + 2)
                         term.clear_line()
                         stdout.write(dataa[vl + i])
-                    del tf
                     if td:
+                        term.move(x=tf + 2)
                         term.clear_line()
-                    del td
+                    del td, tf, magic
 
             elif term.buf[0] is 12:  # add tab
                 term.stdin = " " * 4
