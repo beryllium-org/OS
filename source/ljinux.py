@@ -1012,7 +1012,7 @@ class ljinux:
                     elif inpt[1] == "save":
                         ljinux.history.save(ljinux.based.user_vars["history-file"])
                     else:
-                        print("{colors.magenta_t}Based{colors.endc}: Invalid option")
+                        print(f"{colors.magenta_t}Based{colors.endc}: Invalid option")
                 except IndexError:
                     ljinux.history.getall()
 

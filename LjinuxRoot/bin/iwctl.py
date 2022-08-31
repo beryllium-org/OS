@@ -126,6 +126,7 @@ if argl is 0:
                                     res = ljinux.modules["network"].connect(
                                         data[3], passwd
                                     )
+                                del passwd
                             else:
                                 res = ljinux.modules["network"].connect(data[3])
                             if res is 0:
@@ -159,7 +160,6 @@ if argl is 0:
                     print()
                     ljinux.based.error(1)
                     ljinux.based.user_vars["return"] = "1"
-                del passwd
             del data, datal
         term.buf[1] = ""
         print()

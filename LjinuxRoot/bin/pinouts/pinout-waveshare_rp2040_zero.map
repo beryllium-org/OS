@@ -1,5 +1,5 @@
                          Frontside
-                                       ,----|   |----.
+                              ,----|   |----.
 [        |        ]   5V  (-) |o5V \---/   o|  (0)  GP0  [SPI0 RX |I2C0 SDA|UART0 TX]
 [        |        ]  GND  (-) |o    usbC   o|  (1)  GP1  [SPI0 CSn|I2C0 SCL|UART0 RX]
 [        |        ]  3V3  (-) |oRP2040-ZEROo|  (2)  GP2  [SPI0 SCK|I2C1 SDA|        ]
