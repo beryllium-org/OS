@@ -6,7 +6,7 @@
 
 # Some important vars
 Version = "0.4.0"
-Circuitpython_supported = (7, 3)  # don't bother with last digit
+Circuitpython_supported = [(7, 3), (8, 0)]  # don't bother with last digit
 dmesg = []
 access_log = []
 
@@ -255,16 +255,17 @@ if configg["led"] == -1:
     boardLED = board.LED
 else:
     boardLED = pintab[configg["led"]]
-boardLEDinvert = False
 
 del defaultoptions
 
 # basic checks
 if not configg["SKIPCP"]:  # beta testing
-    if implementation.version[:2] == Circuitpython_supported or (
-        implementation.version[0] == Circuitpython_supported[0]
-        and implementation.version[1] < Circuitpython_supported[1]
-    ):
+    good = False
+    for i in Circuitpython_supported:
+        if implementation.version[:2] == i:
+            good = True
+            break
+    if good:
         dmtex("Running on supported implementation")
     else:
         dmtex(
