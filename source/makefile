@@ -13,6 +13,11 @@ driver_wifi:
 	@python3 ../scripts/copy_wifi.py
 	@sync
 	@echo "Wifi driver done"
+driver_w5500spi:
+	@echo "Installing w5500 spi driver"
+	@python3 ../scripts/copy_w5500spi.py
+	@sync
+	@echo "w5500 spi driver done"
 update_modules:
 	@echo "Updating git submodules from remotes.."
 	@git submodule update --init --recursive --remote ..
