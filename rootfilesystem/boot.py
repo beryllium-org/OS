@@ -1,5 +1,13 @@
 from storage import getmount, remount, disable_usb_drive
-from supervisor import disable_autoreload
+
+try:
+    from supervisor import disable_autoreload
+except ImportError:
+    from supervisor import runtime
+
+    def disable_autoreload():
+        runtime.autoreload = False
+
 
 print("-" * 16 + "\nL", end="")
 
@@ -33,3 +41,7 @@ disable_autoreload()
 print("UX boot core\n" + "-" * 16 + "\nOutput:\n" + stash)
 
 del devf, stash, disable_autoreload, disable_usb_drive, remount, getmount
+try:
+    del runtime
+except:
+    pass

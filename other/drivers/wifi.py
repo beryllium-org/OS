@@ -9,7 +9,7 @@ from gc import collect
 class driver_wifi:
     """
     Ljinux network driver for the built in wifi module
-    import it as: from drivers.driver_wifi import driver_wifi
+    Usage: modprobe driver_wifi as network
     """
 
     def __init__(self):
@@ -162,3 +162,7 @@ class driver_wifi:
         collect()
         collect()
         self._session = Session(self._pool, create_default_context())
+
+    def enter(self, args=None):
+        print("This driver holds no executable")
+        return 0
