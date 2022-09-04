@@ -27,5 +27,5 @@
   "_comment10": "Debugging & extreme options",
   "SKIPTEMP": false,
   "SKIPCP": false,
-  "DEBUG": true
+  "DEBUG": false
 }

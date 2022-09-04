@@ -207,7 +207,7 @@ defaultoptions = {  # default configuration, in line with the manual (default va
 
 # dynamic pintab
 try:
-    exec(f"from pintab_{board.board_id} import pintab")
+    pintab = __import__(f"pintab_{board.board_id}").pintab
 except:
     dmtex(f"{colors.error}ERROR:{colors.endc} Board pintab cannot be loaded")
     exit(1)
@@ -300,6 +300,14 @@ if not configg["SKIPTEMP"]:
 else:
     print("Temperature check skipped, rest in pieces cpu.")
 
+ndc = False  # no device usb connectio
+
+
+def ndcen():
+    global ndc
+    ndc = True
+
+
 dmtex("Running board detection")
 boardactions = {
     "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
@@ -310,6 +318,10 @@ boardactions = {
         "Running on an Adafruit Feather ESP32-S2."
     ),
     "pimoroni_picolipo_16mb": lambda: dmtex("Running on a Pimoroni Pico Lipo 16mb."),
+    "beetle-esp32-c3": lambda: (
+        dmtex("Running on a DFrobot Beetle esp32c3."),
+        ndcen(),
+    ),  # hack
 }
 
 try:
@@ -326,7 +338,7 @@ except KeyError:
         + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible."
     )
     time.sleep(20)
-del boardactions
+del boardactions, ndcen
 
 dmtex((f"Board memory: {usable_ram} bytes"))
 dmtex((f"Memory free: {gc.mem_free()} bytes"))
@@ -592,7 +604,7 @@ class ljinux:
             "HOSTNAME": "pico",
             "TERM": "xterm-256color",
             "LANG": "en_GB.UTF-8",
-            "BOARD": board.board_id.replace("_", " "),
+            "BOARD": board.board_id.replace("_", " ").replace("-", " "),
             "IMPLEMENTATION": ".".join(map(str, list(implementation.version))),
         }
 

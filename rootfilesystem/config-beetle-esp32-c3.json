@@ -1,13 +1,13 @@
 {
-  "_comment1": "Default Ljinux configuration, adjust to your needs",
+  "_comment1": "DFrobot ESP32-c3 confguration",
   
   "_comment3": "Board led, can be generic or neopixel",
-  "led": 17,
-  "ledtype": "neopixel",
+  "led": -1,
+  "ledtype": "generic",
   
   "_comment4": "Display i2c pins",
-  "displaySCL": 13,
-  "displaySDA": 12,
+  "displaySCL": -1,
+  "displaySDA": -1,
 
   "_comment5": "Display height - width",
   "displayheight": 64,
