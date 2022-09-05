@@ -103,18 +103,21 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
         ljinux.io.ledset(1)
         ljinux.based.user_vars["return"] = "0"  # admin may edit it
 
-        try:
-            server.serve_forever(
-                host=str(ipconf["ip"]),
-                root=ljinux.based.fn.betterpath(webconf["path"]),
-                port=webconf["port"],
-            )
-        except KeyboardInterrupt:
-            pass
-    except Exception as err:
+        server.start(
+            host=str(ipconf["ip"]),
+            root=ljinux.based.fn.betterpath(webconf["path"]),
+            port=webconf["port"],
+        )
+        while True:
+            try:
+                server.poll()
+            except KeyboardInterrupt:
+                break
+            except Exception as err:
+                print(f"Error: {err}")
+    except:
         print("Error: Njinx configuration file is invalid. Abort.")
         ljinux.based.user_vars["return"] = "1"
-        print(str(err))
 
     # cleanup
     print("Cleaning up..")
