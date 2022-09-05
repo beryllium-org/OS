@@ -116,6 +116,7 @@ if argl is 0:
                             if networks[data[3]][0] != "OPEN":
 
                                 ljinux.io.ledset(1)
+                                passwd = None
                                 try:
                                     passwd = input(f"\nEnter password for {data[3]}: ")
                                 except KeyboardInterrupt:
@@ -123,6 +124,7 @@ if argl is 0:
                                 ljinux.io.ledset(3)
 
                                 if passwd is not None:
+                                    ljinux.modules["network"].disconnect()
                                     res = ljinux.modules["network"].connect(
                                         data[3], passwd
                                     )
@@ -131,18 +133,6 @@ if argl is 0:
                                 res = ljinux.modules["network"].connect(data[3])
                             if res is 0:
                                 print("\nConnected successfully.")
-                                a = "n"
-                                try:
-                                    a = input(
-                                        "Save this connection as the default wifi connection? (y/n): "
-                                    )
-                                except KeyboardInterrupt:
-                                    pass
-                                if a in ["y", "Y"]:
-                                    pass
-                                else:
-                                    print("Saving aborted.")
-                                del a
                             else:
                                 print("\nConnection failed.")
                             ljinux.based.user_vars["return"] = str(res)
@@ -200,10 +190,12 @@ else:
                 res = 1
                 if networks[args[3]][0] != "OPEN":
                     if passwd is not None:
+                        ljinux.modules["network"].disconnect()
                         res = ljinux.modules["network"].connect(args[3], passwd)
                     else:
                         print("Error: No password specified")
                 else:
+                    ljinux.modules["network"].disconnect()
                     res = ljinux.modules["network"].connect(args[3])
                 if res is not 0:
                     print("Connection failed.")

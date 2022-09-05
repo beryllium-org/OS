@@ -101,8 +101,25 @@ while True:
 
         else:
             try:
-                exec("cppy=" + term.buf[1])
-                print(str(cppy))
+                cppy = None
+                pyeqpos1 = term.buf[1].find("=")
+                pyeqpos2 = term.buf[1].find("==")
+                pyskippri = False
+                if (
+                    ((pyeqpos1 is not -1) and (pyeqpos1 is not pyeqpos2))
+                    or (term.buf[1][:7] == "import ")
+                    or (term.buf[1][:4] in ["del ", "for "])
+                    or (term.buf[1][:3] == "if ")
+                ):
+                    pyskippri = True
+                del pyeqpos1, pyeqpos2
+                if not pyskippri:
+                    exec("cppy=" + term.buf[1])
+                else:
+                    exec(term.buf[1])
+                del pyskippri
+                if cppy is not None:
+                    print(str(cppy))
                 del cppy
             except Exception as Err:
                 print(str(Err))

@@ -62,7 +62,14 @@ class driver_wifi:
         Resolve ip string, to something usable
         No domain resolves just yet
         """
-        return ip_address(host)
+        if host.startswith("https://"):
+            host = host[8:]
+        elif host.startswith("http://"):
+            host = host[7:]
+        try:
+            return ip_address(self._pool.getaddrinfo(host, 0)[0][4][0])
+        except OSError:
+            raise ConnectionError
 
     def scan(self):
         """
@@ -111,11 +118,25 @@ class driver_wifi:
 
         return data
 
+    def reset(self):
+        self.disconnect()
+
     def disconnect(self):
         """
         Disconnect from the wifi
         """
         wifi.radio.stop_station()
+        wifi.radio.stop_scanning_networks()
+        wifi.radio.enabled = False
+
+        from time import sleep
+
+        sleep(0.5)
+        del sleep
+        collect()
+
+        wifi.radio.enabled = True
+
         del self._pool, self._session
         self._pool = None
         self._session = None
@@ -126,6 +147,7 @@ class driver_wifi:
         Power on the wifi
         """
         wifi.radio.enabled = True
+        self.disconnect()
 
     def stop(self):
         """
