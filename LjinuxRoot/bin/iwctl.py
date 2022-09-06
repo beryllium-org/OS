@@ -2,7 +2,14 @@ ljinux.based.user_vars["return"] = "0"
 args = ljinux.based.user_vars["argj"].split()[1:]
 argl = len(args)
 
-device_n = ljinux.modules["network"].hw_name if "network" in ljinux.modules else None
+device_n = (
+    ljinux.modules["network"].hw_name
+    if (
+        "network" in ljinux.modules
+        and ljinux.modules["network"].interface_type == "wifi"
+    )
+    else None
+)
 
 if argl is 0:
     # interactive interface

@@ -23,6 +23,7 @@ class driver_wifi:
         self.error = False
         self.connected = False
         self.hw_name = "wifi"
+        self.interface_type = "wifi"
         self.mode = "station"
 
     def connect(self, ssid, passwd):
