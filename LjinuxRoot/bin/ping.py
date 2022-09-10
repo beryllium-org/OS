@@ -25,8 +25,10 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
                 timetab = list()
                 try:
                     while True:
+                        ljinux.io.ledset(2)
                         done += 1
                         a = ljinux.modules["network"].ping(domain)
+                        ljinux.io.ledset(3)
                         if a is not None:
                             timetab.append(a)
                             good += 1
