@@ -37,7 +37,7 @@ while True:
                 if len(a):
                     stdout.write("\n")
                     for i in a:
-                        if not i.startswith("__"):
+                        if not i.startswith("_"):
                             stdout.write(i + "    ")
                         del i
                     stdout.write("\n")
