@@ -31,7 +31,21 @@ while True:
         term.focus = 0
         break
     elif term.buf[0] == 3:
-        term.buf[1] += "    "
+        try:
+            if term.focus is 0 and term.buf[1].endswith("."):
+                exec("a = dir({})".format(term.buf[1][: term.buf[1].rfind(".")]))
+                if len(a):
+                    stdout.write("\n")
+                    for i in a:
+                        if not i.startswith("__"):
+                            stdout.write(i + "    ")
+                        del i
+                    stdout.write("\n")
+                del a
+            else:
+                raise Exception
+        except:
+            term.buf[1] += "    "
     elif term.buf[0] == 0:
         print()
         if term.buf[1].startswith(" "):
