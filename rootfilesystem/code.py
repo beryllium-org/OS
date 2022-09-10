@@ -72,4 +72,7 @@ jrub("Reached target: Quit")
 oss.io.ledset(0)
 del oss
 
-exit_l[Exit_code]()
+try:
+    exit_l[Exit_code]()
+except ValueError:
+    exit_l[245]()
