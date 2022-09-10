@@ -7,7 +7,14 @@ fpexec /LjinuxRoot/etc/hostname-reload.py
 
 # wait for serial connection
 _waitforserial
+
+# fancy title
+fpexec /bin/ljinuxtitle.py
+
+# checks
 _rebootprompt
 _devmodeprompt
+
+# init
 exec .basedrc
 SECURITY = "on"
