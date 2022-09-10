@@ -6,15 +6,15 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
         # preperation
         randomm = None
         ljinux.based.silent = True
-        ljinux.based.command.fpexecc([None, "-n", "/bin/random.py"])
+        ljinux.based.command.fpexecc([None, "/bin/random.py"])
         ljinux.based.silent = False
         randomm = ljinux.based.user_vars["return"].replace(".", "") + args2[1]
 
         ljinux.based.user_vars["argj"] = "- /tmp/" + randomm
-        ljinux.based.command.fpexecc([None, "-n", "/bin/mkdir.py"])
+        ljinux.based.command.fpexecc([None, "/bin/mkdir.py"])
 
         ljinux.based.user_vars["argj"] = f"- quiet decompress {args2[1]} /tmp/{randomm}"
-        ljinux.based.command.fpexecc([None, "-n", "/bin/jz.py"])
+        ljinux.based.command.fpexecc([None, "/bin/jz.py"])
 
         # installation
         bckdir = getcwd()
@@ -41,7 +41,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
         if not sdcard_fs:
             remount("/", True)
         ljinux.based.user_vars["argj"] = "- /tmp/" + randomm
-        ljinux.based.command.fpexecc([None, "-n", "/bin/rmdir.py"])
+        ljinux.based.command.fpexecc([None, "/bin/rmdir.py"])
         del randomm
     else:
         ljinux.based.error(1)

@@ -1,2 +1,2 @@
 # The reboot command
-fpexec -n /bin/reboot.py
+fpexec /bin/reboot.py

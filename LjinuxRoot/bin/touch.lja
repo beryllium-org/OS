@@ -1,2 +1,2 @@
 # touch cat
-fpexec -n /bin/touch.py
+fpexec /bin/touch.py

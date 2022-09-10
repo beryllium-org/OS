@@ -1,1 +1,1 @@
-fpexec -n /bin/jz.py
+fpexec /bin/jz.py

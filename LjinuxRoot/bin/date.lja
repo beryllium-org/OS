@@ -1,2 +1,2 @@
-fpexec -n /bin/date.py
+fpexec /bin/date.py
 return = 0

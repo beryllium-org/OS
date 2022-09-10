@@ -1,2 +1,2 @@
 COMMENT change directory
-fpexec -n /bin/cd.py
+fpexec /bin/cd.py

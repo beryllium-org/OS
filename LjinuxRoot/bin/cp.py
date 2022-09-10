@@ -19,7 +19,7 @@ try:
             del srcd
     elif srcisd is 1 and dstisd is 2:
         ljinux.based.user_vars["argj"] = f"mkdir {dst}"
-        ljinux.based.command.fpexecc([None, "-n", "/bin/mkdir.py"])
+        ljinux.based.command.fpexecc([None, "/bin/mkdir.py"])
         if not sdcard_fs:
             remount("/", False)
         gc.collect()
@@ -28,7 +28,7 @@ try:
             print(f"{src}/{i} -> {dst}/{i}")
             if ljinux.based.fn.isdir(f"{src}/{i}"):
                 ljinux.based.user_vars["argj"] = f"cp {src}/{i} {dst}/{i}"
-                ljinux.based.command.fpexecc([None, "-n", "/bin/cp.py"])
+                ljinux.based.command.fpexecc([None, "/bin/cp.py"])
                 if not sdcard_fs:
                     remount("/", False)
                 src = src[: src.rfind("/")]

@@ -1150,26 +1150,6 @@ class ljinux:
                 pcomm = ljinux.based.raw_command_input.lstrip(
                     ljinux.based.raw_command_input.split()[0]
                 ).replace(" ", "", 1)
-                nl = False
-                try:
-                    if "-n" in inpt[1]:
-                        nl = True
-                        pcomm = pcomm.lstrip(
-                            ljinux.based.raw_command_input.split()[1]
-                        ).replace(" ", "", 1)
-                except IndexError:
-                    ljinux.based.error(9)
-                    ljinux.based.user_vars["return"] = "1"
-                    return
-                if not nl:
-                    print(
-                        "Adafruit CircuitPython {} on ljinux {}; {}\n>>> {}".format(
-                            ljinux.based.system_vars["IMPLEMENTATION"],
-                            Version,
-                            ljinux.based.system_vars["BOARD"],
-                            pcomm,
-                        )
-                    )
                 try:
                     exec(pcomm)  # Vulnerability.exe
                     del pcomm
@@ -1181,7 +1161,6 @@ class ljinux:
                         + str(err)
                     )
                     del err
-                del nl
 
             def fpexecc(inpt):  # file pexec
                 global Version
@@ -1197,15 +1176,6 @@ class ljinux:
                     ljinux.based.user_vars["return"] = "1"
                     return
 
-                if not ("n" in fpargs):
-                    print(
-                        "Adafruit CircuitPython {} on ljinux {}; {}\nRunning file: {}".format(
-                            ljinux.based.system_vars["IMPLEMENTATION"],
-                            Version,
-                            ljinux.based.system_vars["BOARD"],
-                            inpt[offs],
-                        )
-                    )
                 try:
                     a = open(ljinux.based.fn.betterpath(inpt[offs])).read()
                     if not ("t" in fpargs or "l" in fpargs):
@@ -1785,7 +1755,7 @@ class ljinux:
         # ---
 
         def setup():
-            ljinux.based.command.fpexecc([None, "-n", "/bin/display_f/setup.py"])
+            ljinux.based.command.fpexecc([None, "/bin/display_f/setup.py"])
 
         def frame():
             global display_availability
@@ -1818,13 +1788,9 @@ class ljinux:
         def draw_circle(xpos0, ypos0, rad, col, f):
             ljinux.farland.public = [xpos0, ypos0, rad, col]
             if not f:
-                ljinux.based.command.fpexecc(
-                    [None, "-n", "/bin/display_f/draw_circle.py"]
-                )
+                ljinux.based.command.fpexecc([None, "/bin/display_f/draw_circle.py"])
             else:
-                ljinux.based.command.fpexecc(
-                    [None, "-n", "/bin/display_f/f_draw_circle.py"]
-                )
+                ljinux.based.command.fpexecc([None, "/bin/display_f/f_draw_circle.py"])
 
         def virt_line(x0, y0, x1, y1):
             virt_l_tab = []

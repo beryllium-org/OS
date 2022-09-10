@@ -1,1 +1,1 @@
-pexec -n term.detect_size()
+pexec term.detect_size()

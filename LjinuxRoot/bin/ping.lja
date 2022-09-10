@@ -1,1 +1,1 @@
-fpexec -n /bin/ping.py
+fpexec /bin/ping.py

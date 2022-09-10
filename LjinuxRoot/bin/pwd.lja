@@ -1,1 +1,1 @@
-pexec -n print(ljinux.based.fn.betterpath());ljinux.based.user_vars["return"] = ljinux.based.fn.betterpath()
+pexec print(ljinux.based.fn.betterpath());ljinux.based.user_vars["return"] = ljinux.based.fn.betterpath()

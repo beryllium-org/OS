@@ -1,1 +1,1 @@
-fpexec -n /bin/pinout.py
+fpexec /bin/pinout.py

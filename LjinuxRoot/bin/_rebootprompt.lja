@@ -1,1 +1,1 @@
-fpexec -n /bin/_rebootprompt.py
+fpexec /bin/_rebootprompt.py

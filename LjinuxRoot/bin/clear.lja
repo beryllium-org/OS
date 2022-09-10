@@ -1,2 +1,2 @@
 COMMENT clear screen
-pexec -n term.clear()
+pexec term.clear()

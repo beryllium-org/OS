@@ -1,3 +1,3 @@
 # copy.txt (shortcut of copy.exe)
-fpexec -n /bin/cp.py
-pexec -n del src, srcisd, dst, dstisd
+fpexec /bin/cp.py
+pexec del src, srcisd, dst, dstisd

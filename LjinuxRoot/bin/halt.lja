@@ -1,1 +1,1 @@
-pexec -n global Exit; global Exit_code; Exit_code = 244; Exit = True
+pexec global Exit; global Exit_code; Exit_code = 244; Exit = True

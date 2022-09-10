@@ -13,7 +13,7 @@ try:
         sizee = term.detect_size()
 
         ljinux.based.command.fpexecc(
-            [None, "-n", "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
+            [None, "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
         )
         del ljinux.based.user_vars["input"]
 

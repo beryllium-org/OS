@@ -1,1 +1,1 @@
-fpexec -n /bin/njinx.py 
+fpexec /bin/njinx.py 

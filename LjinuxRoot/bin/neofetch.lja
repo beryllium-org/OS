@@ -1,3 +1,3 @@
 # Yea i'm just gonna make it all a intertwined mess
-fpexec -n /bin/neofetch.py
+fpexec /bin/neofetch.py
 return = 0

@@ -34,7 +34,7 @@ if sizee[0] > 14 and sizee[1] > 105:
             del ll
 
         ljinux.based.command.fpexecc(
-            [None, "-n", "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
+            [None, "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
         )
         del ljinux.based.user_vars["input"]
         dataa = ljinux.based.user_vars["output"]

@@ -1,2 +1,2 @@
 # wannabe python shell 
-fpexec -n /bin/python.py
+fpexec /bin/python.py
