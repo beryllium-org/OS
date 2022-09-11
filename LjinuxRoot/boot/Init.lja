@@ -7,7 +7,9 @@ fpexec /LjinuxRoot/etc/hostname-reload.py
 
 # wait for serial connection
 _waitforserial
-bufferclear
+
+# optional buffer clear
+# bufferclear
 
 # fancy title
 fpexec /bin/ljinuxtitle.py

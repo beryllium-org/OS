@@ -19,3 +19,6 @@
 [submodule "other/Adafruit_CircuitPython_HTTPServer"]
 	path = other/Adafruit_CircuitPython_HTTPServer
 	url = https://github.com/adafruit/Adafruit_CircuitPython_HTTPServer
+[submodule "other/Adafruit_CircuitPython_Wiznet5k"]
+	path = other/Adafruit_CircuitPython_Wiznet5k
+	url = https://github.com/adafruit/Adafruit_CircuitPython_Wiznet5k
