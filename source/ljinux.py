@@ -161,10 +161,10 @@ except ImportError:
 # Kernel cmdline.txt
 try:
 
-    with open(board_config := f"/config-{board.board_id}.json") as config_file:
-        dmtex(f"Loaded {board_config}")
+    with open("/config.json") as config_file:
+        dmtex("Loaded /config.json")
         configg = json.load(config_file)
-        del config_file, board_config
+        del config_file
 
     for i in configg:
         if i.startswith("_"):
@@ -205,9 +205,9 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "sd_MOSI": (-1, int, True),
 }
 
-# dynamic pintab
+# pintab
 try:
-    pintab = __import__(f"pintab_{board.board_id}").pintab
+    from pintab import pintab
 except:
     dmtex(f"{colors.error}ERROR:{colors.endc} Board pintab cannot be loaded")
     exit(1)
