@@ -101,7 +101,7 @@ if argl is 0:
                             elif networks[i][1] > -80:
                                 ranl.append("*")
                             else:
-                                ranl.append("shit")
+                                ranl.append("bad")
                             lent += 1
 
                         print(
