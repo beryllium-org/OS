@@ -4,6 +4,7 @@ all: kern donemsg
 install: kern rootfs donemsg
 debug: prep kerncompd
 wifi: prep driver_wifi
+w5500spi: prep driver_w5500spi
 
 kern: prep kerncomp
 prep: modules prepperms

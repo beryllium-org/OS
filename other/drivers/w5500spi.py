@@ -1,8 +1,9 @@
-from ipaddress import ip_address
-from socketpool import SocketPool
-from ssl import create_default_context
+from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
+import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
 from adafruit_requests import Session
 from gc import collect
+from digitalio import DigitalInOut
+from busio import SPI
 
 
 class w5500spi:
@@ -13,6 +14,7 @@ class w5500spi:
 
     def __init__(self):
         # internal use only
+        self._interface = None
         self._pool = None
         self._session = None
         self._tz = None
@@ -25,16 +27,24 @@ class w5500spi:
         self.interface_type = "ethernet"
         self.mode = "None"
 
-    def connect(self, mosi, miso, sclk, rst):
-        """
-        Connect to a wifi access point
-        """
+    def connect(self, mosi, miso, sclk, cs, ip=None, hostname="Ljinux"):
+        csint = DigitalInOut(cs)
+        spi = busio.SPI(sclk, MOSI=mosi, MISO=mosi)
+        print("SPI set")
+
         try:
-            wifi.radio.connect(ssid=ssid, password=passwd)
+            self._interface = WIZNET5K(spi, cs, is_dhcp=False)
         except ConnectionError:
             return 1
-        self._pool = SocketPool(wifi.radio)
-        self._session = Session(self._pool, create_default_context())
+        print("interface set")
+        print(str(self._interface.link_status))
+        if self._interface.link_status:
+            dhcp_status = self._interface.set_dhcp(
+                hostname=hostname, response_timeout=10
+            )
+            print("dhcp set")
+        else:
+            return 1
         self.connected = True
         return 0
 
@@ -42,43 +52,20 @@ class w5500spi:
         """
         ICMP Ping
         """
-        return wifi.radio.ping(self.resolve(host))
+        return None
 
     def get(self, host):
-        """
-        HTTP Get
-        """
-        if self._session is not None:
-
-            if not (host.startswith("http://") or host.startswith("https://")):
-                host = "https://" + host
-
-            return self._session.get(host)
-        else:
-            return None
+        return None
 
     def resolve(self, host):
         """
         Resolve ip string, to something usable
         No domain resolves just yet
         """
-        return ip_address(host)
+        return None
 
     def scan(self):
-        """
-        scan and store all nearby networks
-        """
-        if wifi.radio.enabled:
-            net = dict()
-            for network in wifi.radio.start_scanning_networks():
-                sec = str(network.authmode)
-                sec = sec[sec.rfind(".") + 1 : -1]
-                net.update({network.ssid: [sec, network.rssi]})
-                del sec
-            wifi.radio.stop_scanning_networks()
-            return net
-
-        return list()
+        return None
 
     def get_ipconf(self):
         """
@@ -90,51 +77,35 @@ class w5500spi:
             "bssid": None,
             "channel": None,
             "country": None,
-            "ip": wifi.radio.ipv4_address,
-            "power": str(wifi.radio.enabled),
-            "gateway": wifi.radio.ipv4_gateway,
+            "ip": None,
+            "power": None,
+            "gateway": None,
             "mode": self.mode,
-            "dns": wifi.radio.ipv4_dns,
-            "subnet": wifi.radio.ipv4_subnet,
-            "mac": wifi.radio.mac_address,
-            "mac_pretty": str(wifi.radio.mac_address).replace("\\x", ":")[3:-3],
-            "hostname": wifi.radio.hostname,
+            "dns": None,
+            "subnet": None,
+            "mac": None,
+            "mac_pretty": None,
+            "hostname": None,
         }
 
         try:
-            data["ssid"] = wifi.radio.ap_info.ssid
-            data["bssid"] = wifi.radio.ap_info.bssid
-            data["channel"] = wifi.radio.ap_info.channel
-            data["country"] = wifi.radio.ap_info.country
+            data["ssid"] = None
+            data["bssid"] = None
+            data["channel"] = None
+            data["country"] = None
         except:
             pass
 
         return data
 
     def disconnect(self):
-        """
-        Disconnect from the wifi
-        """
-        wifi.radio.stop_station()
-        del self._pool, self._session
-        self._pool = None
-        self._session = None
-        self.connected = False
+        pass
 
     def start(self):
-        """
-        Power on the wifi
-        """
-        wifi.radio.enabled = True
+        pass
 
     def stop(self):
-        """
-        Stop all wifi transactions
-        Disconnect
-        Power it off
-        """
-        self.disconnect()
-        wifi.radio.enabled = False
+        pass
 
     def timeset(self, tz=3):
         """
@@ -156,10 +127,7 @@ class w5500spi:
         del NTP, RTC, struct_time
 
     def resetsock(self):
-        del self._session
-        collect()
-        collect()
-        self._session = Session(self._pool, create_default_context())
+        pass
 
     def enter(self, args=None):
         print("This driver holds no executable")
