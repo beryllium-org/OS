@@ -9,6 +9,14 @@ except ImportError:
         runtime.autoreload = False
 
 
+try:
+    from supervisor import status_bar
+
+    status_bar.console = False
+    del status_bar
+except ImportError:
+    pass
+
 print("-" * 16 + "\nL", end="")
 
 devf = False
