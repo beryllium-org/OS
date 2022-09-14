@@ -9,7 +9,6 @@ exit_l = {
     241: lambda: (on_next_reset(RunMode.UF2), reset()),
     242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
     243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
-    244: lambda: (jrub("Reached target: Halt"), chdir("/"), sleep(36000)),
     245: lambda: reset(),
 }
 

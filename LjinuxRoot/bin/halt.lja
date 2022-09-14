@@ -1,1 +1,1 @@
-pexec global Exit; global Exit_code; Exit_code = 244; Exit = True
+fpexec /bin/halt.py
