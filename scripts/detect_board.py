@@ -1,4 +1,4 @@
-from os import system, mkdir, listdir, path, popen
+from os import system, mkdir, listdir, path, popen, environ
 from platform import uname
 from getpass import getuser
 
@@ -7,7 +7,17 @@ def detect_board():
     ami = getuser()
     picop = ""
     board = ""
-    if system(f"test -d /media/{ami}/LJINUX") == 0:
+    try:
+        board = environ["no_install"]
+    except KeyError:
+        pass
+    if board != "":
+        try:
+            mkdir("target")
+        except:
+            pass
+        picop = "target"
+    elif system(f"test -d /media/{ami}/LJINUX") == 0:
         picop = f"/media/{ami}/LJINUX"
     elif system(f"test -d /media/{ami}/CIRCUITPY") == 0:
         picop = f"/media/{ami}/CIRCUITPY"
@@ -26,7 +36,7 @@ def detect_board():
             vol.close()
             if picop != "":
                 break
-    if not picop == "":
+    if (not picop == "") and (picop != "target"):
         with open(f"{picop}/boot_out.txt", "r") as boot_out:
             magic = boot_out.readlines()
             board = magic[1][9:-1]

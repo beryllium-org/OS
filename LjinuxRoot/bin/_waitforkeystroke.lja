@@ -1,0 +1,3 @@
+COMMENT Wait for the any keystroke to occur
+pexec term.anykey("Press any key to open based shell")
+detect
