@@ -5,7 +5,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.5"
+    versionn = "1.6"
 
     try:
         filee = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
@@ -169,9 +169,11 @@ if sizee[0] > 14 and sizee[1] > 105:
                 term.focus = 0
                 term.move(x=sizee[0] - 2)
                 spsz = (sizee[1] - 21) * " "
-                stdout.write(f"{colors.white_bg_black_bg}Save modified buffer?{spsz}\n")
+                stdout.write(
+                    f"{colors.white_bg_black_bg}Save modified buffer?{spsz}{colors.endc}\n"
+                )
                 term.clear_line()
-                stdout.write(f" Y{colors.endc} Yes\n")
+                stdout.write(f"{colors.white_bg_black_bg} Y{colors.endc} Yes\n")
                 term.clear_line()
                 stdout.write(
                     f"{colors.white_bg_black_bg} N{colors.endc} No        {toolsplit}{colors.white_bg_black_bg}^C{colors.endc} Cancel"
@@ -259,11 +261,12 @@ if sizee[0] > 14 and sizee[1] > 105:
                         term.clear_line()
                         stdout.write("File name to write:" + (" " * (sizee[1] - 19)))
                         term.move(x=sizee[0] - 1)
+                        stdout.write(colors.endc)
                         term.clear_line()
                         term.move(x=sizee[0])
                         term.clear_line()
                         stdout.write(
-                            f"^C{colors.endc} Cancel{colors.white_bg_black_bg}"
+                            f"{colors.white_bg_black_bg}^C{colors.endc} Cancel"
                         )
                         ffname = ""
                         try:
@@ -271,6 +274,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                         except IndexError:
                             pass
                         term.move(x=sizee[0] - 2, y=21)
+                        stdout.write(colors.white_bg_black_bg)
                         term.buf[1] = ffname
                         term.focus = 0
                         del ffname
@@ -380,9 +384,9 @@ if sizee[0] > 14 and sizee[1] > 105:
             pass
 
     del q, cl, vl, target, toolbar_txt, inb, toolsplit, filee, exists
-    term.clear()
     term.buf[1] = ""
     stdout.write(colors.endc)
+    term.clear()
     term.trigger_dict = term_old
 
     del savee, dataa, term_old
