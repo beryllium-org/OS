@@ -26,17 +26,22 @@ class driver_wifi:
         self.interface_type = "wifi"
         self.mode = "station"
 
-    def connect(self, ssid, passwd):
+    def connect(self, ssid, passwd=None):
         """
         Connect to a wifi access point
         """
         try:
-            wifi.radio.connect(ssid=ssid, password=passwd)
+            if passwd is not None:
+                wifi.radio.connect(ssid=ssid, password=passwd)
+            else:
+                wifi.radio.connect(ssid=ssid)
         except ConnectionError:
+            del ssid, passwd
             return 1
         self._pool = SocketPool(wifi.radio)
         self._session = Session(self._pool, create_default_context())
         self.connected = True
+        del ssid, passwd
         return 0
 
     def ping(self, host):
