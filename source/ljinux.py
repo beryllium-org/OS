@@ -15,10 +15,7 @@ try:
     import gc
 
     gc.enable()
-    gc.collect()
-    gc.collect()
-    gc.collect()
-    usable_ram = gc.mem_free()
+    usable_ram = gc.mem_alloc() + gc.mem_free()
 
     import board
     import digitalio
