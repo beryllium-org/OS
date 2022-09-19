@@ -2,6 +2,9 @@
 uname -a
 cat /etc/motd
 
+# set history size (default 10) to preserve memory
+# history-size = 10
+
 # nice aliases
 alias ifpexec="fpexec -i"
 alias lfpexec="fpexec -l"

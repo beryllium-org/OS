@@ -396,6 +396,7 @@ class ljinux:
     class history:
         historyy = []
         nav = [0, 0, ""]
+        sz = 50
 
         def load(filen):
             ljinux.history.historyy = list()
@@ -422,8 +423,22 @@ class ljinux:
         def appen(itemm):  # add to history, but don't save to file
             if (
                 len(ljinux.history.historyy) > 0 and itemm != ljinux.history.gett(1)
-            ) or len(ljinux.history.historyy) == 0:
-                ljinux.history.historyy.append(itemm)
+            ) or len(ljinux.history.historyy) is 0:
+                if len(ljinux.history.historyy) < ljinux.history.sz:
+                    ljinux.history.historyy.append(itemm)
+                elif len(ljinux.history.historyy) is ljinux.history.sz:
+                    ljinux.history.shift(itemm)
+                else:
+                    ljinux.history.historyy = ljinux.history.historyy[
+                        -(ljinux.history.sz - 1) :
+                    ] + [itemm]
+
+        def shift(itemm):
+            ljinux.history.historyy.reverse()
+            ljinux.history.historyy.pop()
+            ljinux.history.historyy.reverse()
+            ljinux.history.historyy.append(itemm)
+            del itemm
 
         def save(filen):
             try:
@@ -591,6 +606,7 @@ class ljinux:
 
         user_vars = {
             "history-file": "/LjinuxRoot/home/board/.history",
+            "history-size": "10",
             "return": "0",
         }
 
@@ -652,7 +668,7 @@ class ljinux:
             ljinux.based.system_vars["VERSION"] = Version
 
             print(
-                "\nWelcome to lJinux wannabe Kernel {}!\n\n".format(
+                "\nWelcome to ljinux wannabe Kernel {}!\n\n".format(
                     ljinux.based.system_vars["VERSION"]
                 ),
                 end="",
@@ -688,6 +704,10 @@ class ljinux:
             except OSError:
                 systemprints(3, "Running Init Script")
             ljinux.history.load(ljinux.based.user_vars["history-file"])
+            try:
+                ljinux.history.sz = int(ljinux.based.user_vars["history-size"])
+            except:
+                pass
             systemprints(1, "History Reload")
             if ljinux.based.system_vars["Init-type"] == "oneshot":
                 systemprints(1, "Init complete")
@@ -1013,12 +1033,18 @@ class ljinux:
                 except NameError:
                     pass
 
-            def historgf(inpt):  # history get full list
+            def historgf(inpt):  # history frontend
                 try:
                     if inpt[1] == "clear":
                         ljinux.history.clear(ljinux.based.user_vars["history-file"])
                     elif inpt[1] == "load":
                         ljinux.history.load(ljinux.based.user_vars["history-file"])
+                        try:
+                            ljinux.history.sz = int(
+                                ljinux.based.user_vars["history-size"]
+                            )
+                        except:
+                            pass
                     elif inpt[1] == "save":
                         ljinux.history.save(ljinux.based.user_vars["history-file"])
                     else:
