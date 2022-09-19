@@ -33,15 +33,17 @@ while True:
     elif term.buf[0] == 3:
         try:
             if term.focus is 0 and term.buf[1].endswith("."):
-                exec("a = dir({})".format(term.buf[1][: term.buf[1].rfind(".")]))
-                if len(a):
+                exec(
+                    "ljdirtest = dir({})".format(term.buf[1][: term.buf[1].rfind(".")])
+                )
+                if len(ljdirtest):
                     stdout.write("\n")
-                    for i in a:
+                    for i in ljdirtest:
                         if not i.startswith("_"):
                             stdout.write(i + "    ")
                         del i
                     stdout.write("\n")
-                del a
+                del ljdirtest
             else:
                 raise Exception
         except:
@@ -122,7 +124,7 @@ while True:
                 if (
                     ((pyeqpos1 is not -1) and (pyeqpos1 is not pyeqpos2))
                     or (term.buf[1][:7] == "import ")
-                    or (term.buf[1][:4] in ["del ", "for "])
+                    or (term.buf[1][:4] in ["del ", "for ", "from"])
                     or (term.buf[1][:3] == "if ")
                 ):
                     pyskippri = True
