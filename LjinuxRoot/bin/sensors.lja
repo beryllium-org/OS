@@ -1,3 +1,3 @@
 # it's better to do it with python than with the api, plus it's good practice using pexec
-pexec print("cpu_thermal\nAdapter: Cpu device\ntemp1: +" + str(cpu.temperature)[:5] + "°C\nvoltage1: " + str(cpu.voltage) + "v")
+pexec print("cpu_thermal\nAdapter: Cpu device\ntemp1: +" + str(cpu.temperature)[:5] + "°C\n" + ("voltage1: " + str(cpu.voltage) + "v" if cpu.voltage is not None else ""))
 return = 0
