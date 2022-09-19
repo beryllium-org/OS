@@ -34,25 +34,106 @@ gc.collect()
 Rram = f"{trunc((usable_ram - gc.mem_free()) / 1024)}KiB / {int(usable_ram/1024)}KiB"
 sizee = term.detect_size()
 
-print(
-    f"""{colors.green_t}  ,----,{colors.endc}                    {colors.cyan_t}{ljinux.based.system_vars["USER"]}@{ljinux.based.system_vars["HOSTNAME"]} {colors.endc}
-{colors.green_t}  ,----.|{colors.endc}      {colors.magenta_t},----._    {colors.endc}  ---------
-{colors.green_t}  |LLL|l:{colors.endc}     {colors.magenta_t}.-- -.'j\   {colors.endc}  \033[31mOS{colors.endc}: \033[33mLjinux {ljinux.based.system_vars["VERSION"]}{colors.endc}
-{colors.green_t}  :LLL:l|{colors.endc}     {colors.magenta_t}|JJJJ|jjj:  {colors.endc}  \033[31mHost{colors.endc}: {ljinux.based.system_vars["BOARD"]}  
-{colors.green_t}  |LLL'l:{colors.endc}     {colors.magenta_t}:JJJJ;jjj|  {colors.endc}  \033[31mCircuitPython{colors.endc}: {ljinux.based.system_vars["IMPLEMENTATION"]}
-{colors.green_t}  ;LLL;l'{colors.endc}     {colors.magenta_t}:JJJJ|jjj|  {colors.endc}  \033[31mUptime{colors.endc}: {uptimestr}
-{colors.green_t}  'LLL|l|{colors.endc}     {colors.magenta_t}|JJJJ:jjj:  {colors.endc}  \033[31mPackages{colors.endc}: 0 (jpkg)
-{colors.green_t}  |LLL|l|{colors.endc}     {colors.magenta_t}:JJJJ|jjj:  {colors.endc}  \033[31mShell{colors.endc}: \033[35mBased{colors.endc}
-{colors.green_t}  'LLL:l;_____{colors.endc}{colors.magenta_t}|JJJJ;jjj|  {colors.endc}  \033[31mResolution:{colors.endc} {sizee[1]}x{sizee[0]}
-{colors.green_t}  |LLL|;.____{colors.endc}{colors.magenta_t};lJJJJ|jjj|  {colors.endc}  \033[31mWM{colors.endc}: Farland
-{colors.green_t}  ;LLL:{colors.endc} {colors.magenta_t}/JJJJ/\JJJJ/jjj:  {colors.endc}  \033[31mTerminal{colors.endc}: TTYACM0
-{colors.green_t}  |LLL,{colors.endc}{colors.magenta_t}/JJ../jj`..-jjjj,  {colors.endc}  \033[31mCPU{colors.endc}: {Ccpu}
-{colors.green_t}   ---'{colors.endc}{colors.magenta_t}\JJJJ\jjjjjjjjj;   {colors.endc}  \033[31mMemory{colors.endc}: {Rram}
-{colors.green_t}        {colors.endc}{colors.magenta_t}\JJJJ\jjjjjj,'    {colors.endc}  
-{colors.magenta_t}         "---....--'      {colors.endc}  {colors.black_t}███{colors.endc}{colors.red_t}███{colors.endc}{colors.green_t}███{colors.endc}{colors.yellow_t}███{colors.endc}{colors.blue_t}███{colors.endc}{colors.magenta_t}███{colors.endc}{colors.cyan_t}███{colors.endc}{colors.white_t}███{colors.endc}  
-                            {colors.black_t}███{colors.endc}{colors.red_t}███{colors.endc}{colors.green_t}███{colors.endc}{colors.yellow_t}███{colors.endc}{colors.blue_t}███{colors.endc}{colors.magenta_t}███{colors.endc}{colors.cyan_t}███{colors.endc}{colors.white_t}███{colors.endc}
-"""
-)
+# to edit the neofetch, you need to swap logo, tex and seperat
+
+seperat = 28  # where do we begin collumn #2
+
+logo = [
+    f"{colors.green_t}  ,----,{colors.endc}                    ",
+    f"{colors.green_t}  ,----.|{colors.endc}      {colors.magenta_t},----._{colors.endc}",
+    f"{colors.green_t}  |LLL|l:{colors.endc}     {colors.magenta_t}.-- -.'j\\{colors.endc}",
+    f"{colors.green_t}  :LLL:l|{colors.endc}     {colors.magenta_t}|JJJJ|jjj:{colors.endc}",
+    f"{colors.green_t}  |LLL'l:{colors.endc}     {colors.magenta_t}:JJJJ;jjj|{colors.endc}",
+    f"{colors.green_t}  ;LLL;l'{colors.endc}     {colors.magenta_t}:JJJJ|jjj|{colors.endc}",
+    f"{colors.green_t}  'LLL|l|{colors.endc}     {colors.magenta_t}|JJJJ:jjj:{colors.endc}",
+    f"{colors.green_t}  |LLL|l|{colors.endc}     {colors.magenta_t}:JJJJ|jjj:{colors.endc}",
+    f"{colors.green_t}  'LLL:l;_____{colors.endc}{colors.magenta_t}|JJJJ;jjj|{colors.endc}",
+    f"{colors.green_t}  |LLL|;.____{colors.endc}{colors.magenta_t};lJJJJ|jjj|{colors.endc}",
+    f"{colors.green_t}  ;LLL:{colors.endc} {colors.magenta_t}/JJJJ/\JJJJ/jjj:{colors.endc}",
+    f"{colors.green_t}  |LLL,{colors.endc}{colors.magenta_t}/JJ../jj`..-jjjj,{colors.endc}",
+    f"{colors.green_t}   ---'{colors.endc}{colors.magenta_t}\JJJJ\jjjjjjjjj; {colors.endc}",
+    f"{colors.green_t}        {colors.endc}{colors.magenta_t}\JJJJ\jjjjjj,'{colors.endc}",
+    f"{colors.magenta_t}         \"---....--'{colors.endc}",
+]
+
+tex = [
+    (
+        colors.cyan_t
+        + ljinux.based.system_vars["USER"]
+        + "@"
+        + ljinux.based.system_vars["HOSTNAME"]
+        + colors.endc
+    ),
+    "---------",
+    (
+        colors.red_t
+        + "OS"
+        + colors.endc
+        + ": "
+        + colors.yellow_t
+        + "Ljinux "
+        + ljinux.based.system_vars["VERSION"]
+        + colors.endc
+    ),
+    (colors.red_t + "Host" + colors.endc + ": " + ljinux.based.system_vars["BOARD"]),
+    (
+        colors.red_t
+        + "CircuitPython"
+        + colors.endc
+        + ": "
+        + ljinux.based.system_vars["IMPLEMENTATION"]
+    ),
+    f"{colors.red_t}Uptime{colors.endc}: {uptimestr}",
+    f"{colors.red_t}Packages{colors.endc}: 0 (jpkg)",
+    f"{colors.red_t}Shell{colors.endc}: {colors.magenta_t}Based{colors.endc}",
+    f"{colors.red_t}Resolution:{colors.endc} {sizee[1]}x{sizee[0]}",
+    f"{colors.red_t}WM{colors.endc}: Farland",
+    f"{colors.red_t}Terminal{colors.endc}: TTYACM0",
+    f"{colors.red_t}CPU{colors.endc}: {Ccpu}",
+    f"{colors.red_t}System Memory{colors.endc}: {Rram}",
+]
 
 del Rram, Ccpu, sizee
 del uptimestr
+
+try:
+    import espidf
+
+    total = espidf.heap_caps_get_total_size()
+    used = total - espidf.heap_caps_get_free_size()
+    erram = f"{trunc((used) / 1024)}KiB / {trunc((total) / 1024)}KiB"
+    tex += [f"\033[31mESPIDF Memory{colors.endc}: {erram}"]
+    del total, used, erram, espidf
+except ImportError:
+    pass
+
+tex += [
+    "",
+    (
+        f"{colors.black_t}███{colors.endc}{colors.red_t}███{colors.endc}"
+        + f"{colors.green_t}███{colors.endc}{colors.yellow_t}███{colors.endc}"
+        + f"{colors.blue_t}███{colors.endc}{colors.magenta_t}███{colors.endc}"
+        + f"{colors.cyan_t}███{colors.endc}{colors.white_t}███{colors.endc}"
+    ),
+    (
+        f"{colors.black_t}███{colors.endc}"
+        + f"{colors.red_t}███{colors.endc}{colors.green_t}███{colors.endc}"
+        + f"{colors.yellow_t}███{colors.endc}{colors.blue_t}███{colors.endc}"
+        + f"{colors.magenta_t}███{colors.endc}{colors.cyan_t}███{colors.endc}"
+        + f"{colors.white_t}███{colors.endc}"
+    ),
+]
+pos = term.detect_pos()
+for i in range(0, max(len(logo), len(tex))):
+    try:
+        stdout.write(logo[i])
+    except IndexError:
+        pass
+    term.move(y=seperat, x=pos[0] + i)
+    try:
+        stdout.write(tex[i])
+    except IndexError:
+        pass
+    stdout.write("\n")
+    del i
+del tex, logo, seperat, pos
