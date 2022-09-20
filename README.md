@@ -69,19 +69,20 @@ And it's own display "compositor", farland.<br /><br />
 
 ## Installation / Updating
 
-<i>Note: Automatic Windows install not supported at the moment. Linux & MacOS only.</i><br /><br />
-
 1) Install a supported CircuitPython version onto the board<br />
-    Raspberry Pi Pico uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_board) & detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
+    Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
 2) Clone (or download this repository) and from within the "source" folder, run <code>make install</code>.<br />
+    If you are on windows (why are you such a masochist), run the <code>windows-install.bat</code>.<br />
+    To update on windows, run the <code>windows-update.bat</code>.<br />
     This command will automatically update the system files if they already exist.<br />
     To only update the wanna-be kernel run <code>make</code> instead.<br />
-    (For these commands to work you need to have python3 installed, and the board attached & mounted.)<br />
-3) *(Optional)* Install the optional libraries for the hardware you want to connect to it.<br />
-  <b>If you plan on using the board standalone, you don't need put any extra libraries in.</b><br />
-4) After these steps, eject the board and fully disconnect it from the pc. (It is important to power cycle it.)<br />
-   When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)<br />
-   An automated connection script exists in the form of <code>make connection</code><br />
+    (For this to work you need to have python3 installed, even on windows, and the board attached & mounted.)<br />
+3) *(Optional)* To include drivers to the installation run <code>make *device name*</code>.<br />
+    The currently available drivers are: <code>wifi</code>, <code>w5500</code><br />
+    For windows, you can run instead the respective bat file.<br />
+4) Eject & power off the board. (This is an important step.)<br />
+    When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)<br />
+    An automated connection script exists in the form of <code>make connection</code><br />
 <b>IMPORTANT NOTE: To make the pi appear as a usb device on the host, run the ljinux command </b><code>devmode</code><br />
 <br />
 
