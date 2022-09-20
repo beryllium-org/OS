@@ -36,9 +36,7 @@ At the moment the supported microcontrollers are:<br /><br />
 
  - Raspberry Pi Pico<br />
  - Raspberry Pi Pico W <br />
-   <sub><sup>At the moment no CircuitPython uf2 image exists
-   is instead relies on the normal Pico's uf2.
-   This results to some bugs, the led & wifi don't work.<br />
+   Notice: Wifi still doesn't work correctly.<br />
  - Waveshare RP2040-Zero <br />
  - Adafruit KB2040 <br />
  - Waveshare ESP32-S2-Pico <br />

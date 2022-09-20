@@ -315,6 +315,9 @@ boardactions = {
         "Running on an Adafruit Feather ESP32-S2."
     ),
     "pimoroni_picolipo_16mb": lambda: dmtex("Running on a Pimoroni Pico Lipo 16mb."),
+    "raspberry_pi_pico_w": lambda: dmtex(
+        "Running on a Raspberry Pi Pico Wireless (pi cow)."
+    ),
     "beetle-esp32-c3": lambda: (
         dmtex("Running on a DFrobot Beetle esp32c3."),
         ndcen(),
