@@ -94,7 +94,7 @@ And it's own display "compositor", farland.<br /><br />
 For the SSD1306 display: <code>adafruit_ssd1306 adafruit_framebuf</code><br />
 Sdcard: <code>adafruit_sdcard adafruit_bus_device</code><br />
     The sdcard has to be formatted as Fat32 / Fat16 or equivelant.<br />
-Ethernet: <code>adafruit_wiznet5k adafruit_wsgi adafruit_requests adafruit_bus_device</code><br /><br />
+Ethernet: Handled by <code>make</code><br /><br />
 
 The neccessary libraries can be found [here](https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases)<br />
 Download the zip (The 7.x-mpy variant), extract it & copy the libraries you want onto <code>/lib</code> of the board.<br /><br />
