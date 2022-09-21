@@ -76,7 +76,7 @@ And it's own display "compositor", farland.<br /><br />
     To only update the wanna-be kernel run <code>make</code> instead.<br />
     (For this to work you need to have python3 installed, even on windows, and the board attached & mounted.)<br />
 3) *(Optional)* To include drivers to the installation run <code>make *device name*</code>.<br />
-    The currently available drivers are: <code>wifi</code>, <code>w5500</code><br />
+    The currently available drivers are: <code>wifi</code>, <code>w5500spi</code><br />
     For windows, you can run instead the respective bat file.<br />
 4) Eject & power off the board. (This is an important step.)<br />
     When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)<br />
