@@ -9,10 +9,15 @@ if argl is not 0:
     except IndexError:
         pass
     loadstr = f"from drivers.{module} import {module}"
+    dmtextt = f'Modprobe: Loading module "{module}"'
+
     if ass is not None:
         module = ass
         loadstr += f" as {module}"
-    del ass
+        dmtextt += f" as {module}"
+
+    dmtex(dmtextt)
+    del ass, dmtextt
     try:
         exec(loadstr)
         if module not in ljinux.modules:

@@ -23,12 +23,12 @@
                                              ^^^
                                        SWCLK ||| SWDIO
                                          GND  |
-Raspberry Pi Pico Rev 1.0
+Raspberry Pi Pico W Rev 1.0
 
 Revision           : 1.0
 SoC                : RP2040
 RAM                : 264KB
 Storage            : SQPI (2MB)
 USB ports          : 1 (of which 0 USB3)
-Wi-fi              : False
+Wi-fi              : True
 Bluetooth          : False

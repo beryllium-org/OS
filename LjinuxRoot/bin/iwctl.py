@@ -74,6 +74,7 @@ if argl is 0:
                     and device_n == data[1]
                 ):
                     if data[2] == "scan":
+                        dmtex(f"Wifi: Scanning")
                         networks = ljinux.modules["network"].scan()
                         ljinux.based.user_vars["return"] = "0"
                     elif data[2] == "get-networks":
@@ -117,6 +118,7 @@ if argl is 0:
                             )
                         del namesl, ranl, secl, maxn, lent
                     elif datal > 3 and data[2] == "connect":
+                        dmtex(f"Wifi: Scanning")
                         networks = ljinux.modules["network"].scan()
                         if data[3] in networks:
                             res = 1
@@ -132,15 +134,19 @@ if argl is 0:
 
                                 if passwd is not None:
                                     ljinux.modules["network"].disconnect()
+                                    dmtex(f'Wifi: Connecting to: "{data[3]}"')
                                     res = ljinux.modules["network"].connect(
                                         data[3], passwd
                                     )
                                 del passwd
                             else:
+                                dmtex(f'Wifi: Connecting to: "{data[3]}"')
                                 res = ljinux.modules["network"].connect(data[3])
                             if res is 0:
+                                dmtex("Wifi: Connected to network successfully.")
                                 print("\nConnected successfully.")
                             else:
+                                dmtex("Wifi: Connection to network failed.")
                                 print("\nConnection failed.")
                             ljinux.based.user_vars["return"] = str(res)
                             del res
@@ -148,6 +154,7 @@ if argl is 0:
                             print("\nNetwork not found")
                     elif datal > 2 and data[2] == "disconnect":
                         ljinux.modules["network"].disconnect()
+                        dmtex("Wifi: Disconnected.")
                         ljinux.based.user_vars["return"] = "0"
                     else:
                         print()

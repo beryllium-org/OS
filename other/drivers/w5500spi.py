@@ -6,7 +6,7 @@ from digitalio import DigitalInOut
 from busio import SPI
 
 
-class w5500spi:
+class driver_w5500spi:
     """
     Ljinux network driver for the w5500 ethernet module (spi interface)
     Usage: modprobe w5500spi as network
@@ -29,7 +29,7 @@ class w5500spi:
 
     def connect(self, mosi, miso, sclk, cs, ip=None, hostname="Ljinux"):
         csint = DigitalInOut(cs)
-        spi = busio.SPI(sclk, MOSI=mosi, MISO=mosi)
+        spi = SPI(sclk, MOSI=mosi, MISO=mosi)
         print("SPI set")
 
         try:

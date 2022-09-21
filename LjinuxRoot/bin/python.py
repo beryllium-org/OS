@@ -14,6 +14,7 @@ term.buf[1] = ""
 
 currdep = 0
 mass = []
+dmtex("Staring Python shell")
 print("CircuitPython " + ljinux.based.system_vars["IMPLEMENTATION"] + " on ljinux")
 print('Type "help", "copyright", "credits" or "license" for more information.')
 while True:
@@ -146,6 +147,7 @@ while True:
         term.buf[1] = ""
         mass.clear()
         term.focus = 0
+dmtex("Python shell session has ended")
 term.trigger_dict = term_old
 del term_old, mass, currdep
 ljinux.based.user_vars["return"] = "0"
