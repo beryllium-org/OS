@@ -42,17 +42,6 @@ if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
     print("Created lib directory.")
     mkdir(f"{picop}/lib".replace("/", slash))
 
-if picop == "target":
-    print("[0/6] Compiling fake_cdc\n")
-    print(f"-> usb_cdc\n")
-    a = system(
-        f"{mpyn} ../other/fakecdc/usb_cdc.py -s usb_cdc -v -O4 -o {picop}/lib/usb_cdc.mpy".replace(
-            "/", slash
-        )
-    )
-    if a != 0:
-        errexit()
-
 print("[1/6] Compiling source files\n")
 for filee in listdir():
     if filee.endswith(".py"):

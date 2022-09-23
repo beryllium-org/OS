@@ -2,12 +2,21 @@ from os import system, mkdir, listdir, path, popen
 from platform import uname
 from getpass import getuser
 from detect_board import detect_board
+from sys import argv
 
 
 def errexit():
     print("Compilation error, exiting")
     exit(1)
 
+
+optimis = "-O4"
+try:
+    if argv[1] == "debug":
+        print("Alert: Compiling with debug enabled.")
+        optimis = ""
+except IndexError:
+    pass
 
 if uname().system == "Linux":
     slash = "/"
@@ -75,7 +84,7 @@ for filee in listdir(
     if filee != "adafruit_wiznet5k_wsgiserver.py":
         print(f"-> {filee[:-3]}")
         a = system(
-            f"{mpyn} ../other/Adafruit_CircuitPython_Wiznet5k/adafruit_wiznet5k/{filee} -s {filee[:-3]} -v -O4 -o {picop}/lib/adafruit_wiznet5k/{filee[:-3]}.mpy".replace(
+            f"{mpyn} ../other/Adafruit_CircuitPython_Wiznet5k/adafruit_wiznet5k/{filee} -s {filee[:-3]} -v {optimis} -o {picop}/lib/adafruit_wiznet5k/{filee[:-3]}.mpy".replace(
                 "/", slash
             )
         )
@@ -84,7 +93,7 @@ for filee in listdir(
 
 print("\n[5/5] Compiling w5500 spi drivers\n-> driver_w5500spi")
 a = system(
-    f"{mpyn} ../other/drivers/w5500spi.py -s driver_w5500spi -v -O4 -o {picop}/lib/drivers/driver_w5500spi.mpy".replace(
+    f"{mpyn} ../other/drivers/w5500spi.py -s driver_w5500spi -v {optimis} -o {picop}/lib/drivers/driver_w5500spi.mpy".replace(
         "/", slash
     )
 )

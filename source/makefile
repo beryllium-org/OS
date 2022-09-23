@@ -3,12 +3,15 @@ SHELL = bash
 all: kern donemsg
 install: kern rootfs donemsg
 debug: prep kerncompd
+w5500spi_debug: prep driver_w5500spi_debug
 wifi: prep driver_wifi
 w5500spi: prep driver_w5500spi
 
-kern: prep kerncomp
+kern: prep kerncomp auto_fake_cdc
 prep: modules prepperms
 
+auto_fake_cdc:
+	@python3 ../scripts/auto_fake-cdc.py
 driver_wifi:
 	@echo "Installing wifi driver"
 	@python3 ../scripts/copy_wifi.py
@@ -17,6 +20,11 @@ driver_wifi:
 driver_w5500spi:
 	@echo "Installing w5500 spi driver"
 	@python3 ../scripts/copy_w5500spi.py
+	@sync
+	@echo "w5500 spi driver done"
+driver_w5500spi_debug:
+	@echo "Installing w5500 spi driver (debug)"
+	@python3 ../scripts/copy_w5500spi.py debug
 	@sync
 	@echo "w5500 spi driver done"
 update_modules:
@@ -45,7 +53,7 @@ kerncomp:
 	@sync
 	@python3 ../scripts/make_kernel.py
 kerncompd:
-	@echo -e "\nCommencing debug kernel compilation.."
+	@echo -e "\nCommencing kernel compilation.. (debug)"
 	@sync
 	@python3 ../scripts/make_kernel.py debug
 connection:
