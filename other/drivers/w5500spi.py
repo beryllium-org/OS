@@ -28,22 +28,86 @@ class driver_w5500spi:
         self.interface_type = "ethernet"
         self.mode = "None"
 
-    def connect(self, mosi, miso, sclk, cs, ip=None, hostname="Ljinux"):
+    def connect(
+        self,
+        mosi,
+        miso,
+        sclk,
+        cs,
+        ip=None,
+        subnet_mask="255.255.255.0",
+        gateway=None,
+        dns=None,
+        hostname="Ljinux",
+        debug=False,
+    ):
         self._cs = DigitalInOut(cs)
         self._spi = SPI(clock=sclk, MOSI=mosi, MISO=miso)
-
-        try:
-            self._interface = WIZNET5K(self._spi, self._cs, is_dhcp=False)
-            self._interface.detect_w5500()
-        except ConnectionError:
-            return 1
-        if self._interface.link_status:
-            dhcp_status = self._interface.set_dhcp(
-                hostname=hostname, response_timeout=10
+        if debug:
+            print("w5500spi: cs&spi created")
+        dhc = True
+        if ip is not None:
+            dhc = False
+        self._interface = WIZNET5K(self._spi, self._cs, is_dhcp=dhc, debug=debug)
+        del dhc
+        if ip is not None and gateway is not None and dns is not None:
+            ip = ip.split(".")
+            ip = [int(ip[0]), int(ip[1]), int(ip[2]), int(ip[3])]
+            ip = tuple(ip)
+            gateway = gateway.split(".")
+            gateway = [
+                int(gateway[0]),
+                int(gateway[1]),
+                int(gateway[2]),
+                int(gateway[3]),
+            ]
+            gateway = tuple(gateway)
+            dns = dns.split(".")
+            dns = [int(dns[0]), int(dns[1]), int(dns[2]), int(dns[3])]
+            dns = tuple(dns)
+            subnet_mask = subnet_mask.split(".")
+            subnet_mask = [
+                int(subnet_mask[0]),
+                int(subnet_mask[1]),
+                int(subnet_mask[2]),
+                int(subnet_mask[3]),
+            ]
+            subnet_mask = tuple(subnet_mask)
+            self._interface.ifconfig = (
+                ip,
+                subnet_mask,
+                gateway,
+                dns,
             )
         else:
+            self.disconnect()
+            return 3
+        if debug:
+            print("w5500spi: Interface created")
+        self._interface.detect_w5500()
+        if debug:
+            print(f"w5500spi: Interface detection done ({self._interface.chip})")
+
+        try:
+            if self._interface.link_status:
+                if debug:
+                    print("w5500spi: Link ok")
+                dhcp_status = self._interface.set_dhcp(
+                    hostname=hostname, response_timeout=10
+                )
+            else:
+                if debug:
+                    print("w5500spi: Link missing")
+                self.disconnect()
+                return 2
+        except RuntimeError:
+            if debug:
+                print("w5500spi: RuntimeError")
+            self.disconnect()
             return 1
         self.connected = True
+        if debug:
+            print("w5500spi: Done")
         return 0
 
     def ping(self, host):
@@ -67,7 +131,7 @@ class driver_w5500spi:
 
     def get_ipconf(self):
         """
-        A getter for all of the wifi data
+        A getter for all of the interface data
         iwconfig will need this
         """
         data = {
@@ -97,7 +161,18 @@ class driver_w5500spi:
         return data
 
     def disconnect(self):
-        pass
+        try:
+            self._spi.deinit()
+            self._spi = None
+        except:
+            pass
+        try:
+            self._cs.deinit()
+            self._cs = None
+        except:
+            pass
+        self._interface = None
+        self.connected = False
 
     def start(self):
         pass

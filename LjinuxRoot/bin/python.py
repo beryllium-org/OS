@@ -15,8 +15,17 @@ term.buf[1] = ""
 currdep = 0
 mass = []
 dmtex("Staring Python shell")
-print("CircuitPython " + ljinux.based.system_vars["IMPLEMENTATION"] + " on ljinux")
-print('Type "help", "copyright", "credits" or "license" for more information.')
+print(
+    "CircuitPython "
+    + ljinux.based.system_vars["IMPLEMENTATION"]
+    + " on ljinux "
+    + ljinux.based.system_vars["VERSION"]
+    + "\n"
+    + "Board: "
+    + board.board_id
+    + "\n"
+    + 'Type "help", "copyright", "credits" or "license" for more information.'
+)
 while True:
     term.clear_line()
     term.focus = 0
