@@ -1,3 +1,4 @@
 COMMENT Wait for the serial connection to occur
 pexec while not console.connected: ljinux.io.ledset(4); time.sleep(.4); ljinux.io.ledset(7); time.sleep(.4)
+pexec time.sleep(0.2)
 detect

@@ -5,7 +5,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.6"
+    versionn = "1.7"
 
     try:
         filee = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
@@ -81,7 +81,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     bottxt_offs = int((sizee[1] - len(weltxt)) / 2)
     del weltxt
 
-    toolsplit = " " * int(sizee[1] / 8 - 13)
+    toolsplit = " " * int(sizee[1] / 8 - 13 - (sizee[1] % 2))
 
     toolbar_items = [
         "^G",
