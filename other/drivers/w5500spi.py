@@ -1,7 +1,6 @@
 from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
 import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
 from adafruit_requests import Session
-from gc import collect
 from digitalio import DigitalInOut
 from busio import SPI
 
@@ -19,6 +18,8 @@ class driver_w5500spi:
         self._session = None
         self._tz = None
         self._ntp = None
+        self._spi = None
+        self._cs = None
 
         # public
         self.error = False
@@ -28,21 +29,18 @@ class driver_w5500spi:
         self.mode = "None"
 
     def connect(self, mosi, miso, sclk, cs, ip=None, hostname="Ljinux"):
-        csint = DigitalInOut(cs)
-        spi = SPI(sclk, MOSI=mosi, MISO=mosi)
-        print("SPI set")
+        self._cs = DigitalInOut(cs)
+        self._spi = SPI(clock=sclk, MOSI=mosi, MISO=miso)
 
         try:
-            self._interface = WIZNET5K(spi, cs, is_dhcp=False)
+            self._interface = WIZNET5K(self._spi, self._cs, is_dhcp=False)
+            self._interface.detect_w5500()
         except ConnectionError:
             return 1
-        print("interface set")
-        print(str(self._interface.link_status))
         if self._interface.link_status:
             dhcp_status = self._interface.set_dhcp(
                 hostname=hostname, response_timeout=10
             )
-            print("dhcp set")
         else:
             return 1
         self.connected = True
