@@ -2,6 +2,8 @@
 /-Ljinux standalone documentation sheet--\
 \-----| bill88t |------------------------/
  \======================================/
+ 
+Official repository: [https://github.com/bill88t/ljinux]
 
       /---------------|
 ----<| Basic commands |
@@ -113,10 +115,10 @@ exit [CODE]
 Exit the current process with an exit code, default = 0
 
 
-timedate [set]...
+date [set]...
 
 View the time, or set it
-Valid format "time set dd mm yyyy hr mm ss"
+Valid format "date set dd mm yyyy hr mm ss"
 
 
 su
@@ -135,11 +137,10 @@ history [save/load/clear]
 Displays the history
 
 
-webserver [args]
+njinx
 
 An integrated webserver
-Unless a path is given as an argument, it will try to serve /ljinux/var/www/default/
-Send "webserver -k" to kill
+Please configure /etc/njinx/njinx.conf beforehand
 
 
 whois [name]
@@ -212,21 +213,23 @@ opposite for more, except we don't have more..
 ----<| Config.json |
       \------------|
 
-This is a complete summary of all the options available, to create a custom config, arrange them into a valid json, named as config-"board.id":
+This is a complete summary of all the options available.
 
-"fixrtc", bool, can be true or false. While true, disables hardware Real Time Clock (RTC).
 
 "displaySCL" & "displaySDA", int, specifies the SSD1606 display i2c pins
 "displayheight" & "displaywidth", int, said display height - width
-"DISPLAYONLYMODE", false, bool, not yet implemented
 
 "led", int, specifies the activity led pin. Set to 0 for board.LED
 "ledtype", string, can be "generic" or "neopixel"
 
+"sd_SCLK": int, sdcard pin
+"sd_SCSn": int, sdcard pin
+"sd_MISO": int, sdcard pin
+"sd_MOSI": int, sdcard pin
+
 "SKIPTEMP" Debugging & extreme options, bools, keep them false
 "SKIPCP"
 "DEBUG"
-"DEVBOARD"
 
 The config file is no longer mandatory on simple boards, as the defaults are hardcoded in case they are missing / errored.
 
@@ -239,7 +242,7 @@ To have a script appear as a command, put it in /LjinuxRoot/bin/ or in the /bin 
 To create a comment, simply write COMMENT in the beginning of the line.
 
 To execute python code, you are advised to use pexec & fpexec.
-The scope is the same as the one of ljinux and you can call & alter ljinux data freely. Security is not important when you don't have internet or usb.
+The scope is the same as the one of ljinux and you can call & alter ljinux data freely.
 
 To access argj from based scripts containing pexec, the best way is to use ljinux.based.user_vars["argj"].split()
 
@@ -249,18 +252,6 @@ To access argj from based scripts containing pexec, the best way is to use ljinu
 
 The source & releases of Ljinux are primarily being made available to Github at: https://github.com/bill88t/ljinux
 However it is also mirrored to my self-hosted Gitea instance at: https://git.port1.cf/bill88t/ljinux
-
-      /-----------|
-----<| Deployment |
-      \-----------|
-
-The bare minimum of files needed for ljinux to run is:
- - boot.py
- - code.py
- - ljinux.mpy
-
-Without them Ljinux cannot function at all.
-However it's highly recommended to have a root folder ("LjinuxRoot" or an sdcard) present.
 
       /-------|
 ----<| Errors |
@@ -291,7 +282,10 @@ CODE:
       The display is not connected correctly
 
 7 : Filesystem unwritable, pi in developer mode
-      This error shows up when a write to the internal storage occures while developer mode is enabled. By CircuitPython design, when the internal storage is being made available from usb, it is unwritable to the os. To disable developer mode, delete the file "devm" from the root of LJINUX, and run the command "reboot"
+      This error shows up when a write to the internal storage occures while developer mode is enabled.
+      By CircuitPython design, when the internal storage is being made available from usb,
+      it is unwritable to the os. 
+      To disable developer mode, delete the file "devm" from the root of LJINUX, and run the command "reboot"
 
 8 : Missing files
       This error occurs when files needed for the command to run are missing.
@@ -305,8 +299,11 @@ CODE:
 11 : Not enough system memory
       POV: you are using a microcontroller.
 
-12 : Based: Error, variable already used:
+12 : Error, variable already used:
       The variable name specified is already in use, and can't be modified in this way.
+    
+13 : Terminal too small, minimum size: size:
+      The current terminal size is too small, resize the terminal to a size bigger than the one specified.
 
       /----------|
 ----<| Functions |
@@ -357,7 +354,8 @@ Useful functions:
     Registers the current cursor position as a bookmark with the name specified.
     
     - .move(ctx=None, x=None, y=None)
-    Moves the cursor to a specified x (row), y (collumn), or a bookmark. You can specify both a bookmark & and x, y coordinate.
+    Moves the cursor to a specified x (row), y (collumn), or a bookmark.
+    You can specify both a bookmark & and x, y coordinate.
     In that case, the x, y will be used as an offset.
     
     - .clear()
@@ -371,6 +369,9 @@ Useful functions:
     
     - .map()
     Testing function, prints chars inputted.
+
+    - .rem_gib()
+    Empty stdin for ansi code usage. The data is not discarded.
 
 jCurses does not depend onto ljinux.
 
@@ -396,13 +397,14 @@ Blue when waiting for serial connection.
 
 The ljinux kernel is in the board's root, while the os root is under /LjinuxRoot.
 This is so that it is possible to use an sdcard as a root instead.
-Betterpath is a function that is integrated into ljinux to make the os appear and function as if /LjinuxRoot is the real root.
+Betterpath is a function that is integrated into ljinux to make the
+os appear and function as if /LjinuxRoot is the real root.
 It works by standing as a middleman between all os path requests.
 However it doesn't prohibit the access to the board's real root.
 It work by mapping:
 
     Real path | Betterpath
-       "/"    |  "board/"
+       "/"    |  "&/"
 "/LjinuxRoot" |    "/"   
 
 And treating all subsequent paths by that rule.
@@ -430,3 +432,34 @@ Example 3:
 
     b = a
     echo b
+
+      /----------------------|
+----<| Netowork driver usage |
+      \----------------------|
+      
+To use the built-in circuitpython module "wifi" as your network connection:
+  - Ensure you have run "make wifi" from the host computer.
+     If you haven't, run "devmode" from within ljinux, to enable usb access,
+     and perform the module installation. Then delete the file "devm" from
+     the board's root, and reboot ljinux.
+  - Run "modprobe driver_wifi as network" to load the ljinux wifi driver.
+     You can optionally add it to /boot/Init.lja, to load it on boot.
+  - Use iwctl to configure the wifi connection.
+     For info on how to use iwctl, please refer to
+     [https://wiki.archlinux.org/title/iwd]
+       
+To use a w5500 ethernet module:
+  - Ensure you have run "make w5500" from the host computer.
+     If you haven't, run "devmode" from within ljinux, to enable usb access,
+     and perform the module installation. Then delete the file "devm" from
+     the board's root, and reboot ljinux.
+  - Run "modprobe driver_w5500 as network" to load the ljinux wifi driver.
+     You can optionally add it to /boot/Init.lja, to load it on boot.
+  - Use eth to configure the network interface.
+     For more information please refer to the manpage by running "man eth".
+
+      /-----------------------------|
+----<| Contributions to the project |
+      \-----------------------------|
+
+To commit to the project, make sure you have pre-commit installed and you have run `pre-commit install`.

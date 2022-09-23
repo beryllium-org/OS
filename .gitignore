@@ -1,3 +1,4 @@
-
+source/target
+*.pyc
 *.xml
 *.iml

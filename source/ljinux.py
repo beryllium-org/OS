@@ -6,7 +6,7 @@
 
 # Some important vars
 Version = "0.4.0"
-Circuitpython_supported = (7, 3)  # don't bother with last digit
+Circuitpython_supported = [(7, 3), (8, 0)]  # don't bother with last digit
 dmesg = []
 access_log = []
 
@@ -15,10 +15,7 @@ try:
     import gc
 
     gc.enable()
-    gc.collect()
-    gc.collect()
-    gc.collect()
-    usable_ram = gc.mem_free()
+    usable_ram = gc.mem_alloc() + gc.mem_free()
 
     import board
     import digitalio
@@ -161,10 +158,10 @@ except ImportError:
 # Kernel cmdline.txt
 try:
 
-    with open(board_config := f"/config-{board.board_id}.json") as config_file:
-        dmtex(f"Loaded {board_config}")
+    with open("/config.json") as config_file:
+        dmtex("Loaded /config.json")
         configg = json.load(config_file)
-        del config_file, board_config
+        del config_file
 
     for i in configg:
         if i.startswith("_"):
@@ -195,24 +192,19 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "displaywidth": (128, int, False),  # SSD1306 spec
     "led": (0, int, True),
     "ledtype": ("generic", str, False),
-    "fixrtc": (True, bool, False),
     "SKIPTEMP": (False, bool, False),
     "SKIPCP": (False, bool, False),
     "DEBUG": (False, bool, False),
     "DISPLAYONLYMODE": (False, bool, False),
-    "w5500_MOSI": (-1, int, True),
-    "w5500_MISO": (-1, int, True),
-    "w5500_SCSn": (-1, int, True),
-    "w5500_SCLK": (-1, int, True),
     "sd_SCLK": (-1, int, True),
     "sd_SCSn": (-1, int, True),
     "sd_MISO": (-1, int, True),
     "sd_MOSI": (-1, int, True),
 }
 
-# dynamic pintab
+# pintab
 try:
-    exec(f"from pintab_{board.board_id} import pintab")
+    from pintab import pintab
 except:
     dmtex(f"{colors.error}ERROR:{colors.endc} Board pintab cannot be loaded")
     exit(1)
@@ -260,16 +252,17 @@ if configg["led"] == -1:
     boardLED = board.LED
 else:
     boardLED = pintab[configg["led"]]
-boardLEDinvert = False
 
 del defaultoptions
 
 # basic checks
 if not configg["SKIPCP"]:  # beta testing
-    if implementation.version[:2] == Circuitpython_supported or (
-        implementation.version[0] == Circuitpython_supported[0]
-        and implementation.version[1] < Circuitpython_supported[1]
-    ):
+    good = False
+    for i in Circuitpython_supported:
+        if implementation.version[:2] == i:
+            good = True
+            break
+    if good:
         dmtex("Running on supported implementation")
     else:
         dmtex(
@@ -304,6 +297,14 @@ if not configg["SKIPTEMP"]:
 else:
     print("Temperature check skipped, rest in pieces cpu.")
 
+ndc = False  # no device usb connectio
+
+
+def ndcen():
+    global ndc
+    ndc = True
+
+
 dmtex("Running board detection")
 boardactions = {
     "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
@@ -314,6 +315,13 @@ boardactions = {
         "Running on an Adafruit Feather ESP32-S2."
     ),
     "pimoroni_picolipo_16mb": lambda: dmtex("Running on a Pimoroni Pico Lipo 16mb."),
+    "raspberry_pi_pico_w": lambda: dmtex(
+        "Running on a Raspberry Pi Pico Wireless (pi cow)."
+    ),
+    "beetle-esp32-c3": lambda: (
+        dmtex("Running on a DFrobot Beetle esp32c3."),
+        ndcen(),
+    ),  # hack
 }
 
 try:
@@ -330,10 +338,10 @@ except KeyError:
         + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible."
     )
     time.sleep(20)
-del boardactions
+del boardactions, ndcen
 
-dmtex(("Board memory: " + str(usable_ram) + " bytes"))
-dmtex(("Memory free: " + str(gc.mem_free()) + " bytes"))
+dmtex((f"Board memory: {usable_ram} bytes"))
+dmtex((f"Memory free: {gc.mem_free()} bytes"))
 dmtex("Basic checks done")
 
 # audio
@@ -364,53 +372,6 @@ try:
 except ImportError:
     dmtex(colors.error + "Notice: " + colors.endc + "Display libraries loading failed")
 
-# networking
-try:
-    import adafruit_requests as requests
-    from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
-    import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
-    from adafruit_wsgi.wsgi_app import WSGIApp
-    import adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver as server
-
-    dmtex("Networking libraries loaded")
-except ImportError:
-    dmtex(
-        colors.error + "Notice: " + colors.endc + "Networking libraries loading failed"
-    )
-
-if not configg["fixrtc"]:
-    # for rtc
-    # based off of https://github.com/afaonline/DS1302_CircuitPython
-    try:
-        import rtc
-        import ds1302
-
-        dmtex("RTC library loaded")
-        # rtc stuff @ init cuz otherwise system fails to access it
-        # the pins to connect it to:
-        rtcclk = digitalio.DigitalInOut(board.GP6)
-        rtcdata = digitalio.DigitalInOut(board.GP7)
-        rtcce = digitalio.DigitalInOut(board.GP8)
-
-        # to make it suitable for system
-        class RTC:
-            @property
-            def datetime(self):
-                return rtcc.read_datetime()
-
-        try:
-            rtcc = ds1302.DS1302(rtcclk, rtcdata, rtcce)
-            rtc.set_time_source(RTC())
-            del rtcclk
-            del rtcdata
-            del rtcce
-        except OSError:  # not sure how to catch if it's not available, TODO
-            pass
-
-        dmtex("RTC clock init done")
-    except ImportError:
-        dmtex(colors.error + "Notice: " + colors.endc + "RTC libraries loading failed")
-
 dmtex("Imports complete")
 
 
@@ -433,9 +394,12 @@ dmtex("Additional loading done")
 
 
 class ljinux:
+    modules = dict()
+
     class history:
         historyy = []
         nav = [0, 0, ""]
+        sz = 50
 
         def load(filen):
             ljinux.history.historyy = list()
@@ -462,8 +426,22 @@ class ljinux:
         def appen(itemm):  # add to history, but don't save to file
             if (
                 len(ljinux.history.historyy) > 0 and itemm != ljinux.history.gett(1)
-            ) or len(ljinux.history.historyy) == 0:
-                ljinux.history.historyy.append(itemm)
+            ) or len(ljinux.history.historyy) is 0:
+                if len(ljinux.history.historyy) < ljinux.history.sz:
+                    ljinux.history.historyy.append(itemm)
+                elif len(ljinux.history.historyy) is ljinux.history.sz:
+                    ljinux.history.shift(itemm)
+                else:
+                    ljinux.history.historyy = ljinux.history.historyy[
+                        -(ljinux.history.sz - 1) :
+                    ] + [itemm]
+
+        def shift(itemm):
+            ljinux.history.historyy.reverse()
+            ljinux.history.historyy.pop()
+            ljinux.history.historyy.reverse()
+            ljinux.history.historyy.append(itemm)
+            del itemm
 
         def save(filen):
             try:
@@ -504,19 +482,6 @@ class ljinux:
                 print(f"{index + 1}: {item}")
                 del index, item
 
-    class backrounding:
-        webserver = False
-
-        def main_tick(loud=False):  # this run in between of shell character captures
-            if ljinux.backrounding.webserver:
-                try:
-                    ljinux.networking.wsgiServer.update_poll()
-                except AttributeError:
-                    global access_log
-                    print("Error:\n" + str(access_log))
-            if loud:
-                print(str(gc.mem_free()))
-
     class io:
         # activity led
 
@@ -528,6 +493,7 @@ class ljinux:
             4: nc.waiting,
             5: nc.error,
             6: nc.killtheuser,
+            7: nc.waiting2,
         }
 
         getled = 0
@@ -541,10 +507,6 @@ class ljinux:
         elif configg["ledtype"] == "neopixel":
             neopixel_write(led, nc.idle)
 
-        network = None
-        network_online = False
-        network_name = "Offline"
-
         def ledset(state):
             """
             Set the led to a state.
@@ -554,7 +516,7 @@ class ljinux:
             if isinstance(state, int):
                 ## use preconfigured led states
                 if configg["ledtype"] in ["generic", "generic_invert"]:
-                    if state in {0, 3}:
+                    if state in [0, 3, 4, 5]:  # close tha led
                         ljinux.io.led.value = (
                             False if configg["ledtype"] == "generic" else True
                         )
@@ -592,81 +554,6 @@ class ljinux:
                         yield b
             except OSError:
                 yield f"Error: File '{filename}' Not Found"
-
-        def init_net():
-            global configg
-            if (
-                configg["w5500_SCSn"] != -1
-                and configg["w5500_SCLK"] != -1
-                and configg["w5500_MISO"] != -1
-                and configg["w5500_MOSI"] != -1
-            ):
-                cs = digitalio.DigitalInOut(pintab[configg["w5500_SCSn"]])
-                spi = busio.SPI(
-                    pintab[configg["w5500_SCLK"]],
-                    MOSI=pintab[configg["w5500_MOSI"]],
-                    MISO=pintab[configg["w5500_MISO"]],
-                )
-                ca = True
-                dmtex("Network bus ready")
-            else:
-                ca = False
-                dmtex("No pins for networking, skipping setup")
-            if ca:
-                try:
-                    ljinux.io.network = WIZNET5K(spi, cs, is_dhcp=False)
-                    dmtex("Eth interface created")
-                except (AssertionError, NameError):
-                    dmtex("Eth interface creation failed")
-                    ca = False
-                del spi
-                del cs
-            if ca and ljinux.io.network.link_status:
-                dhcp_status = ljinux.io.network.set_dhcp(
-                    hostname="Ljinux", response_timeout=10
-                )
-                dmtex("Ran dhcp")
-                if dhcp_status == 0:
-                    dmtex('Hostname set to "Ljinux"')
-                    requests.set_socket(socket, ljinux.io.network)
-                    dmtex("Eth set as socket")
-                    dmtex("Chip: " + ljinux.io.network.chip)
-                    macc = ""
-                    for i in ljinux.io.network.mac_address:
-                        macc += str(hex(i))[2:] + ":"
-                    dmtex("MAC eth0: " + macc[:-1])
-                    del macc
-                    dmtex(
-                        "IP address: "
-                        + ljinux.io.network.pretty_ip(ljinux.io.network.ip_address)
-                    )
-                    dmtex("Neworking init successful")
-                    ljinux.io.network_name = "eth0"
-                    ljinux.io.network_online = True
-                    server.set_interface(ljinux.io.network)
-                    server.socket.gc.enable()
-                else:
-                    dmtex("DHCP failed")
-            else:
-                dmtex("Ethernet cable not connected / interface unavailable")
-                for i in [
-                    "adafruit_wiznet5k.adafruit_wiznet5k_dhcp",
-                    "adafruit_wiznet5k.adafruit_wiznet5k_socket",
-                    "adafruit_wiznet5k.adafruit_wiznet5k_dns",
-                    "adafruit_wiznet5k.adafruit_wiznet5k",
-                    "adafruit_wiznet5k",
-                    "adafruit_wsgi.wsgi_app",
-                    "adafruit_requests",
-                    "adafruit_wiznet5k.adafruit_wiznet5k_wsgiserver",
-                    "adafruit_wsgi",
-                    "adafruit_wsgi.request",
-                ]:
-                    try:
-                        exec(f"global {i};del {i};del modules[{i}]")
-                    except:
-                        pass
-                dmtex("Unloaded networking libraries")
-            del ca
 
         def start_sdcard():
             global sdcard_fs
@@ -713,95 +600,6 @@ class ljinux:
             "voltage": lambda: str(cpu.voltage),
         }
 
-    class networking:
-        wsgiServer = None
-
-        def get_content_type(filee):
-            ext = filee.split(".")[-1]
-            if ext in ("html", "htm"):
-                return "text/html"
-            elif ext == "js":
-                return "application/javascript"
-            elif ext == "css":
-                return "text/css"
-            elif ext in ("jpg", "jpeg"):
-                return "image/jpeg"
-            elif ext == "png":
-                return "image/png"
-            elif ext == "json":
-                return "application/json"
-            return "text/plain"
-
-        def serve_file(file_path):
-            return (
-                "200 OK",
-                [("Content-Type", ljinux.networking.get_content_type(file_path))],
-                ljinux.io.get_static_file(file_path),
-            )
-
-        def timeset():
-            if ljinux.networking.test():
-                try:
-                    dmtex(
-                        "IP lookup worldtimeapi.org: %s"
-                        % ljinux.io.network.pretty_ip(
-                            ljinux.io.network.get_host_by_name("worldtimeapi.org")
-                        )
-                    )
-                    r = requests.get(
-                        "http://worldtimeapi.org/api/timezone/Europe/Athens"
-                    )
-                    dat = r.json()
-                    dmtex("Public IP: " + dat["client_ip"])
-                    dst = 1 if dat["dst"] == "True" else 0
-                    nettime = time.struct_time(
-                        (
-                            int(dat["datetime"][:4]),
-                            int(dat["datetime"][5:7]),
-                            int(dat["datetime"][8:10]),
-                            int(dat["datetime"][11:13]),
-                            int(dat["datetime"][14:16]),
-                            int(dat["datetime"][17:19]),
-                            int(dat["day_of_week"]),
-                            int(dat["day_of_year"]),
-                            dst,
-                        )
-                    )
-                    try:
-                        rtcc.write_datetime(nettime)
-                    except NameError:
-                        dmtex("Cannot set time, since no rtc is attached")
-                    del nettime
-                    dmtex("Network time set for " + dat["abbreviation"])
-                    del dat
-                    r.close()
-                except (ValueError, AssertionError):
-                    dmtex("Failed to fetch time data")
-            else:
-                dmtex("Network unavailable")
-
-        def test():
-            if ljinux.io.network_online and not ljinux.io.network.link_status:
-                ljinux.io.network_online = False
-                ljinux.io.network_name = "Offline"
-                dmtex("Network connection lost")
-                return False
-            return True
-
-        def resolve():
-            ljinux.networking.test()
-            if ljinux.io.network_online:
-                pass  # wip
-            else:
-                ljinux.based.error(5)
-
-        def packet(data):
-            ljinux.networking.test()
-            if ljinux.io.network_online:
-                pass  # same
-            else:
-                ljinux.based.error(5)
-
     class based:
         silent = False
         olddir = None
@@ -811,6 +609,7 @@ class ljinux:
 
         user_vars = {
             "history-file": "/LjinuxRoot/home/board/.history",
+            "history-size": "10",
             "return": "0",
         }
 
@@ -821,7 +620,7 @@ class ljinux:
             "HOSTNAME": "pico",
             "TERM": "xterm-256color",
             "LANG": "en_GB.UTF-8",
-            "BOARD": board.board_id.replace("_", " "),
+            "BOARD": board.board_id.replace("_", " ").replace("-", " "),
             "IMPLEMENTATION": ".".join(map(str, list(implementation.version))),
         }
 
@@ -872,7 +671,7 @@ class ljinux:
             ljinux.based.system_vars["VERSION"] = Version
 
             print(
-                "\nWelcome to lJinux wannabe Kernel {}!\n\n".format(
+                "\nWelcome to ljinux wannabe Kernel {}!\n\n".format(
                     ljinux.based.system_vars["VERSION"]
                 ),
                 end="",
@@ -908,6 +707,10 @@ class ljinux:
             except OSError:
                 systemprints(3, "Running Init Script")
             ljinux.history.load(ljinux.based.user_vars["history-file"])
+            try:
+                ljinux.history.sz = int(ljinux.based.user_vars["history-size"])
+            except:
+                pass
             systemprints(1, "History Reload")
             if ljinux.based.system_vars["Init-type"] == "oneshot":
                 systemprints(1, "Init complete")
@@ -1233,16 +1036,22 @@ class ljinux:
                 except NameError:
                     pass
 
-            def historgf(inpt):  # history get full list
+            def historgf(inpt):  # history frontend
                 try:
                     if inpt[1] == "clear":
                         ljinux.history.clear(ljinux.based.user_vars["history-file"])
                     elif inpt[1] == "load":
                         ljinux.history.load(ljinux.based.user_vars["history-file"])
+                        try:
+                            ljinux.history.sz = int(
+                                ljinux.based.user_vars["history-size"]
+                            )
+                        except:
+                            pass
                     elif inpt[1] == "save":
                         ljinux.history.save(ljinux.based.user_vars["history-file"])
                     else:
-                        print("{colors.magenta_t}Based{colors.endc}: Invalid option")
+                        print(f"{colors.magenta_t}Based{colors.endc}: Invalid option")
                 except IndexError:
                     ljinux.history.getall()
 
@@ -1359,71 +1168,6 @@ class ljinux:
                 del complete
                 del condition
 
-            def ping(inpt):  # brok
-                print("Ping google.com: %d ms" % ljinux.io.network.ping("google.com"))
-
-            def webs(inpt):  # not nginx, more like njinx
-                ljinux.networking.test()
-                if ljinux.io.network_online:
-                    try:
-                        pathh = inpt[1]
-                    except IndexError:
-                        pathh = "/LjinuxRoot/var/www/default/"
-
-                    print("Ljinux Web Server")
-                    try:
-                        arg = inpt[1]
-                    except IndexError:
-                        arg = ""
-                    if arg != "-k":
-                        print("Starting in the backround, send webserver -k to kill.")
-                        web_app = WSGIApp()
-
-                        @web_app.route("/")
-                        def root(request):
-                            global access_log
-                            access_log.append("Root accessed")
-                            return (
-                                "200 OK",
-                                [],
-                                ljinux.io.get_static_file(pathh + "default.html"),
-                            )
-
-                        @web_app.route("/access_log")
-                        def root(request):
-                            global access_log
-                            access_log.append("Accessed log")
-                            return ("200 OK", [], [str(access_log)])
-
-                        @web_app.route("/<pagee>")
-                        def led_on(request, pagee):
-                            global access_log
-                            access_log.append("Accessed " + pagee)
-                            return ljinux.networking.serve_file(str(pathh + pagee))
-
-                        try:
-                            ljinux.networking.wsgiServer = server.WSGIServer(
-                                80, application=web_app
-                            )
-                            ljinux.networking.wsgiServer.start()
-                            ljinux.backrounding.webserver = True
-                        except RuntimeError:
-                            print("Out of sockets, please reboot")
-                            return
-                    elif ljinux.backrounding.webserver:
-                        ljinux.backrounding.webserver = (
-                            not ljinux.backrounding.webserver
-                        )
-                        del ljinux.networking.wsgiServer
-                        ljinux.networking.wsgiServer = None
-                        print(
-                            "Webserver unloaded, keep in mind sockets cannot be reused in the current implementation, and you might have to reboot to restart the webserver."
-                        )
-                    else:
-                        print("Error: Webserver not running")
-                else:
-                    print("Network unavailable")
-
             def do_nothin(inpt):
                 pass  # really this is needed
 
@@ -1432,26 +1176,6 @@ class ljinux:
                 pcomm = ljinux.based.raw_command_input.lstrip(
                     ljinux.based.raw_command_input.split()[0]
                 ).replace(" ", "", 1)
-                nl = False
-                try:
-                    if "-n" in inpt[1]:
-                        nl = True
-                        pcomm = pcomm.lstrip(
-                            ljinux.based.raw_command_input.split()[1]
-                        ).replace(" ", "", 1)
-                except IndexError:
-                    ljinux.based.error(9)
-                    ljinux.based.user_vars["return"] = "1"
-                    return
-                if not nl:
-                    print(
-                        "Adafruit CircuitPython {} on ljinux {}; {}\n>>> {}".format(
-                            ljinux.based.system_vars["IMPLEMENTATION"],
-                            Version,
-                            ljinux.based.system_vars["BOARD"],
-                            pcomm,
-                        )
-                    )
                 try:
                     exec(pcomm)  # Vulnerability.exe
                     del pcomm
@@ -1463,7 +1187,6 @@ class ljinux:
                         + str(err)
                     )
                     del err
-                del nl
 
             def fpexecc(inpt):  # file pexec
                 global Version
@@ -1479,15 +1202,6 @@ class ljinux:
                     ljinux.based.user_vars["return"] = "1"
                     return
 
-                if not ("n" in fpargs):
-                    print(
-                        "Adafruit CircuitPython {} on ljinux {}; {}\nRunning file: {}".format(
-                            ljinux.based.system_vars["IMPLEMENTATION"],
-                            Version,
-                            ljinux.based.system_vars["BOARD"],
-                            inpt[offs],
-                        )
-                    )
                 try:
                     a = open(ljinux.based.fn.betterpath(inpt[offs])).read()
                     if not ("t" in fpargs or "l" in fpargs):
@@ -1514,6 +1228,21 @@ class ljinux:
                 ljinux.based.fn.[function_name](parameters)
             """
 
+            class fopen(object):
+                def __init__(self, fname, mod, ctx=None):
+                    self.fn = fname
+                    self.mod = mod
+
+                def __enter__(self):
+                    self.file = open(ljinux.based.fn.betterpath(self.fn), self.mod)
+                    del self.fn, self.mod
+                    return self.file
+
+                def __exit__(self, typee, value, traceback):
+                    self.file.flush()
+                    self.file.close()
+                    del self.file
+
             def isdir(dirr, rdir=None):
                 """
                 Checks if given item is file (returns 0) or directory (returns 1).
@@ -1521,20 +1250,35 @@ class ljinux:
                 """
                 dirr = ljinux.based.fn.betterpath(dirr)
                 rdir = ljinux.based.fn.betterpath(rdir)
-                cddd = getcwd()
+                cddd = getcwd() if rdir is not None else rdir
+
                 res = 2
+
                 try:
                     chdir(dirr)
                     chdir(cddd)
                     res = 1
                 except OSError:
+                    rr = "/"
                     try:
-                        if dirr[dirr.rfind("/") + 1 :] in listdir(
-                            dirr[: dirr.rfind("/")]
-                        ):
+                        # browsing deep
+                        if dirr.count(rr) not in [0, 1] and dirr[
+                            dirr.rfind(rr) + 1 :
+                        ] in listdir(dirr[: dirr.rfind(rr)]):
                             res = 0
+                        elif dirr.count(rr) is 1 and dirr.startswith(rr):
+                            # browsing root
+                            if dirr[1:] in listdir(rr):
+                                res = 0
                         else:
-                            raise OSError
+                            # browsing dum
+                            if dirr[dirr.rfind(rr) + 1 :] in listdir(
+                                dirr[: dirr.rfind(rr)]
+                            ):
+                                res = 0
+                            else:
+                                raise OSError
+
                     except OSError:
                         try:
                             if dirr in (
@@ -1544,6 +1288,7 @@ class ljinux:
                                 res = 0
                         except OSError:
                             res = 2  # we have had enough
+                    del rr
                 del cddd
                 return res
 
@@ -1575,7 +1320,7 @@ class ljinux:
                     if back in ["&/", "&"]:  # board root
                         res = "/"
                     elif back.startswith("&/"):
-                        res = back[2:]
+                        res = back[1:]
                     elif back.startswith("/LjinuxRoot"):
                         res = back  # already good
                     elif back[0] == "/":
@@ -1662,8 +1407,6 @@ class ljinux:
                 "su": ljinux.based.command.suuu,
                 "history": ljinux.based.command.historgf,
                 "if": ljinux.based.command.iff,
-                "ping": ljinux.based.command.ping,
-                "webserver": ljinux.based.command.webs,
                 "pexec": ljinux.based.command.pexecc,
                 "COMMENT": ljinux.based.command.do_nothin,
                 "#": ljinux.based.command.do_nothin,
@@ -1675,7 +1418,6 @@ class ljinux:
                 term.start()
                 ljinux.io.ledset(1)  # idle
                 term.trigger_dict = {
-                    "inp_type": "prompt",
                     "enter": 0,
                     "ctrlC": 1,
                     "ctrlD": 2,
@@ -1685,6 +1427,7 @@ class ljinux:
                     "down": 7,
                     "pgup": 11,
                     "pgdw": 12,
+                    "overflow": 14,
                     "rest": "stack",
                     "rest_a": "common",
                     "echo": "common",
@@ -1795,12 +1538,9 @@ class ljinux:
                                         if letters_match > 0:
                                             term.clear_line()
                                             if lent > 1:
-                                                term.buf[1] = "".join(
+                                                term.buf[1] = " ".join(
                                                     slicedd[:-1]
-                                                    + list(
-                                                        " "
-                                                        + candidates[0][:letters_match]
-                                                    )
+                                                    + [candidates[0][:letters_match]]
                                                 )
                                             else:
                                                 term.buf[1] = candidates[0][
@@ -1811,8 +1551,8 @@ class ljinux:
                                     elif len(candidates) == 1:
                                         term.clear_line()
                                         if lent > 1:
-                                            term.buf[1] = "".join(
-                                                slicedd[:-1] + list(" " + candidates[0])
+                                            term.buf[1] = " ".join(
+                                                slicedd[:-1] + [candidates[0]]
                                             )
                                         else:
                                             term.buf[1] = candidates[0]
@@ -1860,8 +1600,30 @@ class ljinux:
                                     term.buf[1] = ""
                                     term.focus = 0
                                     term.clear()
+                                elif term.buf[0] is 14:  # overflow
+                                    store = term.buf[1]
+                                    term.focus = 0
+                                    term.buf[1] = ""
+                                    term.trigger_dict["prefix"] = "> "
+                                    term.clear_line()
+                                    term.program()
+                                    if term.buf[0] is 0:  # enter
+                                        ljinux.history.nav[0] = 0
+                                        command_input = store + term.buf[1]
+                                        term.buf[1] = ""
+                                        stdout.write("\n")
+                                    elif term.buf[0] is 14:  # more lines
+                                        store += term.buf[1]
+                                        ljinux.history.nav[0] = 0
+                                        term.buf[1] = ""
+                                        term.focus = 0
+                                        term.clear_line()
+                                    else:  # not gonna
+                                        term.buf[0] = ""
+                                        term.focus = 0
+                                        ljinux.history.nav[0] = 0
+                                    del store
 
-                                ljinux.backrounding.main_tick()
                                 try:
                                     if command_input[:1] != " " and command_input != "":
                                         ljinux.history.appen(command_input.strip())
@@ -2019,7 +1781,7 @@ class ljinux:
         # ---
 
         def setup():
-            ljinux.based.command.fpexecc([None, "-n", "/bin/display_f/setup.py"])
+            ljinux.based.command.fpexecc([None, "/bin/display_f/setup.py"])
 
         def frame():
             global display_availability
@@ -2052,13 +1814,9 @@ class ljinux:
         def draw_circle(xpos0, ypos0, rad, col, f):
             ljinux.farland.public = [xpos0, ypos0, rad, col]
             if not f:
-                ljinux.based.command.fpexecc(
-                    [None, "-n", "/bin/display_f/draw_circle.py"]
-                )
+                ljinux.based.command.fpexecc([None, "/bin/display_f/draw_circle.py"])
             else:
-                ljinux.based.command.fpexecc(
-                    [None, "-n", "/bin/display_f/f_draw_circle.py"]
-                )
+                ljinux.based.command.fpexecc([None, "/bin/display_f/f_draw_circle.py"])
 
         def virt_line(x0, y0, x1, y1):
             virt_l_tab = []

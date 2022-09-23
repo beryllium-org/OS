@@ -1,1 +1,1 @@
-fpexec -n /bin/pinout.py
+cat /bin/pinout.map

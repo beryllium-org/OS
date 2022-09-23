@@ -9,6 +9,7 @@ class neopixel_colors:
     activity = bytearray([7, 7, 0])  # loading nuclear launch codes
 
     waiting = bytearray([0, 0, 5])  # done with init, waiting for serial
+    waiting2 = bytearray([0, 0, 7])  # done with init, waiting for serial
 
     error = bytearray([0, 50, 0])  # when errors occur
 

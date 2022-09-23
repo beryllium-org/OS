@@ -1,1 +1,1 @@
-fpexec -n /bin/sha512sum.py
+fpexec /bin/sha512sum.py

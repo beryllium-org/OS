@@ -1,2 +1,2 @@
 COMMENT exiting ljinux
-fpexec -n /bin/exit.py
+fpexec /bin/exit.py

@@ -1,2 +1,2 @@
 # man man man man
-fpexec -n /bin/man.py
+fpexec /bin/man.py

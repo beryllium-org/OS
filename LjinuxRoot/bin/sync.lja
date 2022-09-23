@@ -1,1 +1,1 @@
-pexec -n sync()
+pexec sync()

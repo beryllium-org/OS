@@ -1,1 +1,1 @@
-fpexec -n /bin/echo.py
+fpexec /bin/echo.py

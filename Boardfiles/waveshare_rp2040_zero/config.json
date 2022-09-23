@@ -1,0 +1,31 @@
+{
+  "_comment1": "Default Ljinux configuration, adjust to your needs",
+  
+  "_comment3": "Board led, can be generic or neopixel",
+  "led": 16,
+  "ledtype": "neopixel",
+  
+  "_comment4": "Display i2c pins",
+  "displaySCL": 27,
+  "displaySDA": 26,
+
+  "_comment5": "Display height - width",
+  "displayheight": 64,
+  "displaywidth": 128,
+
+  "_comment6": "Other display related options",
+  "_comment7": "Makes the pi only bother with sensor io & not serial. Not yet implemented",
+  "DISPLAYONLYMODE": false,
+  
+  "_comment9": "SD card",
+  
+  "sd_SCLK": -1,
+  "sd_SCSn": -1,
+  "sd_MISO": -1,
+  "sd_MOSI": -1,
+
+  "_comment10": "Debugging & extreme options",
+  "SKIPTEMP": false,
+  "SKIPCP": false,
+  "DEBUG": false
+}

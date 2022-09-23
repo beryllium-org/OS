@@ -1,2 +1,2 @@
 # Play a wav file
-fpexec -n /bin/playwav.py 
+fpexec /bin/playwav.py 

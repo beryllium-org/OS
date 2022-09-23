@@ -1,2 +1,2 @@
 # the ls command
-fpexec -n /bin/ls.py
+fpexec /bin/ls.py

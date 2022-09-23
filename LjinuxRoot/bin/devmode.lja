@@ -1,2 +1,2 @@
 COMMENT enable developer mode
-fpexec -n /bin/devmode.py
+fpexec /bin/devmode.py

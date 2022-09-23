@@ -1,11 +1,32 @@
 SHELL = bash
-all: kern donemsg
-kern: prepperms kerncomp
-install: kern rootfs donemsg
-compiletest: prepperms ctest
-debug: prepperms kerncompd
-test: compiletest blacktest
 
+all: kern donemsg
+install: kern rootfs donemsg
+debug: prep kerncompd
+wifi: prep driver_wifi
+w5500spi: prep driver_w5500spi
+
+kern: prep kerncomp
+prep: modules prepperms
+
+driver_wifi:
+	@echo "Installing wifi driver"
+	@python3 ../scripts/copy_wifi.py
+	@sync
+	@echo "Wifi driver done"
+driver_w5500spi:
+	@echo "Installing w5500 spi driver"
+	@python3 ../scripts/copy_w5500spi.py
+	@sync
+	@echo "w5500 spi driver done"
+update_modules:
+	@echo "Updating git submodules from remotes.."
+	@git submodule update --init --recursive --remote ..
+	@echo -e "Submodules ready\n\nMake sure to git commit before procceding to make!!"
+modules:
+	@echo "Preparing git submodules.."
+	@git submodule update --init --recursive ..
+	@echo "Submodules ready"
 donemsg:
 	@echo -e "\nSyncing changes.."
 	@sync
@@ -18,7 +39,7 @@ prepperms:
 	@echo -e "Preparing script permissions..\n"
 	@chmod +x ../scripts/*.sh
 	@chmod +x ../scripts/mpy*
-	@echo -e "OK"
+	@echo "OK"
 kerncomp:
 	@echo -e "\nCommencing kernel compilation.."
 	@sync
@@ -26,10 +47,7 @@ kerncomp:
 kerncompd:
 	@echo -e "\nCommencing debug kernel compilation.."
 	@sync
-	@python3 ../scripts/make_kernel_debug.py
-ctest:
-	@echo -e "\nCommencing kernel compile test\nNote: This does not update any board files."
-	@python3 ../scripts/make_kernel_test.py
+	@python3 ../scripts/make_kernel.py debug
 connection:
 	@echo -n "Ensuring GNU/Screen is installed.."
 	@command -v screen >/dev/null && echo "Found" || (echo -e "Not found\nInstalling.." && ./scripts/installscreen.sh)

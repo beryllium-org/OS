@@ -1,0 +1,31 @@
+                              ,-------------.
+[        |UART1 TX] GP2  (1)  |1    ==     o|  (40) VBUS      [        |        ]
+[        |UART1 RX] GP3  (2)  |o =  usb  I o|  (39) VSYS      [        |        ]
+[        |        ] GND  (3)  |o led iiii  o|  (38) GND       [        |        ]
+[I2C1 SDA|SPI0 SCK] GP4  (4)  |o -         o|  (37) 3V3_EN    [        |        ]
+[I2C1 SCL|SPI0 TX ] GP5  (5)  |o -   =  =  o|  (36) 3V3(OUT)  [        |        ]
+[        |UART0 TX] GP43 (6)  |o - - - -   o|  (35) NC        [        |        ]
+[        |UART0 RX] GP44 (7)  |o BOOT RESETo|  (34) GP8       [  ADC2  |        ]
+[        |        ] GND  (8)  |o  ==   ==  o|  (33) GND       [        |        ]
+[I2C1 SDA|SPI0 SCK] GP14 (9)  |o   PSRAM   o|  (32) GP7       [  ADC1  |I2C1 SCL]
+[I2C1 SCL|SPI0 TX ] GP15 (10) |o     _     o|  (31) GP6       [  ADC0  |I2C1 SDA]
+[I2C0 SDA|SPI1 RX ] GP16 (11) |o   =| |=   o|  (30) RUN       [        |        ]
+[I2C0 SCL|SPI1 CSn] GP17 (12) |o   =|_|=   o|  (29) GP42      [                 ]
+[        |        ] GND  (13) |o     .     o|  (28) GND       [        |        ]
+[I2C1 SDA|SPI1 SCK] GP10 (14) |o    / \    o|  (27) GP41      [        |I2C0 SCL]
+[I2C1 SCL|SPI1 TX ] GP11 (15) |o   /ESP\   o|  (26) GP40      [        |I2C0 SDA]
+[I2C0 SDA|SPI1 RX ] GP12 (16) |o  -\ 32/   o|  (25) GP39      [SPI0 TX |I2C1 SCL]
+[I2C0 SCL|SPI1 CSn] GP13 (17) |o  = \ / -  o|  (24) GP38      [SPI0 SCK|I2C1 SDA]
+[        |        ] GND  (18) |o - - ` -   o|  (23) GND       [        |        ]
+[I2C1 SDA|SPI1 SCK] GP34 (19) |o      ant  o|  (22) GP37      [SPI0 CSn|I2C0 SCL]
+[I2C1 SCL|SPI1 TX ] GP35 (20) |o   ====    o|  (21) GP36      [SPI0 RX |I2C0 SDA]
+                              `-------------'
+
+Waveshare ESP32-S2-Pico
+
+SoC                : ESP32-S2
+RAM                : 8MB
+Storage            : SOC (4MB)
+USB ports          : 1 (of which 0 USB3)
+Wi-fi              : True
+Bluetooth          : True

@@ -1,2 +1,2 @@
 # uname command
-fpexec -n /bin/uname.py
+fpexec /bin/uname.py

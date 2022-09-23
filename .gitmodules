@@ -1,0 +1,24 @@
+[submodule "other/Adafruit_CircuitPython_Requests"]
+	path = other/Adafruit_CircuitPython_Requests
+	url = https://github.com/adafruit/Adafruit_CircuitPython_Requests
+[submodule "other/Adafruit_CircuitPython_HID"]
+	path = other/Adafruit_CircuitPython_HID
+	url = https://github.com/adafruit/Adafruit_CircuitPython_HID
+[submodule "other/Adafruit_CircuitPython_hashlib"]
+	path = other/Adafruit_CircuitPython_hashlib
+	url = https://github.com/adafruit/Adafruit_CircuitPython_hashlib
+[submodule "source/jcurses"]
+	path = source/jcurses
+	url = https://github.com/bill88t/jcurses
+[submodule "source/jz"]
+	path = source/jz
+	url = https://github.com/bill88t/jz
+[submodule "other/Adafruit_CircuitPython_NTP"]
+	path = other/Adafruit_CircuitPython_NTP
+	url = https://github.com/adafruit/Adafruit_CircuitPython_NTP
+[submodule "other/Adafruit_CircuitPython_HTTPServer"]
+	path = other/Adafruit_CircuitPython_HTTPServer
+	url = https://github.com/adafruit/Adafruit_CircuitPython_HTTPServer
+[submodule "other/Adafruit_CircuitPython_Wiznet5k"]
+	path = other/Adafruit_CircuitPython_Wiznet5k
+	url = https://github.com/adafruit/Adafruit_CircuitPython_Wiznet5k

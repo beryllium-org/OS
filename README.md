@@ -31,28 +31,26 @@ Table of Contents
 
 ## Prerequisites and optional hardware
 
-Depends on circuitpython 7. (7.3.x is the latest supported version as of now)<br />
+Runs on circuitpython 7.3.X or 8.0.X.<br />
 At the moment the supported microcontrollers are:<br /><br />
 
  - Raspberry Pi Pico<br />
  - Raspberry Pi Pico W <br />
-   <sub><sup>At the moment no CircuitPython uf2 image exists
-   is instead relies on the normal Pico's uf2.
-   This results to some bugs, the led & wifi don't work.<br />
+   Notice: Wifi still doesn't work correctly.<br />
  - Waveshare RP2040-Zero <br />
  - Adafruit KB2040 <br />
  - Waveshare ESP32-S2-Pico <br />
  - Adafruit Feather ESP32-S2 <br />
+ - Pimoroni Pico Lipo (16mb) <br />
 
 But it can probably run on many more.<br />
 The only real limiting factor should be ram, as about 120k are needed for the system to even function.<br />
 <i>(If you have gotten it running on an unsupported board, feel free to pr a configuration file)</i><br />
 
 <br />Optional hardware compatible with ljinux:<br />
- - SSD1306 displays for a standalone display output<br />
- - ds1302 realtime clocks for persistent time (make sure to set <code>fixrtc</code> to false from the board's config file)<br />
+ - SSD1306 displays for display output<br />
  - sdcard breakout boards for more storage<br />
- - w5500 networking breakouts board for networking.<br />
+ - ~~w5500 networking breakouts board for networking.~~ Temporarily broken.<br />
 
 For the missing hardware the functions will be automatically deactivated. (The hardware will also be deactivated in case of missing libraries.)<br />
 It expects to find a <code>/LjinuxRoot</code> folder which uses as it's root. It can be on the built in fs, or an sd card.<br />
@@ -69,19 +67,20 @@ And it's own display "compositor", farland.<br /><br />
 
 ## Installation / Updating
 
-<i>Note: Automatic Windows install not supported at the moment. Linux & MacOS only.</i><br /><br />
-
 1) Install a supported CircuitPython version onto the board<br />
-    Raspberry Pi Pico uf2 file can be found [here](https://circuitpython.org/board/raspberry_pi_board) & detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
+    Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
 2) Clone (or download this repository) and from within the "source" folder, run <code>make install</code>.<br />
+    If you are on windows (why are you such a masochist), run the <code>windows-install.bat</code>.<br />
+    To update on windows, run the <code>windows-update.bat</code>.<br />
     This command will automatically update the system files if they already exist.<br />
     To only update the wanna-be kernel run <code>make</code> instead.<br />
-    (For these commands to work you need to have python3 installed, and the board attached & mounted.)<br />
-3) *(Optional)* Install the optional libraries for the hardware you want to connect to it.<br />
-  <b>If you plan on using the board standalone, you don't need put any extra libraries in.</b><br />
-4) After these steps, eject the board and fully disconnect it from the pc. (It is important to power cycle it.)<br />
-   When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)<br />
-   An automated connection script exists in the form of <code>make connection</code><br />
+    (For this to work you need to have python3 installed, even on windows, and the board attached & mounted.)<br />
+3) *(Optional)* To include drivers to the installation run <code>make *device name*</code>.<br />
+    The currently available drivers are: <code>wifi</code>, ~~<code>w5500spi</code>~~ (broken)<br />
+    For windows, you can run instead the respective bat file.<br />
+4) Eject & power off the board. (This is an important step.)<br />
+    When it's plugged back in, it should run automatically and you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)<br />
+    An automated connection script exists in the form of <code>make connection</code><br />
 <b>IMPORTANT NOTE: To make the pi appear as a usb device on the host, run the ljinux command </b><code>devmode</code><br />
 <br />
 
@@ -93,7 +92,7 @@ And it's own display "compositor", farland.<br /><br />
 For the SSD1306 display: <code>adafruit_ssd1306 adafruit_framebuf</code><br />
 Sdcard: <code>adafruit_sdcard adafruit_bus_device</code><br />
     The sdcard has to be formatted as Fat32 / Fat16 or equivelant.<br />
-Ethernet: <code>adafruit_wiznet5k adafruit_wsgi adafruit_requests adafruit_bus_device</code><br /><br />
+Ethernet: Handled by <code>make</code><br /><br />
 
 The neccessary libraries can be found [here](https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases)<br />
 Download the zip (The 7.x-mpy variant), extract it & copy the libraries you want onto <code>/lib</code> of the board.<br /><br />

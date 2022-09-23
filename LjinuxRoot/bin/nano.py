@@ -5,7 +5,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.1"
+    versionn = "1.6"
 
     try:
         filee = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
@@ -34,7 +34,7 @@ if sizee[0] > 14 and sizee[1] > 105:
             del ll
 
         ljinux.based.command.fpexecc(
-            [None, "-n", "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
+            [None, "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
         )
         del ljinux.based.user_vars["input"]
         dataa = ljinux.based.user_vars["output"]
@@ -142,13 +142,14 @@ if sizee[0] > 14 and sizee[1] > 105:
     del bottxt, bottxt_offs
     stdout.write(toolbar_txt)
     if len(dataa) > 1:
-        sz = sizee[0] - 2
-        ld = len(dataa) + 2
-        ltd = sz if sz + 2 < ld - 2 else ld
+        sz = sizee[0] - 4
+        ld = len(dataa)
+        ltd = sz if sz < ld else ld
         del sz, ld
-        for i in range(2, ltd):
-            term.move(x=i)
-            stdout.write(dataa[i - 2])
+        for i in range(0, ltd):
+            term.move(x=i + 2)
+            stdout.write(dataa[i])
+        del ltd
     while q:
         try:
             if not savee:
@@ -168,9 +169,11 @@ if sizee[0] > 14 and sizee[1] > 105:
                 term.focus = 0
                 term.move(x=sizee[0] - 2)
                 spsz = (sizee[1] - 21) * " "
-                stdout.write(f"{colors.white_bg_black_bg}Save modified buffer?{spsz}\n")
+                stdout.write(
+                    f"{colors.white_bg_black_bg}Save modified buffer?{spsz}{colors.endc}\n"
+                )
                 term.clear_line()
-                stdout.write(f" Y{colors.endc} Yes\n")
+                stdout.write(f"{colors.white_bg_black_bg} Y{colors.endc} Yes\n")
                 term.clear_line()
                 stdout.write(
                     f"{colors.white_bg_black_bg} N{colors.endc} No        {toolsplit}{colors.white_bg_black_bg}^C{colors.endc} Cancel"
@@ -233,13 +236,15 @@ if sizee[0] > 14 and sizee[1] > 105:
                     else:
                         dataa[cl + noffs] = ""
                     del noffs, copyover
+
                     # shift data
-                    for i in range(
-                        2, (sizee[0] - 2) if (lc > (sizee[0] - 2)) else lc + 2
-                    ):
-                        term.move(x=i)
+                    tf = lc if not lc >= (sizee[0] - 3) else sizee[0] - 4
+
+                    for i in range(0, tf):
+                        term.move(x=i + 2)
                         term.clear_line()
-                        stdout.write(dataa[vl + i - 2])
+                        stdout.write(dataa[vl + i])
+                    del tf
                 elif savee is 1:
                     # the "save y/n" prompt
                     if term.buf[1] in ["n", "N"]:
@@ -251,15 +256,17 @@ if sizee[0] > 14 and sizee[1] > 105:
 
                         # the "choose file name" prompt
                         term.move(x=sizee[0] - 2)
+
                         # show the file name suggested
                         term.clear_line()
                         stdout.write("File name to write:" + (" " * (sizee[1] - 19)))
                         term.move(x=sizee[0] - 1)
+                        stdout.write(colors.endc)
                         term.clear_line()
                         term.move(x=sizee[0])
                         term.clear_line()
                         stdout.write(
-                            f"^C{colors.endc} Cancel{colors.white_bg_black_bg}"
+                            f"{colors.white_bg_black_bg}^C{colors.endc} Cancel"
                         )
                         ffname = ""
                         try:
@@ -267,9 +274,16 @@ if sizee[0] > 14 and sizee[1] > 105:
                         except IndexError:
                             pass
                         term.move(x=sizee[0] - 2, y=21)
+                        stdout.write(colors.white_bg_black_bg)
                         term.buf[1] = ffname
                         term.focus = 0
                         del ffname
+                    else:
+                        stdout.write(
+                            "\010" * len(term.buf[1])
+                            + " " * len(term.buf[1])
+                            + "\010" * len(term.buf[1])
+                        )
                 elif savee == 2:
                     try:
                         cc = True
@@ -316,29 +330,49 @@ if sizee[0] > 14 and sizee[1] > 105:
                     term.backspace()
                     if not savee:
                         dataa[cl] = term.buf[1]
+                    else:
+                        stdout.write(
+                            "\010" * len(term.buf[1])
+                            + " " * len(term.buf[1])
+                            + "\010" * len(term.buf[1])
+                        )
                 elif not savee and cl > 0:
                     # don't do it when in save mode
-                    cl -= 1
-                    if dataa[cl + 1] != "":
-                        dataa[cl] += dataa[cl + 1]
+
+                    # treat last line
+                    if dataa[cl] != "":
+                        dataa[cl - 1] += dataa[cl]
 
                     # backend shift
-                    for i in range(cl + 1, lc - 1):
-                        dataa[i] = dataa[i + 1]
+                    for i in range(cl, lc):
+                        try:
+                            dataa[i] = dataa[i + 1]
+                        except IndexError:
+                            break
 
-                    # remove last
                     dataa.pop()
                     lc -= 1
+                    cl -= 1
 
                     # shift data
-                    for i in range(
-                        2, (sizee[0] - 2) if (lc > (sizee[0] - 2)) else lc + 2
-                    ):
-                        term.move(x=i)
+                    td = False  # to delete last line
+                    tf = None  # range
+                    magic = sizee[0] - 4
+                    if lc > magic:
+                        tf = magic
+                    else:
+                        tf = lc
+                        if lc < magic:
+                            # we have at least one empty from the weltext
+                            td = True  # need to clear_line after line prints
+                    for i in range(0, tf):
+                        term.move(x=i + 2)
                         term.clear_line()
-                        stdout.write(dataa[vl + i - 2])
-                    stdout.write("\n")
-                    term.clear_line()
+                        stdout.write(dataa[vl + i])
+                    if td:
+                        term.move(x=tf + 2)
+                        term.clear_line()
+                    del td, tf, magic
 
             elif term.buf[0] is 12:  # add tab
                 term.stdin = " " * 4
@@ -350,9 +384,9 @@ if sizee[0] > 14 and sizee[1] > 105:
             pass
 
     del q, cl, vl, target, toolbar_txt, inb, toolsplit, filee, exists
-    term.clear()
     term.buf[1] = ""
     stdout.write(colors.endc)
+    term.clear()
     term.trigger_dict = term_old
 
     del savee, dataa, term_old

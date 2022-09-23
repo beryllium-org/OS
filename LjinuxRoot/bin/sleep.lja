@@ -1,2 +1,2 @@
 ledset 0
-fpexec -n /bin/sleep.py
+fpexec /bin/sleep.py
