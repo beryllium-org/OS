@@ -12,11 +12,11 @@ def detect_board():
     except KeyError:
         pass
     if board != "":
+        picop = "build_" + board
         try:
-            mkdir("target")
+            mkdir(picop)
         except:
             pass
-        picop = "target"
     elif system(f"test -d /media/{ami}/LJINUX") == 0:
         picop = f"/media/{ami}/LJINUX"
     elif system(f"test -d /media/{ami}/CIRCUITPY") == 0:
@@ -36,7 +36,7 @@ def detect_board():
             vol.close()
             if picop != "":
                 break
-    if (not picop == "") and (picop != "target"):
+    if (not picop == "") and (not picop.startswith("build_")):
         with open(f"{picop}/boot_out.txt", "r") as boot_out:
             magic = boot_out.readlines()
             board = magic[1][9:-1]
