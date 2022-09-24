@@ -14,7 +14,11 @@ del a
     exec(a, locals())
     ljinux.based.user_vars["return"] = str(dataa)
     del dataa
-    print(ljinux.based.user_vars["return"])
+    print(
+        ljinux.based.user_vars["return"]
+        + " "
+        + ljinux.based.user_vars["argj"].split()[1]
+    )
 
 except OSError:
     ljinux.based.error(4, ljinux.based.user_vars["argj"].split()[1])
