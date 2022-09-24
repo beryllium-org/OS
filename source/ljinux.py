@@ -1229,19 +1229,30 @@ class ljinux:
             """
 
             class fopen(object):
-                def __init__(self, fname, mod, ctx=None):
+                def __init__(self, fname, mod="r", ctx=None):
                     self.fn = fname
                     self.mod = mod
 
                 def __enter__(self):
-                    self.file = open(ljinux.based.fn.betterpath(self.fn), self.mod)
-                    del self.fn, self.mod
+                    try:
+                        global sdcard_fs
+                        rm = False  # remount
+                        if "w" in self.mod or "a" in self.mod:
+                            rm = True
+                        if rm and not sdcard_fs:
+                            remount("/", False)
+                        self.file = open(ljinux.based.fn.betterpath(self.fn), self.mod)
+                        if rm and not sdcard_fs:
+                            remount("/", True)
+                        del rm
+                    except RuntimeError:
+                        return None
                     return self.file
 
                 def __exit__(self, typee, value, traceback):
                     self.file.flush()
                     self.file.close()
-                    del self.file
+                    del self.file, self.fn, self.mod
 
             def isdir(dirr, rdir=None):
                 """
