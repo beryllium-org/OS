@@ -1219,7 +1219,7 @@ class ljinux:
                 del offs, fpargs
 
         class fn:  # Common functions used by the commands.
-            def xarg(rinpt, fn=True):
+            def xarg(rinpt, fn=False):
                 """
                 Proper argument parsing for ljinux, send your input stream to here and you will receive a dict in return
 
@@ -1228,8 +1228,7 @@ class ljinux:
                     "hw" for the words, that were hidden due to an option. Example "ls -a /bin", "/bin" is
                      not gonna be in "w" as it is a part of "o" but will be in "hw".
                     "o" for all the options, with their respective values. Example: "ls -a /bin", {"a": "/bin"} is gonna be in "o"
-
-                    "n" if False is passed to fn, and contains the name
+                    "n" if False is passed to fn, contains the filename
 
                 Variables automatically translated.
                 GPIO excluded.
@@ -1242,17 +1241,30 @@ class ljinux:
                 words = list()
                 hidwords = list()
 
-                n = False
-                s = False
-                temp_s = None
-                entry = None
+                n = False  # in keyword
+                s = False  # in string
+                temp_s = None  # temporary string
+                entry = None  # keyword
 
                 r = 0 if fn else 1
                 del fn
 
                 for i in range(r, len(inpt)):
                     if inpt[i].startswith("$"):  # variable
-                        inpt[i] = ljinux.based.fn.adv_input(inpt[i][1:])
+                        if s and not inpt[i][1:].endswith('"'):
+                            inpt[i] = ljinux.based.fn.adv_input(inpt[i][1:])
+                        else:
+                            temp_s += " " + ljinux.based.fn.adv_input(
+                                inpt[i][1:].replace('"', "")
+                            )
+                            inpt[i] = '"'
+                    elif (not s) and inpt[i].startswith('"$'):
+                        if inpt[i].endswith('"'):
+                            inpt[i] = ljinux.based.fn.adv_input(inpt[i][2:-1])
+                        else:
+                            temp_s = ljinux.based.fn.adv_input(inpt[i][2:])
+                            s = True
+                            continue
                     if not n:
                         if (not s) and inpt[i].startswith("-"):
                             if inpt[i].startswith("--"):
@@ -1260,7 +1272,7 @@ class ljinux:
                             else:
                                 entry = inpt[i][1:]
                             n = True
-                        if (not s) and inpt[i].startswith('"'):
+                        elif (not s) and inpt[i].startswith('"'):
                             if not inpt[i].endswith('"'):
                                 temp_s = inpt[i][1:]
                                 s = True
@@ -1725,8 +1737,8 @@ class ljinux:
                     ):
                         if (not "|" in command_input) and (not "&&" in command_input):
                             ljinux.based.raw_command_input = command_input
-                            command_split = (
-                                command_input.split()
+                            command_split = command_input.split(
+                                " "
                             )  # making it an arr of words
                             try:
                                 if str(command_split[0])[:2] == "./":
