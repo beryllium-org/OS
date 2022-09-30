@@ -1,2 +1,2 @@
-COMMENT kot command :)
+# kot command :)
 fpexec /bin/cat.py

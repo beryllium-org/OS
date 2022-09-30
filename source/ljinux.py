@@ -1168,9 +1168,6 @@ class ljinux:
                 del complete
                 del condition
 
-            def do_nothin(inpt):
-                pass  # really this is needed
-
             def pexecc(inpt):  # filtered & true source
                 global Version
                 pcomm = ljinux.based.raw_command_input.lstrip(
@@ -1221,12 +1218,53 @@ class ljinux:
                     del err
                 del offs, fpargs
 
-        class fn:
-            """
-            Common functions used by the commands.
-            CODE:
-                ljinux.based.fn.[function_name](parameters)
-            """
+        class fn:  # Common functions used by the commands.
+            def xarg(inpt):
+                """
+                Proper argument parsing for ljinux, send your input stream to here and you will receive a dict in return
+
+                The return dict contains 3 items:
+                    "w" for the words that don't belong to a specific option. Example: "ls /bin", "/bin" is gonna be returned in "w"
+                    "hw" for the words, that were hidden due to an option. Example "ls -a /bin", "/bin" is
+                     not gonna be in "w" as it is a part of "o" but will be in "hw".
+                    "o" for all the options, with their respective values. Example: "ls -a /bin", {"a": "/bin"} is gonna be in "o"
+
+                Variables automatically translated.
+                GPIO excluded.
+                """
+
+                options = dict()
+                words = list()
+                hidwords = list()
+                n = False
+                entry = None
+                for i in range(len(inpt)):
+                    if inpt[i].startswith("$"):  # variable
+                        inpt[i] = ljinux.based.fn.adv_input(inpt[i][1:])
+                    if not n:
+                        if inpt[i].startswith("-"):
+                            if inpt[i].startswith("--"):
+                                entry = inpt[i][2:]
+                            else:
+                                entry = inpt[i][1:]
+                            n = True
+                        else:
+                            words.append(inpt[i])
+                    else:
+                        options.update({entry: inpt[i]})
+                        hidwords.append(inpt[i])
+                        n = False
+                if n:  # we have incomplete keyword
+                    options.update({entry: None})
+                    hidwords.append(inpt[i])
+                del n, entry
+                argd = {
+                    "w": words,
+                    "hw": hidwords,
+                    "o": options,
+                }
+                del options, words, hidwords, inpt
+                return argd
 
             class fopen(object):
                 def __init__(self, fname, mod="r", ctx=None):
@@ -1373,7 +1411,7 @@ class ljinux:
                 del inpt
                 return opts
 
-            def adv_input(whatever, _type):
+            def adv_input(whatever, _type=str):
                 """
                 Universal variable request
                 Returns the variable's value in the specified type
@@ -1419,8 +1457,6 @@ class ljinux:
                 "history": ljinux.based.command.historgf,
                 "if": ljinux.based.command.iff,
                 "pexec": ljinux.based.command.pexecc,
-                "COMMENT": ljinux.based.command.do_nothin,
-                "#": ljinux.based.command.do_nothin,
                 "fpexec": ljinux.based.command.fpexecc,
             }
             command_input = False
@@ -1636,7 +1672,11 @@ class ljinux:
                                     del store
 
                                 try:
-                                    if command_input[:1] != " " and command_input != "":
+                                    if (
+                                        command_input[:1] != " "
+                                        and command_input != ""
+                                        and (not command_input.startswith("#"))
+                                    ):
                                         ljinux.history.appen(command_input.strip())
                                 except (
                                     AttributeError,
@@ -1654,7 +1694,11 @@ class ljinux:
                     res = ""
                     if led:
                         ljinux.io.ledset(3)  # act
-                    if not (command_input == ""):
+                    while command_input.startswith(" "):
+                        command_input = command_input[1:]
+                    if not (command_input == "") and (
+                        not command_input.startswith("#")
+                    ):
                         if (not "|" in command_input) and (not "&&" in command_input):
                             ljinux.based.raw_command_input = command_input
                             command_split = (

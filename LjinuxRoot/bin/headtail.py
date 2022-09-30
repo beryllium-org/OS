@@ -1,55 +1,25 @@
-lines = 10
-offs = 0
+opts = ljinux.based.fn.xarg(ljinux.based.user_vars["argj"].split())
+mod = opts["w"][0][opts["w"][0].rfind("/") + 1 :]
+
+lines = 10 if not ("n" in opts["o"]) else int(opts["o"]["n"])
+
 try:
-    if ljinux.based.user_vars["argj"].split()[1][0] == "-":
-        ops = ljinux.based.fn.get_valid_options(
-            ljinux.based.user_vars["argj"].split()[1], "n"
-        )
-        offs += 1
-        if "n" in ops and len(ljinux.based.user_vars["argj"].split()) == 4:
-            try:
-                lines = int(ljinux.based.user_vars["argj"].split()[2])
-                filee = ljinux.based.user_vars["argj"].split()[3]
-            except IndexError:
-                ljinux.based.error(9)
-                ljinux.based.user_vars["return"] = "1"
-            except ValueError:
-                ljinux.based.error(1)
-                ljinux.based.user_vars["return"] = "1"
-        else:
-            ljinux.based.error(1)
-            ljinux.based.user_vars["return"] = "1"
-        del ops
-    elif len(ljinux.based.user_vars["argj"].split()) == 2:
-        filee = ljinux.based.user_vars["argj"].split()[1]
-    else:
-        ljinux.based.error(1)
-        ljinux.based.user_vars["return"] = "1"
-    try:
-        with open(ljinux.based.fn.betterpath(filee), "r") as f:
-            content = f.readlines()
-            count = len(content)
-            min(lines, count)
-            start = (
-                0
-                if ljinux.based.user_vars["argj"].split()[0].endswith("head.lja")
-                else count - lines
-            )
-            end = (
-                lines
-                if ljinux.based.user_vars["argj"].split()[0].endswith("head.lja")
-                else count - 1
-            )
-            for item in content[start:end]:
-                print(item, end="")
-            if ljinux.based.user_vars["argj"].split()[0].endswith("tail.lja"):
-                print(content[-1])
-            del content, count, start, end, filee
-            ljinux.based.user_vars["return"] = "0"
-    except OSError:
-        ljinux.based.error(4, filee)
-        ljinux.based.user_vars["return"] = "1"
+    with open(ljinux.based.fn.betterpath(opts["w"][1]), "r") as f:
+        content = f.readlines()
+        count = len(content)
+        start = 0 if mod == "head.lja" else count - lines
+        end = lines if mod == "head.lja" else count - 1
+        for item in content[start:end]:
+            print(item, end="")
+        if mod == "tail.lja":
+            print(content[-1])
+        del content, count, start, end
+        ljinux.based.user_vars["return"] = "0"
+except OSError:
+    ljinux.based.error(4, filee)
+    ljinux.based.user_vars["return"] = "1"
 except IndexError:
     ljinux.based.error(9)
     ljinux.based.user_vars["return"] = "1"
-del lines, offs
+
+del lines, opts, mod

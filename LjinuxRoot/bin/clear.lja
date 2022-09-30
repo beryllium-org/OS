@@ -1,2 +1,2 @@
-COMMENT clear screen
+# clear screen
 pexec term.clear()

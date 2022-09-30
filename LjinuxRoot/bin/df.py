@@ -5,6 +5,8 @@ dfl = statvfs("/LjinuxRoot")  # LjinuxRoot
 dfd = dfr == dfl  # is ljinuxRoot on board?
 del statvfs
 
+opts = ljinux.based.fn.xarg(ljinux.based.user_vars["argj"].split()[1:])
+
 
 def human_readable(whatever):
     if whatever < 1024:  # kb
@@ -32,9 +34,10 @@ if dfd:
     # yes it has to be done now, so that they are most accurate
     print("Filesystem      Size  Used Avail Use% Mounted on")
     print(
-        "/LjinuxRoot     " + human_readable(total),
-        human_readable(used),
-        human_readable(free),
+        "/LjinuxRoot     "
+        + (human_readable(total) if "h" in opts["o"] else str(total)),
+        human_readable(used) if "h" in opts["o"] else str(used),
+        human_readable(free) if "h" in opts["o"] else str(free),
         perc + "% /",
         sep="  ",
     )
@@ -44,4 +47,4 @@ if dfd:
 else:
     print("Not implemented")
 
-del dfr, dfl, dfd, human_readable
+del dfr, dfl, dfd, human_readable, opts
