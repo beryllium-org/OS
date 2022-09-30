@@ -1680,8 +1680,6 @@ class ljinux:
                                 elif term.buf[0] in [11, 12]:  # pgup / pgdw
                                     term.clear_line()
                                 elif term.buf[0] is 13:  # Ctrl + L (clear screen)
-                                    term.buf[1] = ""
-                                    term.focus = 0
                                     term.clear()
                                 elif term.buf[0] is 14:  # overflow
                                     store = term.buf[1]
