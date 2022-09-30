@@ -1386,31 +1386,6 @@ class ljinux:
                 del back, hd
                 return res
 
-            def get_valid_options(inpt, vopts):
-                """
-                Returns an options array if the given parameter start with the character '-'.
-                Returns an empty array if there is none, duplicate or invalid character followind '-'.
-                Parameters:
-                    inpt : string with args, ex: "-n"
-                    vopts : string with valid options, ex: "abc"
-                """
-                opts = []
-                i = 1
-                try:
-                    while i < len(inpt):  # why not "for"?
-                        if inpt[i] in vopts:
-                            opts.append(inpt[i])
-                            vopts = vopts.replace(inpt[i], "")
-                            i += 1
-                        else:
-                            return []
-                    del vopts
-                except IndexError:
-                    pass
-                del i
-                del inpt
-                return opts
-
             def adv_input(whatever, _type=str):
                 """
                 Universal variable request
