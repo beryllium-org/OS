@@ -1,0 +1,2 @@
+fpexec /bin/_waitforconnection.py
+detect
