@@ -1219,7 +1219,7 @@ class ljinux:
                 del offs, fpargs
 
         class fn:  # Common functions used by the commands.
-            def xarg(inpt):
+            def xarg(rinpt, fn=True):
                 """
                 Proper argument parsing for ljinux, send your input stream to here and you will receive a dict in return
 
@@ -1229,41 +1229,90 @@ class ljinux:
                      not gonna be in "w" as it is a part of "o" but will be in "hw".
                     "o" for all the options, with their respective values. Example: "ls -a /bin", {"a": "/bin"} is gonna be in "o"
 
+                    "n" if False is passed to fn, and contains the name
+
                 Variables automatically translated.
                 GPIO excluded.
                 """
 
+                inpt = rinpt.split(" ")
+                del rinpt
+
                 options = dict()
                 words = list()
                 hidwords = list()
+
                 n = False
+                s = False
+                temp_s = None
                 entry = None
-                for i in range(len(inpt)):
+
+                r = 0 if fn else 1
+                del fn
+
+                for i in range(r, len(inpt)):
                     if inpt[i].startswith("$"):  # variable
                         inpt[i] = ljinux.based.fn.adv_input(inpt[i][1:])
                     if not n:
-                        if inpt[i].startswith("-"):
+                        if (not s) and inpt[i].startswith("-"):
                             if inpt[i].startswith("--"):
                                 entry = inpt[i][2:]
                             else:
                                 entry = inpt[i][1:]
                             n = True
+                        if (not s) and inpt[i].startswith('"'):
+                            if not inpt[i].endswith('"'):
+                                temp_s = inpt[i][1:]
+                                s = True
+                            else:
+                                words.append(inpt[i][1:-1])
+                        elif s:
+                            if inpt[i].endswith('"'):
+                                temp_s += " " + inpt[i][:-1]
+                                words.append(temp_s)
+                                s = False
+                            else:
+                                temp_s += " " + inpt[i]
                         else:
                             words.append(inpt[i])
                     else:
-                        options.update({entry: inpt[i]})
-                        hidwords.append(inpt[i])
-                        n = False
+                        if (not s) and inpt[i].startswith('"'):
+                            if not inpt[i].endswith('"'):
+                                temp_s = inpt[i][1:]
+                                s = True
+                            else:
+                                options.update({entry: inpt[i][1:-1]})
+                                hidwords.append(inpt[i][1:-1])
+                                n = False
+                        elif s:
+                            if inpt[i].endswith('"'):
+                                temp_s += " " + inpt[i][:-1]
+                                options.update({entry: temp_s})
+                                hidwords.append(temp_s)
+                                n = False
+                                s = False
+                            else:
+                                temp_s += " " + inpt[i]
+                        else:
+                            options.update({entry: inpt[i]})
+                            hidwords.append(inpt[i])
+                            n = False
                 if n:  # we have incomplete keyword
+                    # not gonna bother if s is True
                     options.update({entry: None})
                     hidwords.append(inpt[i])
-                del n, entry
+
+                del n, entry, s, temp_s
+
                 argd = {
                     "w": words,
                     "hw": hidwords,
                     "o": options,
                 }
-                del options, words, hidwords, inpt
+
+                if r is 1:  # add the filename
+                    argd.update({"n": inpt[0]})
+                del options, words, hidwords, inpt, r
                 return argd
 
             class fopen(object):
