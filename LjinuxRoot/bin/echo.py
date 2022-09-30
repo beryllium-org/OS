@@ -9,7 +9,7 @@ del li
 
 ljinux.based.user_vars["return"] = ljinux.based.user_vars["return"][:-1]
 
-if not ("n" in opts["o"]):
+if "n" not in opts["o"]:
     ljinux.based.user_vars["return"] += "\n"
 
 del opts
