@@ -1,1 +1,5 @@
+history save
+echo "History saved"
+sync
+echo "All volumes synced"
 fpexec /bin/halt.py
