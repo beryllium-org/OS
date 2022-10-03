@@ -1,4 +1,4 @@
-from os import system, mkdir, listdir, path, popen, environ
+from os import system, mkdir, path, popen, environ
 from platform import uname
 from getpass import getuser
 
@@ -28,6 +28,7 @@ def detect_board():
     elif system("test -d /Volumes/CIRCUITPY") == 0:
         picop = "/Volumes/CIRCUITPY"
     elif uname().system == "Windows":
+        print("WARNING: WINDOWS SUPPORT IS EXPERIMENTAL!!")
         drives = [chr(x) + ":" for x in range(65, 91) if path.exists(chr(x) + ":")]
         for _ in drives:
             vol = popen("vol " + _)

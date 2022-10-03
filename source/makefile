@@ -1,6 +1,7 @@
 SHELL = bash
 
-all: kern donemsg
+all: help
+kernel: kern donemsg
 install: kern rootfs donemsg
 debug: prep kerncompd
 w5500spi_debug: prep driver_w5500spi_debug
@@ -10,6 +11,8 @@ w5500spi: prep driver_w5500spi
 kern: prep kerncomp auto_fake_cdc
 prep: modules prepperms
 
+help:
+	@cat ../other/makefile_help.txt
 auto_fake_cdc:
 	@python3 ../scripts/auto_fake-cdc.py
 driver_wifi:

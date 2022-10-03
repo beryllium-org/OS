@@ -18,6 +18,13 @@ if uname().system == "Linux":
     system(f"cp -rv ../LjinuxRoot/* {picop}/LjinuxRoot/")
     system(f"cp -v ../Manual.txt {picop}/LjinuxRoot/home/board/")
     system(f"cp -v ../Boardfiles/{board}/pinout.map {picop}/LjinuxRoot/bin/pinout.map")
+    if system(f"test -d {picop}/LjinuxRoot/boot") != 0:
+        print("Created boot folder.")
+        mkdir(f"{picop}/LjinuxRoot/boot")
+    print("\nCopying boot configuration without overwriting:")
+    system(f"cp -rnv ../bootcfg/* {picop}/LjinuxRoot/boot/")
+    print("\nBoot configuration done.")
 else:
     system(f"xcopy /y/s ..\\LjinuxRoot\\* {picop}\\LjinuxRoot\\")
+    system(f"xcopy /y/s/d ..\\LjinuxRoot\\boot\\* {picop}\\LjinuxRoot\\boot\\")
     system(f"copy ..\\Manual.txt {picop}\\LjinuxRoot\\home\\board\\")

@@ -1,6 +1,5 @@
-from os import system, mkdir, listdir, path, popen
+from os import system, mkdir, listdir
 from platform import uname
-from getpass import getuser
 from detect_board import detect_board
 from sys import argv
 
