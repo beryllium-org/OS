@@ -25,7 +25,6 @@
   "sd_MOSI": -1,
 
   "_comment10": "Debugging & extreme options",
-  "SKIPTEMP": false,
   "SKIPCP": false,
   "DEBUG": false
 }

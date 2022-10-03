@@ -192,7 +192,6 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "displaywidth": (128, int, False),  # SSD1306 spec
     "led": (0, int, True),
     "ledtype": ("generic", str, False),
-    "SKIPTEMP": (False, bool, False),
     "SKIPCP": (False, bool, False),
     "DEBUG": (False, bool, False),
     "DISPLAYONLYMODE": (False, bool, False),
@@ -206,7 +205,9 @@ defaultoptions = {  # default configuration, in line with the manual (default va
 try:
     from pintab import pintab
 except:
-    dmtex(f"{colors.error}ERROR:{colors.endc} Board pintab cannot be loaded")
+    dmtex(
+        f"{colors.error}ERROR:{colors.endc} Board pintab cannot be loaded!\n\nCannot continue."
+    )
     exit(1)
 
 # General options
@@ -271,74 +272,14 @@ if not configg["SKIPCP"]:  # beta testing
             + " " * 14
             + "WARNING: Unsupported CircuitPython version\n"
             + " " * 14
-            + "Continuing after led alert..\n"
-            + " " * 14
             + "-" * 42
         )
-        time.sleep(6)
+        for i in range(10, 0):
+            print(f"WARNING: Unsupported CircuitPython version (Continuing in {i})")
+            time.sleep(1)
+    del good
 else:
     print("Skipped CircuitPython version checking, happy beta testing!")
-
-if not configg["SKIPTEMP"]:
-    """
-    Taking measures in case of unordinary temperature readings.
-    The override exists in case of hardware failure.
-    """
-    temp = cpu.temperature
-    if temp > 60:
-        while True:
-            dmtex("Temperature is unsafe: " + str(temp) + " Celcius. Halting!")
-            time.sleep(0.3)
-    elif temp > 7:
-        dmtex("Temperature OK: " + str(temp) + " Celcius")
-    else:
-        dmtex("Now that a 'cool' board! B)")
-    del temp
-else:
-    print("Temperature check skipped, rest in pieces cpu.")
-
-ndc = False  # no device usb connectio
-
-
-def ndcen():
-    global ndc
-    ndc = True
-
-
-dmtex("Running board detection")
-boardactions = {
-    "raspberry_pi_pico": lambda: dmtex("Running on a Raspberry Pi Pico."),
-    "waveshare_rp2040_zero": lambda: dmtex("Running on a Waveshare RP2040-Zero."),
-    "adafruit_kb2040": lambda: dmtex("Running on an Adafruit KB2040."),
-    "waveshare_esp32s2_pico": lambda: dmtex("Running on a Waveshare ESP32-S2-Pico."),
-    "adafruit_feather_esp32s2": lambda: dmtex(
-        "Running on an Adafruit Feather ESP32-S2."
-    ),
-    "pimoroni_picolipo_16mb": lambda: dmtex("Running on a Pimoroni Pico Lipo 16mb."),
-    "raspberry_pi_pico_w": lambda: dmtex(
-        "Running on a Raspberry Pi Pico Wireless (pi cow)."
-    ),
-    "beetle-esp32-c3": lambda: (
-        dmtex("Running on a DFrobot Beetle esp32c3."),
-        ndcen(),
-    ),  # hack
-}
-
-try:
-    boardactions[board.board_id]()
-except KeyError:
-    dmtex(
-        colors.error
-        + "Unknown board. "
-        + colors.endc
-        + "Please open an issue in "
-        + colors.cyan_t
-        + "https://github.com/bill88t/ljinux"
-        + colors.endc
-        + "\nContinuing in 20 seconds without any patches, assuming it's Raspberry Pi Pico compatible."
-    )
-    time.sleep(20)
-del boardactions, ndcen
 
 dmtex((f"Board memory: {usable_ram} bytes"))
 dmtex((f"Memory free: {gc.mem_free()} bytes"))

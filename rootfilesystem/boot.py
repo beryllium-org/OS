@@ -27,12 +27,15 @@ except OSError:
     pass
 
 print("J", end="")
-remount("/", readonly=False)
-print("I", end="")
 lj_mount = getmount("/")
-lj_mount.label = "ljinux"
-del lj_mount
-remount("/", readonly=True)
+print("I", end="")
+desired_label = "ljinux"
+if lj_mount.label != desired_label:
+    remount("/", readonly=False)
+    lj_mount.label = desired_label
+    remount("/", readonly=True)
+del desired_label, lj_mount
+
 print("N", end="")
 if not devf:
     try:

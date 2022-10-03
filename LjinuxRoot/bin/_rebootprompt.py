@@ -1,4 +1,4 @@
-if ndc and getmount("/").label == "CIRCUITPY":
+if (not hasattr(console, "fake")) and getmount("/").label == "CIRCUITPY":
     print(
         colors.red_t
         + "\nPlease unplug the microcontroller, and plug it back in to continue."

@@ -9,7 +9,7 @@ fpexec /LjinuxRoot/etc/hostname-reload.py
 _waitforconnection
 
 # optional buffer clear
-# bufferclear
+bufferclear
 
 # fancy title
 fpexec /bin/ljinuxtitle.py
