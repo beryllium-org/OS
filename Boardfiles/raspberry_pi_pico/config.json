@@ -19,10 +19,10 @@
   
   "_comment9": "SD card",
   
-  "sd_SCLK": 2,
-  "sd_SCSn": 5,
-  "sd_MISO": 4,
-  "sd_MOSI": 3,
+  "sd_SCLK": -1,
+  "sd_SCSn": -1,
+  "sd_MISO": -1,
+  "sd_MOSI": -1,
 
   "_comment10": "Debugging & extreme options",
   "SKIPCP": false,
