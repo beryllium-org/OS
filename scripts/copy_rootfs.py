@@ -3,7 +3,7 @@ from platform import uname
 from getpass import getuser
 from detect_board import detect_board
 
-[picop, board] = detect_board()
+[picop, board, version] = detect_board()
 
 if picop == "":
     print(

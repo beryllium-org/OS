@@ -15,7 +15,7 @@ else:
     slash = "\\"
     copy = "copy"
 
-[picop, board] = detect_board()
+[picop, board, version] = detect_board()
 
 if picop == "":
     print(
@@ -23,7 +23,7 @@ if picop == "":
     )
     exit(1)
 
-mpyn = f"../scripts/mpy-cross-{uname().machine}"
+mpyn = f"../scripts/mpy-cross-{uname().machine}-{version[0]}"
 
 print(f"\nUsing mpycross: {mpyn}")
 print(f"Using board path: {picop}")

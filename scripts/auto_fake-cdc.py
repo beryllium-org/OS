@@ -18,7 +18,7 @@ else:
     copy = "copy"
 mpyn = f"../scripts/mpy-cross-{uname().machine}"
 
-[picop, board] = detect_board()
+[picop, board, version] = detect_board()
 
 if board == "":
     print(

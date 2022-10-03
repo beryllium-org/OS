@@ -7,6 +7,7 @@ def detect_board():
     ami = getuser()
     picop = ""
     board = ""
+    version = "8"  # assume 8.x on wifi boards
     try:
         board = environ["no_install"]
     except KeyError:
@@ -41,5 +42,6 @@ def detect_board():
         with open(f"{picop}/boot_out.txt", "r") as boot_out:
             magic = boot_out.readlines()
             board = magic[1][9:-1]
+            version = magic[0][23 : magic[0].find(" on ")]
             del magic
-    return [picop, board]
+    return [picop, board, version]
