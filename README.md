@@ -35,7 +35,7 @@ At the moment the supported microcontrollers are:<br /><br />
 
  - Raspberry Pi Pico<br />
  - Raspberry Pi Pico W <br />
-   Notice: Wifi still doesn't work correctly.<br />
+   Notice: Wifi doesn't work just yet.<br />
  - Waveshare RP2040-Zero <br />
  - Adafruit KB2040 <br />
  - Waveshare ESP32-S2-Pico <br />
@@ -43,8 +43,8 @@ At the moment the supported microcontrollers are:<br /><br />
  - Pimoroni Pico Lipo (16mb) <br />
 
 But it can probably run on many more.<br />
-The only real limiting factor should be ram, as about 120k are needed for the system to even function.<br />
-<i>(If you have gotten it running on an unsupported board, feel free to pr a configuration file)</i><br />
+The only real limiting factor should be ram, as about 100k are needed for the system function.<br />
+<i>(If you have gotten it running on an unsupported board, feel free to pr a configuration folder)</i><br />
 
 <br />Optional hardware compatible with ljinux:<br />
  - SSD1306 displays for display output<br />
@@ -68,9 +68,9 @@ And it's own display "compositor", farland.<br /><br />
 
 1) Install a supported CircuitPython version onto the board<br />
     Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
-2) Clone (or download this repository) and from within the "source" folder, run <code>make install</code>.<br />
-    If you are on windows (why are you such a masochist), run the <code>windows-install.bat</code>.<br />
-    To update on windows, run the <code>windows-update.bat</code>.<br />
+2) Download the latest release for your board and extract it onto it.<br />
+    Or alternatively, clone this repository and from within the "source" folder, run <code>make install</code>.<br />
+    If you are on windows (Note: Windows install in beta.), run the <code>windows-install.bat</code>.<br />
     This command will automatically update the system files if they already exist.<br />
     To only update the wanna-be kernel run <code>make</code> instead.<br />
     (For this to work you need to have python3 installed, even on windows, and the board attached & mounted.)<br />
