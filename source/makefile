@@ -1,8 +1,8 @@
 SHELL = bash
 
 all: help
-kernel: kern donemsg
-install: kern rootfs donemsg
+kernel: kern
+install: kern rootfs
 debug: prep kerncompd
 w5500spi_debug: prep driver_w5500spi_debug
 wifi: prep driver_wifi
@@ -16,17 +16,17 @@ help:
 auto_fake_cdc:
 	@python3 ../scripts/auto_fake-cdc.py
 driver_wifi:
-	@echo "Installing wifi driver"
+	@echo -e "\nInstalling wifi driver"
 	@python3 ../scripts/copy_wifi.py
 	@sync
 	@echo "Wifi driver done"
 driver_w5500spi:
-	@echo "Installing w5500 spi driver"
+	@echo -e "\nInstalling w5500 spi driver"
 	@python3 ../scripts/copy_w5500spi.py
 	@sync
 	@echo "w5500 spi driver done"
 driver_w5500spi_debug:
-	@echo "Installing w5500 spi driver (debug)"
+	@echo -e "\nInstalling w5500 spi driver (debug)"
 	@python3 ../scripts/copy_w5500spi.py debug
 	@sync
 	@echo "w5500 spi driver done"
@@ -38,10 +38,6 @@ modules:
 	@echo "Preparing git submodules.."
 	@git submodule update --init --recursive ..
 	@echo "Submodules ready"
-donemsg:
-	@echo -e "\nSyncing changes.."
-	@sync
-	@echo -e "\n   ---Operation completed successfully---\n\nTry running make connection"
 rootfs:
 	@echo -e "\nUpdating the board's rootfs:\n"
 	@sync
