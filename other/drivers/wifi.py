@@ -30,6 +30,7 @@ class driver_wifi:
         """
         Connect to a wifi access point
         """
+        self.disconnect()
         try:
             if passwd is not None:
                 wifi.radio.connect(ssid=ssid, password=passwd)
