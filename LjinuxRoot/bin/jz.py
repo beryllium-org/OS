@@ -12,7 +12,7 @@ if ("d" in opts["o"] or "decompress" in opts["o"]) and len(li) > 0:
         unzpath += "/"
     if not sdcard_fs:
         remount("/", False)
-    decompress(zname, unzpath, quiet=quiett, debug=jzdebug)
+    decompress(zname, ljinux.based.fn.betterpath(unzpath), quiet=quiett, debug=jzdebug)
     if not sdcard_fs:
         remount("/", True)
     del decompress, zname, unzpath

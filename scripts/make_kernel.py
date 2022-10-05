@@ -117,9 +117,7 @@ for filee in listdir(
 
 print("[7/7] Compiling jz")
 a = system(
-    f"{mpyn} ./jz/jz_board.py -s jz_board -v {optimis} -o {picop}/lib/jz.mpy".replace(
-        "/", slash
-    )
+    f"{mpyn} ./jz/jz.py -s jz -v {optimis} -o {picop}/lib/jz.mpy".replace("/", slash)
 )
 if a != 0:
     errexit()
