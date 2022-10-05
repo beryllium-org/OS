@@ -1,26 +1,24 @@
-args = ljinux.based.user_vars["argj"].split()[1:]
-argl = len(args)
-quiett = ljinux.based.silent
-if argl > 1 and args[0] == "quiet":
-    quiett = True  # force silent
-    args = args[1:]
-    argl -= 1
+opts = ljinux.based.fn.xarg(ljinux.based.user_vars["argj"])
+li = opts["hw"] + opts["w"]
+quiett = ljinux.based.silent or "q" in opts["o"]
 
-if argl > 1 and args[0] == "decompress":
+if ("d" in opts["o"] or "decompress" in opts["o"]) and len(li) > 0:
     from jz import decompress
 
-    zname = args[1]
-    unzpath = "." if argl is 2 else args[2]
+    zname = li[0]
+    unzpath = "." if len(li) < 2 else li[1]
+    if not unzpath.endswith("/"):
+        unzpath += "/"
     if not sdcard_fs:
         remount("/", False)
     decompress(zname, unzpath, quiet=quiett)
     if not sdcard_fs:
         remount("/", True)
     del decompress, zname, unzpath
-elif argl > 0 and args[0] == "compress":
+if "c" in opts["o"] or "compress" in opts["o"]:
     print("Compression not yet supported on-board")
 else:
     ljinux.based.error(1)
     ljinux.based.user_vars["return"] = "1"
 
-del args, argl, quiett
+del opts, quiett, li
