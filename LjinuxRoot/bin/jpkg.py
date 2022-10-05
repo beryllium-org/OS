@@ -1,46 +1,46 @@
 opts2 = ljinux.based.fn.xarg(ljinux.based.user_vars["argj"])
 errored = False
 
-if len(opts2["w"]) > 2 and opts2["w"][0] == "install":
+jpkg_version = 0
+
+if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
     # preperation
 
     fl = []  # folder list
 
     # load system package list
-    ljinux.based.command.fpexecc([None, "/bin/random.py"])
+    ljinux.based.command.fpexecc([None, "/etc/jpkg/tools/generatelist.py"])
     pklist = ljinux.based.user_vars["return"]
     print("JPKG: Package list loaded.")
-
     # extraction
-    for i in opts2["w"][1:]:
+    for fileext in opts2["w"][1:]:
         if errored:
             print("A fatal error has occured, exiting..")
             break
-        randomm = None
         ljinux.based.silent = True
         ljinux.based.command.fpexecc([None, "/bin/random.py"])
         ljinux.based.silent = False
-        randomm = ljinux.based.user_vars["return"].replace(".", "") + args2[1]
-
-        ljinux.based.user_vars["argj"] = "- /tmp/" + randomm
+        extpath = "/tmp/" + ljinux.based.user_vars["return"][2:] + fileext[:-4]
+        ljinux.based.user_vars["argj"] = "a " + extpath
         ljinux.based.command.fpexecc([None, "/bin/mkdir.py"])
 
-        print(f'JPKG: Extracting "{i}".')
-        ljinux.based.user_vars["argj"] = f"- quiet decompress {i} /tmp/{randomm}"
+        print(f"JPKG: Extracting {fileext[:-4]}")
+        ljinux.based.user_vars["argj"] = f"a -q -d {fileext} {extpath}"
         ljinux.based.command.fpexecc([None, "/bin/jz.py"])
-        print(f'JPKG: Extracted "{i}".')
-        fl.append(randomm)
-        del randomm
+        print(f"JPKG: Extracted to " + extpath)
+        fl.append(extpath)
+        del extpath, fileext
     print("JPKG: Packages extracted.")
 
+    print(str(fl))
     # parsing
     if not errored:
         bckdir = getcwd()
-        for i in fl:
-            print(f'JPKG: Reading properties of "{i}"..')
-            chdir("/LjinuxRoot/tmp/" + i)
+        for fileext in fl:
+            print(f'JPKG: Reading properties of "{fileext}"..')
+            chdir("/LjinuxRoot/tmp/" + fileext)
 
-            if "manifest.json" in listdir():
+            if "Manifest.json" in listdir():
                 print("Reading package details..")
                 manifest = None
                 with open("Manifest.json", "r") as manifest_f:
@@ -56,15 +56,15 @@ if len(opts2["w"]) > 2 and opts2["w"][0] == "install":
             else:
                 print("Error: Not a ljinux package!")
 
-            # cleanup
             chdir(bckdir)
+            del fileext
         del bckdir
 
     # cleanup (mandatory)
     if not sdcard_fs:
         remount("/", False)
     for j in fl:
-        for i in listdir("/LjinuxRoot/tmp/" + randomm):
+        for i in listdir("/LjinuxRoot/tmp/" + j):
             remove(f"/LjinuxRoot/tmp/{randomm}/{i}")
     if not sdcard_fs:
         remount("/", True)
@@ -75,4 +75,4 @@ else:
     ljinux.based.error(1)
     ljinux.based.user_vars["return"] = "1"
 
-del args2, argl2
+del opts2, jpkg_version

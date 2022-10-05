@@ -6,24 +6,26 @@ Returns in user_vars["return"] a dict with every package name and its deps / con
 """
 
 stdout.write("Generating package list.. 0%")
-listing = listdir("/LjinuxRoot/etc/dpkg/installed")
-pkc = len(a)
-pkl = 0
-cc = 2
+listing = listdir("/LjinuxRoot/etc/jpkg/installed/")
+pkc = len(listing)  # package count
+pkl = 0  # packages loaded
+cc = 2  # currently displays characters
 
-installed = dict()
+installed = dict()  # constructed package "database"
 
 for i in listing:
     name = i[:-5]  # remove ".json"
-    conf = None
     with ljinux.based.fn.fopen("/etc/jpkg/installed/" + i) as conf_f:
         conf = json.load(conf_f)
-    installed.update({name: [conf["dependencies"], conf["conflicts"]]})
+        installed.update(
+            {name: [conf["version"], conf["dependencies"], conf["conflicts"]]}
+        )
+        del conf
     stdout.write("\010 \010" * cc)
     pkl += 1
-    prc = int(pkl * 100 / pkc)
+    prc = str(int(pkl * 100 / pkc))
     cc = len(prc) + 1
-    stdout.write(str(prc) + "%")
+    stdout.write(prc + "%")
     del prc
 
 stdout.write(("\010 \010" * cc) + "100%\n")
