@@ -1228,7 +1228,7 @@ class ljinux:
                                 temp_s += " " + inpt[i]
                         else:
                             words.append(inpt[i])
-                    else:
+                    else:  # in keyword
                         if (not s) and inpt[i].startswith('"'):
                             if not inpt[i].endswith('"'):
                                 temp_s = inpt[i][1:]
@@ -1246,6 +1246,15 @@ class ljinux:
                                 s = False
                             else:
                                 temp_s += " " + inpt[i]
+                        elif inpt[i].startswith("-"):
+                            options.update(
+                                {entry: None}
+                            )  # no option for the previous one
+                            if inpt[i].startswith("--"):
+                                entry = inpt[i][2:]
+                            else:
+                                entry = inpt[i][1:]
+                            # leaving n = True
                         else:
                             options.update({entry: inpt[i]})
                             hidwords.append(inpt[i])
