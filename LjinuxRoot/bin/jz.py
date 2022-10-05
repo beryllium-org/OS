@@ -16,8 +16,10 @@ if ("d" in opts["o"] or "decompress" in opts["o"]) and len(li) > 0:
     if not sdcard_fs:
         remount("/", True)
     del decompress, zname, unzpath
+    ljinux.based.user_vars["return"] = "0"
 elif "c" in opts["o"] or "compress" in opts["o"]:
     print("Compression not yet supported on-board")
+    ljinux.based.user_vars["return"] = "0"
 else:
     ljinux.based.error(1)
     ljinux.based.user_vars["return"] = "1"

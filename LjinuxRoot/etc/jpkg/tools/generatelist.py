@@ -11,7 +11,9 @@ pkc = len(listing)  # package count
 pkl = 0  # packages loaded
 cc = 2  # currently displays characters
 
-installed = dict()  # constructed package "database"
+installed = dict()  # All packages
+dependencies = set()  # All dependencies
+conflicts = set()  # All conflicts
 
 for i in listing:
     name = i[:-5]  # remove ".json"
@@ -20,14 +22,20 @@ for i in listing:
         installed.update(
             {name: [conf["version"], conf["dependencies"], conf["conflicts"]]}
         )
+        for j in conf["dependencies"]:
+            dependencies.update(j)
+            del j
+        for j in conf["conflicts"]:
+            conflicts.update(j)
+            del j
         del conf
     stdout.write("\010 \010" * cc)
     pkl += 1
     prc = str(int(pkl * 100 / pkc))
     cc = len(prc) + 1
     stdout.write(prc + "%")
-    del prc
+    del prc, i
 
 stdout.write(("\010 \010" * cc) + "100%\n")
-ljinux.based.user_vars["return"] = installed
-del cc, pkl, pkc, listing, installed
+ljinux.based.user_vars["return"] = [installed, dependencies, conflicts]
+del cc, pkl, pkc, listing, installed, dependencies, conflicts
