@@ -20,7 +20,7 @@ except IndexError:
 
 if uname().system == "Linux":
     slash = "/"
-    copy = "rsync -h --update"
+    copy = "rsync -h"
 else:
     slash = "\\"
     copy = "copy"
