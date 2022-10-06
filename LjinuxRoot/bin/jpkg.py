@@ -1,4 +1,4 @@
-opts2 = ljinux.based.fn.xarg(ljinux.based.user_vars["argj"])
+opts2 = ljinux.based.fn.xarg()
 errored = False
 
 jpkg_version = 0

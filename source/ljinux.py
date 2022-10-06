@@ -1160,7 +1160,7 @@ class ljinux:
                 del offs, fpargs
 
         class fn:  # Common functions used by the commands.
-            def xarg(rinpt, fn=False):
+            def xarg(rinpt=None, fn=False):
                 """
                 Proper argument parsing for ljinux, send your input stream to here and you will receive a dict in return
 
@@ -1174,6 +1174,8 @@ class ljinux:
                 Variables automatically translated.
                 GPIO excluded.
                 """
+                if rinpt is None:
+                    rinpt = ljinux.based.user_vars["argj"]
 
                 inpt = rinpt.split(" ")
                 del rinpt

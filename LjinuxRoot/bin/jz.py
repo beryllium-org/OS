@@ -1,4 +1,4 @@
-opts = ljinux.based.fn.xarg(ljinux.based.user_vars["argj"])
+opts = ljinux.based.fn.xarg()
 li = opts["hw"] + opts["w"]
 quiett = ljinux.based.silent or "q" in opts["o"]
 jzdebug = "debug" in opts["o"]
