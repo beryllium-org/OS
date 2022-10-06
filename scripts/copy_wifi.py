@@ -1,6 +1,15 @@
 from os import system, mkdir
 from platform import uname
 from detect_board import detect_board
+from sys import argv
+
+optimis = "-O4"
+try:
+    if argv[1] == "debug":
+        print("Alert: Compiling with debug enabled.")
+        optimis = ""
+except IndexError:
+    pass
 
 
 def errexit():
@@ -39,7 +48,7 @@ if system(f"test -d {picop}/lib/drivers".replace("/", slash)) != 0:
 
 print("[1/4] Compiling Adafruit ntp")
 a = system(
-    f"{mpyn} ../other/Adafruit_CircuitPython_NTP/adafruit_ntp.py -s adafruit_ntp -v -O4 -o {picop}/lib/adafruit_ntp.mpy".replace(
+    f"{mpyn} ../other/Adafruit_CircuitPython_NTP/adafruit_ntp.py -s adafruit_ntp -v {optimis} -o {picop}/lib/adafruit_ntp.mpy".replace(
         "/", slash
     )
 )
@@ -48,7 +57,7 @@ if a != 0:
 
 print("[2/4] Compiling adafruit requests")
 a = system(
-    f"{mpyn} ../other/Adafruit_CircuitPython_Requests/adafruit_requests.py -s adafruit_requests -v -O4 -o {picop}/lib/adafruit_requests.mpy".replace(
+    f"{mpyn} ../other/Adafruit_CircuitPython_Requests/adafruit_requests.py -s adafruit_requests -v {optimis} -o {picop}/lib/adafruit_requests.mpy".replace(
         "/", slash
     )
 )
@@ -57,7 +66,7 @@ if a != 0:
 
 print("[3/4] Compiling adafruit HTTPServer")
 a = system(
-    f"{mpyn} ../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver.py -s adafruit_httpserver -v -O4 -o {picop}/lib/adafruit_httpserver.mpy".replace(
+    f"{mpyn} ../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver.py -s adafruit_httpserver -v {optimis} -o {picop}/lib/adafruit_httpserver.mpy".replace(
         "/", slash
     )
 )
@@ -66,7 +75,7 @@ if a != 0:
 
 print("[4/4] Compiling wifi drivers")
 a = system(
-    f"{mpyn} ../other/drivers/wifi.py -s driver_wifi -v -O4 -o {picop}/lib/drivers/driver_wifi.mpy".replace(
+    f"{mpyn} ../other/drivers/wifi.py -s driver_wifi -v {optimis} -o {picop}/lib/drivers/driver_wifi.mpy".replace(
         "/", slash
     )
 )

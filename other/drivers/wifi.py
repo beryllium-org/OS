@@ -134,7 +134,10 @@ class driver_wifi:
         """
         wifi.radio.stop_station()
         wifi.radio.stop_scanning_networks()
-        wifi.radio.enabled = False
+        try:
+            wifi.radio.enabled = False
+        except:
+            pass
 
         from time import sleep
 
@@ -142,7 +145,10 @@ class driver_wifi:
         del sleep
         collect()
 
-        wifi.radio.enabled = True
+        try:
+            wifi.radio.enabled = True
+        except:
+            pass
 
         del self._pool, self._session
         self._pool = None
@@ -153,7 +159,10 @@ class driver_wifi:
         """
         Power on the wifi
         """
-        wifi.radio.enabled = True
+        try:
+            wifi.radio.enabled = True
+        except:
+            pass
         self.disconnect()
 
     def stop(self):
@@ -163,7 +172,10 @@ class driver_wifi:
         Power it off
         """
         self.disconnect()
-        wifi.radio.enabled = False
+        try:
+            wifi.radio.enabled = False
+        except:
+            pass
 
     def timeset(self, tz=3):
         """

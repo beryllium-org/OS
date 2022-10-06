@@ -6,6 +6,7 @@ install: kern rootfs
 debug: prep kerncompd
 w5500spi_debug: prep driver_w5500spi_debug
 wifi: prep driver_wifi
+wifi_debug: prep driver_wifi_debug
 w5500spi: prep driver_w5500spi
 
 kern: prep kerncomp auto_fake_cdc
@@ -15,9 +16,14 @@ help:
 	@cat ../other/makefile_help.txt
 auto_fake_cdc:
 	@python3 ../scripts/auto_fake-cdc.py
-driver_wifi:
+driver_wifi_debug:
 	@echo -e "\nInstalling wifi driver"
 	@python3 ../scripts/copy_wifi.py
+	@sync
+	@echo "Wifi driver done"
+driver_wifi:
+	@echo -e "\nInstalling wifi driver (debug)"
+	@python3 ../scripts/copy_wifi.py debug
 	@sync
 	@echo "Wifi driver done"
 driver_w5500spi:
