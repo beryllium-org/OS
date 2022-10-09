@@ -558,7 +558,7 @@ class ljinux:
             "USER": "root",
             "SECURITY": "off",
             "Init-type": "oneshot",
-            "HOSTNAME": "pico",
+            "HOSTNAME": "ljinux",
             "TERM": "xterm-256color",
             "LANG": "en_GB.UTF-8",
             "BOARD": board.board_id.replace("_", " ").replace("-", " "),
