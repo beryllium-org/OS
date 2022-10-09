@@ -1,2 +1,0 @@
-fpexec /etc/jpkg/tools/generatelist.py
-pexec print(str(ljinux.based.user_vars["return"]))
