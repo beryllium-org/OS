@@ -1194,13 +1194,22 @@ class ljinux:
 
                 for i in range(r, len(inpt)):
                     if inpt[i].startswith("$"):  # variable
-                        if s and not inpt[i][1:].endswith('"'):
+                        if not s:
                             inpt[i] = ljinux.based.fn.adv_input(inpt[i][1:])
+                        elif inpt[i].endswith('"'):
+                            temp_s += ljinux.based.fn.adv_input(inpt[i][:-1])
+                            words.append(temp_s)
+                            s = False
+                        elif '"' not in inpt[i]:
+                            temp_s += " " + ljinux.based.fn.adv_input(inpt[i][1:])
+                            continue
                         else:
                             temp_s += " " + ljinux.based.fn.adv_input(
-                                inpt[i][1:].replace('"', "")
+                                inpt[i][1 : inpt[i].find('"')]
                             )
-                            inpt[i] = '"'
+                            words.append(temp_s)
+                            s = False
+                            inpt[i] = inpt[i][inpt[i].find('"') + 1 :]
                     elif (not s) and inpt[i].startswith('"$'):
                         if inpt[i].endswith('"'):
                             inpt[i] = ljinux.based.fn.adv_input(inpt[i][2:-1])
