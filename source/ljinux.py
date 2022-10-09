@@ -561,7 +561,7 @@ class ljinux:
             "HOSTNAME": "ljinux",
             "TERM": "xterm-256color",
             "LANG": "en_GB.UTF-8",
-            "BOARD": board.board_id.replace("_", " ").replace("-", " "),
+            "BOARD": board.board_id,
             "IMPLEMENTATION": ".".join(map(str, list(implementation.version))),
         }
 
