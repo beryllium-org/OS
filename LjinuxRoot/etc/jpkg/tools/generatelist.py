@@ -15,26 +15,32 @@ installed = dict()  # All packages
 dependencies = set()  # All dependencies
 conflicts = set()  # All conflicts
 
-for i in listing:
-    name = i[:-5]  # remove ".json"
-    with ljinux.based.fn.fopen("/etc/jpkg/installed/" + i) as conf_f:
-        conf = json.load(conf_f)
+for package in listing:
+    name = package[:-5]  # remove ".json"
+    with ljinux.based.fn.fopen("/etc/jpkg/installed/" + package) as conf_f:
+        manifest = json.load(conf_f)
         installed.update(
-            {name: [conf["version"], conf["dependencies"], conf["conflicts"]]}
+            {
+                name: [
+                    manifest["version"],
+                    manifest["dependencies"],
+                    manifest["conflicts"],
+                ]
+            }
         )
-        for j in conf["dependencies"]:
-            dependencies.update(j)
-            del j
-        for j in conf["conflicts"]:
-            conflicts.update(j)
-            del j
-        del conf
+        for dependency in manifest["dependencies"]:
+            dependencies.update(dependency)
+            del dependency
+        for conflict in manifest["conflicts"]:
+            conflicts.update(conflict)
+            del conflict
+        del manifest
     stdout.write("\010 \010" * cc)
     pkl += 1
     prc = str(int(pkl * 100 / pkc))
     cc = len(prc) + 1
     stdout.write(prc + "%")
-    del prc, i
+    del prc, package
 
 stdout.write(("\010 \010" * cc) + "100%\n")
 ljinux.based.user_vars["return"] = [installed, dependencies, conflicts]
