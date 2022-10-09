@@ -35,7 +35,7 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
         ljinux.based.user_vars["argj"] = f"a -q -d {fileext} {extpath}"
         ljinux.based.command.fpexecc([None, "/bin/jz.py"])
         if ljinux.based.user_vars["return"] == "0":
-            print(f"JPKG: Extracted to " + extpath)
+            print("JPKG: Extracted to " + extpath)
         else:
             print("JPKG Error: Package extraction failed!")
             errored = True
@@ -98,14 +98,31 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                                 )
                             del vrs
 
-                        for depsc in manifest["dependencies"]:
-                            if depsc not in pklist[1]:
-                                pklist[1].append(depsc)
-                            del depsc
-                        for confc in manifest["conflicts"]:
-                            if confc not in pklist[2]:
-                                pklist[2].append(confc)
-                            del confc
+                        pklist[1].extend(
+                            [
+                                filter(
+                                    lambda depsc: depsc not in pklist[1],
+                                    manifest["dependencies"],
+                                )
+                            ]
+                        )
+                        # for depsc in manifest["dependencies"]:  # keeping it in temporarily
+                        # if depsc not in pklist[1]:
+                        #    pklist[1].append(depsc)
+                        # del depsc
+
+                        pklist[2].extend(
+                            [
+                                filter(
+                                    lambda confc: confc not in pklist[2],
+                                    manifest["conflicts"],
+                                )
+                            ]
+                        )
+                        # for confc in manifest["conflicts"]:
+                        # if confc not in pklist[2]:
+                        #    pklist[2].append(confc)
+                        # del confc
                         del manifest
                     except:
                         print("JPKG Error: Could not parse package manifest!")
