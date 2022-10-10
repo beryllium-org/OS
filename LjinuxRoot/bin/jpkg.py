@@ -79,9 +79,9 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                         else:
                             vrs = pklist[0][manifest["package_name"]][0]
                             if (
-                                vrs[0] > manifest["version"][0]
-                                or vrs[1] > manifest["version"][1]
-                                or vrs[2] > manifest["version"][2]
+                                vrs[0] >= manifest["version"][0]
+                                or vrs[1] >= manifest["version"][1]
+                                or vrs[2] >= manifest["version"][2]
                             ):  # update
                                 updatee.append(manifest["package_name"])
                                 pklist[0][manifest["package_name"]] = [
@@ -94,37 +94,30 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                                 print(
                                     "JPKG Error: Package "
                                     + manifest["package_name"]
-                                    + " version smaller or equal to current."
+                                    + " version smaller than current ("
+                                    + str(vrs[0])
+                                    + "."
+                                    + str(vrs[1])
+                                    + "."
+                                    + str(vrs[2])
+                                    + ")."
                                 )
                             del vrs
 
-                        pklist[1].extend(
-                            [
-                                filter(
-                                    lambda depsc: depsc not in pklist[1],
-                                    manifest["dependencies"],
-                                )
-                            ]
-                        )
-                        # for depsc in manifest["dependencies"]:  # keeping it in temporarily
-                        # if depsc not in pklist[1]:
-                        #    pklist[1].append(depsc)
-                        # del depsc
+                        for depsc in manifest[
+                            "dependencies"
+                        ]:  # keeping it in temporarily
+                            if depsc not in pklist[1]:
+                                pklist[1].append(depsc)
+                            del depsc
 
-                        pklist[2].extend(
-                            [
-                                filter(
-                                    lambda confc: confc not in pklist[2],
-                                    manifest["conflicts"],
-                                )
-                            ]
-                        )
-                        # for confc in manifest["conflicts"]:
-                        # if confc not in pklist[2]:
-                        #    pklist[2].append(confc)
-                        # del confc
+                        for confc in manifest["conflicts"]:
+                            if confc not in pklist[2]:
+                                pklist[2].append(confc)
+                            del confc
                         del manifest
-                    except:
+                    except Exception as err:
+                        print(str(err))
                         print("JPKG Error: Could not parse package manifest!")
                         errored = True
                         break
@@ -156,8 +149,11 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
         print("\010 \010" * 3 + "100%")
 
     # our hopes and prayers it won't fail
-    collect()
-    collect()
+    gc.collect()
+    gc.collect()
+
+    if not sdcard_fs:
+        remount("/", False)
 
     # installation
     if not errored:
@@ -165,18 +161,43 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
             chdir("/LjinuxRoot" + fileext)
             with open("Manifest.json", "r") as manifest_f:
                 manifest = json.load(manifest_f)  # safe to load now
-                modee = "install"
-                if manifest["package_name"] in updatee:
-                    modee = "update"
                 print(
                     "JPKG: Setting up "
                     + manifest["package_name"]
                     + " ("
-                    + manifest["version"]
+                    + str(manifest["version"][0])
+                    + "."
+                    + str(manifest["version"][1])
+                    + "."
+                    + str(manifest["version"][2])
                     + ") ..."
                 )
-                ljinux.based.command.fpexecc([None, (fileext + "/" + manifest[modee])])
-                del modee
+                ljinux.based.command.fpexecc(
+                    [
+                        None,
+                        fileext
+                        + "/"
+                        + manifest[
+                            str(
+                                "update"
+                                if manifest["package_name"] in updatee
+                                else "install"
+                            )
+                        ],
+                    ]
+                )
+
+                # manifest install
+                with open(
+                    "/LjinuxRoot/etc/jpkg/installed/"
+                    + manifest["package_name"]
+                    + ".json",
+                    "w",
+                ) as newman:
+                    json.dump(manifest, newman)
+                    del newman
+
+                del manifest
             del fileext
 
     # go back
@@ -184,16 +205,17 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
     del bckdir
 
     # cleanup (mandatory)
-    if not sdcard_fs:
-        remount("/", False)
-    for j in fl:
-        for i in listdir("/LjinuxRoot/tmp/" + j):
-            remove(f"/LjinuxRoot/tmp/{randomm}/{i}")
+    for package in fl:
+        for filee in listdir("/LjinuxRoot" + package):
+            remove(f"/LjinuxRoot{package}/{filee}")
+            del filee
+        rmdir(f"/LjinuxRoot{package}")
+        del package
     if not sdcard_fs:
         remount("/", True)
-    ljinux.based.user_vars["argj"] = "- /tmp/" + randomm
-    ljinux.based.command.fpexecc([None, "/bin/rmdir.py"])
-    del fl, newpkgs
+    del fl, updatee
+elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
+    pass
 else:
     ljinux.based.error(1)
     ljinux.based.user_vars["return"] = "1"
