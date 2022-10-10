@@ -104,9 +104,7 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                                 )
                             del vrs
 
-                        for depsc in manifest[
-                            "dependencies"
-                        ]:  # keeping it in temporarily
+                        for depsc in manifest["dependencies"]:
                             if depsc not in pklist[1]:
                                 pklist[1].append(depsc)
                             del depsc
@@ -215,7 +213,12 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
         remount("/", True)
     del fl, updatee
 elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
-    pass
+    ljinux.based.command.fpexecc([None, "/etc/jpkg/tools/generatelist.py"])
+    pklist = ljinux.based.user_vars["return"]  # for comments look in installation
+
+    ljinux.based.user_vars["return"] = "1"
+
+    del pklist
 else:
     ljinux.based.error(1)
     ljinux.based.user_vars["return"] = "1"
