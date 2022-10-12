@@ -195,6 +195,17 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                     json.dump(manifest, newman)
                     del newman
 
+                # copy uninstaller
+                ljinux.api.var(
+                    "argj",
+                    "cp "
+                    + manifest["remove"]
+                    + " /LjinuxRoot/etc/jpkg/uninstallers/"
+                    + manifest["package_name"]
+                    + ".py",
+                )
+                ljinux.based.command.fpexecc([None, "/bin/cp.py"])
+
                 del manifest
             del fileext
 
