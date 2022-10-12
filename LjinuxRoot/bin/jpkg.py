@@ -130,19 +130,19 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
     if not errored:
         # Dependency checks
         stdout.write("JPKG: Verifying package transaction ... 0%")
-        for pd in pklist[1]:  # for dep
-            if pd not in pklist[0].keys():  # not in installed
-                print(f"\nJPKG Error: Dependency not satisfied: {pd}")
+        for dependency in pklist[1]:  # for dep
+            if dependency not in pklist[0].keys():  # not in installed
+                print(f"\nJPKG Error: Dependency not satisfied: {dependency}")
                 errored = True
-            del pd
+            del dependency
 
         stdout.write("\010 \010" * 2 + "50%")
         # conflict checks
-        for pc in pklist[2]:  # for confict
-            if pc in pklist[0].keys():  # in installed
-                print(f"\nJPKG Error: Package conflict: {pc}")
+        for conflict in pklist[2]:  # for confict
+            if conflict in pklist[0].keys():  # in installed
+                print(f"\nJPKG Error: Package conflict: {conflict}")
                 errored = True
-            del pc
+            del conflict
 
         print("\010 \010" * 3 + "100%")
 
@@ -243,9 +243,69 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
         ljinux.api.var("return", "1")
         ljinux.api.var("omit")  # this deletes it
 
-    # check if database is valid with the removal
+    # check if database is valid
+    if not errored:
+        # Dependency checks
+        stdout.write("JPKG: Verifying package transaction ... 0%")
+        for dependency in pklist[1]:  # for dep
+            if dependency not in pklist[0].keys():  # not in installed
+                print(f"\nJPKG Error: Dependency not satisfied: {dependency}")
+                errored = True
+            del dependency
 
+        stdout.write("\010 \010" * 2 + "50%")
+        # conflict checks
+        for conflict in pklist[2]:  # for confict
+            if conflict in pklist[0].keys():  # in installed
+                print(f"\nJPKG Error: Package conflict: {conflict}")
+                errored = True
+            del conflict
+
+        print("\010 \010" * 3 + "100%")
+
+    # our hopes and prayers it won't fail
+    gc.collect()
+    gc.collect()
+
+    if not sdcard_fs:
+        remount("/", False)
+
+    # removal
+    if not errored:
+        for pkgname in opts2["w"][1:]:
+            chdir("/LjinuxRoot/etc/jpkg/uninstallers")
+
+            with open(pkgname + ".json", "r") as manifest_f:
+                manifest = json.load(manifest_f)  # safe to load now
+                print(
+                    "JPKG: Removing "
+                    + manifest["package_name"]
+                    + " ("
+                    + str(manifest["version"][0])
+                    + "."
+                    + str(manifest["version"][1])
+                    + "."
+                    + str(manifest["version"][2])
+                    + ") ..."
+                )
+
+                ljinux.based.command.fpexecc([None, pkgname + ".py"])
+
+                # manifest removal
+                remove(f"/LjinuxRoot/etc/jpkg/installed/{pkgname}.json")
+
+                del manifest
+
+            # uninstaller removal
+            remove(f"/LjinuxRoot/etc/jpkg/uninstallers/{pkgname}.py")
+
+            del pkgname
+
+    # No need to bother going back in dir, since based will do it for us.
     del pklist
+
+    if not sdcard_fs:
+        remount("/", True)
 
     # return
     ljinux.api.var("return", str(int(errored)))
