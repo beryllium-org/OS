@@ -337,6 +337,296 @@ dmtex("Additional loading done")
 class ljinux:
     modules = dict()
 
+    class api:
+        def var(var, data=None, system=False):
+            """
+            Set a ljinux user variable without mem leaks
+            No handbreak installed.
+            data=None deletes
+            """
+            if not system:
+                if var in ljinux.based.user_vars.keys():
+                    del ljinux.based.user_vars[var]
+                if data is not None:
+                    ljinux.based.user_vars.update({var: data})
+            else:
+                if var in ljinux.based.system_vars.keys():
+                    del ljinux.based.system_vars[var]
+                if data is not None:
+                    ljinux.based.system_vars.update({var: data})
+            del var, data, system
+
+        def xarg(rinpt=None, fn=False):
+            """
+            Proper argument parsing for ljinux, send your input stream to here and you will receive a dict in return
+
+            The return dict contains 3 items:
+                "w" for the words that don't belong to a specific option. Example: "ls /bin", "/bin" is gonna be returned in "w"
+                "hw" for the words, that were hidden due to an option. Example "ls -a /bin", "/bin" is
+                 not gonna be in "w" as it is a part of "o" but will be in "hw".
+                "o" for all the options, with their respective values. Example: "ls -a /bin", {"a": "/bin"} is gonna be in "o"
+                "n" if False is passed to fn, contains the filename
+
+            Variables automatically translated.
+            GPIO excluded.
+            """
+
+            if rinpt is None:
+                rinpt = ljinux.based.user_vars["argj"]
+
+            inpt = rinpt.split(" ")
+            del rinpt
+
+            options = dict()
+            words = list()
+            hidwords = list()
+
+            n = False  # in keyword
+            s = False  # in string
+            temp_s = None  # temporary string
+            entry = None  # keyword
+
+            r = 0 if fn else 1
+            del fn
+
+            for i in range(r, len(inpt)):
+                if inpt[i].startswith("$"):  # variable
+                    if not s:
+                        inpt[i] = ljinux.api.adv_input(inpt[i][1:])
+                    elif inpt[i].endswith('"'):
+                        temp_s += ljinux.api.adv_input(inpt[i][:-1])
+                        words.append(temp_s)
+                        s = False
+                    elif '"' not in inpt[i]:
+                        temp_s += " " + ljinux.api.adv_input(inpt[i][1:])
+                        continue
+                    else:
+                        temp_s += " " + ljinux.api.adv_input(
+                            inpt[i][1 : inpt[i].find('"')]
+                        )
+                        words.append(temp_s)
+                        s = False
+                        inpt[i] = inpt[i][inpt[i].find('"') + 1 :]
+                elif (not s) and inpt[i].startswith('"$'):
+                    if inpt[i].endswith('"'):
+                        inpt[i] = ljinux.api.adv_input(inpt[i][2:-1])
+                    else:
+                        temp_s = ljinux.api.adv_input(inpt[i][2:])
+                        s = True
+                        continue
+                if not n:
+                    if (not s) and inpt[i].startswith("-"):
+                        if inpt[i].startswith("--"):
+                            entry = inpt[i][2:]
+                        else:
+                            entry = inpt[i][1:]
+                        n = True
+                    elif (not s) and inpt[i].startswith('"'):
+                        if not inpt[i].endswith('"'):
+                            temp_s = inpt[i][1:]
+                            s = True
+                        else:
+                            words.append(inpt[i][1:-1])
+                    elif s:
+                        if inpt[i].endswith('"'):
+                            temp_s += " " + inpt[i][:-1]
+                            words.append(temp_s)
+                            s = False
+                        else:
+                            temp_s += " " + inpt[i]
+                    else:
+                        words.append(inpt[i])
+                else:  # in keyword
+                    if (not s) and inpt[i].startswith('"'):
+                        if not inpt[i].endswith('"'):
+                            temp_s = inpt[i][1:]
+                            s = True
+                        else:
+                            options.update({entry: inpt[i][1:-1]})
+                            hidwords.append(inpt[i][1:-1])
+                            n = False
+                    elif s:
+                        if inpt[i].endswith('"'):
+                            temp_s += " " + inpt[i][:-1]
+                            options.update({entry: temp_s})
+                            hidwords.append(temp_s)
+                            n = False
+                            s = False
+                        else:
+                            temp_s += " " + inpt[i]
+                    elif inpt[i].startswith("-"):
+                        options.update({entry: None})  # no option for the previous one
+                        if inpt[i].startswith("--"):
+                            entry = inpt[i][2:]
+                        else:
+                            entry = inpt[i][1:]
+                        # leaving n = True
+                    else:
+                        options.update({entry: inpt[i]})
+                        hidwords.append(inpt[i])
+                        n = False
+            if n:  # we have incomplete keyword
+                # not gonna bother if s is True
+                options.update({entry: None})
+                hidwords.append(inpt[i])
+
+            del n, entry, s, temp_s
+
+            argd = {
+                "w": words,
+                "hw": hidwords,
+                "o": options,
+            }
+
+            if r is 1:  # add the filename
+                argd.update({"n": inpt[0]})
+            del options, words, hidwords, inpt, r
+            return argd
+
+        class fopen(object):
+            def __init__(self, fname, mod="r", ctx=None):
+                self.fn = fname
+                self.mod = mod
+
+            def __enter__(self):
+                try:
+                    global sdcard_fs
+                    rm = False  # remount
+                    if "w" in self.mod or "a" in self.mod:
+                        rm = True
+                    if rm and not sdcard_fs:
+                        remount("/", False)
+                    self.file = open(ljinux.api.betterpath(self.fn), self.mod)
+                    if rm and not sdcard_fs:
+                        remount("/", True)
+                    del rm
+                except RuntimeError:
+                    return None
+                return self.file
+
+            def __exit__(self, typee, value, traceback):
+                self.file.flush()
+                self.file.close()
+                del self.file, self.fn, self.mod
+
+        def isdir(dirr, rdir=None):
+            """
+            Checks if given item is file (returns 0) or directory (returns 1).
+            Returns 2 if it doesn't exist.
+            """
+            dirr = ljinux.api.betterpath(dirr)
+            rdir = ljinux.api.betterpath(rdir)
+            cddd = getcwd() if rdir is not None else rdir
+
+            res = 2
+
+            try:
+                chdir(dirr)
+                chdir(cddd)
+                res = 1
+            except OSError:
+                rr = "/"
+                try:
+                    # browsing deep
+                    if dirr.count(rr) not in [0, 1] and dirr[
+                        dirr.rfind(rr) + 1 :
+                    ] in listdir(dirr[: dirr.rfind(rr)]):
+                        res = 0
+                    elif dirr.count(rr) is 1 and dirr.startswith(rr):
+                        # browsing root
+                        if dirr[1:] in listdir(rr):
+                            res = 0
+                    else:
+                        # browsing dum
+                        if dirr[dirr.rfind(rr) + 1 :] in listdir(
+                            dirr[: dirr.rfind(rr)]
+                        ):
+                            res = 0
+                        else:
+                            raise OSError
+
+                except OSError:
+                    try:
+                        if dirr in (
+                            listdir(cddd) + (listdir(rdir) if rdir is not None else [])
+                        ):
+                            res = 0
+                    except OSError:
+                        res = 2  # we have had enough
+                del rr
+            del cddd
+            return res
+
+        def betterpath(back=None):
+            """
+            Removes /LjinuxRoot from path and puts it back
+            """
+            res = ""
+            userr = ljinux.based.system_vars["USER"].lower()
+            if userr != "root":
+                hd = "/LjinuxRoot/home/" + ljinux.based.system_vars["USER"].lower()
+            else:
+                hd = "/"
+            del userr
+            if back is None:
+                a = getcwd()
+                if a.startswith(hd):
+                    res = "~" + a[len(hd) :]
+                elif a == "/":
+                    res = "&/"
+                elif a == "/LjinuxRoot":
+                    res = "/"
+                elif a.startswith("/LjinuxRoot"):
+                    res = a[11:]
+                else:
+                    res = "&" + a
+                del a
+            else:  # resolve path back to normal
+                if back in ["&/", "&"]:  # board root
+                    res = "/"
+                elif back.startswith("&/"):
+                    res = back[1:]
+                elif back.startswith("/LjinuxRoot"):
+                    res = back  # already good
+                elif back[0] == "/":
+                    # This is for absolute paths
+                    res = "/LjinuxRoot"
+                    if back != "/":
+                        res += back
+                elif back[0] == "~":
+                    res = hd
+                    if back != "~":
+                        res += back[1:]
+                else:
+                    res = back
+            del back, hd
+            return res
+
+        def adv_input(whatever, _type=str):
+            """
+            Universal variable request
+            Returns the variable's value in the specified type
+            Parameters:
+                whatever : The name of the variable
+                _type : The type in which it should be returned
+            Returns:
+                The result of the variable in the type
+                specified if found
+                Otherwise, it returns the input
+            """
+            res = None
+            if whatever.isdigit():
+                res = int(whatever)
+            elif whatever in ljinux.based.user_vars:
+                res = ljinux.based.user_vars[whatever]
+            elif whatever in ljinux.based.system_vars:
+                res = ljinux.based.system_vars[whatever]
+            elif whatever in ljinux.io.sys_getters:
+                res = ljinux.io.sys_getters[whatever]()
+            else:
+                res = whatever
+            return _type(res)
+
     class history:
         historyy = []
         nav = [0, 0, ""]
@@ -832,7 +1122,7 @@ class ljinux:
                                 dmtex("PIN ALLOCATED, ABORT", force=True)
                                 return "1"
                             else:
-                                if ljinux.based.fn.adv_input(inpt[0], str) == inpt[0]:
+                                if ljinux.api.adv_input(inpt[0], str) == inpt[0]:
                                     gpio_alloc.update(
                                         {
                                             inpt[0]: [
@@ -879,7 +1169,7 @@ class ljinux:
                                     + colors.endc
                                 )
                         elif (
-                            inpt[0] == ljinux.based.fn.adv_input(inpt[0], str)
+                            inpt[0] == ljinux.api.adv_input(inpt[0], str)
                             or inpt[0] in ljinux.based.user_vars
                         ):
                             if inpt[2] in gpio_alloc:  # if setting value is gpio
@@ -906,7 +1196,7 @@ class ljinux:
             def dell(inpt):  # del variables, and dell computers
                 try:
                     a = inpt[1]
-                    if a == ljinux.based.fn.adv_input(a, str) and a not in gpio_alloc:
+                    if a == ljinux.api.adv_input(a, str) and a not in gpio_alloc:
                         ljinux.based.error(2)
                     else:
                         if a in gpio_alloc:
@@ -1141,7 +1431,7 @@ class ljinux:
                     return
 
                 try:
-                    a = open(ljinux.based.fn.betterpath(inpt[offs])).read()
+                    a = open(ljinux.api.betterpath(inpt[offs])).read()
                     if not ("t" in fpargs or "l" in fpargs):
                         exec(a)
                     elif "i" in fpargs:
@@ -1158,280 +1448,6 @@ class ljinux:
                     )
                     del err
                 del offs, fpargs
-
-        class fn:  # Common functions used by the commands.
-            def xarg(rinpt=None, fn=False):
-                """
-                Proper argument parsing for ljinux, send your input stream to here and you will receive a dict in return
-
-                The return dict contains 3 items:
-                    "w" for the words that don't belong to a specific option. Example: "ls /bin", "/bin" is gonna be returned in "w"
-                    "hw" for the words, that were hidden due to an option. Example "ls -a /bin", "/bin" is
-                     not gonna be in "w" as it is a part of "o" but will be in "hw".
-                    "o" for all the options, with their respective values. Example: "ls -a /bin", {"a": "/bin"} is gonna be in "o"
-                    "n" if False is passed to fn, contains the filename
-
-                Variables automatically translated.
-                GPIO excluded.
-                """
-                if rinpt is None:
-                    rinpt = ljinux.based.user_vars["argj"]
-
-                inpt = rinpt.split(" ")
-                del rinpt
-
-                options = dict()
-                words = list()
-                hidwords = list()
-
-                n = False  # in keyword
-                s = False  # in string
-                temp_s = None  # temporary string
-                entry = None  # keyword
-
-                r = 0 if fn else 1
-                del fn
-
-                for i in range(r, len(inpt)):
-                    if inpt[i].startswith("$"):  # variable
-                        if not s:
-                            inpt[i] = ljinux.based.fn.adv_input(inpt[i][1:])
-                        elif inpt[i].endswith('"'):
-                            temp_s += ljinux.based.fn.adv_input(inpt[i][:-1])
-                            words.append(temp_s)
-                            s = False
-                        elif '"' not in inpt[i]:
-                            temp_s += " " + ljinux.based.fn.adv_input(inpt[i][1:])
-                            continue
-                        else:
-                            temp_s += " " + ljinux.based.fn.adv_input(
-                                inpt[i][1 : inpt[i].find('"')]
-                            )
-                            words.append(temp_s)
-                            s = False
-                            inpt[i] = inpt[i][inpt[i].find('"') + 1 :]
-                    elif (not s) and inpt[i].startswith('"$'):
-                        if inpt[i].endswith('"'):
-                            inpt[i] = ljinux.based.fn.adv_input(inpt[i][2:-1])
-                        else:
-                            temp_s = ljinux.based.fn.adv_input(inpt[i][2:])
-                            s = True
-                            continue
-                    if not n:
-                        if (not s) and inpt[i].startswith("-"):
-                            if inpt[i].startswith("--"):
-                                entry = inpt[i][2:]
-                            else:
-                                entry = inpt[i][1:]
-                            n = True
-                        elif (not s) and inpt[i].startswith('"'):
-                            if not inpt[i].endswith('"'):
-                                temp_s = inpt[i][1:]
-                                s = True
-                            else:
-                                words.append(inpt[i][1:-1])
-                        elif s:
-                            if inpt[i].endswith('"'):
-                                temp_s += " " + inpt[i][:-1]
-                                words.append(temp_s)
-                                s = False
-                            else:
-                                temp_s += " " + inpt[i]
-                        else:
-                            words.append(inpt[i])
-                    else:  # in keyword
-                        if (not s) and inpt[i].startswith('"'):
-                            if not inpt[i].endswith('"'):
-                                temp_s = inpt[i][1:]
-                                s = True
-                            else:
-                                options.update({entry: inpt[i][1:-1]})
-                                hidwords.append(inpt[i][1:-1])
-                                n = False
-                        elif s:
-                            if inpt[i].endswith('"'):
-                                temp_s += " " + inpt[i][:-1]
-                                options.update({entry: temp_s})
-                                hidwords.append(temp_s)
-                                n = False
-                                s = False
-                            else:
-                                temp_s += " " + inpt[i]
-                        elif inpt[i].startswith("-"):
-                            options.update(
-                                {entry: None}
-                            )  # no option for the previous one
-                            if inpt[i].startswith("--"):
-                                entry = inpt[i][2:]
-                            else:
-                                entry = inpt[i][1:]
-                            # leaving n = True
-                        else:
-                            options.update({entry: inpt[i]})
-                            hidwords.append(inpt[i])
-                            n = False
-                if n:  # we have incomplete keyword
-                    # not gonna bother if s is True
-                    options.update({entry: None})
-                    hidwords.append(inpt[i])
-
-                del n, entry, s, temp_s
-
-                argd = {
-                    "w": words,
-                    "hw": hidwords,
-                    "o": options,
-                }
-
-                if r is 1:  # add the filename
-                    argd.update({"n": inpt[0]})
-                del options, words, hidwords, inpt, r
-                return argd
-
-            class fopen(object):
-                def __init__(self, fname, mod="r", ctx=None):
-                    self.fn = fname
-                    self.mod = mod
-
-                def __enter__(self):
-                    try:
-                        global sdcard_fs
-                        rm = False  # remount
-                        if "w" in self.mod or "a" in self.mod:
-                            rm = True
-                        if rm and not sdcard_fs:
-                            remount("/", False)
-                        self.file = open(ljinux.based.fn.betterpath(self.fn), self.mod)
-                        if rm and not sdcard_fs:
-                            remount("/", True)
-                        del rm
-                    except RuntimeError:
-                        return None
-                    return self.file
-
-                def __exit__(self, typee, value, traceback):
-                    self.file.flush()
-                    self.file.close()
-                    del self.file, self.fn, self.mod
-
-            def isdir(dirr, rdir=None):
-                """
-                Checks if given item is file (returns 0) or directory (returns 1).
-                Returns 2 if it doesn't exist.
-                """
-                dirr = ljinux.based.fn.betterpath(dirr)
-                rdir = ljinux.based.fn.betterpath(rdir)
-                cddd = getcwd() if rdir is not None else rdir
-
-                res = 2
-
-                try:
-                    chdir(dirr)
-                    chdir(cddd)
-                    res = 1
-                except OSError:
-                    rr = "/"
-                    try:
-                        # browsing deep
-                        if dirr.count(rr) not in [0, 1] and dirr[
-                            dirr.rfind(rr) + 1 :
-                        ] in listdir(dirr[: dirr.rfind(rr)]):
-                            res = 0
-                        elif dirr.count(rr) is 1 and dirr.startswith(rr):
-                            # browsing root
-                            if dirr[1:] in listdir(rr):
-                                res = 0
-                        else:
-                            # browsing dum
-                            if dirr[dirr.rfind(rr) + 1 :] in listdir(
-                                dirr[: dirr.rfind(rr)]
-                            ):
-                                res = 0
-                            else:
-                                raise OSError
-
-                    except OSError:
-                        try:
-                            if dirr in (
-                                listdir(cddd)
-                                + (listdir(rdir) if rdir is not None else [])
-                            ):
-                                res = 0
-                        except OSError:
-                            res = 2  # we have had enough
-                    del rr
-                del cddd
-                return res
-
-            def betterpath(back=None):
-                """
-                Removes /LjinuxRoot from path and puts it back
-                """
-                res = ""
-                userr = ljinux.based.system_vars["USER"].lower()
-                if userr != "root":
-                    hd = "/LjinuxRoot/home/" + ljinux.based.system_vars["USER"].lower()
-                else:
-                    hd = "/"
-                del userr
-                if back is None:
-                    a = getcwd()
-                    if a.startswith(hd):
-                        res = "~" + a[len(hd) :]
-                    elif a == "/":
-                        res = "&/"
-                    elif a == "/LjinuxRoot":
-                        res = "/"
-                    elif a.startswith("/LjinuxRoot"):
-                        res = a[11:]
-                    else:
-                        res = "&" + a
-                    del a
-                else:  # resolve path back to normal
-                    if back in ["&/", "&"]:  # board root
-                        res = "/"
-                    elif back.startswith("&/"):
-                        res = back[1:]
-                    elif back.startswith("/LjinuxRoot"):
-                        res = back  # already good
-                    elif back[0] == "/":
-                        # This is for absolute paths
-                        res = "/LjinuxRoot"
-                        if back != "/":
-                            res += back
-                    elif back[0] == "~":
-                        res = hd
-                        if back != "~":
-                            res += back[1:]
-                    else:
-                        res = back
-                del back, hd
-                return res
-
-            def adv_input(whatever, _type=str):
-                """
-                Universal variable request
-                Returns the variable's value in the specified type
-                Parameters:
-                    whatever : The name of the variable
-                    _type : The type in which it should be returned
-                Returns:
-                    The result of the variable in the type
-                    specified if found
-                    Otherwise, it returns the input
-                """
-                res = None
-                if whatever.isdigit():
-                    res = int(whatever)
-                elif whatever in ljinux.based.user_vars:
-                    res = ljinux.based.user_vars[whatever]
-                elif whatever in ljinux.based.system_vars:
-                    res = ljinux.based.system_vars[whatever]
-                elif whatever in ljinux.io.sys_getters:
-                    res = ljinux.io.sys_getters[whatever]()
-                else:
-                    res = whatever
-                return _type(res)
 
         # the shell function, do not poke, it gets angry
         def shell(inp=None, led=True, args=None, nalias=False):
@@ -1491,7 +1507,7 @@ class ljinux:
                         + colors.endc
                         + "| "
                         + colors.yellow_t
-                        + ljinux.based.fn.betterpath()
+                        + ljinux.api.betterpath()
                         + colors.endc
                         + "]"
                         + colors.blue_t

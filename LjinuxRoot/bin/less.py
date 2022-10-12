@@ -1,6 +1,6 @@
 try:
     with open(
-        ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]), "r"
+        ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1]), "r"
     ) as f:
 
         lines = f.readlines()

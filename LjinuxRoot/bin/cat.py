@@ -2,7 +2,7 @@ ljinux.based.user_vars["return"] = ""
 
 try:
     with open(
-        ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]), "r"
+        ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1]), "r"
     ) as f:
         for line in f:
             print(line, end="")

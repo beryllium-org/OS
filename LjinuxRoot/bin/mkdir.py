@@ -1,18 +1,18 @@
 global sdcard_fs
 try:
-    wd = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
-    if ljinux.based.fn.isdir(wd) == 2:
+    wd = ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1])
+    if ljinux.api.isdir(wd) == 2:
 
         if not sdcard_fs:
             remount("/", False)
 
-        if ljinux.based.fn.isdir(wd[: wd.rfind("/")]) == 2:
+        if ljinux.api.isdir(wd[: wd.rfind("/")]) == 2:
             fpaths = wd[: wd.find("/") + 1]
             wd = wd[wd.find("/") + 1 :]
             while wd.find("/") != -1:
                 fpaths += wd[: wd.find("/") + 1]
                 wd = wd[wd.find("/") + 1 :]
-                if ljinux.based.fn.isdir(fpaths) == 2:
+                if ljinux.api.isdir(fpaths) == 2:
                     mkdir(fpaths)
             wd = fpaths + wd
             del fpaths

@@ -8,12 +8,12 @@ if sizee[0] > 14 and sizee[1] > 105:
     versionn = "1.7"
 
     try:
-        filee = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
+        filee = ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1])
     except IndexError:
         pass
 
     if filee is not None:  # there is arg
-        exists = ljinux.based.fn.isdir(filee, rdir=getcwd())
+        exists = ljinux.api.isdir(filee, rdir=getcwd())
 
     if exists == 1:  # it is dir
         filee = None
@@ -297,7 +297,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                         del cc
                         if not sdcard_fs:
                             remount("/", False)
-                        with open(ljinux.based.fn.betterpath(term.buf[1]), "w") as f:
+                        with open(ljinux.api.betterpath(term.buf[1]), "w") as f:
                             for i in dataa:
                                 f.write(f"{i}\n")
                             f.flush()

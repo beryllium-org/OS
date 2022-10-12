@@ -1,4 +1,4 @@
-opts2 = ljinux.based.fn.xarg()
+opts2 = ljinux.api.xarg()
 errored = False
 
 jpkg_version = 0
@@ -11,13 +11,13 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
     # load system package list
     ljinux.based.command.fpexecc([None, "/etc/jpkg/tools/generatelist.py"])
     pklist = ljinux.based.user_vars["return"]
+    ljinux.api.var("return", "1")  # no garbage in return
+
     """
     pklist[0] is packages w/ version, deps, conficts
     pklist[1] is a set of all deps
     pklist[2] is a set of all conflicts
     """
-    ljinux.based.user_vars["return"] = "1"
-    # we do not want to leave the whole package list in return
 
     # extraction
     for fileext in opts2["w"][1:]:
@@ -28,11 +28,11 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
         ljinux.based.command.fpexecc([None, "/bin/random.py"])
         ljinux.based.silent = False
         extpath = "/tmp/" + ljinux.based.user_vars["return"][2:] + fileext[:-4]
-        ljinux.based.user_vars["argj"] = "a " + extpath
+        ljinux.api.var("argj", "a " + extpath)
         ljinux.based.command.fpexecc([None, "/bin/mkdir.py"])
 
         print(f"JPKG: Extracting {fileext[:-4]} ...")
-        ljinux.based.user_vars["argj"] = f"a -q -d {fileext} {extpath}"
+        ljinux.api.var("argj", f"a -q -d {fileext} {extpath}")
         ljinux.based.command.fpexecc([None, "/bin/jz.py"])
         if ljinux.based.user_vars["return"] == "0":
             print("JPKG: Extracted to " + extpath)
@@ -200,7 +200,7 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
 
     # go back
     chdir(bckdir)
-    del bckdir
+    del bckdir, updatee
 
     # cleanup (mandatory)
     for package in fl:
@@ -211,16 +211,47 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
         del package
     if not sdcard_fs:
         remount("/", True)
-    del fl, updatee
+    del fl
+
+    # return
+    ljinux.based.user_vars["return"] = str(int(errored))  # ljinux vars need to be str
+    del errored
 elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
+    # for comments look in installation
     ljinux.based.command.fpexecc([None, "/etc/jpkg/tools/generatelist.py"])
     pklist = ljinux.based.user_vars["return"]  # for comments look in installation
+    ljinux.api.var("return", "1")
+    errored = False
 
-    ljinux.based.user_vars["return"] = "1"
+    for package in opts2["w"][1:]:
+        if package not in pklist[0].keys():
+            print(f"JPKG Error: Package {package} not installed.")
+            errored = True
+            del package
+            break
+        else:
+            del package
+
+    # remove from database in ram
+    if not errored:
+        pklist.clear()
+        gc.collect()
+        gc.collect()
+        ljinux.based.user_vars.update({"omit": set(opts2["w"][1:])})
+        ljinux.based.command.fpexecc([None, "/etc/jpkg/tools/generatelist.py"])
+        pklist.update(ljinux.based.user_vars["return"])
+        ljinux.api.var("return", "1")
+        ljinux.api.var("omit")  # this deletes it
+
+    # check if database is valid with the removal
 
     del pklist
+
+    # return
+    ljinux.api.var("return", str(int(errored)))
+    del errored
 else:
     ljinux.based.error(1)
-    ljinux.based.user_vars["return"] = "1"
+    ljinux.api.var("return", "1")
 
 del opts2, jpkg_version

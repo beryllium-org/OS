@@ -17,24 +17,31 @@ conflicts = set()  # All conflicts
 
 for package in listing:
     name = package[:-5]  # remove ".json"
-    with ljinux.based.fn.fopen("/etc/jpkg/installed/" + package) as conf_f:
+    omit = (
+        []
+        if "omit" not in ljinux.based.user_vars.keys()
+        else ljinux.based.user_vars["omit"]
+    )
+    with ljinux.api.fopen("/etc/jpkg/installed/" + package) as conf_f:
         manifest = json.load(conf_f)
-        installed.update(
-            {
-                name: [
-                    manifest["version"],
-                    manifest["dependencies"],
-                    manifest["conflicts"],
-                ]
-            }
-        )
-        for dependency in manifest["dependencies"]:
-            dependencies.update(dependency)
-            del dependency
-        for conflict in manifest["conflicts"]:
-            conflicts.update(conflict)
-            del conflict
+        if name not in omit:
+            installed.update(
+                {
+                    name: [
+                        manifest["version"],
+                        manifest["dependencies"],
+                        manifest["conflicts"],
+                    ]
+                }
+            )
+            for dependency in manifest["dependencies"]:
+                dependencies.update(dependency)
+                del dependency
+            for conflict in manifest["conflicts"]:
+                conflicts.update(conflict)
+                del conflict
         del manifest
+    del omit
     stdout.write("\010 \010" * cc)
     pkl += 1
     prc = str(int(pkl * 100 / pkc))
@@ -43,5 +50,5 @@ for package in listing:
     del prc, package
 
 stdout.write(("\010 \010" * cc) + "100%\n")
-ljinux.based.user_vars["return"] = [installed, dependencies, conflicts]
+ljinux.api.var("return", [installed, dependencies, conflicts])
 del cc, pkl, pkc, listing, installed, dependencies, conflicts

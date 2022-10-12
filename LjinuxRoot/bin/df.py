@@ -5,7 +5,7 @@ dfl = statvfs("/LjinuxRoot")  # LjinuxRoot
 dfd = dfr == dfl  # is ljinuxRoot on board?
 del statvfs
 
-opts = ljinux.based.fn.xarg()
+opts = ljinux.api.xarg()
 
 
 def human_readable(whatever):

@@ -1,10 +1,10 @@
-opts = ljinux.based.fn.xarg(ljinux.based.user_vars["argj"], False)
+opts = ljinux.api.xarg(ljinux.based.user_vars["argj"], False)
 mod = opts["n"][opts["n"].rfind("/") + 1 :]
 
 lines = 10 if not ("n" in opts["o"]) else int(opts["o"]["n"])
 
 try:
-    with open(ljinux.based.fn.betterpath(opts["w"][0]), "r") as f:
+    with open(ljinux.api.betterpath(opts["w"][0]), "r") as f:
         content = f.readlines()
         count = len(content)
         start = 0 if mod == "head.lja" else count - lines
