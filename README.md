@@ -3,7 +3,7 @@ A "linux" written in python, for CircuitPython powered microcontrollers.<br />
 [![Black Formatting](https://github.com/bill88t/ljinux/actions/workflows/black.yml/badge.svg)](https://github.com/bill88t/ljinux/actions/workflows/black.yml)
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 <br />
-![neofetch](https://github.com/bill88t/ljinux/blob/main/other/screenshots/bneofetch.png)
+![neofetch](https://github.com/bill88t/ljinux/blob/main/other/screenshots/cneofetch.png)
 <br />
 Important notes:<br />
 Do not take this project seriously.<br />
@@ -35,7 +35,6 @@ At the moment the supported microcontrollers are:<br /><br />
 
  - Raspberry Pi Pico<br />
  - Raspberry Pi Pico W <br />
-   Notice: Wifi doesn't work just yet.<br />
  - Waveshare RP2040-Zero <br />
  - Adafruit KB2040 <br />
  - Waveshare ESP32-S2-Pico <br />
@@ -136,7 +135,7 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 
 ## Additional screenshots
 ![less](https://github.com/bill88t/ljinux/blob/main/other/screenshots/less.png)
-![extra commands](https://github.com/bill88t/ljinux/blob/main/other/screenshots/some.png)
+![iwctl](https://github.com/bill88t/ljinux/blob/main/other/screenshots/iwctl.png)
 
 ## Useful resources that helped with the development of this project
  https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797<br />
