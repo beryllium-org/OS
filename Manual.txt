@@ -311,15 +311,8 @@ CODE:
 
 Commons functions used by the commands.
 CODE:
-      ljinux.based.fn.[function_name](parameters)
+      ljinux.api.[function_name](parameters)
       where [function_name] is one of the function below
-
-      get_valid_options(inpt, vopts)
-        Return an options array if the given parameter start with the character '-'.
-        Return an empty array if there is none, duplicate or invalid character followind '-'.
-        Parameters:
-                inpt : string with the second user input ex:'-n'
-                vopts : string with valid option ex:'abc'
 
       adv_input(whatever, _type)
         Universal variable request
