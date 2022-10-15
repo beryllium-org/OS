@@ -35,10 +35,10 @@ for package in listing:
                 }
             )
             for dependency in manifest["dependencies"]:
-                dependencies.update(dependency)
+                dependencies.add(dependency)
                 del dependency
             for conflict in manifest["conflicts"]:
-                conflicts.update(conflict)
+                conflicts.add(conflict)
                 del conflict
         del manifest
     del omit
