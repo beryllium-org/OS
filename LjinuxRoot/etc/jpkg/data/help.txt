@@ -1,0 +1,6 @@
+Ljinux package manager version 0.
+
+Usage:
+    jpkg install package_file.jpkg
+    jpkg uninstall package_name
+    jpkg list

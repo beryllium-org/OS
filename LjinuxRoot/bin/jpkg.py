@@ -22,7 +22,9 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
     # extraction
     for fileext in opts2["w"][1:]:
         if errored:
-            print("JPKG Error: A fatal error has occured, exiting..")
+            print(
+                f"{colors.error}JPKG Error{colors.endc}: A fatal error has occured, exiting.."
+            )
             break
         ljinux.based.silent = True
         ljinux.based.command.fpexecc([None, "/bin/random.py"])
@@ -31,13 +33,13 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
         ljinux.api.var("argj", "a " + extpath)
         ljinux.based.command.fpexecc([None, "/bin/mkdir.py"])
 
-        print(f"JPKG: Extracting {fileext[:-4]} ...")
+        print(f"{colors.green_t}JPKG{colors.endc}: Extracting {fileext[:-4]} ...")
         ljinux.api.var("argj", f"a -q -d {fileext} {extpath}")
         ljinux.based.command.fpexecc([None, "/bin/jz.py"])
         if ljinux.based.user_vars["return"] == "0":
-            print("JPKG: Extracted to " + extpath)
+            print(f"{colors.green_t}JPKG{colors.endc}: Extracted to " + extpath)
         else:
-            print("JPKG Error: Package extraction failed!")
+            print(f"{colors.error}JPKG Error{colors.endc}: Package extraction failed!")
             errored = True
             break
         fl.add(extpath)
@@ -51,7 +53,9 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
     # parsing
     if not errored:
         for fileext in fl:
-            print(f'JPKG: Reading properties "{fileext}" ...')
+            print(
+                f'{colors.green_t}JPKG{colors.endc}: Reading properties "{fileext}" ...'
+            )
             chdir("/LjinuxRoot" + fileext)
 
             if "Manifest.json" in listdir():
@@ -72,7 +76,7 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                             if manifest["JPKG_minimum_version"] > jpkg_version:
                                 errored = True
                                 print(
-                                    "JPKG Error: Package "
+                                    f"{colors.error}JPKG Error{colors.endc}: Package "
                                     + manifest["package_name"]
                                     + " requires a higher version of jpkg, cannot continue."
                                 )
@@ -92,7 +96,7 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                             else:  # version <=
                                 errored = True
                                 print(
-                                    "JPKG Error: Package "
+                                    f"{colors.error}JPKG Error{colors.endc}: Package "
                                     + manifest["package_name"]
                                     + " version smaller than current ("
                                     + str(vrs[0])
@@ -116,11 +120,13 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                         del manifest
                     except Exception as err:
                         print(str(err))
-                        print("JPKG Error: Could not parse package manifest!")
+                        print(
+                            f"{colors.error}JPKG Error{colors.endc}: Could not parse package manifest!"
+                        )
                         errored = True
                         break
             else:
-                print("JPKG Error: Not a ljinux package!")
+                print(f"{colors.error}JPKG Error{colors.endc}: Not a ljinux package!")
                 errored = True
                 break
 
@@ -129,7 +135,9 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
     # checks before install
     if not errored:
         # Dependency checks
-        stdout.write("JPKG: Verifying package transaction ... 0%")
+        stdout.write(
+            f"{colors.green_t}JPKG{colors.endc}: Verifying package transaction ... 0%"
+        )
         for dependency in pklist[1]:  # for dep
             if dependency not in pklist[0].keys():  # not in installed
                 stdout.write(f"\nJPKG Error: Dependency not satisfied: {dependency}")
@@ -138,7 +146,9 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
 
         if not errored:
             term.clear_line()
-            stdout.write("JPKG: Verifying package transaction ... 50%")
+            stdout.write(
+                f"{colors.green_t}JPKG{colors.endc}: Verifying package transaction ... 50%"
+            )
         # conflict checks
         for conflict in pklist[2]:  # for confict
             if conflict in pklist[0].keys():  # in installed
@@ -148,7 +158,9 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
 
         if not errored:
             term.clear_line()
-            print("JPKG: Verifying package transaction ... 100%")
+            print(
+                f"{colors.green_t}JPKG{colors.endc}: Verifying package transaction ... 100%"
+            )
         else:
             print()
 
@@ -166,7 +178,7 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
             with open("Manifest.json", "r") as manifest_f:
                 manifest = json.load(manifest_f)  # safe to load now
                 print(
-                    "JPKG: Setting up "
+                    f"{colors.green_t}JPKG{colors.endc}: Setting up "
                     + manifest["package_name"]
                     + " ("
                     + str(manifest["version"][0])
@@ -245,7 +257,9 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
 
     for package in opts2["w"][1:]:
         if package not in pklist[0].keys():
-            print(f"JPKG Error: Package {package} not installed.")
+            print(
+                f"{colors.error}JPKG Error{colors.endc}: Package {package} not installed."
+            )
             errored = True
             del package
             break
@@ -258,7 +272,7 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
         gc.collect()
         gc.collect()
         ljinux.api.var("omit", set(opts2["w"][1:]))
-        print("JPKG: Updating package list.")
+        print(f"{colors.green_t}JPKG{colors.endc}: Updating package list.")
         ljinux.based.command.fpexecc([None, "/etc/jpkg/tools/generatelist.py"])
         pklist += ljinux.based.user_vars["return"]
         ljinux.api.var("return", "1")
@@ -267,7 +281,9 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
     # check if database is valid
     if not errored:
         # Dependency checks
-        stdout.write("JPKG: Verifying package transaction ... 0%")
+        stdout.write(
+            f"{colors.green_t}JPKG{colors.endc}: Verifying package transaction ... 0%"
+        )
         for dependency in pklist[1]:  # for dep
             if dependency not in pklist[0].keys():  # not in installed
                 stdout.write(f"\nJPKG Error: Dependency not satisfied: {dependency}")
@@ -276,7 +292,9 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
 
         if not errored:
             term.clear_line()
-            stdout.write("JPKG: Verifying package transaction ... 50%")
+            stdout.write(
+                f"{colors.green_t}JPKG{colors.endc}: Verifying package transaction ... 50%"
+            )
         # conflict checks
         for conflict in pklist[2]:  # for confict
             if conflict in pklist[0].keys():  # in installed
@@ -286,7 +304,9 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
 
         if not errored:
             term.clear_line()
-            print("JPKG: Verifying package transaction ... 100%")
+            print(
+                f"{colors.green_t}JPKG{colors.endc}: Verifying package transaction ... 100%"
+            )
         else:
             print()
 
@@ -305,7 +325,7 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
             ) as manifest_f:
                 manifest = json.load(manifest_f)  # safe to load now
                 print(
-                    "JPKG: Removing "
+                    f"{colors.green_t}JPKG{colors.endc}: Removing "
                     + manifest["package_name"]
                     + " ("
                     + str(manifest["version"][0])
@@ -339,8 +359,28 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
     # return
     ljinux.api.var("return", str(int(errored)))
     del errored
+elif len(opts2["w"]) is 1 and opts2["w"][0] == "list":
+    for package in listdir("/LjinuxRoot/etc/jpkg/installed"):
+        with open("/LjinuxRoot/etc/jpkg/installed/" + package) as manifest_f:
+            manifest = json.load(manifest_f)
+            print(
+                colors.green_t
+                + manifest["package_name"]
+                + colors.endc
+                + "/"
+                + str(manifest["version"][0])
+                + "."
+                + str(manifest["version"][1])
+                + "."
+                + str(manifest["version"][2])
+                + " [Installed]"
+            )
+            del manifest
+        del package
+    ljinux.api.var("return", "0")
 else:
-    ljinux.based.error(1)
+    ljinux.api.var("argj", "a /etc/jpkg/data/help.txt")
+    ljinux.based.command.fpexecc([None, "/bin/cat.py"])
     ljinux.api.var("return", "1")
 
 del opts2, jpkg_version
