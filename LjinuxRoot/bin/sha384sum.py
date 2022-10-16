@@ -1,7 +1,7 @@
 try:
     dataa = None
     with open(
-        ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]), "rb"
+        ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1]), "rb"
     ) as f:
         dataa = f.read()
     a = """

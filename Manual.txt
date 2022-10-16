@@ -313,6 +313,48 @@ Commons functions used by the commands.
 CODE:
       ljinux.api.[function_name](parameters)
       where [function_name] is one of the function below
+      
+      var(var, data=None, system=False)
+        Variable getter / deleter.
+        Sets variable var, in ljinux.based.user_vars.
+        The var name has to be an str.
+        When the data is None, deletes the variable.
+        The system option, when True, uses ljinux.based.system_vars instead.
+        
+      xarg(rinpt=None, fn=False)
+        Argument parser.
+        When no input stream specified, rely on ljinux.based.user_vars["argj"].
+        Returns a dict with the following stuff:
+          "w" for the words that don't belong to a specific option.
+               Example: "ls /bin", "/bin" is gonna be returned in "w"
+          "hw" for the words, that were hidden due to an option. Example "ls -a /bin", "/bin" is
+               not gonna be in "w" as it is a part of "o" but will be in "hw".
+          "o" for all the options, with their respective values.
+               Example: "ls -a /bin", {"a": "/bin"} is gonna be in "o"
+          "n" if False is passed to fn, contains the filename
+        
+      fopen(object)
+        Meant to be used with "with".
+        Opens files with the path automatically parsed by betterpath.
+        Also remounts the filesystem when in write or append mode automatically.
+        Example:
+          with ljinux.api.fopen("/bin/nano.py", "w")
+      
+      isdir(dirr, rdir=None)
+        Checks if given item is file (returns 0) or directory (returns 1).
+        Returns 2 if it doesn't exist.
+        
+        rdir specifies reference directory.
+        When None, automatically use . as reference.
+      
+      betterpath(back=None)
+        Automatically rewrite paths to match virtual filesystem.
+        /LjinuxRoot/bin/nano.py -> /bin/nano.py
+        /boot_out.txt -> &/boot_out.txt
+        / -> &
+        ~ automatically parsed
+        
+        When None, return current directory.
 
       adv_input(whatever, _type)
         Universal variable request

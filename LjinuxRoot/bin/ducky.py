@@ -1,5 +1,5 @@
 try:
-    if ljinux.based.fn.isdir(ljinux.based.user_vars["argj"].split()[1], rdir=getcwd()):
+    if ljinux.api.isdir(ljinux.based.user_vars["argj"].split()[1], rdir=getcwd()):
         ljinux.based.error(4, ljinux.based.user_vars["argj"].split()[1])
         ljinux.based.user_vars["return"] = "1"
     else:
@@ -129,7 +129,7 @@ try:
         dataa = None
 
         with open(
-            ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1]), "r"
+            ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1]), "r"
         ) as f:
             dataa = f.readlines()
 

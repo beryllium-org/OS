@@ -3,10 +3,10 @@ try:
     rd = getcwd()
     if not sdcard_fs:
         remount("/", False)
-    src = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[1])
-    srcisd = ljinux.based.fn.isdir(src, rdir=rd)
-    dst = ljinux.based.fn.betterpath(ljinux.based.user_vars["argj"].split()[2])
-    dstisd = ljinux.based.fn.isdir(dst, rdir=rd)
+    src = ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1])
+    srcisd = ljinux.api.isdir(src, rdir=rd)
+    dst = ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[2])
+    dstisd = ljinux.api.isdir(dst, rdir=rd)
     del rd
 
     if srcisd is 2 or (dstisd is 2 and dst.endswith("/")):
@@ -26,15 +26,15 @@ try:
         gc.collect()
         for i in listdir(src):
             print(f"{src}/{i} -> {dst}/{i}")
-            if ljinux.based.fn.isdir(f"{src}/{i}"):
+            if ljinux.api.isdir(f"{src}/{i}"):
                 ljinux.based.user_vars["argj"] = f"cp {src}/{i} {dst}/{i}"
                 ljinux.based.command.fpexecc([None, "/bin/cp.py"])
                 if not sdcard_fs:
                     remount("/", False)
                 src = src[: src.rfind("/")]
                 dst = dst[: dst.rfind("/")]
-                srcisd = ljinux.based.fn.isdir(src)
-                dstisd = ljinux.based.fn.isdir(dst)
+                srcisd = ljinux.api.isdir(src)
+                dstisd = ljinux.api.isdir(dst)
             else:
                 with open(f"{src}/{i}", "rb") as srcf:
                     srcd = srcf.read()

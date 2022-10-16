@@ -2,7 +2,7 @@ capdir = getcwd()
 try:
     dirr = ljinux.based.user_vars["argj"].split()[1]
     if dirr != "-":
-        chdir(ljinux.based.fn.betterpath(dirr))
+        chdir(ljinux.api.betterpath(dirr))
         if capdir != getcwd():
             ljinux.based.user_vars["prevdir"] = capdir
     else:

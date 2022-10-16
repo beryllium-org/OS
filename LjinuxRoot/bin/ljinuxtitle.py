@@ -4,7 +4,7 @@ temp = (
     + "@"
     + ljinux.based.system_vars["HOSTNAME"]
     + ": "
-    + ljinux.based.fn.betterpath()
+    + ljinux.api.betterpath()
 )
 ljinux.based.user_vars["argj"] = temp
 ljinux.based.command.fpexecc([None, "/bin/title.py"])

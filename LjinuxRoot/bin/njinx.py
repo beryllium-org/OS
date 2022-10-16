@@ -7,7 +7,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
     ipconf = ljinux.modules["network"].get_ipconf()
     webconf = []
     try:
-        with open(ljinux.based.fn.betterpath("/etc/njinx/njinx.conf"), "r") as f:
+        with open(ljinux.api.betterpath("/etc/njinx/njinx.conf"), "r") as f:
             webconf = json.load(f)
     except Exception as Err:
         pass
@@ -27,7 +27,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
             @server.route("/admin")
             def base(request):
                 return adafruit_httpserver.HTTPResponse(
-                    filename=ljinux.based.fn.betterpath("/var/www/admin/index.html")
+                    filename=ljinux.api.betterpath("/var/www/admin/index.html")
                 )
 
         # post route
@@ -74,7 +74,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
             + '  res = "FAIL"\n'
             + " del raw, current, form_dat_pos\n"
             + ' passwd = "'
-            + ljinux.based.fn.betterpath(webconf["password"])
+            + ljinux.api.betterpath(webconf["password"])
             + '"\n'
             + " try:\n"
             + '  operation = data["operation"]\n'
@@ -94,7 +94,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
             '@server.route("/")\n'
             + "def base(request):\n"
             + '    return adafruit_httpserver.HTTPResponse(filename="'
-            + ljinux.based.fn.betterpath(webconf["path"])
+            + ljinux.api.betterpath(webconf["path"])
             + '/index.html")'
         )
 
@@ -105,7 +105,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
 
         server.start(
             host=str(ipconf["ip"]),
-            root=ljinux.based.fn.betterpath(webconf["path"]),
+            root=ljinux.api.betterpath(webconf["path"]),
             port=webconf["port"],
         )
         while True:

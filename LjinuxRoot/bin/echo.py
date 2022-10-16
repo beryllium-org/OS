@@ -1,4 +1,4 @@
-opts = ljinux.based.fn.xarg(ljinux.based.user_vars["argj"])
+opts = ljinux.api.xarg(ljinux.based.user_vars["argj"])
 ljinux.based.user_vars["return"] = ""
 
 li = opts["hw"] + opts["w"]

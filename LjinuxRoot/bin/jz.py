@@ -1,4 +1,4 @@
-opts = ljinux.based.fn.xarg()
+opts = ljinux.api.xarg()
 li = opts["hw"] + opts["w"]
 quiett = ljinux.based.silent or "q" in opts["o"]
 jzdebug = "debug" in opts["o"]
@@ -12,7 +12,7 @@ if ("d" in opts["o"] or "decompress" in opts["o"]) and len(li) > 0:
         unzpath += "/"
     if not sdcard_fs:
         remount("/", False)
-    decompress(zname, ljinux.based.fn.betterpath(unzpath), quiet=quiett, debug=jzdebug)
+    decompress(zname, ljinux.api.betterpath(unzpath), quiet=quiett, debug=jzdebug)
     if not sdcard_fs:
         remount("/", True)
     del decompress, zname, unzpath

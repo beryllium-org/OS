@@ -6,16 +6,10 @@ if display_availability:
     if typee == "text":  # x, y, color, text in ""
         try:
             xi = 0
-            xi = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[2], int
-            )
-            yi = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[3], int
-            )
+            xi = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[2], int)
+            yi = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[3], int)
             txt = ""  # ljinux.based.user_vars["argj"].split()[5]
-            col = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[4], int
-            )
+            col = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[4], int)
             if (
                 ljinux.based.user_vars["argj"].split()[5].startswith('"')
             ):  # let's do some string proccessing!
@@ -45,15 +39,9 @@ if display_availability:
             ljinux.based.error(9)
     elif typee == "dot":  # x,y,col
         try:
-            xi = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[2], int
-            )
-            yi = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[3], int
-            )
-            col = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[4], int
-            )
+            xi = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[2], int)
+            yi = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[3], int)
+            col = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[4], int)
             ljinux.farland.pixel(xi, yi, col)
         except (IndexError, ValueError):
             ljinux.based.error(9)
@@ -61,45 +49,23 @@ if display_availability:
         typee == "rectangle"
     ):  # x start, y start, x stop, y stop, color, mode (fill / border)
         try:
-            xi = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[2], int
-            )
-            yi = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[3], int
-            )
-            xe = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[4], int
-            )
-            ye = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[5], int
-            )
-            col = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[6], int
-            )
-            modd = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[7], str
-            )
+            xi = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[2], int)
+            yi = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[3], int)
+            xe = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[4], int)
+            ye = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[5], int)
+            col = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[6], int)
+            modd = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[7], str)
             ljinux.farland.public = [xi, yi, xe, ye, col, modd]
             ljinux.based.command.fpexecc([None, "/LjinuxRoot/bin/display_f/rect.py"])
         except (IndexError, ValueError):
             ljinux.based.error(9)
     elif typee == "line":  # x start, y start, x stop, y stop, color
         try:
-            xi = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[2], int
-            )
-            yi = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[3], int
-            )
-            xe = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[4], int
-            )
-            ye = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[5], int
-            )
-            col = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[6], int
-            )
+            xi = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[2], int)
+            yi = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[3], int)
+            xe = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[4], int)
+            ye = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[5], int)
+            col = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[6], int)
             ljinux.farland.public = [xi, yi, xe, ye, col]
             ljinux.based.command.fpexecc([None, "/LjinuxRoot/bin/display_f/line.py"])
         except (IndexError, ValueError):
@@ -108,21 +74,11 @@ if display_availability:
         typee == "circle"
     ):  # x center, y center, rad, color, mode (fill/ border / template) TODO fix fill and do template
         try:
-            xi = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[2], int
-            )
-            yi = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[3], int
-            )
-            radd = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[4], int
-            )
-            col = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[5], int
-            )
-            modd = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[6], str
-            )
+            xi = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[2], int)
+            yi = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[3], int)
+            radd = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[4], int)
+            col = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[5], int)
+            modd = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[6], str)
             a = modd != "fill"
             ljinux.farland.draw_circle(xi, yi, radd, col, a)
             del a, xi, yi, radd, col, modd
@@ -134,9 +90,7 @@ if display_availability:
         ljinux.based.command.fpexecc([None, "/bin/display_f/triangle_execution.py"])
     elif typee == "fill":  # color
         try:
-            col = ljinux.based.fn.adv_input(
-                ljinux.based.user_vars["argj"].split()[2], int
-            )
+            col = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[2], int)
             ljinux.farland.fill(col)
         except (IndexError, ValueError):
             ljinux.based.error(9)
@@ -145,7 +99,7 @@ if display_availability:
     elif typee == "move":  # todo
         pass
     elif typee == "delete":  # todo more
-        optt = ljinux.based.fn.adv_input(ljinux.based.user_vars["argj"].split()[2], int)
+        optt = ljinux.api.adv_input(ljinux.based.user_vars["argj"].split()[2], int)
         if optt == "all":
             ljinux.farland.clear()
         else:

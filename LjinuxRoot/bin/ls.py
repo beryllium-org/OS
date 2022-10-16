@@ -11,14 +11,14 @@ sps = "   "
 path = "./"
 
 if argl:
-    if ljinux.based.fn.isdir(args[0]) is 1:
+    if ljinux.api.isdir(args[0]) is 1:
         path = args[0]
         if not path.endswith("/"):
             path += "/"
     else:
         ljinux.based.error(2)
 
-directory_listing = listdir(ljinux.based.fn.betterpath(path))
+directory_listing = listdir(ljinux.api.betterpath(path))
 
 if "l" in argss_in:
     sps = "\n"
@@ -31,7 +31,7 @@ if "a" in argss_in:
 
 if directory_listing is not None:
     for dir in directory_listing:
-        col = "" if ljinux.based.fn.isdir(f"{path}{dir}") is 0 else colors.okcyan
+        col = "" if ljinux.api.isdir(f"{path}{dir}") is 0 else colors.okcyan
         if dir[:1] == "." and not "a" in argss_in:
             continue
         else:
