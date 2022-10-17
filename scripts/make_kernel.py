@@ -43,7 +43,7 @@ if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
     print("Created lib directory.")
     mkdir(f"{picop}/lib".replace("/", slash))
 
-print("[1/7] Compiling source files")
+print("[1/6] Compiling source files")
 for filee in listdir():
     if filee.endswith(".py"):
         a = system(
@@ -54,7 +54,7 @@ for filee in listdir():
         if a != 0:
             errexit()
 
-print("[2/7] Compiling jcurses")
+print("[2/6] Compiling jcurses")
 for filee in listdir("jcurses"):
     if filee.endswith(".py"):
         a = system(
@@ -65,13 +65,13 @@ for filee in listdir("jcurses"):
         if a != 0:
             errexit()
 
-print("[3/7] Copying base files")
+print("[3/6] Copying base files")
 for filee in listdir("../rootfilesystem/".replace("/", slash)):
     system(
         f"cp ../rootfilesystem/{filee} {picop}/".replace("/", slash).replace("cp", copy)
     )
 
-print("[4/7] Copying board configuration files")
+print("[4/6] Copying board configuration files")
 system(
     f"cp ../Boardfiles/{board}/config.json {picop}/".replace("/", slash).replace(
         "cp", copy
@@ -85,7 +85,7 @@ a = system(
 if a != 0:
     errexit()
 
-print("[5/7] Compiling Adafruit hashlib")
+print("[5/6] Compiling Adafruit hashlib")
 if system(f"test -d {picop}/lib/adafruit_hashlib".replace("/", slash)) != 0:
     print("Created adafruit_hashlib directory.")
     mkdir(f"{picop}/lib/adafruit_hashlib".replace("/", slash))
@@ -100,22 +100,7 @@ for filee in listdir(
     if a != 0:
         errexit()
 
-print("[6/7] Compiling Adafruit hid")
-if system(f"test -d {picop}/lib/adafruit_hid".replace("/", slash)) != 0:
-    print("Created adafruit_hid directory.")
-    mkdir(f"{picop}/lib/adafruit_hid".replace("/", slash))
-for filee in listdir(
-    "../other/Adafruit_CircuitPython_HID/adafruit_hid/".replace("/", slash)
-):
-    a = system(
-        f"{mpyn} ../other/Adafruit_CircuitPython_HID/adafruit_hid/{filee} -s {filee[:-3]} -v -O4 -o {picop}/lib/adafruit_hid/{filee[:-3]}.mpy".replace(
-            "/", slash
-        )
-    )
-    if a != 0:
-        errexit()
-
-print("[7/7] Compiling jz")
+print("[6/6] Compiling jz")
 a = system(
     f"{mpyn} ./jz/jz.py -s jz -v {optimis} -o {picop}/lib/jz.mpy".replace("/", slash)
 )
