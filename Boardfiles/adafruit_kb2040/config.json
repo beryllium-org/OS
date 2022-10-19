@@ -5,18 +5,6 @@
   "led": 17,
   "ledtype": "neopixel",
   
-  "_comment4": "Display i2c pins",
-  "displaySCL": 13,
-  "displaySDA": 12,
-
-  "_comment5": "Display height - width",
-  "displayheight": 64,
-  "displaywidth": 128,
-
-  "_comment6": "Other display related options",
-  "_comment7": "Makes the pi only bother with sensor io & not serial. Not yet implemented",
-  "DISPLAYONLYMODE": false,
-  
   "_comment9": "SD card",
   
   "sd_SCLK": -1,

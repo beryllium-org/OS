@@ -188,8 +188,6 @@ dmtex("Options applied:")
 defaultoptions = {  # default configuration, in line with the manual (default value, type, allocates pin bool)
     "displaySCL": (-1, int, True),
     "displaySDA": (-1, int, True),
-    "displayheight": (64, int, False),  # SSD1306 spec
-    "displaywidth": (128, int, False),  # SSD1306 spec
     "led": (0, int, True),
     "ledtype": ("generic", str, False),
     "SKIPCP": (False, bool, False),
@@ -304,14 +302,6 @@ try:
     dmtex("Sdcard libraries loaded")
 except ImportError:
     dmtex(colors.error + "Notice: " + colors.endc + "SDcard libraries loading failed")
-
-# display
-try:
-    import adafruit_ssd1306
-
-    dmtex("Display libraries loaded")
-except ImportError:
-    dmtex(colors.error + "Notice: " + colors.endc + "Display libraries loading failed")
 
 dmtex("Imports complete")
 
@@ -1826,109 +1816,3 @@ class ljinux:
                     gc.collect()
                     gc.collect()
                     return res
-
-    class farland:  # wayland, but like a farfetched dream
-        # the screen holder
-        oled = None
-        # the time variables
-        timm_old = 0
-        tp = [0, 0, 0, -1]
-        poss = [0, 6, 16, 22, 11]
-        poin = False
-        offs = 50
-        # fps stuff
-        time_old = time.monotonic()
-        time_new = None
-        frames = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
-        frame_poi = 0
-        frames_suff = False
-        # the display objects
-        entities = []  # it will hold the drawn objects and allow their dynamic deletion
-        public = []
-
-        # ---
-
-        def setup():
-            ljinux.based.command.fpexecc([None, "/bin/display_f/setup.py"])
-
-        def frame():
-            global display_availability
-            if display_availability:
-                ljinux.farland.oled.show()
-
-        def clear():
-            global display_availability
-            if display_availability:
-                ljinux.farland.oled.fill(0)
-                ljinux.farland.oled.show()
-
-        def pixel(x, y, col):
-            ljinux.farland.oled.pixel(x, y, col)
-
-        def fill(col):
-            ljinux.farland.oled.fill(col)
-
-        def text(strr, x, y, col):
-            ljinux.farland.oled.text(strr, x, y, col, font_name="/font5x8.bin")
-
-        # getters
-        def height():
-            return int(ljinux.farland.oled.height)
-
-        def width():
-            return int(ljinux.farland.oled.width)
-
-        # privitive graphics
-        def draw_circle(xpos0, ypos0, rad, col, f):
-            ljinux.farland.public = [xpos0, ypos0, rad, col]
-            if not f:
-                ljinux.based.command.fpexecc([None, "/bin/display_f/draw_circle.py"])
-            else:
-                ljinux.based.command.fpexecc([None, "/bin/display_f/f_draw_circle.py"])
-
-        def virt_line(x0, y0, x1, y1):
-            virt_l_tab = []
-            dx = abs(x1 - x0)
-            dy = abs(y1 - y0)
-            x, y = x0, y0
-            sx = -1 if x0 > x1 else 1
-            sy = -1 if y0 > y1 else 1
-            if dx > dy:
-                err = dx / 2.0
-                while x != x1:
-                    virt_l_tab.append([int(x), int(y)])
-                    err -= dy
-                    if err < 0:
-                        y += sy
-                        err += dx
-                    x += sx
-            else:
-                err = dy / 2.0
-                while y != y1:
-                    virt_l_tab.append([int(x), int(y)])
-                    err -= dx
-                    if err < 0:
-                        x += sx
-                        err += dy
-                    y += sy
-                virt_l_tab.append([int(x), int(y)])
-            return virt_l_tab
-
-        def fps():
-            if ljinux.farland.frame_poi <= 9:
-                ljinux.farland.time_new = time.monotonic()
-                ljinux.farland.frames[ljinux.farland.frame_poi] = (
-                    ljinux.farland.time_new - ljinux.farland.time_old
-                )
-                ljinux.farland.time_old = time.monotonic()
-                if ljinux.farland.frames_suff:
-                    ljinux.farland.frames_av()
-                ljinux.farland.frame_poi += 1
-            else:
-                ljinux.farland.frames_suff = True
-                ljinux.farland.frames_av()
-                ljinux.farland.frame_poi = 0
-
-        def frames_av():
-            average = sum([1 / (ljinux.farland.frames[i] / 10) for i in range(10)])
-            print(average)
