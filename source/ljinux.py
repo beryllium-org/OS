@@ -865,7 +865,7 @@ class ljinux:
             except OSError:  # Yea no root, we cope
                 return list()
 
-        def error(wh=3, f=None):
+        def error(wh=3, f=None, prefix=f"{colors.magenta_t}Based{colors.endc}"):
             """
             The different errors used by the based shell.
             CODE:
@@ -888,8 +888,10 @@ class ljinux:
                 11: "Not enough system memory",
                 12: "Based: Error, variable already used",
                 13: f"Terminal too small, minimum size: {f}",
+                14: "Is a file",
+                15: "Is a directory",
             }
-            print(f"{colors.magenta_t}Based{colors.endc}: {errs[wh]}")
+            print(f"{prefix}: {errs[wh]}")
             ljinux.io.ledset(1)
             del errs
 

@@ -207,6 +207,8 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                         ],
                     ]
                 )
+                if not sdcard_fs:
+                    remount("/", False)
                 if ljinux.based.user_vars["return"] != "0":
                     print(
                         f"{colors.error}JPKG Error{colors.endc}: Package install returned non-zero exit code: "
@@ -355,6 +357,8 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
             ljinux.based.command.fpexecc(
                 [None, "/etc/jpkg/uninstallers/" + pkgname + ".py"]
             )
+            if not sdcard_fs:
+                remount("/", False)
 
             if ljinux.based.user_vars["return"] != "0":
                 print(

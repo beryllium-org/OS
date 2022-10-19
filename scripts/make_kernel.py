@@ -40,7 +40,6 @@ print(f"Using board path: {picop}")
 print(f"Building for board: {board}\n")
 
 if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
-    print("Created lib directory.")
     mkdir(f"{picop}/lib".replace("/", slash))
 
 print("[1/6] Compiling source files")
@@ -87,7 +86,6 @@ if a != 0:
 
 print("[5/6] Compiling Adafruit hashlib")
 if system(f"test -d {picop}/lib/adafruit_hashlib".replace("/", slash)) != 0:
-    print("Created adafruit_hashlib directory.")
     mkdir(f"{picop}/lib/adafruit_hashlib".replace("/", slash))
 for filee in listdir(
     "../other/Adafruit_CircuitPython_hashlib/adafruit_hashlib/".replace("/", slash)

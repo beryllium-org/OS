@@ -25,7 +25,6 @@ if uname().system == "Linux":
     )
     print("[4/4] Updating boot configuration")
     if system(f"test -d {picop}/LjinuxRoot/boot") != 0:
-        print("      Created boot folder.")
         mkdir(f"{picop}/LjinuxRoot/boot")
     system(f"rsync -r --update ../bootcfg/* {picop}/LjinuxRoot/boot/")
 else:
