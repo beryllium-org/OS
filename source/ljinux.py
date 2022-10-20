@@ -41,7 +41,6 @@ Exit_code = 0
 
 # Hardware autodetect vars, starts assuming everything is missing
 sdcard_fs = False
-display_availability = False
 print("[    0.00000] Sys vars loaded")
 dmesg.append("[    0.00000] Sys vars loaded")
 
@@ -186,13 +185,10 @@ except ImportError:
 dmtex("Options applied:")
 
 defaultoptions = {  # default configuration, in line with the manual (default value, type, allocates pin bool)
-    "displaySCL": (-1, int, True),
-    "displaySDA": (-1, int, True),
     "led": (0, int, True),
     "ledtype": ("generic", str, False),
     "SKIPCP": (False, bool, False),
     "DEBUG": (False, bool, False),
-    "DISPLAYONLYMODE": (False, bool, False),
     "sd_SCLK": (-1, int, True),
     "sd_SCSn": (-1, int, True),
     "sd_MISO": (-1, int, True),
@@ -811,7 +807,6 @@ class ljinux:
             "sdcard": lambda: str(sdcard_fs),
             "uptime": lambda: str("%.5f" % (uptimee + time.monotonic())),
             "temperature": lambda: str("%.2f" % cpu.temperature),
-            "display-attached": lambda: str(display_availability),
             "memory": lambda: str(gc.mem_free()),
             "implementation_version": lambda: ljinux.based.system_vars[
                 "IMPLEMENTATION"
