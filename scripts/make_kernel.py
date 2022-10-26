@@ -41,6 +41,8 @@ print(f"Building for board: {board}\n")
 
 if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
     mkdir(f"{picop}/lib".replace("/", slash))
+if system(f"test -d {picop}/lib/drivers".replace("/", slash)) != 0:
+    mkdir(f"{picop}/lib/drivers".replace("/", slash))
 
 print("[1/6] Compiling source files")
 for filee in listdir():

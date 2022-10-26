@@ -1,3 +1,5 @@
+gc.collect()
+gc.collect()
 ljinux.io.ledset(1)  # we don't want to pretend activity
 sizee = term.detect_size()
 if sizee[0] > 14 and sizee[1] > 105:

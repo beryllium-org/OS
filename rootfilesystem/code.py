@@ -24,14 +24,6 @@ except ImportError:
 
 oss = ljinux()
 
-jrub("Ljinux object init complete")
-
-oss.farland.setup()
-
-jrub("Display init complete")
-
-oss.farland.frame()
-
 jrub("Running Ljinux autorun..")
 
 try:
@@ -46,9 +38,6 @@ except Exception as err:
     exit_l[1]()
 
 oss.io.ledset(0)  # idle
-
-oss.farland.clear()
-jrub("Cleared display")
 
 oss.history.save(oss.based.user_vars["history-file"])
 jrub("History flushed")

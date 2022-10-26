@@ -16,12 +16,12 @@ help:
 	@cat ../other/makefile_help.txt
 auto_fake_cdc:
 	@python3 ../scripts/auto_fake-cdc.py
-driver_wifi_debug:
+driver_wifi:
 	@echo -e "\nInstalling wifi driver"
 	@python3 ../scripts/copy_wifi.py
 	@sync
 	@echo "Wifi driver done"
-driver_wifi:
+driver_wifi_debug:
 	@echo -e "\nInstalling wifi driver (debug)"
 	@python3 ../scripts/copy_wifi.py debug
 	@sync

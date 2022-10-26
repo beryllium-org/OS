@@ -16,7 +16,7 @@ if uname().system == "Linux":
 else:
     slash = "\\"
     copy = "copy"
-mpyn = f"../scripts/mpy-cross-{uname().machine}"
+mpyn = f"../scripts/mpy-cross-{uname().machine}-8"
 
 [picop, board, version] = detect_board()
 
