@@ -15,7 +15,7 @@ Table of Contents
 =================
 * [Prerequisites](#prerequisites-and-optional-hardware)<br />
 * [Installation / updating](#installation--updating)
-* [Configuration](#configuration)
+* [Suggested packages](#suggested-packages)
 * [Connection](#connection)
 * [Directory structure](#directory-structure)
 * [Contributors](#contributors)
@@ -46,24 +46,13 @@ The only real limiting factor should be ram, as about 100k are needed for the sy
  - sdcard breakout boards for more storage<br />
  - ~~w5500 networking breakouts board for networking.~~ Temporarily broken.<br />
 
-For the missing hardware the functions will be automatically deactivated. (The hardware will also be deactivated in case of missing libraries.)<br />
-It expects to find a <code>/LjinuxRoot</code> folder which uses as it's root. It can be on the built in fs, or an sd card.<br />
-More info in Configuration.<br />
-
-Ljinux's shell is named <b>based</b> and is equivelant to gnu bash.<br />
-Python commands can also be used with the pexec command.<br />
-Whole .py files can be run with the use of the fpexec command.<br />
-They all run in the same scope as ljinux for ease of use. Security is not a priority on a microcontroller. Especially at the cost of ram.<br />
-You can connect to it over usb serial, or by providing startup commands via a <code>Init.lja</code> file.<br />
-The <code>Init.lja</code> has to be at <code>/LjinuxRoot/boot/</code> of the board's internal storage or on the <code>/boot/</code> of the attached sd card.<br />
-It has it's own curses library, jcurses.<br />
-And it's own display "compositor", farland.<br /><br />
-
 ## Installation / Updating
 
-1) Install a supported CircuitPython version onto the board<br />
+Note: Installation from windows is unsupported.<br />
+<br />
+1) Install a supported CircuitPython version onto the board.<br />
     Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
-2) Download the latest release for your board and extract it onto it.<br />
+2) Download the latest ljinux release for your board and extract it onto it.<br />
     Or alternatively, clone this repository and from within the "source" folder, run <code>make install</code>.<br />
     If you are on windows (Note: Windows install in beta.), run the <code>windows-install.bat</code>.<br />
     This command will automatically update the system files if they already exist.<br />
@@ -78,19 +67,13 @@ And it's own display "compositor", farland.<br /><br />
 <b>IMPORTANT NOTE: To make the pi appear as a usb device on the host, run the ljinux command </b><code>devmode</code><br />
 <br />
 
-## Configuration
-
-<i>Each board has it's own different pin configuration. You can see the defaults and modify them from the board's respecive config file.</i><br /><br />
-
-<b>Libraries needed for optional hardware:</b><br />
-For the SSD1306 display: <code>adafruit_ssd1306 adafruit_framebuf</code><br />
-Sdcard: <code>adafruit_sdcard adafruit_bus_device</code><br />
-    The sdcard has to be formatted as Fat32 / Fat16 or equivelant.<br />
-Ethernet: Handled by <code>make</code><br /><br />
-
-The neccessary libraries can be found [here](https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases)<br />
-Download the zip (The 7.x-mpy variant), extract it & copy the libraries you want onto <code>/lib</code> of the board.<br /><br />
-
+## Suggested packages
+Some of ljinux's features are not bundled with this install.<br />
+You will have to install them seperately through the jpkg package manager.<br />
+<br />
+Farland, the ljinux display manager: https://github.com/bill88t/ljinux-farland <br />
+SSD1306 display support: https://github.com/bill88t/ljinux-ssd1306 <br />
+RubberDucky script support: https://github.com/bill88t/ljinux-ducky <br /><br />
 
 ## Connection
 For an automated way on Linux/MacOS, run <code>make connection</code>. Manual way below.<br /><br />
