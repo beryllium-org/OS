@@ -20,8 +20,6 @@ Table of Contents
 * [Manual](#a-complete-ljinux-manual-is-available)
 * [Useful resources](#useful-resources-that-helped-with-the-development-of-this-project)
 
-<br />
-
 ## Prerequisites and optional hardware
 
 Runs on circuitpython 7.3.X or 8.0.X.<br />
@@ -39,7 +37,7 @@ But it can probably run on many more.<br />
 The only real limiting factor should be ram, as about 100k are needed for the system function.<br />
 <i>(If you have gotten it running on an unsupported board, feel free to pr a configuration folder)</i><br />
 
-<br />Optional hardware compatible with ljinux:<br />
+Optional hardware compatible with ljinux:<br />
  - SSD1306 displays for display output<br />
  - sdcard breakout boards for more storage<br />
  - ~~w5500 networking breakouts board for networking.~~ Temporarily broken.<br />
@@ -94,15 +92,6 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 <li><code>other</code>, miscellaneous files</li>
 </ul>
 
-## Contributors
-
- -> [bill88t](https://github.com/bill88t) - @bill88t#4044
- <br />-> [Marios](https://github.com/mariospapaz) - @mariospapaz#2188
- <br />-> [mdaadoun](https://github.com/mdaadoun) - @mdaadoun#4475
- <br />-> [markbirss](https://github.com/markbirss)
- <br />-> [RetiredWizard](https://github.com/RetiredWizard)
- <br />
-
 ## A complete Ljinux manual is available
 
  https://github.com/bill88t/ljinux/blob/main/Manual.txt<br />
@@ -116,6 +105,3 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
  https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797<br />
  https://en.wikipedia.org/wiki/ANSI_escape_code<br />
  https://github.com/todbot/circuitpython-tricks<br />
-<br />
-
-More stuff will be added later as the project spirals into chaos.
