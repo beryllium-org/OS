@@ -84,7 +84,9 @@ tex = [
         + ljinux.based.system_vars["IMPLEMENTATION"]
     ),
     f"{colors.red_t}Uptime{colors.endc}: {uptimestr}",
-    f"{colors.red_t}Packages{colors.endc}: 0 (jpkg)",
+    f"{colors.red_t}Packages{colors.endc}: "
+    + str(len(listdir("/LjinuxRoot/etc/jpkg/Installed")))
+    + " (jpkg)",
     f"{colors.red_t}Shell{colors.endc}: {colors.magenta_t}Based{colors.endc}",
     f"{colors.red_t}Resolution:{colors.endc} {sizee[1]}x{sizee[0]}",
     f"{colors.red_t}WM{colors.endc}: Farland",

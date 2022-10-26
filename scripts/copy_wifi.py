@@ -39,11 +39,9 @@ print(f"Using board path: {picop}")
 print(f"Building for board: {board}\n")
 
 if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
-    print("Created lib directory.")
     mkdir(f"{picop}/lib".replace("/", slash))
 
 if system(f"test -d {picop}/lib/drivers".replace("/", slash)) != 0:
-    print("Created lib/drivers directory.")
     mkdir(f"{picop}/lib/drivers".replace("/", slash))
 
 print("[1/4] Compiling Adafruit ntp")

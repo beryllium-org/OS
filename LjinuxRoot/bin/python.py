@@ -136,6 +136,7 @@ while True:
                     or (term.buf[1][:7] == "import ")
                     or (term.buf[1][:4] in ["del ", "for ", "from"])
                     or (term.buf[1][:3] == "if ")
+                    or (term.buf[1][:6] == "raise ")
                 ):
                     pyskippri = True
                 del pyeqpos1, pyeqpos2

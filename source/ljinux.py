@@ -1392,6 +1392,7 @@ class ljinux:
                     ljinux.based.raw_command_input.split()[0]
                 ).replace(" ", "", 1)
                 try:
+                    gc.collect()
                     exec(pcomm)  # Vulnerability.exe
                     del pcomm
                 except Exception as err:
@@ -1417,8 +1418,10 @@ class ljinux:
                     ljinux.based.user_vars["return"] = "1"
                     return
 
+                gc.collect()
                 try:
                     a = open(ljinux.api.betterpath(inpt[offs])).read()
+                    gc.collect()
                     if not ("t" in fpargs or "l" in fpargs):
                         exec(a)
                     elif "i" in fpargs:
@@ -1706,7 +1709,6 @@ class ljinux:
                                 if str(command_split[0])[:2] == "./":
                                     command_split[0] = str(command_split[0])[2:]
                                     if command_split[0] != "":
-
                                         res = function_dict["exec"](command_split)
                                     else:
                                         print("Error: No file specified")
@@ -1718,6 +1720,10 @@ class ljinux:
                                         led=False,
                                         args=command_split[1:],
                                         nalias=True,
+                                    )
+                                elif command_split[0] in ljinux.modules:
+                                    ljinux.modules[command_split[0]].enter(
+                                        command_split
                                     )
                                 elif (command_split[0] in function_dict) and (
                                     command_split[0]
