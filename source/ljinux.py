@@ -5,7 +5,7 @@
 # -----------------
 
 # Some important vars
-Version = "0.3.6"
+Version = "0.3.6-dev"
 Circuitpython_supported = [(7, 3), (8, 0)]  # don't bother with last digit
 dmesg = []
 access_log = []
@@ -32,7 +32,7 @@ dmesg.append("[    0.00000] Core libs loaded")
 pin_alloc = set()
 gpio_alloc = {}
 
-# Default password, aka the password if no /LjinuxRoot/etc/passwd is found
+# Default password, aka the password if no /etc/passwd is found
 dfpasswd = "Ljinux"
 
 # Exit code holder, has to be global for everyone to be able to see it.
@@ -1040,8 +1040,8 @@ class ljinux:
 
             def helpp(dictt):
                 print(
-                    f"LNL {colors.magenta_t}based\nThese shell commands are defined internally or are in PATH.\nType 'help' to see this list.\n"
-                )  # shameless, but without rgb spam
+                    f"LNL {colors.magenta_t}based{colors.endc}\nThese shell commands are defined internally or are in PATH.\nType 'help' to see this list.\n{colors.green_t}"
+                )
 
                 l = ljinux.based.get_bins() + list(dictt.keys())
 
@@ -1052,13 +1052,10 @@ class ljinux:
                 lenn += 2
 
                 for index, tool in enumerate(l):
-                    print(
-                        colors.green_t + tool + colors.endc,
-                        end=(" " * lenn).replace(" ", "", len(tool)),
-                    )
+                    print(tool, end=(" " * lenn).replace(" ", "", len(tool)))
                     if index % 4 == 3:
                         stdout.write("\n")  # stdout faster than print cuz no logic
-                stdout.write("\n")
+                stdout.write(colors.endc + "\n")
 
                 del l
                 del lenn
