@@ -3,7 +3,7 @@ A "linux" written in python, for CircuitPython powered microcontrollers.  <a hre
 ![neofetch](https://github.com/bill88t/ljinux/blob/main/other/screenshots/cneofetch.png)<br />
 <b>Important notes:</b><br />
 This project is still <b>in it's early developement</b>!<br />
-This project is <b>NOT</b> a linux distribution<br />
+This project is <b>NOT</b> a linux distribution.<br />
 This project is <b>NOT</b> compatible with any linux code / binaries.<br />
 
 <b><i>We also now have a [discord](https://discord.gg/V8AejwGpCv) server!<br />
@@ -11,12 +11,11 @@ If you need support or want to hang out, feel free to join in!</i></b><br />
 
 Table of Contents
 =================
-* [Prerequisites](#prerequisites-and-optional-hardware)<br />
+* [Prerequisites](#prerequisites-and-optional-hardware)
 * [Installation / updating](#installation--updating)
 * [Packages](#packages)
 * [Connection](#connection)
 * [Directory structure](#directory-structure)
-* [Contributors](#contributors)
 * [Manual](#a-complete-ljinux-manual-is-available)
 * [Useful resources](#useful-resources-that-helped-with-the-development-of-this-project)
 
