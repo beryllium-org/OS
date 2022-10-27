@@ -44,7 +44,7 @@ if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
 if system(f"test -d {picop}/lib/drivers".replace("/", slash)) != 0:
     mkdir(f"{picop}/lib/drivers".replace("/", slash))
 
-print("[1/6] Compiling source files")
+print("[1/5] Compiling source files")
 for filee in listdir():
     if filee.endswith(".py"):
         a = system(
@@ -55,7 +55,7 @@ for filee in listdir():
         if a != 0:
             errexit()
 
-print("[2/6] Compiling jcurses")
+print("[2/5] Compiling jcurses")
 for filee in listdir("jcurses"):
     if filee.endswith(".py"):
         a = system(
@@ -66,13 +66,13 @@ for filee in listdir("jcurses"):
         if a != 0:
             errexit()
 
-print("[3/6] Copying base files")
+print("[3/5] Copying base files")
 for filee in listdir("../rootfilesystem/".replace("/", slash)):
     system(
         f"cp ../rootfilesystem/{filee} {picop}/".replace("/", slash).replace("cp", copy)
     )
 
-print("[4/6] Copying board configuration files")
+print("[4/5] Copying board configuration files")
 system(
     f"cp ../Boardfiles/{board}/config.json {picop}/".replace("/", slash).replace(
         "cp", copy
@@ -86,21 +86,7 @@ a = system(
 if a != 0:
     errexit()
 
-print("[5/6] Compiling Adafruit hashlib")
-if system(f"test -d {picop}/lib/adafruit_hashlib".replace("/", slash)) != 0:
-    mkdir(f"{picop}/lib/adafruit_hashlib".replace("/", slash))
-for filee in listdir(
-    "../other/Adafruit_CircuitPython_hashlib/adafruit_hashlib/".replace("/", slash)
-):
-    a = system(
-        f"{mpyn} ../other/Adafruit_CircuitPython_hashlib/adafruit_hashlib/{filee} -s {filee[:-3]} -v -O4 -o {picop}/lib/adafruit_hashlib/{filee[:-3]}.mpy".replace(
-            "/", slash
-        )
-    )
-    if a != 0:
-        errexit()
-
-print("[6/6] Compiling jz")
+print("[5/5] Compiling jz")
 a = system(
     f"{mpyn} ./jz/jz.py -s jz -v {optimis} -o {picop}/lib/jz.mpy".replace("/", slash)
 )
