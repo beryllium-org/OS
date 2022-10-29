@@ -165,6 +165,7 @@ try:
     for i in configg:
         if i.startswith("_"):
             del configg[i]
+        del i
 
 except (ValueError, OSError):
     configg = {}
@@ -256,7 +257,9 @@ if not configg["SKIPCP"]:  # beta testing
     for i in Circuitpython_supported:
         if implementation.version[:2] == i:
             good = True
+            del i
             break
+        del i
     if good:
         dmtex("Running on supported implementation")
     else:
@@ -271,6 +274,7 @@ if not configg["SKIPCP"]:  # beta testing
         for i in range(10, 0):
             print(f"WARNING: Unsupported CircuitPython version (Continuing in {i})")
             time.sleep(1)
+            del i
     del good
 else:
     print("Skipped CircuitPython version checking, happy beta testing!")
@@ -451,6 +455,7 @@ class ljinux:
                         options.update({entry: inpt[i]})
                         hidwords.append(inpt[i])
                         n = False
+                del i
             if n:  # we have incomplete keyword
                 # not gonna bother if s is True
                 options.update({entry: None})
@@ -1049,12 +1054,14 @@ class ljinux:
                 for i in l:
                     if len(i) > lenn:
                         lenn = len(i)
+                    del i
                 lenn += 2
 
                 for index, tool in enumerate(l):
                     print(tool, end=(" " * lenn).replace(" ", "", len(tool)))
                     if index % 4 == 3:
                         stdout.write("\n")  # stdout faster than print cuz no logic
+                    del index, tool
                 stdout.write(colors.endc + "\n")
 
                 del l
@@ -1082,6 +1089,7 @@ class ljinux:
                         or inpt[2] in gpio_alloc
                     ):
                         valid = False
+                        del chh
                     if valid:  # if the basic checks are done we can procceed to work
                         new_var = ""
                         if inpt[2].startswith('"'):
@@ -1092,6 +1100,7 @@ class ljinux:
                                 new_var += str(inpt[2])[1:] + " "
                                 for i in range(3, countt - 1):
                                     new_var += inpt[i] + " "
+                                    del i
                                 new_var += str(inpt[countt - 1])[:-1]
                             else:
                                 ljinux.based.error(1)
@@ -1282,6 +1291,7 @@ class ljinux:
                             break
                         else:
                             condition.append(inpt[i])
+                        del i
                     if complete:
                         try:
                             val = False
@@ -1443,11 +1453,10 @@ class ljinux:
             if inp is not None and args is not None:
                 for i in args:
                     inp += f" {i}"
+                    del i
             del args
             function_dict = {
-                # holds all built-in commands. The plan is to move as many as possible externally
-                # yea, hello 9/6/22 here, we keepin bash-like stuff in, but we have to take the normal
-                # ones out, we almost there
+                # these are the internal commands
                 "error": ljinux.based.command.not_found,
                 "exec": ljinux.based.command.execc,
                 "help": ljinux.based.command.helpp,
@@ -1543,6 +1552,7 @@ class ljinux:
                                                 slicedd[lent - 1]
                                             ):  # only on the arg we are in
                                                 candidates.append(i)
+                                            del i
                                         del files
                                     else:  # suggesting bins
                                         bins = ljinux.based.get_bins()
@@ -1550,6 +1560,8 @@ class ljinux:
                                             for j in i:
                                                 if j.startswith(tofind):
                                                     candidates.append(j)
+                                                del j
+                                            del i
                                         del bins
                                     if len(candidates) > 1:
                                         stdout.write("\n")
@@ -1558,6 +1570,7 @@ class ljinux:
                                             if not i.startswith("_"):  # discard those
                                                 minn = min(minn, len(i))
                                                 print("\t" + i)
+                                            del i
                                         letters_match = 0
                                         isMatch = True
                                         while isMatch:
@@ -1579,6 +1592,8 @@ class ljinux:
                                                     except IndexError:
                                                         isMatch = False
                                                         break
+                                                    del j
+                                                del i
                                                 if not isMatch:
                                                     break
                                         del minn, isMatch
@@ -1749,6 +1764,7 @@ class ljinux:
                                             "/LjinuxRoot/bin/" + i + ".lja"
                                         )  # we have to fill in the full path
                                         certain = True
+                                    del i
                                 del bins  # we no longer need the list
                                 if certain:
                                     gc.collect()
