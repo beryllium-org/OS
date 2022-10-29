@@ -455,7 +455,6 @@ class ljinux:
                         options.update({entry: inpt[i]})
                         hidwords.append(inpt[i])
                         n = False
-                del i
             if n:  # we have incomplete keyword
                 # not gonna bother if s is True
                 options.update({entry: None})
