@@ -1,15 +1,17 @@
 SHELL = bash
 
 all: help
-kernel: kern
-install: kern rootfs
-debug: prep kerncompd
-w5500spi_debug: prep driver_w5500spi_debug
+install: kernel rootfs
+
+kernel: prep comp auto_fake_cdc
+kernel_debug: prep debug_comp auto_fake_cdc
+
 wifi: prep driver_wifi
 wifi_debug: prep driver_wifi_debug
-w5500spi: prep driver_w5500spi
 
-kern: prep kerncomp auto_fake_cdc
+w5500spi: prep driver_w5500spi
+w5500spi_debug: prep driver_w5500spi_debug
+
 prep: modules prepperms
 
 help:
@@ -53,11 +55,11 @@ prepperms:
 	@chmod +x ../scripts/*.sh
 	@chmod +x ../scripts/mpy*
 	@echo "OK"
-kerncomp:
+comp:
 	@echo -e "\nCommencing kernel compilation.."
 	@sync
 	@python3 ../scripts/make_kernel.py
-kerncompd:
+debug_comp:
 	@echo -e "\nCommencing kernel compilation.. (debug)"
 	@sync
 	@python3 ../scripts/make_kernel.py debug
