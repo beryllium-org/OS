@@ -15,15 +15,15 @@ if uname().system == "Linux":
     if system(f"test -d {picop}/LjinuxRoot") != 0:
         print("Created LjinuxRoot")
         mkdir(f"{picop}/LjinuxRoot")
-    print("[1/4] Updating /LjinuxRoot")
-    system(f"rsync -r --update ../LjinuxRoot/* {picop}/LjinuxRoot/")
-    print("[2/4] Installing Manual.")
+    print("[1/3] Updating /LjinuxRoot")
+    # system(f"rsync -r --update ../LjinuxRoot/* {picop}/LjinuxRoot/")
+    # print("[2/4] Installing Manual.")
     system(f"rsync --update ../Manual.txt {picop}/LjinuxRoot/home/board/")
-    print("[3/4] Installing board pinout map.")
+    print("[2/3] Installing board pinout map.")
     system(
         f"rsync --update ../Boardfiles/{board}/pinout.map {picop}/LjinuxRoot/bin/pinout.map"
     )
-    print("[4/4] Updating boot configuration")
+    print("[3/3] Updating boot configuration")
     if system(f"test -d {picop}/LjinuxRoot/boot") != 0:
         mkdir(f"{picop}/LjinuxRoot/boot")
     system(f"rsync -r --update ../bootcfg/* {picop}/LjinuxRoot/boot/")
