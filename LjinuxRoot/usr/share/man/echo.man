@@ -1,0 +1,12 @@
+NAME
+    echo - display a line of text
+
+SYNOPSIS
+    echo [SHORT-OPTION] [STRING]...
+
+DESCRIPTION
+    Echo the STRING(s) to standard output.
+    
+    -n  Do not output the trailing newline.
+    
+    -e  Enable interpretation of backslash escapes.

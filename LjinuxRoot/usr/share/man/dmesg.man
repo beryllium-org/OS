@@ -1,0 +1,8 @@
+NAME
+    dmesg - Dump the dmesg log to standard output.
+
+SYNOPSIS
+    dmesg
+
+DESCRIPTION
+    Dumps the dmesg log to stdout.

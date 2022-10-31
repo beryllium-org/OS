@@ -1,0 +1,8 @@
+NAME
+    exit
+
+SYNOPSIS
+    exit [CODE]
+
+DESCRIPTION
+    Exit Ljinux with exit CODE.

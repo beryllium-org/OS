@@ -1,0 +1,11 @@
+NAME
+    ls - list directory
+
+SYNOPSIS
+    ls [OPTIONS]... [DIR]...
+
+DESCRIPTION
+    Outputs the directory listing to standard output.
+    
+    -l  -  Display the items in individual lines
+    -a  -  Display the hidden items.

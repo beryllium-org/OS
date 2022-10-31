@@ -1,0 +1,13 @@
+NAME
+    fpexec
+
+SYNOPSIS
+    fpexec [SCRIPT]
+
+DESCRIPTION
+    Runs the python SCRIPT.
+
+    It runs under the same scope as ljinux, so yes, be careful.
+    And make sure to delete any variables created before leaving.
+    
+    See also exec, pexec

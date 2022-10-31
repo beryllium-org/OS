@@ -1,0 +1,14 @@
+NAME
+    reboot
+
+SYNOPSIS
+    reboot [MODE]
+
+DESCRIPTION
+    Reboots the microcontroller.
+    
+    You can optionally pass a MODE to reboot to.
+    Valid modes:
+     - uf2 (works only when tinyuf2 is installed)
+     - bootloader
+     - safemode

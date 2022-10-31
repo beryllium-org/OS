@@ -1,0 +1,11 @@
+NAME
+    rm - Remove file
+
+SYNOPSIS
+    rm [FILE]...
+
+DESCRIPTION
+    Removes one or more FILE(s).
+    
+    -r  -  Recursive
+    -v  -  Verbose

@@ -1,0 +1,8 @@
+NAME
+    cat - concatenate files and print on the standard output
+
+SYNOPSIS
+    cat [FILE]
+    
+DESCRIPTION
+    Concatenate FILE to standard output.

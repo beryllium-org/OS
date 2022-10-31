@@ -1,5 +1,0 @@
-{
-    "NAME":"exit",
-    "SYNOPSIS":"exit [CODE]",
-    "DESCRIPTION":"EXIT THE CURRENT PROCESS WITH AN EXIT CODE, DEFAULT = 0"
-}

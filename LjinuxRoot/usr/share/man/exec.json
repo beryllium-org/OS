@@ -1,5 +1,0 @@
-{
-    "NAME":"exec",
-    "SYNOPSIS":"exec [FILE]",
-    "DESCRIPTION":"LOADS AN .lja FILE AND EXECUTES IT'S COMMANDS\n\tSee also fexec, pexec"
-}

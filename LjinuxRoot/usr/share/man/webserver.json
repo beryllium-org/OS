@@ -1,5 +1,0 @@
-{
-    "NAME":"",
-    "SYNOPSIS":"webserver [args]",
-    "DESCRIPTION":"A INTEGRATED WEBSERVER\n\tUNLESS A PATH IS GIVEN AS AN ARGUMENT, IT WILL TRY TO SERVE /ljinux/var/www/default/\n\tSEND \"webserver -k\" TO KILL"
-}

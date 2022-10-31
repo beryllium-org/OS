@@ -16,9 +16,9 @@ if uname().system == "Linux":
         print("Created LjinuxRoot")
         mkdir(f"{picop}/LjinuxRoot")
     print("[1/3] Updating /LjinuxRoot")
-    # system(f"rsync -r --update ../LjinuxRoot/* {picop}/LjinuxRoot/")
+    system(f"rsync -r --update ../LjinuxRoot/* {picop}/LjinuxRoot/")
     # print("[2/4] Installing Manual.")
-    system(f"rsync --update ../Manual.txt {picop}/LjinuxRoot/home/board/")
+    # system(f"rsync --update ../Manual.txt {picop}/LjinuxRoot/home/board/")
     print("[2/3] Installing board pinout map.")
     system(
         f"rsync --update ../Boardfiles/{board}/pinout.map {picop}/LjinuxRoot/bin/pinout.map"

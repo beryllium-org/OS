@@ -1392,7 +1392,7 @@ class ljinux:
                 del complete
                 del condition
 
-            def pexecc(inpt):  # filtered & true source
+            def pexecc(inpt):  # Python exec
                 global Version
                 pcomm = ljinux.based.raw_command_input.lstrip(
                     ljinux.based.raw_command_input.split()[0]
@@ -1410,7 +1410,7 @@ class ljinux:
                     )
                     del err
 
-            def fpexecc(inpt):  # file pexec
+            def fpexecc(inpt):  # Python script exec
                 global Version
                 fpargs = list()
                 offs = 1

@@ -1,0 +1,10 @@
+NAME
+    exec
+
+SYNOPSIS
+    exec [FILE]
+
+DESCRIPTION
+    Loads and executes a Based shell script (.lja)
+    
+    See also fexec, pexec, fpexec.

@@ -1,0 +1,11 @@
+NAME
+    tail - Output the last part of files
+
+SYNOPSIS
+    tail [OPTION]... [FILE]...
+
+DESCRIPTION
+    The reverse of head.
+    Print the last 10 lines of FILE to standard output.
+    
+    -n to override the line count to be displayed.

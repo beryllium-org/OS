@@ -1,0 +1,14 @@
+NAME
+    history
+
+SYNOPSIS
+    history [save/load/clear]
+
+DESCRIPTION
+    A command to view and manage command history entries.
+    
+    save - saves the current history to the persistent history file.
+    
+    load - loads the persistent history file, overriding currently loaded history.
+    
+    clear - clear both the persistent history file and the currently loaded history.

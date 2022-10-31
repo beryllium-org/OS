@@ -1,5 +1,0 @@
-{
-    "NAME":"time",
-    "SYNOPSIS":"time [set]...",
-    "DESCRIPTION":"VIEW THE TIME, OR SET IT\n\tVALID FORMAT \"time set dd mm yyyy hr mm ss\""
-}

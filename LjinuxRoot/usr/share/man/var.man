@@ -1,0 +1,17 @@
+NAME
+    var - Setting and reading variables
+
+SYNOPSIS
+    var [DATA]...
+
+DESCRIPTION
+    To create / edit a user variable in based:
+        a = "ok"
+        a = ok
+        a = 12432
+    
+    To delete a variable:
+        unset a
+    
+    To read any variable:
+        echo $a

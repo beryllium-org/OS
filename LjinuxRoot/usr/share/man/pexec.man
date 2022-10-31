@@ -1,0 +1,12 @@
+NAME
+    pexec
+
+SYNOPSIS
+    pexec [COMMAND]
+
+DESCRIPTION
+    Executes the python COMMAND.
+    
+    It runs under the same scope as ljinux, so yes, be careful.
+    
+    See also exec, fpexec

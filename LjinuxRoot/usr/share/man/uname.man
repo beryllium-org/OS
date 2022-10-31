@@ -1,0 +1,10 @@
+NAME
+    uname - print system information
+
+SYNOPSIS
+    uname [-a]
+
+DESCRIPTION
+    Print certain system information.
+    
+    -a  -  Display everything.

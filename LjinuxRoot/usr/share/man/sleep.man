@@ -1,0 +1,9 @@
+NAME
+    sleep - Sleep for a given time period.
+
+SYNOPSIS
+    sleep [TIME]
+
+DESCRIPTION
+    Sleeps for the given TIME, or if none provided, 1 second.
+

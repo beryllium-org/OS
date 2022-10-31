@@ -1,0 +1,10 @@
+NAME
+    pwd - Print working directory
+
+SYNOPSIS
+    pwd
+
+DESCRIPTION
+    Prints current working directory to standard output.
+    
+    It is also displayed in the terminal console prefix.

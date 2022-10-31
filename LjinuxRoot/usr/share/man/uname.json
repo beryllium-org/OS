@@ -1,5 +1,0 @@
-{
-    "NAME":"uname",
-    "SYNOPSIS":"uname [-a]",
-    "DESCRIPTION":"OUTPUTS THE INFO ABOUT THE DEVICE TO SERIAL OUT"
-}

@@ -1,0 +1,9 @@
+NAME
+    date - Display the current date
+
+SYNOPSIS
+    time [set]...
+
+DESCRIPTION
+    Displays the current time that is stored on the RTC chip of the board.
+    To set the time: "date set dd mm yyyy hr mm ss"

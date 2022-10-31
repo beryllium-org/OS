@@ -1,28 +1,25 @@
-try:
-    filee = ""
-    mans = listdir("/LjinuxRoot/usr/share/man")
-    for i in mans:
-        if i.endswith(".json") and ljinux.based.user_vars["argj"].split()[1] == i[:-5]:
-            filee += "/" + i
-            break
-    del mans
-    try:
-        with open(("/LjinuxRoot/usr/share/man" + filee), "r") as f:
-            man = json.load(f)
-            f.close()
-        print("\nNAME" + "\n\t" + man["NAME"] + "\n")
-        print("SYNOPSIS" + "\n\t" + man["SYNOPSIS"] + "\n")
-        print("DESCRIPTION" + "\n\t" + man["DESCRIPTION"] + "\n")
-        del filee
-        del man
-        ljinux.based.user_vars["return"] = "0"
-    except:
-        dmtex(
-            "Manual file could not be found / parsed for "
-            + ljinux.based.user_vars["argj"].split()[1]
-            + "."
-        )
-        ljinux.based.user_vars["return"] = "1"
-except (OSError, IndexError):  # I guess no man then
-    ljinux.based.error(8)
-    ljinux.based.user_vars["return"] = "1"
+manls = listdir("/LjinuxRoot/usr/share/man")
+manpages = set()
+for manpage in manls:
+    if manpage.endswith(".man"):
+        manpages.add(manpage[:-4])
+    del manpage
+del manls
+
+opts = ljinux.api.xarg()
+
+if len(opts["w"]) is 1:
+    page_dayo = opts["w"][0]
+    if page_dayo in manpages:
+        ljinux.api.var("argj", f"a /LjinuxRoot/usr/share/man/{page_dayo}.man")
+        ljinux.based.command.fpexecc([None, "/bin/less.py"])
+    else:
+        print(f"{colors.red_t}MAN-DB Error{colors.endc}: No such manual page found.")
+        ljinux.api.var("return", "1")
+    del page_dayo
+else:
+    ljinux.based.error(9)
+    ljinux.api.var("return", "1")
+
+ljinux.api.var("return", "0")
+del opts

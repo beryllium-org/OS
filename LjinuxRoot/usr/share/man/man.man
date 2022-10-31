@@ -1,0 +1,11 @@
+NAME
+    man - Manual page viewer
+
+SYNOPSIS
+    man [COMMAND]
+
+DESCRIPTION
+    Display the manual page for the given COMMAND.
+    
+    The manual pages are displayed in the "less" viewer.
+    You can exit by pressing q.

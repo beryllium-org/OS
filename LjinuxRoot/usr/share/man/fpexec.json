@@ -1,5 +1,0 @@
-{
-    "NAME":"fpexec",
-    "SYNOPSIS":"fpexec [file]",
-    "DESCRIPTION":"RUNS PYTHON COMMANDS FROM [file]\n\tSee also exec, pexec"
-}

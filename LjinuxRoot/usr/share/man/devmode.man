@@ -1,0 +1,12 @@
+NAME
+    devmode - Enable ljinux developer mode
+
+SYNOPSIS
+    devmode [-q]
+
+DESCRIPTION
+    Enables usb access to the host and reboots the board.
+    IMPORTANT NOTE: The board will not be writable by ljinux, while devmode is enabled.
+    To disable it, delete 'devm' from the board's root (&/).
+    
+    To skip the warning text delay, pass "-q" as an argument.

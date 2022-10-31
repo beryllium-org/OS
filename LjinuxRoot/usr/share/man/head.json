@@ -1,5 +1,0 @@
-{
-    "NAME":"head",
-    "SYNOPSIS":"head [file]\n\thead [-n number] [file]",
-    "DESCRIPTION":"PRINT THE FIRST [-n number] LINES OF FILE [file].\n\tPRINTS THE FIRST 10 LINES IF [-n number] is not SPECIFIED.\n\n\tEXAMPLE:\n\n\tTo print the first 12 lines of a file named README.md:\n\t\thead -n 12 README.md"
-}

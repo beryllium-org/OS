@@ -1,0 +1,14 @@
+NAME
+    pinout - Board pin diagram output
+
+SYNOPSIS
+    pinout
+
+DESCRIPTION
+    Print's the board pin layout to standard output.
+    
+    The pinout contains pin name labels and capabilities like
+    spi / i2c / uart / adc.
+    
+    Additionally contains usb / wifi / bluetooth capabilies,
+    and a ascii art of the board.
