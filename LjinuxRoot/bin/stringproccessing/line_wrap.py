@@ -1,13 +1,10 @@
-ljinux.based.user_vars["output"] = []
+ljinux.api.setvar("output")
+ljinux.based.user_vars["output"] = list()
 for i in ljinux.based.user_vars["input"]:
     remaining = i
     if remaining != "":
         while len(remaining) > 0:
             if len(remaining) > sizee[1]:
-                """
-                too long, has to be split
-                has to be a "while", for page long lines
-                """
                 ljinux.based.user_vars["output"].append(remaining[: sizee[1]])
                 remaining = remaining[sizee[1] :]
             else:
@@ -16,3 +13,4 @@ for i in ljinux.based.user_vars["input"]:
     else:
         ljinux.based.user_vars["output"].append(remaining)
     del remaining
+ljinux.api.setvar("input")

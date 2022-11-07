@@ -27,7 +27,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     if exists is 0:  # is file
         with open(filee, "r") as f:
             ll = f.readlines()
-            ljinux.based.user_vars["input"] = []
+            ljinux.api.setvar("input", list())
             for i in range(0, len(ll)):
                 if ll[i] != "\n":
                     ljinux.based.user_vars["input"].append(ll[i].replace("\n", ""))
@@ -35,13 +35,10 @@ if sizee[0] > 14 and sizee[1] > 105:
                     ljinux.based.user_vars["input"].append("")
             del ll
 
-        ljinux.based.command.fpexecc(
-            [None, "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
-        )
-        del ljinux.based.user_vars["input"]
+        ljinux.based.command.fpexec("/LjinuxRoot/bin/stringproccessing/line_wrap.py")
         dataa = ljinux.based.user_vars["output"]
         lc = len(dataa)
-        del ljinux.based.user_vars["output"]
+        ljinux.api.setvar("output")
 
     # in case of empty file
     if dataa == []:

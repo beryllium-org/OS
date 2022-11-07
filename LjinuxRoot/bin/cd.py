@@ -1,6 +1,6 @@
 capdir = getcwd()
 try:
-    dirr = ljinux.based.user_vars["argj"].split()[1]
+    dirr = ljinux.api.getvar("argj").split()[1]
     if dirr != "-":
         chdir(ljinux.api.betterpath(dirr))
         if capdir != getcwd():
@@ -12,7 +12,7 @@ try:
 except OSError:
     print(
         "Error: '{}' Directory does not exist".format(
-            ljinux.based.user_vars["argj"].split()[1]
+            ljinux.api.getvar("argj").split()[1]
         )
     )
 except IndexError:

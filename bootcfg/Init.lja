@@ -1,5 +1,9 @@
-SHELL = "based"
-OS = "Ljinux"
+# stop dmesg from flooding
+pexec systemprints(1, "Suppress dmesg flooding")
+pexec term.dmtex_suppress = True
+
+# configure init
+INIT = "normal"
 
 cd /home/board
 USER = "board"
@@ -8,13 +12,11 @@ fpexec /LjinuxRoot/etc/hostname-reload.py
 # wait for connection
 _waitforconnection
 
-# fancy title
 fpexec /bin/ljinuxtitle.py
 
 # checks
 _rebootprompt
 _devmodeprompt
 
-# init
 exec .basedrc
 SECURITY = "on"

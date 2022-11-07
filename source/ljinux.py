@@ -4,7 +4,6 @@
 # Ma'am I swear we are alright in the head
 # -----------------
 
-# Some important vars
 Version = "0.3.6-dev"
 Circuitpython_supported = [(7, 3), (8, 0)]  # don't bother with last digit
 dmesg = []
@@ -108,7 +107,7 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
 print("[    0.00000] Timings reset")
 dmesg.append("[    0.00000] Timings reset")
 
-# Now we can use this function to get a timing
+# From now on use dmtex
 dmtex("Basic Libraries loading")
 
 # Basic absolutely needed libs
@@ -154,7 +153,19 @@ try:
 except ImportError:
     pass  # no big deal, this just isn't a neopixel board
 
-# Kernel cmdline.txt
+try:
+    from lj_colours import lJ_Colours as colors
+
+    print(colors.reset_s_format, end="")
+    dmtex("Loaded lj_colours")
+except ImportError:
+    dmtex(f"{colors.error}FATAL:{colors.endc} FAILED TO LOAD LJ_COLOURS")
+    dmtex(
+        "If you intented to disable colors, just rename lj_colours_placebo -> lj_colours"
+    )
+    exit(0)
+
+# Board specific configurations
 try:
 
     with open("/config.json") as config_file:
@@ -170,18 +181,6 @@ try:
 except (ValueError, OSError):
     configg = {}
     dmtex("Kernel config could not be found / parsed, applying defaults")
-
-try:
-    from lj_colours import lJ_Colours as colors
-
-    print(colors.reset_s_format, end="")
-    dmtex("Loaded lj_colours")
-except ImportError:
-    dmtex(f"{colors.error}FATAL:{colors.endc} FAILED TO LOAD LJ_COLOURS")
-    dmtex(
-        "If you intented to disable colors, just rename lj_colours_placebo -> lj_colours"
-    )
-    exit(0)
 
 dmtex("Options applied:")
 
@@ -328,7 +327,17 @@ class ljinux:
     modules = dict()
 
     class api:
-        def var(var, data=None, system=False):
+        def getvar(var):
+            """
+            Get a ljinux user variable without mem leaks
+            """
+            if var in ljinux.based.user_vars.keys():
+                return ljinux.based.user_vars[var]
+            elif var in ljinux.based.system_vars.keys():
+                return ljinux.based.system_vars[var]
+            del var
+
+        def setvar(var, data=None, system=False):
             """
             Set a ljinux user variable without mem leaks
             No handbreak installed.
@@ -825,7 +834,6 @@ class ljinux:
         olddir = None
         pled = False  # persistent led state for nested exec
         alias_dict = {}
-        raw_command_input = ""
 
         user_vars = {
             "history-file": "/LjinuxRoot/home/board/.history",
@@ -834,15 +842,29 @@ class ljinux:
         }
 
         system_vars = {
+            "OS": "Ljinux",
+            "SHELL": "Based",
             "USER": "root",
             "SECURITY": "off",
-            "Init-type": "oneshot",
+            "INIT": "normal",
             "HOSTNAME": "ljinux",
             "TERM": "xterm-256color",
             "LANG": "en_GB.UTF-8",
             "BOARD": board.board_id,
             "IMPLEMENTATION": ".".join(map(str, list(implementation.version))),
         }
+
+        def get_internal():
+            intlist = dir(ljinux.based.command)
+            intlist.remove("__module__")
+            intlist.remove("__qualname__")
+            intlist.remove("__dict__")
+            intlist.remove("__name__")  # these cannot be iterated over
+            for item in intlist:
+                if item.startswith("_"):
+                    intlist.remove(item)
+                del item
+            return intlist
 
         def get_bins():
             try:
@@ -921,133 +943,72 @@ class ljinux:
                 "Attempting to open /LjinuxRoot/boot/Init.lja..",
             )
             lines = None
-            Exit_code = 0  # resetting, in case we are the 2nd .shell
+            Exit_code = 0
             try:
                 ljinux.io.ledset(3)  # act
-                ljinux.based.command.execc(["/LjinuxRoot/boot/Init.lja"])
-                systemprints(1, "Running Init Script")
+                ljinux.based.command.exec("/LjinuxRoot/boot/Init.lja")
+                systemprints(1, "Running init script")
             except OSError:
-                systemprints(3, "Running Init Script")
+                systemprints(3, "Init script not found")
             ljinux.history.load(ljinux.based.user_vars["history-file"])
             try:
                 ljinux.history.sz = int(ljinux.based.user_vars["history-size"])
             except:
                 pass
-            systemprints(1, "History Reload")
-            if ljinux.based.system_vars["Init-type"] == "oneshot":
+            systemprints(1, "History loaded")
+            if ljinux.based.system_vars["INIT"] == "normal":
                 systemprints(1, "Init complete")
-            elif ljinux.based.system_vars["Init-type"] == "reboot-repeat":
+            elif ljinux.based.system_vars["INIT"] == "loop":
                 Exit = True
                 Exit_code = 245
-                print(
-                    f"{colors.magenta_t}Based{colors.endc}: Init complete. Restarting"
-                )
-            elif ljinux.based.system_vars["Init-type"] == "delayed-reboot-repeat":
-                try:
-                    time.sleep(float(ljinux.based.user_vars["repeat-delay"]))
-                except IndexError:
-                    print(
-                        f"{colors.magenta_t}Based{colors.endc}: No delay specified! Waiting 60s."
-                    )
-                    time.sleep(60)
-                    Exit = True
-                    Exit_code = 245
-                    print(
-                        f"{colors.magenta_t}Based{colors.endc}: Init complete and delay finished. Restarting"
-                    )
-            elif ljinux.based.system_vars["Init-type"] == "oneshot-quit":
-                Exit = True
-                Exit_code = 244
+                print(f"{colors.magenta_t}Based{colors.endc}: Complete. Restarting")
+            elif ljinux.based.system_vars["INIT"] == "oneshot":
                 print(f"{colors.magenta_t}Based{colors.endc}: Init complete. Halting")
-            elif ljinux.based.system_vars["Init-type"] == "repeat":
-                try:
-                    while not Exit:
-                        for commandd in lines:
-                            ljinux.based.shell(commandd)
-
-                except KeyboardInterrupt:
-                    print(f"{colors.magenta_t}Based{colors.endc}: Caught Ctrl + C")
-            elif ljinux.based.system_vars["Init-type"] == "delayed-repeat":
-                try:
-                    time.sleep(float(ljinux.based.user_vars["repeat-delay"]))
-                except IndexError:
-                    print(
-                        f"{colors.magenta_t}Based{colors.endc}: No delay specified! Waiting 60s."
-                    )
-                    time.sleep(60)
-                try:
-                    while not Exit:
-                        for commandd in lines:
-                            ljinux.based.shell(commandd)
-
-                except KeyboardInterrupt:
-                    print(f"{colors.magenta_t}Based{colors.endc}: Caught Ctrl + C")
+                ljinux.based.run("halt")
             else:
                 print(
-                    f"{colors.magenta_t}Based{colors.endc}: Init-type specified incorrectly, assuming oneshot"
+                    f"{colors.magenta_t}Based{colors.endc}: INIT specified incorrectly!"
                 )
+                ljinux.based.run("halt")
+
             ljinux.io.ledset(1)  # idle
             while not Exit:
                 try:
                     ljinux.based.shell()
                 except KeyboardInterrupt:
                     stdout.write("^C\n")
-            Exit = False  # to allow ljinux.based.shell to be rerun
+            Exit = False  # to allow ljinux.based.shell to be rerun from code.py
             return Exit_code
 
         class command:
-            def not_found(errr):  # command not found
-                print(
-                    f"{colors.magenta_t}Based{colors.endc}: '{errr[0]}': command not found"
-                )
-                ljinux.based.user_vars["return"] = "1"
-
-            def execc(argj):
+            def exec(inpt):
+                inpt = inpt.split(" ")
                 global Exit
                 global Exit_code
 
-                if argj[0] == "exec":
-                    argj = argj[1:]
-
+                if inpt[0] == "exec":
+                    inpt = inpt[1:]
                 try:
-                    with open(argj[0], "r") as filee:
-                        ljinux.based.olddir = getcwd()
-                        mine = False
-                        if not ljinux.based.pled:
-                            ljinux.based.pled = True
-                            ljinux.io.ledset(3)
-                            mine = True
-                        else:
-                            old = ljinux.io.getled
-                            ljinux.io.ledset(3)
-                            time.sleep(0.03)
-                            ljinux.io.ledset(old)
-                            del old
-                        for j in filee:
-                            j = j.strip()
-
-                            ljinux.based.shell(
-                                'argj = "{}"'.format(" ".join([str(i) for i in argj])),
-                                led=False,
-                            )
-
-                            ljinux.based.shell(j, led=False)
-
-                            del j
-                        if ljinux.based.olddir != getcwd():
-                            chdir(ljinux.based.olddir)
-                        if mine:
-                            ljinux.io.ledset(1)
-                        del mine
+                    with open(inpt[0], "r") as filee:
+                        for linee in filee:
+                            linee = linee.strip()
+                            ljinux.based.run(linee)
+                            del linee
+                    if (
+                        ljinux.based.olddir is not None
+                    ) and ljinux.based.olddir != getcwd():
+                        chdir(ljinux.based.olddir)
                 except OSError:
-                    ljinux.based.error(4, argj[0])
+                    ljinux.based.error(4, inpt[0])
+                del inpt
 
-            def helpp(dictt):
+            def help(inpt):
+                del inpt
                 print(
                     f"LNL {colors.magenta_t}based{colors.endc}\nThese shell commands are defined internally or are in PATH.\nType 'help' to see this list.\n{colors.green_t}"
                 )
 
-                l = ljinux.based.get_bins() + list(dictt.keys())
+                l = ljinux.based.get_bins() + list(ljinux.based.intfdict.keys())
 
                 lenn = 0
                 for i in l:
@@ -1068,6 +1029,7 @@ class ljinux:
 
             def var(inpt):  # variables setter / editor
                 valid = True
+                inpt = inpt.split(" ")
                 if inpt[0] == "var":  # check if the var is passed and trim it
                     temp = inpt
                     del inpt
@@ -1185,7 +1147,8 @@ class ljinux:
                 except IndexError:
                     ljinux.based.error(1)
 
-            def dell(inpt):  # del variables, and dell computers
+            def unset(inpt):  # del variables
+                inpt = inpt.split(" ")
                 try:
                     a = inpt[1]
                     if a == ljinux.api.adv_input(a, str) and a not in gpio_alloc:
@@ -1212,7 +1175,8 @@ class ljinux:
                 except IndexError:
                     ljinux.based.error(1)
 
-            def suuu(inpt):  # su command but worse
+            def su(inpt):  # su command but worse
+                inpt = inpt.split(" ")
                 global dfpasswd
                 passwordarr = {}
                 try:
@@ -1259,7 +1223,8 @@ class ljinux:
                 except NameError:
                     pass
 
-            def historgf(inpt):  # history frontend
+            def history(inpt):  # history frontend
+                inpt = inpt.split(" ")
                 try:
                     if inpt[1] == "clear":
                         ljinux.history.clear(ljinux.based.user_vars["history-file"])
@@ -1278,129 +1243,10 @@ class ljinux:
                 except IndexError:
                     ljinux.history.getall()
 
-            def iff(inpt):  # the if, the pinnacle of ai WIP
-                condition = []
-                complete = False
-                next_part = None
-                if inpt[1] == "[":
-                    for i in range(2, len(inpt)):
-                        if inpt[i] == "]":
-                            complete = True
-                            next_part = i + 1
-                            break
-                        else:
-                            condition.append(inpt[i])
-                        del i
-                    if complete:
-                        try:
-                            val = False
-                            need_new_cond = False
-                            i = 0
-                            while i < len(condition) - 1:
-                                if condition[i] == "argj":  # this is an argument check
-                                    i += 1  # we can move on as we know of the current situation
-                                    if (
-                                        condition[i] == "has"
-                                    ):  # check if condition is present
-                                        i += 1  # we have to keep moving
-                                        if (
-                                            condition[i]
-                                            in ljinux.based.user_vars["argj"]
-                                        ):  # it's in!
-                                            val = True
-                                        else:
-                                            val = False
-                                        need_new_cond = True
-                                    elif (
-                                        condition[i].startswith('"')
-                                        and condition[i].endswith('"')
-                                    ) and (
-                                        (condition[i + 1] == "is")
-                                        or (condition[i + 1] == "==")
-                                        or (condition[i + 1] == "=")
-                                    ):  # check next arg for name and the one ahead of it for value
-                                        namee = condition[i][1:-1]  # remove ""
-                                        i += 2
-                                        try:
-                                            if (
-                                                namee in ljinux.based.user_vars["argj"]
-                                            ):  # it's in!
-                                                pos = ljinux.based.user_vars[
-                                                    "argj"
-                                                ].find(namee)
-                                                sz = len(namee)
-                                                nextt = ljinux.based.user_vars["argj"][
-                                                    pos + sz + 1 :
-                                                ]
-                                                cut = nextt.find(" ") + 1
-                                                del sz
-                                                del pos
-                                                if cut is not 0:
-                                                    nextt = nextt[: nextt.find(" ") + 1]
-                                                del cut
-                                                if nextt == condition[i][1:-1]:
-                                                    val = True
-                                                    need_new_cond = True
-                                                else:
-                                                    val = False
-                                                    need_new_cond = True
-                                                i += 1
-                                            else:
-                                                raise KeyError
-                                            del namee
-                                        except KeyError:
-                                            print(
-                                                f"{colors.magenta_t}Based{colors.endc}: Arg not in argj"
-                                            )
-                                elif condition[i] == "and":  # and what
-                                    i += 1  # just read the argj, i'm not gonna copy the comments
-                                    if val == 0:  # no need to keep goin, just break;
-                                        break
-                                    else:
-                                        need_new_cond = False
-                                elif condition[i] == "or":  # or what
-                                    i += 1
-                                    if val == 1:  # no need to keep goin, just break;
-                                        break
-                                    else:
-                                        need_new_cond = False
-                                elif condition[i].isdigit():  # meth
-                                    i += 1  # todo
-                                else:
-                                    print(
-                                        f"{colors.magenta_t}Based{colors.endc}: Invalid action type: "
-                                        + condition[i]
-                                    )
-                                    break
-                            if val == 1:
-                                ljinux.based.shell(
-                                    " ".join(inpt[next_part:]), led=False
-                                )
-                            del next_part
-                            del val
-                        except KeyError:
-                            print(
-                                f"{colors.magenta_t}Based{colors.endc}: Invalid condition type"
-                            )
-                    else:
-                        print(
-                            f"{colors.magenta_t}Based{colors.endc}: Incomplete condition"
-                        )
-                else:
-                    ljinux.based.error(1)
-                del need_new_cond
-                del complete
-                del condition
-
-            def pexecc(inpt):  # Python exec
-                global Version
-                pcomm = ljinux.based.raw_command_input.lstrip(
-                    ljinux.based.raw_command_input.split()[0]
-                ).replace(" ", "", 1)
+            def pexec(inpt):  # Python exec
+                gc.collect()
                 try:
-                    gc.collect()
-                    exec(pcomm)  # Vulnerability.exe
-                    del pcomm
+                    exec(inpt)  # Vulnerability.exe
                 except Exception as err:
                     print(
                         "Traceback (most recent call last):\n\t"
@@ -1409,11 +1255,15 @@ class ljinux:
                         + str(err)
                     )
                     del err
+                del inpt
+                gc.collect()
 
-            def fpexecc(inpt):  # Python script exec
-                global Version
+            def fpexec(inpt):  # Python script exec
                 fpargs = list()
-                offs = 1
+                inpt = inpt.split(" ")
+                offs = 0
+                if inpt[0] == "fpexec":
+                    offs += 1
 
                 try:
                     while inpt[offs].startswith("-"):
@@ -1445,29 +1295,117 @@ class ljinux:
                     del err
                 del offs, fpargs
 
-        # the shell function, do not poke, it gets angry
-        def shell(inp=None, led=True, args=None, nalias=False):
+        def parse_pipes(inpt):
+            # This is a pipe
+            p_and = "&&" in inpt
+            p_to = "|" in inpt
 
-            global Exit
-            if inp is not None and args is not None:
-                for i in args:
-                    inp += f" {i}"
-                    del i
-            del args
-            function_dict = {
-                # these are the internal commands
-                "error": ljinux.based.command.not_found,
-                "exec": ljinux.based.command.execc,
-                "help": ljinux.based.command.helpp,
-                "var": ljinux.based.command.var,
-                "unset": ljinux.based.command.dell,
-                "su": ljinux.based.command.suuu,
-                "history": ljinux.based.command.historgf,
-                "if": ljinux.based.command.iff,
-                "pexec": ljinux.based.command.pexecc,
-                "fpexec": ljinux.based.command.fpexecc,
-            }
-            command_input = False
+            comlist = list()
+            comindex = -1
+
+            if p_and and p_to:
+                pass
+            elif p_and:
+                while "&&" in inpt:
+                    comlist.append(inpt[: inpt.find("&&")])
+                    inpt = inpt[inpt.find("&&") + 2 :]
+                    comindex += 1
+                    while comlist[comindex].endswith(" "):
+                        comlist[comindex] = comlist[comindex][:-1]
+                    while comlist[comindex].startswith(" "):
+                        comlist[comindex] = comlist[comindex][1:]
+                while inpt.endswith(" "):
+                    inpt = inpt[:-1]
+                while inpt.startswith(" "):
+                    inpt = inpt[1:]
+                comlist.append(inpt)
+            elif p_to:
+                pass
+            else:
+                comlist.append(inpt)
+
+            del p_and, p_to, comindex, inpt
+            return comlist
+
+        def run(executable, argv=None):
+            # runs any single command
+            ledmine = False  # ownership of led
+            oldled = None
+            if not ljinux.based.pled:
+                ljinux.based.pled = True
+                ljinux.io.ledset(3)
+                ledmine = True
+            else:
+                oldled = ljinux.io.getled
+                ljinux.io.ledset(3)
+
+            if isinstance(argv, list):
+                argv = " ".join(argv)
+            elif argv is None:
+                splitt = executable.split(" ")
+                if len(splitt) > 1:
+                    executable = splitt[0]
+                    argv = " ".join(splitt[1:])
+                del splitt
+
+            bins = ljinux.based.get_bins()
+            ints = ljinux.based.get_internal()
+            inbins = executable in bins
+            inints = executable in ints
+            del bins, ints
+            gc.collect()
+
+            if (executable == "") or executable.isspace() or executable.startswith("#"):
+                pass
+            elif executable in ljinux.modules:  # kernel module
+                ljinux.based.modules[executable](argv)
+            elif inbins:  # external commands
+                bckargj = (
+                    ""
+                    if "argj" not in ljinux.based.user_vars
+                    else ljinux.based.user_vars["argj"]
+                )
+                ljinux.api.setvar(
+                    "argj", executable + ("" if argv is None else (" " + argv))
+                )
+                ljinux.based.command.exec("/LjinuxRoot/bin/" + executable + ".lja ")
+                ljinux.api.setvar("argj", bckargj)
+                del bckargj
+            elif inints:  # internal commands
+                if argv is None:
+                    exec(f'ljinux.based.command.{executable}("")')
+                else:
+                    exec(
+                        "ljinux.based.command."
+                        + executable
+                        + "('"
+                        + argv.replace("'", "\\'")
+                        + "')"
+                    )
+            elif argv is not None and argv.startswith("="):  # variable operation
+
+                ljinux.based.command.var(executable + " " + argv)
+            else:  # error
+                print(
+                    f"{colors.magenta_t}Based{colors.endc}: '{executable}': command not found"
+                )
+                ljinux.based.user_vars["return"] = "1"
+
+            if ledmine:
+                ljinux.based.pled = False
+                ljinux.io.ledset(1)
+            else:
+                ljinux.io.ledset(oldled)
+
+            del inbins, inints, executable, argv, ledmine, oldled
+            gc.collect()
+
+        def shell(led=True, nalias=False):
+            # The interactive main shell
+            # no longer accepts commands here
+
+            global Exit, Exit_code
+
             if not term.enabled:
                 ljinux.io.ledset(4)  # waiting for serial
                 term.start()
@@ -1487,10 +1425,10 @@ class ljinux:
                     "rest_a": "common",
                     "echo": "common",
                 }
+
+            command_input = None
             if not Exit:
-                while (
-                    (command_input == False) or (command_input == "\n")
-                ) and not Exit:
+                while ((command_input == None) or (command_input == "\n")) and not Exit:
                     term.trigger_dict["prefix"] = (
                         "["
                         + colors.cyan_t
@@ -1509,34 +1447,33 @@ class ljinux:
                         + "> "
                         + colors.endc
                     )
-                    if inp is None:
-                        command_input = False
-                        while (command_input in [False, ""]) and not Exit:
-                            try:
-                                term.program()
-                                if term.buf[0] is 0:
-                                    ljinux.history.nav[0] = 0
-                                    command_input = term.buf[1]
-                                    term.buf[1] = ""
-                                    term.focus = 0
-                                    stdout.write("\n")
-                                elif term.buf[0] is 1:
-                                    ljinux.io.ledset(2)  # keyact
-                                    print("^C")
-                                    term.buf[1] = ""
-                                    term.focus = 0
-                                    term.clear_line()
-                                    ljinux.io.ledset(1)  # idle
-                                elif term.buf[0] is 2:
-                                    ljinux.io.ledset(2)  # keyact
-                                    print("^D")
-                                    global Exit
-                                    global Exit_code
-                                    Exit = True
-                                    Exit_code = 0
-                                    ljinux.io.ledset(1)  # idle
-                                    break
-                                elif term.buf[0] is 3:  # tab key
+
+                    command_input = None
+                    while (command_input in [None, ""]) and not Exit:
+                        try:
+                            term.program()
+                            if term.buf[0] is 0:  # enter
+                                ljinux.history.nav[0] = 0
+                                command_input = term.buf[1]
+                                term.buf[1] = ""
+                                term.focus = 0
+                                stdout.write("\n")
+                            elif term.buf[0] is 1:
+                                ljinux.io.ledset(2)  # keyact
+                                print("^C")
+                                term.buf[1] = ""
+                                term.focus = 0
+                                term.clear_line()
+                                ljinux.io.ledset(1)  # idle
+                            elif term.buf[0] is 2:
+                                ljinux.io.ledset(2)  # keyact
+                                print("^D")
+                                Exit = True
+                                Exit_code = 0
+                                ljinux.io.ledset(1)  # idle
+                                break
+                            elif term.buf[0] is 3:  # tab key
+                                if len(term.buf[1]):
                                     ljinux.io.ledset(2)  # keyact
                                     tofind = term.buf[
                                         1
@@ -1555,13 +1492,14 @@ class ljinux:
                                         del files
                                     else:  # suggesting bins
                                         bins = ljinux.based.get_bins()
-                                        for i in [function_dict, bins]:
+                                        ints = ljinux.based.get_internal()
+                                        for i in [ints, bins]:
                                             for j in i:
                                                 if j.startswith(tofind):
                                                     candidates.append(j)
                                                 del j
                                             del i
-                                        del bins
+                                        del bins, ints
                                     if len(candidates) > 1:
                                         stdout.write("\n")
                                         minn = 100
@@ -1622,208 +1560,115 @@ class ljinux:
                                         term.clear_line()
                                     del candidates, lent, tofind, slicedd
                                     ljinux.io.ledset(1)  # idle
-                                elif term.buf[0] is 4:  # up
-                                    ljinux.io.ledset(2)  # keyact
-                                    try:
-                                        neww = ljinux.history.gett(
-                                            ljinux.history.nav[0] + 1
-                                        )
-                                        # if no historyitem, we wont run the items below
-                                        if ljinux.history.nav[0] == 0:
-                                            ljinux.history.nav[2] = term.buf[1]
-                                            ljinux.history.nav[1] = term.focus
-                                        term.buf[1] = neww
-                                        del neww
-                                        ljinux.history.nav[0] += 1
-                                        term.focus = 0
-                                    except IndexError:
-                                        pass
+                                else:
                                     term.clear_line()
-                                    ljinux.io.ledset(1)  # idle
-                                elif term.buf[0] is 7:  # down
-                                    ljinux.io.ledset(2)  # keyact
-                                    if ljinux.history.nav[0] > 0:
-                                        if ljinux.history.nav[0] > 1:
-                                            term.buf[1] = ljinux.history.gett(
-                                                ljinux.history.nav[0] - 1
-                                            )
-                                            ljinux.history.nav[0] -= 1
-                                            term.focus = 0
-                                        else:
-                                            # have to give back the temporarily stored one
-                                            term.buf[1] = ljinux.history.nav[2]
-                                            term.focus = ljinux.history.nav[1]
-                                            ljinux.history.nav[0] = 0
-                                    term.clear_line()
-                                elif term.buf[0] in [11, 12]:  # pgup / pgdw
-                                    term.clear_line()
-                                elif term.buf[0] is 13:  # Ctrl + L (clear screen)
-                                    term.clear()
-                                elif term.buf[0] is 14:  # overflow
-                                    store = term.buf[1]
-                                    term.focus = 0
-                                    term.buf[1] = ""
-                                    term.trigger_dict["prefix"] = "> "
-                                    term.clear_line()
-                                    term.program()
-                                    if term.buf[0] is 0:  # enter
-                                        ljinux.history.nav[0] = 0
-                                        command_input = store + term.buf[1]
-                                        term.buf[1] = ""
-                                        stdout.write("\n")
-                                    elif term.buf[0] is 14:  # more lines
-                                        store += term.buf[1]
-                                        ljinux.history.nav[0] = 0
-                                        term.buf[1] = ""
-                                        term.focus = 0
-                                        term.clear_line()
-                                    else:  # not gonna
-                                        term.buf[0] = ""
-                                        term.focus = 0
-                                        ljinux.history.nav[0] = 0
-                                    del store
-
+                            elif term.buf[0] is 4:  # up
+                                ljinux.io.ledset(2)  # keyact
                                 try:
-                                    if (
-                                        command_input[:1] != " "
-                                        and command_input != ""
-                                        and (not command_input.startswith("#"))
-                                    ):
-                                        ljinux.history.appen(command_input.strip())
-                                except (
-                                    AttributeError,
-                                    TypeError,
-                                ):  # idk why this is here, forgor
+                                    neww = ljinux.history.gett(
+                                        ljinux.history.nav[0] + 1
+                                    )
+                                    # if no historyitem, we wont run the items below
+                                    if ljinux.history.nav[0] == 0:
+                                        ljinux.history.nav[2] = term.buf[1]
+                                        ljinux.history.nav[1] = term.focus
+                                    term.buf[1] = neww
+                                    del neww
+                                    ljinux.history.nav[0] += 1
+                                    term.focus = 0
+                                except IndexError:
                                     pass
-                            except KeyboardInterrupt:  # duplicate code as by ^C^C you could escape somehow
-                                print("^C")
-                                term.buf[1] = ""
-                                term.focus = 0
                                 term.clear_line()
-                    else:
-                        command_input = inp
+                                ljinux.io.ledset(1)  # idle
+                            elif term.buf[0] is 7:  # down
+                                ljinux.io.ledset(2)  # keyact
+                                if ljinux.history.nav[0] > 0:
+                                    if ljinux.history.nav[0] > 1:
+                                        term.buf[1] = ljinux.history.gett(
+                                            ljinux.history.nav[0] - 1
+                                        )
+                                        ljinux.history.nav[0] -= 1
+                                        term.focus = 0
+                                    else:
+                                        # have to give back the temporarily stored one
+                                        term.buf[1] = ljinux.history.nav[2]
+                                        term.focus = ljinux.history.nav[1]
+                                        ljinux.history.nav[0] = 0
+                                term.clear_line()
+                            elif term.buf[0] in [11, 12]:  # pgup / pgdw
+                                term.clear_line()
+                            elif term.buf[0] is 13:  # Ctrl + L (clear screen)
+                                term.clear()
+                            elif term.buf[0] is 14:  # overflow
+                                store = term.buf[1]
+                                term.focus = 0
+                                term.buf[1] = ""
+                                term.trigger_dict["prefix"] = "> "
+                                term.clear_line()
+                                term.program()
+                                if term.buf[0] is 0:  # enter
+                                    ljinux.history.nav[0] = 0
+                                    command_input = store + term.buf[1]
+                                    term.buf[1] = ""
+                                    stdout.write("\n")
+                                elif term.buf[0] is 14:  # more lines
+                                    store += term.buf[1]
+                                    ljinux.history.nav[0] = 0
+                                    term.buf[1] = ""
+                                    term.focus = 0
+                                    term.clear_line()
+                                else:  # not gonna
+                                    term.buf[0] = ""
+                                    term.focus = 0
+                                    ljinux.history.nav[0] = 0
+                                del store
+                        except KeyboardInterrupt:
+                            # duplicate code as by ^C^C you could escape somehow
+                            print("^C")
+                            term.buf[1] = ""
+                            term.focus = 0
+                            term.clear_line()
                 if not Exit:
                     res = ""
                     if led:
                         ljinux.io.ledset(3)  # act
-                    while command_input.startswith(" "):
-                        command_input = command_input[1:]
-                    if not (command_input == "") and (
-                        not command_input.startswith("#")
+                    if not (
+                        command_input == ""
+                        or command_input[:1].isspace()
+                        or command_input.startswith("#")
                     ):
-                        if (not "|" in command_input) and (not "&&" in command_input):
-                            ljinux.based.raw_command_input = command_input
-                            command_split = command_input.split(
-                                " "
-                            )  # making it an arr of words
-                            try:
-                                if str(command_split[0])[:2] == "./":
-                                    command_split[0] = str(command_split[0])[2:]
-                                    if command_split[0] != "":
-                                        res = function_dict["exec"](command_split)
-                                    else:
-                                        print("Error: No file specified")
-                                elif (not nalias) and (
-                                    command_split[0] in ljinux.based.alias_dict
-                                ):
-                                    ljinux.based.shell(
-                                        ljinux.based.alias_dict[command_split[0]],
-                                        led=False,
-                                        args=command_split[1:],
-                                        nalias=True,
-                                    )
-                                elif command_split[0] in ljinux.modules:
-                                    ljinux.modules[command_split[0]].enter(
-                                        command_split
-                                    )
-                                elif (command_split[0] in function_dict) and (
-                                    command_split[0]
-                                    not in [
-                                        "error",
-                                        "help",
-                                    ]
-                                ):  # those are special bois, they will not be special when I make the api great
-                                    gc.collect()
-                                    gc.collect()
-                                    res = function_dict[command_split[0]](command_split)
-                                elif command_split[0] == "help":
-                                    res = function_dict["help"](function_dict)
-                                elif command_split[1] == "=":
-                                    res = function_dict["var"](command_split)
-                                else:
-                                    raise IndexError
-                            except IndexError:
-                                bins = ljinux.based.get_bins()
-                                certain = False
-                                for i in bins:
-                                    if (
-                                        command_split[0] == i
-                                    ) and not certain:  # check if currently examined file is same as command
-                                        command_split[0] = (
-                                            "/LjinuxRoot/bin/" + i + ".lja"
-                                        )  # we have to fill in the full path
-                                        certain = True
-                                    del i
-                                del bins  # we no longer need the list
-                                if certain:
-                                    gc.collect()
-                                    gc.collect()
-                                    res = function_dict["exec"](command_split)
-                                else:
-                                    res = function_dict["error"](command_split)
-                                del certain
-                        elif ("|" in command_input) and not (
-                            "&&" in command_input
-                        ):  # this is a pipe  :)
-                            ljinux.based.silent = True
-                            the_pipe_pos = command_input.find("|", 0)
-                            ljinux.based.shell(
-                                command_input[: the_pipe_pos - 1], led=False
-                            )
-                            ljinux.based.silent = False
-                            ljinux.based.shell(
-                                command_input[the_pipe_pos + 2 :]
-                                + " "
-                                + ljinux.based.user_vars["return"],
-                                led=False,
-                            )
-                            del the_pipe_pos
-                        elif ("&&" in command_input) and not (
-                            "|" in command_input
-                        ):  # this is a dirty pipe  :)
-                            the_pipe_pos = command_input.find("&&", 0)
-                            ljinux.based.shell(
-                                command_input[: the_pipe_pos - 1], led=False
-                            )
-                            ljinux.based.shell(
-                                command_input[the_pipe_pos + 2 :], led=False
-                            )
-                            del the_pipe_pos
-                        elif ("&&" in command_input) and (
-                            "|" in command_input
-                        ):  # this pipe was used to end me :(
-                            the_pipe_pos_1 = command_input.find("|", 0)
-                            the_pipe_pos_2 = command_input.find("&&", 0)
-                            if the_pipe_pos_1 < the_pipe_pos_2:  # the first pipe is a |
-                                ljinux.based.silent = True
-                                ljinux.based.shell(command_input[: the_pipe_pos_1 - 1])
-                                ljinux.based.silent = False
-                                ljinux.based.shell(
-                                    command_input[the_pipe_pos_1 + 2 :]
-                                    + " "
-                                    + ljinux.based.user_vars["return"]
-                                )
-                            else:  # the first pipe is a &&
-                                ljinux.based.shell(
-                                    command_input[: the_pipe_pos_2 - 1], led=False
-                                )
-                                ljinux.based.shell(
-                                    command_input[the_pipe_pos_2 + 2 :], led=False
-                                )
-                            del the_pipe_pos_1
-                            del the_pipe_pos_2
+                        # Save to history
+                        if command_input.startswith(" "):
+                            while command_input.startswith(" "):
+                                command_input = command_input[1:]
                         else:
-                            pass
+                            ljinux.history.appen(command_input.strip())
+
+                        # Output to file
+                        p_write = ">" in command_input
+
+                        # Remove > pipe from line, TODO
+                        pass
+
+                        # Fetch list of commands
+                        comlist = ljinux.based.parse_pipes(command_input)
+                        comlen = len(comlist)
+                        if comlen > 1:
+                            ljinux.based.silent = True
+                            for com in range(len(comlist) - 1):
+                                ljinux.based.run(comlist[com])
+                                del com
+                            ljinux.based.silent = False
+                        del comlen
+                        ljinux.based.run(comlist[-1])  # -1 works with one item
+                        del comlist  # abandon command_input
+
+                        # Write stdout to file, TODO
+                        pass
+
+                        del p_write
+                        gc.collect()
+                        gc.collect()
                     if led:
                         ljinux.io.ledset(1)  # idle
                     gc.collect()

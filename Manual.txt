@@ -468,9 +468,9 @@ Example 3:
     b = a
     echo b
 
-      /----------------------|
-----<| Netowork driver usage |
-      \----------------------|
+      /---------------------|
+----<| Network driver usage |
+      \---------------------|
       
 To use the built-in circuitpython module "wifi" as your network connection:
   - Ensure you have run "make wifi" from the host computer.

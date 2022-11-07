@@ -12,9 +12,7 @@ try:
         del lines
         sizee = term.detect_size()
 
-        ljinux.based.command.fpexecc(
-            [None, "/LjinuxRoot/bin/stringproccessing/line_wrap.py"]
-        )
+        ljinux.based.command.fpexec("/LjinuxRoot/bin/stringproccessing/line_wrap.py")
         del ljinux.based.user_vars["input"]
 
         lines3 = ljinux.based.user_vars["output"]

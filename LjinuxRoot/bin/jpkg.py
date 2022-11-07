@@ -9,9 +9,9 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
     fl = set()  # folder list
 
     # load system package list
-    ljinux.based.command.fpexecc([None, "/etc/jpkg/tools/generatelist.py"])
+    ljinux.based.command.fpexec("/etc/jpkg/tools/generatelist.py")
     pklist = ljinux.based.user_vars["return"]
-    ljinux.api.var("return", "1")  # no garbage in return
+    ljinux.api.setvar("return", "1")  # no garbage in return
 
     """
     pklist[0] is packages w/ version, deps, conficts
@@ -27,15 +27,15 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
             )
             break
         ljinux.based.silent = True
-        ljinux.based.command.fpexecc([None, "/bin/random.py"])
+        ljinux.based.command.fpexec("/bin/random.py")
         ljinux.based.silent = False
         extpath = "/tmp/" + ljinux.based.user_vars["return"][2:] + fileext[:-4]
-        ljinux.api.var("argj", "a " + extpath)
-        ljinux.based.command.fpexecc([None, "/bin/mkdir.py"])
+        ljinux.api.setvar("argj", "a " + extpath)
+        ljinux.based.command.fpexec("/bin/mkdir.py")
 
         print(f"{colors.green_t}JPKG{colors.endc}: Extracting {fileext[:-4]} ...")
-        ljinux.api.var("argj", f"a -q -d {fileext} {extpath}")
-        ljinux.based.command.fpexecc([None, "/bin/jz.py"])
+        ljinux.api.setvar("argj", f"a -q -d {fileext} {extpath}")
+        ljinux.based.command.fpexec("/bin/jz.py")
         if ljinux.based.user_vars["return"] == "0":
             print(f"{colors.green_t}JPKG{colors.endc}: Extracted to " + extpath)
         else:
@@ -192,20 +192,17 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                     + str(manifest["version"][2])
                     + ") ..."
                 )
-                ljinux.api.var("return", "0")
-                ljinux.based.command.fpexecc(
-                    [
-                        None,
-                        fileext
-                        + "/"
-                        + manifest[
-                            str(
-                                "update"
-                                if manifest["package_name"] in updatee
-                                else "install"
-                            )
-                        ],
-                    ]
+                ljinux.api.setvar("return", "0")
+                ljinux.based.command.fpexec(
+                    fileext
+                    + "/"
+                    + manifest[
+                        str(
+                            "update"
+                            if manifest["package_name"] in updatee
+                            else "install"
+                        )
+                    ],
                 )
                 if not sdcard_fs:
                     remount("/", False)
@@ -225,7 +222,7 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                         del newman
 
                     # copy uninstaller
-                    ljinux.api.var(
+                    ljinux.api.setvar(
                         "argj",
                         "cp "
                         + manifest["remove"]
@@ -233,7 +230,7 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                         + manifest["package_name"]
                         + ".py",
                     )
-                    ljinux.based.command.fpexecc([None, "/bin/cp.py"])
+                    ljinux.based.command.fpexec("/bin/cp.py")
 
                 if not sdcard_fs:  # again cuz cp reverted it
                     remount("/", False)
@@ -263,9 +260,9 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
 
 elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
     # for comments look in installation
-    ljinux.based.command.fpexecc([None, "/etc/jpkg/tools/generatelist.py"])
+    ljinux.based.command.fpexec("/etc/jpkg/tools/generatelist.py")
     pklist = ljinux.based.user_vars["return"]  # for comments look in installation
-    ljinux.api.var("return", "1")
+    ljinux.api.setvar("return", "1")
     errored = False
 
     for package in opts2["w"][1:]:
@@ -284,12 +281,12 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
         pklist.clear()
         gc.collect()
         gc.collect()
-        ljinux.api.var("omit", set(opts2["w"][1:]))
+        ljinux.api.setvar("omit", set(opts2["w"][1:]))
         print(f"{colors.green_t}JPKG{colors.endc}: Updating package list.")
-        ljinux.based.command.fpexecc([None, "/etc/jpkg/tools/generatelist.py"])
+        ljinux.based.command.fpexec("/etc/jpkg/tools/generatelist.py")
         pklist += ljinux.based.user_vars["return"]
-        ljinux.api.var("return", "1")
-        ljinux.api.var("omit")  # this deletes it
+        ljinux.api.setvar("return", "1")
+        ljinux.api.setvar("omit")  # this deletes it
 
     # check if database is valid
     if not errored:
@@ -352,11 +349,9 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
                     + str(manifest["version"][2])
                     + ") ..."
                 )
-            ljinux.api.var("return", "0")
+            ljinux.api.setvar("return", "0")
 
-            ljinux.based.command.fpexecc(
-                [None, "/etc/jpkg/uninstallers/" + pkgname + ".py"]
-            )
+            ljinux.based.command.fpexec("/etc/jpkg/uninstallers/" + pkgname + ".py")
             if not sdcard_fs:
                 remount("/", False)
 
@@ -383,7 +378,7 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
         remount("/", True)
 
     # return
-    ljinux.api.var("return", str(int(errored)))
+    ljinux.api.setvar("return", str(int(errored)))
     del errored
 elif len(opts2["w"]) is 1 and opts2["w"][0] == "list":
     for package in listdir("/LjinuxRoot/etc/jpkg/installed"):
@@ -403,10 +398,10 @@ elif len(opts2["w"]) is 1 and opts2["w"][0] == "list":
             )
             del manifest
         del package
-    ljinux.api.var("return", "0")
+    ljinux.api.setvar("return", "0")
 else:
-    ljinux.api.var("argj", "a /etc/jpkg/data/help.txt")
-    ljinux.based.command.fpexecc([None, "/bin/cat.py"])
-    ljinux.api.var("return", "1")
+    ljinux.api.setvar("argj", "a /etc/jpkg/data/help.txt")
+    ljinux.based.command.fpexec("/bin/cat.py")
+    ljinux.api.setvar("return", "1")
 
 del opts2, jpkg_version

@@ -7,5 +7,5 @@ temp = (
     + ljinux.api.betterpath()
 )
 ljinux.based.user_vars["argj"] = temp
-ljinux.based.command.fpexecc([None, "/bin/title.py"])
+ljinux.based.command.fpexec("/bin/title.py")
 del temp

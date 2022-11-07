@@ -47,5 +47,5 @@ if dfd:
 else:
     print("Not implemented")
 
-ljinux.api.var("return", "0")
+ljinux.api.setvar("return", "0")
 del dfr, dfl, dfd, human_readable, opts

@@ -37,54 +37,34 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
             + "def base(request):\n"
             + " ljinux.io.ledset(3)\n"
             + ' raw = request.raw_request.decode("utf8").split()\n'
-            + " data = dict()\n"
-            + " form_dat_pos = 0\n"
-            + ' host = "None"\n'
-            + " hp = 0\n"
             + ' res = "OK"\n'
-            + " try:\n"
-            + "  while True:\n"
-            + '   if raw[hp] == "Host:":\n'
-            + "    host = raw[hp+1]\n"
-            + "    break\n"
-            + "   hp += 1\n"
-            + " except IndexError:\n"
-            + "  pass\n"
-            + " try:\n"
-            + "  while True:\n"
-            + '   if raw[form_dat_pos] == "form-data;":\n'
-            + "    break\n"
-            + "   form_dat_pos += 1\n"
-            + " except IndexError:\n"
-            + "  form_dat_pos = None\n"
-            + " current = form_dat_pos + 1\n"
-            + " if form_dat_pos is not None:\n"
-            + "  try:\n"
-            + "   while True:\n"
-            + '    if raw[current].startswith("name="):\n'
-            + "     data.update({raw[current][6:-1]: raw[current+1]})\n"
-            + "     current += 2\n"
-            + "    elif current is len(raw):\n"
-            + "     break\n"
-            + "    else:\n"
-            + "     current += 1\n"
-            + "  except IndexError:\n"
-            + "   pass\n"
+            + " pos = 0\n"
+            + " data = None\n"
+            + " while pos < len(raw):\n"
+            + '  if raw[pos].startswith("{\\""):\n'
+            + '   data = json.loads(" ".join(raw[pos:]))\n'
+            + "   break\n"
+            + "  else:\n"
+            + "   pos += 1\n"
+            + " del raw, pos\n"
+            + " if data is None:\n"
+            + '  res = "FAIL: Invalid form."\n'
             + " else:\n"
-            + '  res = "FAIL"\n'
-            + " del raw, current, form_dat_pos\n"
-            + ' passwd = "'
+            + '  passwd = "'
             + ljinux.api.betterpath(webconf["password"])
             + '"\n'
-            + " try:\n"
-            + '  operation = data["operation"]\n'
-            + "  print("
-            + '"HTTP POST from " + host + " '
-            + 'with operation \\"" + operation + "\\"")\n'
-            + "  del operation\n"
-            + " except KeyError:\n"
-            + '  print("Operation instruction not found")\n'
-            + " del data, passwd\n"
+            + '  if not (("auth" in data) and (data["auth"] == passwd)):\n'
+            + '   res = "FAIL: Authentication failure."\n'
+            + "   del passwd, data\n"
+            + "  else:\n"
+            + '   if "operation" in data:\n'
+            + '    njcommand = data["operation"]\n'
+            + "    del data\n"
+            + "    ljinux.based.run(njcommand)\n"
+            + "    del njcommand\n"
+            + "   else:\n"
+            + '    res = "FAIL: \\"operation\\" missing."\n'
+            + "    del data\n"
             + " ljinux.io.ledset(1)\n"
             + " return adafruit_httpserver.HTTPResponse(body=res)"
         )
