@@ -305,21 +305,26 @@ CODE:
 13 : Terminal too small, minimum size: size:
       The current terminal size is too small, resize the terminal to a size bigger than the one specified.
 
-      /----------|
-----<| Functions |
-      \----------|
+      /--------------|
+----<| Api Functions |
+      \--------------|
 
-Commons functions used by the commands.
-CODE:
-      ljinux.api.[function_name](parameters)
-      where [function_name] is one of the function below
+Ljinux api functions.
+Available from:
+      ljinux.api.[function](parameters)
       
-      var(var, data=None, system=False)
-        Variable getter / deleter.
+      setvar(var, data=None, system=False)
+        Variable setter / deleter.
         Sets variable var, in ljinux.based.user_vars.
         The var name has to be an str.
         When the data is None, deletes the variable.
         The system option, when True, uses ljinux.based.system_vars instead.
+        
+      getvar(var)
+        Variable getter.
+        Returns variable var, from ljinux.based.user_vars or ljinux.based.system_vars.
+        The var name has to be an str.
+        In case it doesn't exist, returns None.
         
       xarg(rinpt=None, fn=False)
         Argument parser.
