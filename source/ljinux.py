@@ -467,7 +467,6 @@ class ljinux:
             if n:  # we have incomplete keyword
                 # not gonna bother if s is True
                 options.update({entry: None})
-                hidwords.append(inpt[i])
 
             del n, entry, s, temp_s
 
@@ -553,7 +552,7 @@ class ljinux:
                     except OSError:
                         res = 2  # we have had enough
                 del rr
-            del cddd
+            del cddd, rdir, dirr
             return res
 
         def betterpath(back=None):
