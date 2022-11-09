@@ -1347,6 +1347,17 @@ class ljinux:
                     argv = " ".join(splitt[1:])
                 del splitt
 
+            if executable in ljinux.based.alias_dict.keys():
+                executable = ljinux.based.alias_dict[executable]
+                splitt = executable.split(" ")
+                if len(splitt) > 1:
+                    executable = splitt[0]
+                    if argv is None:
+                        argv = " ".join(splitt[1:])
+                    else:
+                        argv += " " + " ".join(splitt[1:])
+                del splitt
+
             bins = ljinux.based.get_bins()
             ints = ljinux.based.get_internal()
             inbins = executable in bins
