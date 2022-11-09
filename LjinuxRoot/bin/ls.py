@@ -21,6 +21,7 @@ if len(li):
 
 path = ljinux.api.betterpath(path)
 directory_listing = listdir(path)
+directory_listing.sort()
 
 if "l" in co:
     sps = "\n"
