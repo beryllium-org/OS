@@ -13,10 +13,9 @@ try:
         sizee = term.detect_size()
 
         ljinux.based.command.fpexec("/LjinuxRoot/bin/stringproccessing/line_wrap.py")
-        del ljinux.based.user_vars["input"]
 
-        lines3 = ljinux.based.user_vars["output"]
-        del ljinux.based.user_vars["output"]
+        lines3 = ljinux.api.getvar("output")
+        ljinux.api.setvar("output")
 
         term_old = term.trigger_dict
         term.trigger_dict = {
@@ -72,14 +71,14 @@ try:
             term.clear()
         del target, pos, lines3, ctl
         del lc, blank, endt, carry
-    ljinux.based.user_vars["return"] = "0"
+    ljinux.api.setvar("return", "0")
     term.trigger_dict = term_old
     del term_old
 
 except OSError:
     ljinux.based.error(4, ljinux.based.user_vars["argj"].split()[1])
-    ljinux.based.user_vars["return"] = "1"
+    ljinux.api.setvar("return", "1")
 
 except IndexError:
     ljinux.based.error(1)
-    ljinux.based.user_vars["return"] = "1"
+    ljinux.api.setvar("return", "1")
