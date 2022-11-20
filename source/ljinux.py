@@ -742,6 +742,7 @@ class ljinux:
             state can be int with one of the predifined states,
             or a tuple like (10, 40, 255) for a custom color
             """
+
             if isinstance(state, int):
                 ## use preconfigured led states
                 if configg["ledtype"] in ["generic", "generic_invert"]:
@@ -755,23 +756,29 @@ class ljinux:
                         )
                 elif configg["ledtype"] == "neopixel":
                     neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
+
+                ljinux.io.getled = state
+                del state
             elif isinstance(state, tuple):
+                # swap r and g
+                swapped_state = (state[1], state[0], state[2])
+                del state
+
                 # a custom color
                 if configg["ledtype"] in ["generic", "generic_invert"]:
-                    if not (state[0] == 0 and state[1] == 0 and state[2] == 0):
-                        # apply 1 if any of tuple >0
-                        ljinux.io.led.value = (
-                            True if configg["ledtype"] == "generic" else False
-                        )
-                    else:
-                        ljinux.io.led.value = (
-                            False if configg["ledtype"] == "generic" else True
-                        )
+                    inv = True if configg["ledtype"] == "generic" else False
+                    if sum(swapped_state) is 0:
+                        inv = not inv
+                    ljinux.io.led.value = inv
+                    del inv
                 elif configg["ledtype"] == "neopixel":
-                    neopixel_write(ljinux.io.led, bytearray(state))
+                    neopixel_write(ljinux.io.led, bytearray(swapped_state))
+
+                ljinux.io.getled = swapped_state
+                del swapped_state
             else:
+                del state
                 raise TypeError
-            ljinux.io.getled = state
 
         def get_static_file(filename, m="rb"):
             "Static file generator"
