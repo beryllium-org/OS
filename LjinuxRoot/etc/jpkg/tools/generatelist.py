@@ -50,5 +50,5 @@ for package in listing:
     del prc, package
 
 stdout.write(("\010 \010" * cc) + "100%\n")
-ljinux.api.var("return", [installed, dependencies, conflicts])
+ljinux.api.setvar("return", [installed, dependencies, conflicts])
 del cc, pkl, pkc, listing, installed, dependencies, conflicts

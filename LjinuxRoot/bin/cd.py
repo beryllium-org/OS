@@ -11,9 +11,7 @@ try:
     del dirr
 except OSError:
     print(
-        "Error: '{}' Directory does not exist".format(
-            ljinux.api.getvar("argj").split()[1]
-        )
+        "Error: '" + ljinux.api.getvar("argj").split()[1] + "' Directory does not exist"
     )
 except IndexError:
     pass
