@@ -25,7 +25,6 @@ try:
     devf = not devf
 except OSError:
     pass
-
 print("J", end="")
 lj_mount = getmount("/")
 print("I", end="")
@@ -35,7 +34,6 @@ if lj_mount.label != desired_label:
     lj_mount.label = desired_label
     remount("/", readonly=True)
 del desired_label, lj_mount
-
 print("N", end="")
 if not devf:
     try:
