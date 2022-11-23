@@ -16,10 +16,6 @@ def human_readable(whatever):
     elif whatever < 1073741824:  # gb
         return f"{int(whatever/1048576)}M"
     else:
-        """
-        we really do not have to check for terabytes
-        on a microcontroller, RIGHT?
-        """
         return f"{int(whatever/1073741824)}G"
 
 
@@ -28,22 +24,53 @@ if dfd:
     free = dfr[1] * dfr[3]
     total = dfr[1] * dfr[2]
     used = total - free
-    perc = str(int(used * 100 / total))
 
-    # do -h
-    # yes it has to be done now, so that they are most accurate
-    print("Filesystem      Size  Used Avail Use% Mounted on")
-    print(
-        "/LjinuxRoot     "
-        + (human_readable(total) if "h" in opts["o"] else str(total)),
-        human_readable(used) if "h" in opts["o"] else str(used),
-        human_readable(free) if "h" in opts["o"] else str(free),
-        perc + "% /",
-        sep="  ",
+    bs = 2
+    bs_sps = " " * bs
+
+    vfree = (human_readable(free) if "h" in opts["o"] else str(free)) + bs_sps
+    vtotal = (human_readable(total) if "h" in opts["o"] else str(total)) + bs_sps
+    vused = (human_readable(used) if "h" in opts["o"] else str(used)) + bs_sps
+    vperc = str(int(used * 100 / total)) + "%"
+
+    tl = len(vtotal[:-bs])
+    ul = len(vused[:-bs])
+    fl = len(vfree[:-bs])
+    pl = len(vperc[:-bs])
+
+    sps = [bs_sps] * 4
+    del bs_sps
+
+    if tl < 4:
+        vtotal += " " * (4 - tl)
+    else:
+        sps[0] += (tl - 4) * " "
+    del tl
+
+    if ul < 4:
+        vused += " " * (4 - ul)
+    else:
+        sps[1] += (ul - 4) * " "
+    del ul
+
+    if fl < 5:
+        vfree += " " * (5 - fl)
+    else:
+        sps[2] += (fl - 5) * " "
+    del fl
+
+    if pl < 4:
+        vperc += " " * (4 - pl)
+    else:
+        sps[3] += (pl - 4) * " "
+    del pl, free, total, used, bs
+
+    term.write(
+        f"Filesystem      Size{sps[0]}Used{sps[1]}Avail{sps[2]}Use%{sps[3]}Mounted on\n"
+        + f"/LjinuxRoot     {vtotal}{vused}{vfree}{vperc}/"
     )
 
-    del free, total, used, perc
-
+    del vfree, vtotal, vused, vperc, sps
 else:
     print("Not implemented")
 

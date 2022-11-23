@@ -1,5 +1,5 @@
-opts = ljinux.api.xarg(ljinux.based.user_vars["argj"])
-ljinux.based.user_vars["return"] = ""
+opts = ljinux.api.xarg()
+ljinux.api.setvar("return", "")
 
 li = opts["hw"] + opts["w"]
 for i in li:
@@ -7,7 +7,7 @@ for i in li:
     del i
 del li
 
-ljinux.based.user_vars["return"] = ljinux.based.user_vars["return"][:-1]
+ljinux.api.setvar("return", ljinux.based.user_vars["return"][:-1])
 
 if "n" not in opts["o"]:
     ljinux.based.user_vars["return"] += "\n"
@@ -15,4 +15,4 @@ if "n" not in opts["o"]:
 del opts
 
 if not ljinux.based.silent:
-    stdout.write(ljinux.based.user_vars["return"])
+    term.write(ljinux.based.user_vars["return"])
