@@ -39,11 +39,9 @@ print(f"Using board path: {picop}")
 print(f"Building for board: {board}\n")
 
 if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
-    print("Created lib directory.")
     mkdir(f"{picop}/lib".replace("/", slash))
 
 if system(f"test -d {picop}/lib/drivers".replace("/", slash)) != 0:
-    print("Created lib/drivers directory.")
     mkdir(f"{picop}/lib/drivers".replace("/", slash))
 
 print("[1/5] Compiling Adafruit ntp")
@@ -75,7 +73,6 @@ if a != 0:
 
 print("[4/5] Compiling Adafruit CircuitPython Wiznet5k")
 if system(f"test -d {picop}/lib/adafruit_wiznet5k".replace("/", slash)) != 0:
-    print("Created adafruit_wiznet5k directory.")
     mkdir(f"{picop}/lib/adafruit_wiznet5k".replace("/", slash))
 for filee in listdir(
     "../other/Adafruit_CircuitPython_Wiznet5k/adafruit_wiznet5k/".replace("/", slash)

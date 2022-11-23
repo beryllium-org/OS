@@ -1,4 +1,4 @@
-from os import system, mkdir
+from os import system, mkdir, listdir
 from platform import uname
 from detect_board import detect_board
 from sys import argv
@@ -63,11 +63,18 @@ if a != 0:
     errexit()
 
 print("[3/4] Compiling adafruit HTTPServer")
-a = system(
-    f"{mpyn} ../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver.py -s adafruit_httpserver -v {optimis} -o {picop}/lib/adafruit_httpserver.mpy".replace(
+if system(f"test -d {picop}/lib/adafruit_httpserver".replace("/", slash)) != 0:
+    mkdir(f"{picop}/lib/adafruit_httpserver".replace("/", slash))
+for filee in listdir(
+    "../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver/".replace(
         "/", slash
     )
-)
+):
+    a = system(
+        f"{mpyn} ../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver/{filee} -s adafruit_httpserver_{filee[:-3]} -v {optimis} -o {picop}/lib/adafruit_httpserver/{filee[:-3]}.mpy".replace(
+            "/", slash
+        )
+    )
 if a != 0:
     errexit()
 
