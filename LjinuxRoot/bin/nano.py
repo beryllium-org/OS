@@ -7,10 +7,10 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.7"
+    versionn = "1.7.2"
 
     try:
-        filee = ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1])
+        filee = ljinux.based.user_vars["argj"].split()[1]
     except IndexError:
         pass
 
@@ -25,7 +25,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     dataa = [""]
     lc = 0  # line count
     if exists is 0:  # is file
-        with open(filee, "r") as f:
+        with open(ljinux.api.betterpath(filee), "r") as f:
             ll = f.readlines()
             ljinux.api.setvar("input", list())
             for i in range(0, len(ll)):
@@ -286,14 +286,14 @@ if sizee[0] > 14 and sizee[1] > 105:
                 elif savee == 2:
                     try:
                         cc = True
-                        cl = lc - 1
+                        cl1 = lc - 1
                         while cc:
-                            if dataa[cl].isspace() or dataa[cl] == "":
+                            if dataa[cl1].isspace() or dataa[cl1] == "":
                                 dataa.pop()
-                                cl -= 1
+                                cl1 -= 1
                             else:
                                 cc = False
-                        del cc
+                        del cc, cl1
                         if not sdcard_fs:
                             remount("/", False)
                         with open(ljinux.api.betterpath(term.buf[1]), "w") as f:
