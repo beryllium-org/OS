@@ -1014,14 +1014,18 @@ class ljinux:
                     f"LNL {colors.magenta_t}based{colors.endc}\nThese shell commands are defined internally or are in PATH.\nType 'help' to see this list.\n{colors.green_t}"
                 )
 
-                l = ljinux.based.get_bins() + list(ljinux.based.intfdict.keys())
-
+                lt = set(ljinux.based.get_bins() + ljinux.based.get_internal())
+                l = list()
                 lenn = 0
-                for i in l:
-                    if len(i) > lenn:
-                        lenn = len(i)
+                for i in lt:
+                    if not i.startswith("_"):
+                        l.append(i)
+                        if len(i) > lenn:
+                            lenn = len(i)
                     del i
+                del lt
                 lenn += 2
+                l.sort()
 
                 for index, tool in enumerate(l):
                     print(tool, end=(" " * lenn).replace(" ", "", len(tool)))

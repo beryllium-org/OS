@@ -123,7 +123,6 @@ if argl is 0:
                         if data[3] in networks:
                             res = 1
                             if networks[data[3]][0] != "OPEN":
-
                                 ljinux.io.ledset(1)
                                 passwd = None
                                 try:

@@ -1,1 +1,1 @@
-echo HOSTNAME
+fpexec /bin/hostname.py

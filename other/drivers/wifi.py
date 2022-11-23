@@ -45,6 +45,11 @@ class driver_wifi:
         del ssid, passwd
         return 0
 
+    def hostname(self, name=None):
+        if name is not None:
+            wifi.radio.hostname = name
+        return wifi.radio.hostname
+
     def ping(self, host):
         """
         ICMP Ping
