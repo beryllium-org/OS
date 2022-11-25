@@ -1,0 +1,18 @@
+{
+  "_comment1": "WeMos Lolin S2 Mini configuration",
+  
+  "_comment3": "Board led, can be generic or neopixel",
+  "led": -1,
+  "ledtype": "generic",
+  
+  "_comment9": "SD card",
+  
+  "sd_SCLK": -1,
+  "sd_SCSn": -1,
+  "sd_MISO": -1,
+  "sd_MOSI": -1,
+
+  "_comment10": "Debugging & extreme options",
+  "SKIPCP": false,
+  "DEBUG": false
+}
