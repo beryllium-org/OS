@@ -1,12 +1,13 @@
 # -----------------
 #      Ljinux
 # Coded on a Raspberry Pi 400
-# Ma'am I swear we are alright in the head
+# "It's all bloat" - Mariospapaz 2022
 # -----------------
 
 Version = "0.3.6-dev"
-Circuitpython_supported = [(7, 3), (8, 0)]  # don't bother with last digit
+Circuitpython_supported = [(7, 3), (8, 0)]
 dmesg = []
+ndmesg = False  # disable dmesg for ram
 access_log = []
 
 # Core board libs
@@ -90,16 +91,18 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
     if the oend of the last print is a newline we add a new entry
     otherwise we go to the last one and we add it along with the old oend
     """
-    if "\n" == oend:
-        dmesg.append(strr)
-    elif (len(oend.replace("\n", "")) > 0) and (
-        "\n" in oend
-    ):  # there is hanging text in old oend
-        dmesg[-1] += oend.replace("\n", "")
-        dmesg.append(strr)
-    else:
-        dmesg[-1] += oend + strr
-    oend = end  # oend for next
+
+    if not ndmesg:
+        if "\n" == oend:
+            dmesg.append(strr)
+        elif (len(oend.replace("\n", "")) > 0) and (
+            "\n" in oend
+        ):  # there is hanging text in old oend
+            dmesg[-1] += oend.replace("\n", "")
+            dmesg.append(strr)
+        else:
+            dmesg[-1] += oend + strr
+        oend = end  # oend for next
 
     del ct, strr
 
