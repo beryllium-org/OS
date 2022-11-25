@@ -1,5 +1,5 @@
 {
-  "_comment1": "adafruit_feather_esp32s2 confguration",
+  "_comment1": "adafruit_feather_esp32s2 configuration",
   
   "_comment3": "Board led, can be generic or neopixel",
   "led": 33,
