@@ -1163,7 +1163,7 @@ class ljinux:
             def unset(inpt):  # del variables
                 inpt = inpt.split(" ")
                 try:
-                    a = inpt[1]
+                    a = inpt[0]
                     if a == ljinux.api.adv_input(a, str) and a not in gpio_alloc:
                         ljinux.based.error(2)
                     else:
@@ -1239,9 +1239,9 @@ class ljinux:
             def history(inpt):  # history frontend
                 inpt = inpt.split(" ")
                 try:
-                    if inpt[1] == "clear":
+                    if inpt[0] == "clear":
                         ljinux.history.clear(ljinux.based.user_vars["history-file"])
-                    elif inpt[1] == "load":
+                    elif inpt[0] == "load":
                         ljinux.history.load(ljinux.based.user_vars["history-file"])
                         try:
                             ljinux.history.sz = int(
@@ -1249,7 +1249,7 @@ class ljinux:
                             )
                         except:
                             pass
-                    elif inpt[1] == "save":
+                    elif inpt[0] == "save":
                         ljinux.history.save(ljinux.based.user_vars["history-file"])
                     else:
                         print(f"{colors.magenta_t}Based{colors.endc}: Invalid option")
