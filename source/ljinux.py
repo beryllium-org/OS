@@ -1238,23 +1238,18 @@ class ljinux:
 
             def history(inpt):  # history frontend
                 inpt = inpt.split(" ")
-                try:
-                    if inpt[0] == "clear":
-                        ljinux.history.clear(ljinux.based.user_vars["history-file"])
-                    elif inpt[0] == "load":
-                        ljinux.history.load(ljinux.based.user_vars["history-file"])
-                        try:
-                            ljinux.history.sz = int(
-                                ljinux.based.user_vars["history-size"]
-                            )
-                        except:
-                            pass
-                    elif inpt[0] == "save":
-                        ljinux.history.save(ljinux.based.user_vars["history-file"])
-                    else:
-                        print(f"{colors.magenta_t}Based{colors.endc}: Invalid option")
-                except IndexError:
+                if inpt[0] == "":
                     ljinux.history.getall()
+                elif inpt[0] == "clear":
+                    ljinux.history.clear(ljinux.based.user_vars["history-file"])
+                elif inpt[0] == "load":
+                    ljinux.history.load(ljinux.based.user_vars["history-file"])
+                    if "history-size" in ljinux.based.user_vars:
+                        ljinux.history.sz = int(ljinux.based.user_vars["history-size"])
+                elif inpt[0] == "save":
+                    ljinux.history.save(ljinux.based.user_vars["history-file"])
+                else:
+                    print(f"{colors.magenta_t}Based{colors.endc}: Invalid option")
 
             def pexec(inpt):  # Python exec
                 gc.collect()
@@ -1658,7 +1653,7 @@ class ljinux:
                         ljinux.io.ledset(3)  # act
                     if not (
                         command_input == ""
-                        or command_input[:1].isspace()
+                        or command_input.isspace()
                         or command_input.startswith("#")
                     ):
                         # Save to history

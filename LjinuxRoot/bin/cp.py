@@ -45,17 +45,17 @@ try:
 
     if not sdcard_fs:
         remount("/", True)
-    ljinux.based.user_vars["return"] = "0"
+    ljinux.api.setvar("return", "0")
 
 except IndexError:
     ljinux.based.error(1)
-    ljinux.based.user_vars["return"] = "1"
+    ljinux.api.setvar("return", "1")
     if not sdcard_fs:
         remount("/", True)
 
 except RuntimeError:
     ljinux.based.error(7)
-    ljinux.based.user_vars["return"] = "1"
+    ljinux.api.setvar("return", "1")
 
 except OSError:
     ljinux.based.error(4, f=ljinux.based.user_vars["argj"].split()[1])
