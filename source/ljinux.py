@@ -51,8 +51,8 @@ dmesg.append("[    0.00000] Timing libraries done")
 uptimee = (
     -time.monotonic()
 )  # using uptimee as an offset, this way uptime + time.monotonic = 0 at this very moment and it goes + from here on out
-print("[    0.00000] Got time zero")
-dmesg.append("[    0.00000] Got time zero")
+print("[    0.00000] Timings reset")
+dmesg.append("[    0.00000] Timings reset")
 
 # dmtex previous end holder
 oend = "\n"  # needed to mask print
@@ -107,24 +107,18 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
     del ct, strr
 
 
-print("[    0.00000] Timings reset")
-dmesg.append("[    0.00000] Timings reset")
-
 # From now on use dmtex
-dmtex("Basic Libraries loading")
-
-# Basic absolutely needed libs
-from sys import (
-    implementation,
-    platform,  # needed for neofetch btw
-    modules,
-    exit,
-    stdout,
-)
-
-dmtex("System libraries loaded")
+dmtex("Dmesg ready")
 
 try:
+    from sys import (
+        implementation,
+        platform,
+        modules,
+        exit,
+        stdout,
+    )
+
     import busio
 
     from microcontroller import cpu
@@ -140,9 +134,9 @@ try:
     from traceback import print_exception
     from math import trunc
 
-    dmtex("Basic libraries loaded")
+    dmtex("System libraries loaded")
 except ImportError:
-    dmtex("FATAL: BASIC LIBRARIES LOAD FAILED")
+    dmtex("FATAL: SYSTEM LIBRARIES LOAD FAILED")
     exit(0)
 
 try:
