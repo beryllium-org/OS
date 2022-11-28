@@ -75,13 +75,7 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
     ct = "%.5f" % (uptimee + time.monotonic())
 
     # used to disable the time print
-    strr = (
-        "[{u}{upt}] {tx}".format(
-            u="           ".replace(" ", "", len(ct)), upt=str(ct), tx=texx
-        )
-        if timing
-        else texx
-    )
+    strr = "[{}{}] {}".format((11 - len(ct)) * " ", str(ct), texx) if timing else texx
 
     if (not term.dmtex_suppress) or force:
         print(strr, end=end)  # using the provided end
