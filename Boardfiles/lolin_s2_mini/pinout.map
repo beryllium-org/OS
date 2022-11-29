@@ -14,10 +14,10 @@
                    `-------'-----'-------'
 
 
-WeMos Lolin S2 Mini (No PSRAM)
+WeMos Lolin S2 Mini
 
 SoC                : ESP32-S2
-RAM                : 320KB
+RAM                : 2368KB
 Storage            : SOC (4MB)
 USB ports          : 1 (of which 0 USB3)
 Wi-fi              : True
