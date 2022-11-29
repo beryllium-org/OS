@@ -51,10 +51,10 @@ rootfs:
 	@sync
 	@python3 ../scripts/copy_rootfs.py
 prepperms:
-	@echo -e "Preparing script permissions..\n"
+	@echo -n "Preparing script permissions.."
 	@chmod +x ../scripts/*.sh
 	@chmod +x ../scripts/mpy*
-	@echo "OK"
+	@echo " OK"
 comp:
 	@echo -e "\nCommencing kernel compilation.."
 	@sync
