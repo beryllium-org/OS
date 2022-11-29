@@ -494,9 +494,14 @@ class ljinux:
                 return self.file
 
             def __exit__(self, typee, value, traceback):
-                self.file.flush()
-                self.file.close()
-                del self.file, self.fn, self.mod
+                try:
+                    self.file.flush()
+                    self.file.close()
+
+                    del self.file
+                except AttributeError:
+                    pass
+                del self.fn, self.mod
 
         def isdir(dirr, rdir=None):
             """
@@ -505,7 +510,7 @@ class ljinux:
             """
             dirr = ljinux.api.betterpath(dirr)
             rdir = ljinux.api.betterpath(rdir)
-            cddd = getcwd() if rdir is not None else rdir
+            cddd = getcwd() if rdir is None else rdir
 
             res = 2
 
