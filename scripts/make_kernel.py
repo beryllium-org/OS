@@ -30,7 +30,7 @@ else:
 
 [boardpath, board, version] = circuitmpy.detect_board()
 
-if board == "":
+if boardpath == None:
     print(
         "Error: Board not found.\nMake sure it is attached and mounted before you run make"
     )
@@ -49,7 +49,9 @@ for filee in listdir():
     if filee.endswith(".py"):
         try:
             circuitmpy.compile_mpy(
-                f"./{filee}", f"{boardpath}/lib/{filee[:-3]}.mpy", optim=optimis
+                f"./{filee}".replace("/", slash),
+                f"{boardpath}/lib/{filee[:-3]}.mpy".replace("/", slash),
+                optim=optimis,
             )
         except OSError:
             errexit()
@@ -59,7 +61,9 @@ for filee in listdir("jcurses"):
     if filee.endswith(".py"):
         try:
             circuitmpy.compile_mpy(
-                f"./jcurses/{filee}", f"{boardpath}/lib/{filee[:-3]}.mpy", optim=optimis
+                f"./jcurses/{filee}".replace("/", slash),
+                f"{boardpath}/lib/{filee[:-3]}.mpy".replace("/", slash),
+                optim=optimis,
             )
         except OSError:
             errexit()

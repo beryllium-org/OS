@@ -1,4 +1,4 @@
-# Ljinux 
+# Ljinux
 A "linux" written in python, for CircuitPython powered microcontrollers.  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a><br />
 ![neofetch](https://github.com/bill88t/ljinux/blob/main/other/screenshots/cneofetch.png)<br />
 <b>Important notes:</b><br />
@@ -52,8 +52,7 @@ Note: Installation from windows is unsupported.<br />
 3) *(Optional)* Copy over the packages you wish to install with jpkg, or install drivers with make.<br />
     More info regarding packages in [Packages](#packages)
 4) Eject & powercycle the board<br />
-    When it's plugged back in, you can connect to it via serial. (You can use putty on windows, or gnu/screen on gnu/linux)<br />
-    An automated connection script exists in the form of <code>make connection</code><br />
+    When it's plugged back in, you can connect to it via serial. (You can use putty on Windows, or Tio on Linux or MacOS)<br />
 <b>IMPORTANT NOTE: To make the board appear as a usb device on the host, run the ljinux command </b><code>devmode</code><br />
 
 ## Packages
@@ -70,16 +69,17 @@ RubberDucky script support: https://github.com/bill88t/ljinux-ducky <br />
 Hashutils, md5 / sha commands: https://github.com/bill88t/ljinux-hashutils <br />
 
 ## Connection
-For an automated way on Linux/MacOS, run <code>make connection</code>. Manual way below.<br /><br />
 
-To connect to the board it's recommended to use Putty for Windows and GNU/Screen for Linux/MacOS.<br />
-For Putty, select connection type to be Serial, select the port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the board and set the speed/baudrate to 115200. (You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br /><br />
+To connect to the board it's recommended to use Putty for Windows and Tio for Linux/MacOS.<br /><br />
 
-For GNU/Screen, if you are on linux, you need to be in the <code>dialout</code> user group and to connect, run: <code>screen /dev/ttyACM0 115200</code><br />If you are on a Mac instead, run: <code>ls /dev/tty.usb*</code> to find the device name, and connect to it by running: <code>screen /dev/tty.usb\<Device name here\> 115200</code><br />
-Example: <code>screen /dev/tty.usbmodem12210 115200</code><br /><br />
-To disconnect, press Ctrl + A, K and confirm with y.<br />
-To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dialout \<your username here\></code><br />
- 
+For Putty, select connection type to be Serial, select the port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the board and set the speed/baudrate to 115200.<br />
+(You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br />(The baudrate may differ for your board, do not explicitly stick to 115200)<br /><br />
+
+For Tio, if you are on linux, you need to be in the <code>dialout</code> user group and to connect, run: <code>tio /dev/ttyACM0</code>
+<br />If you are on a Mac instead, run: <code>ls /dev/tty.usb*</code> to find the device name, and connect to it by running: <code>tio /dev/tty.usb\<Device name here\> 115200</code><br />
+To disconnect, press <code>Ctrl</code> + <code>t</code>, <code>q</code>.<br />
+To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dialout \<your username here\></code> and restart.<br />
+
 ## Directory structure
 
 <ul>

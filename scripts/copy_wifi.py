@@ -1,13 +1,17 @@
-from os import system, mkdir, listdir
+from os import system, mkdir, listdir, path
 from platform import uname
-from detect_board import detect_board
 from sys import argv
+from sys import path as spath
 
-optimis = "-O4"
+spath.append("../scripts/CircuitMPY/")
+import circuitmpy
+
+
+optimis = 3
 try:
     if argv[1] == "debug":
         print("Alert: Compiling with debug enabled.")
-        optimis = ""
+        optimis = 0
 except IndexError:
     pass
 
@@ -24,67 +28,72 @@ else:
     slash = "\\"
     copy = "copy"
 
-[picop, board, version] = detect_board()
+[boardpath, board, version] = circuitmpy.detect_board()
 
-if picop == "":
+if boardpath == None:
     print(
         "Error: Board not found.\nMake sure it is attached and mounted before you run make"
     )
     exit(1)
 
-mpyn = f"../scripts/mpy-cross-{uname().machine}-{version[0]}"
-
-print(f"\nUsing mpycross: {mpyn}")
-print(f"Using board path: {picop}")
+print(f"Using board path: {boardpath}")
 print(f"Building for board: {board}\n")
 
-if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
-    mkdir(f"{picop}/lib".replace("/", slash))
-
-if system(f"test -d {picop}/lib/drivers".replace("/", slash)) != 0:
-    mkdir(f"{picop}/lib/drivers".replace("/", slash))
+if not path.exists(f"{boardpath}/lib".replace("/", slash)):
+    mkdir(f"{boardpath}/lib".replace("/", slash))
+if not path.exists(f"{boardpath}/lib/drivers".replace("/", slash)):
+    mkdir(f"{boardpath}/lib/drivers".replace("/", slash))
 
 print("[1/4] Compiling Adafruit ntp")
-a = system(
-    f"{mpyn} ../other/Adafruit_CircuitPython_NTP/adafruit_ntp.py -s adafruit_ntp -v {optimis} -o {picop}/lib/adafruit_ntp.mpy".replace(
-        "/", slash
+try:
+    circuitmpy.compile_mpy(
+        "../other/Adafruit_CircuitPython_NTP/adafruit_ntp.py".replace("/", slash),
+        f"{boardpath}/lib/adafruit_ntp.mpy".replace("/", slash),
+        optim=optimis,
     )
-)
-if a != 0:
+except OSError:
     errexit()
 
 print("[2/4] Compiling adafruit requests")
-a = system(
-    f"{mpyn} ../other/Adafruit_CircuitPython_Requests/adafruit_requests.py -s adafruit_requests -v {optimis} -o {picop}/lib/adafruit_requests.mpy".replace(
-        "/", slash
+try:
+    circuitmpy.compile_mpy(
+        "../other/Adafruit_CircuitPython_Requests/adafruit_requests.py".replace(
+            "/", slash
+        ),
+        f"{boardpath}/lib/adafruit_requests.mpy".replace("/", slash),
+        optim=optimis,
     )
-)
-if a != 0:
+except OSError:
     errexit()
 
 print("[3/4] Compiling adafruit HTTPServer")
-if system(f"test -d {picop}/lib/adafruit_httpserver".replace("/", slash)) != 0:
-    mkdir(f"{picop}/lib/adafruit_httpserver".replace("/", slash))
+if not path.exists(f"{boardpath}/lib/adafruit_httpserver".replace("/", slash)):
+    mkdir(f"{boardpath}/lib/adafruit_httpserver".replace("/", slash))
 for filee in listdir(
     "../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver/".replace(
         "/", slash
     )
 ):
-    a = system(
-        f"{mpyn} ../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver/{filee} -s adafruit_httpserver_{filee[:-3]} -v {optimis} -o {picop}/lib/adafruit_httpserver/{filee[:-3]}.mpy".replace(
-            "/", slash
+    try:
+        circuitmpy.compile_mpy(
+            f"../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver/{filee}".replace(
+                "/", slash
+            ),
+            f"{boardpath}/lib/adafruit_httpserver/{filee[:-3]}.mpy".replace("/", slash),
+            optim=optimis,
         )
-    )
-if a != 0:
-    errexit()
+    except OSError:
+        errexit()
 
 print("[4/4] Compiling wifi drivers")
-a = system(
-    f"{mpyn} ../other/drivers/wifi.py -s driver_wifi -v {optimis} -o {picop}/lib/drivers/driver_wifi.mpy".replace(
-        "/", slash
+try:
+    circuitmpy.compile_mpy(
+        "../other/drivers/wifi.py".replace("/", slash),
+        f"{boardpath}/lib/drivers/driver_wifi.mpy".replace("/", slash),
+        name="driver_wifi",
+        optim=optimis,
     )
-)
-if a != 0:
+except OSError:
     errexit()
 
 system("sync")

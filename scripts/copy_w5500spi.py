@@ -1,21 +1,25 @@
-from os import system, mkdir, listdir
+from os import system, mkdir, listdir, path
 from platform import uname
-from detect_board import detect_board
 from sys import argv
+from sys import path as spath
+
+spath.append("../scripts/CircuitMPY/")
+import circuitmpy
+
+
+optimis = 3
+try:
+    if argv[1] == "debug":
+        print("Alert: Compiling with debug enabled.")
+        optimis = 0
+except IndexError:
+    pass
 
 
 def errexit():
     print("Compilation error, exiting")
     exit(1)
 
-
-optimis = "-O4"
-try:
-    if argv[1] == "debug":
-        print("Alert: Compiling with debug enabled.")
-        optimis = ""
-except IndexError:
-    pass
 
 if uname().system == "Linux":
     slash = "/"
@@ -24,76 +28,90 @@ else:
     slash = "\\"
     copy = "copy"
 
-[picop, board, version] = detect_board()
+[boardpath, board, version] = circuitmpy.detect_board()
 
-if picop == "":
+if boardpath == None:
     print(
         "Error: Board not found.\nMake sure it is attached and mounted before you run make"
     )
     exit(1)
 
-mpyn = f"../scripts/mpy-cross-{uname().machine}-{version[0]}"
-
-print(f"\nUsing mpycross: {mpyn}")
-print(f"Using board path: {picop}")
+print(f"Using board path: {boardpath}")
 print(f"Building for board: {board}\n")
 
-if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
-    mkdir(f"{picop}/lib".replace("/", slash))
-
-if system(f"test -d {picop}/lib/drivers".replace("/", slash)) != 0:
-    mkdir(f"{picop}/lib/drivers".replace("/", slash))
+if not path.exists(f"{boardpath}/lib".replace("/", slash)):
+    mkdir(f"{boardpath}/lib".replace("/", slash))
+if not path.exists(f"{boardpath}/lib/drivers".replace("/", slash)):
+    mkdir(f"{boardpath}/lib/drivers".replace("/", slash))
 
 print("[1/5] Compiling Adafruit ntp")
-a = system(
-    f"{mpyn} ../other/Adafruit_CircuitPython_NTP/adafruit_ntp.py -s adafruit_ntp -v -O4 -o {picop}/lib/adafruit_ntp.mpy".replace(
-        "/", slash
+try:
+    circuitmpy.compile_mpy(
+        "../other/Adafruit_CircuitPython_NTP/adafruit_ntp.py".replace("/", slash),
+        f"{boardpath}/lib/adafruit_ntp.mpy".replace("/", slash),
+        optim=optimis,
     )
-)
-if a != 0:
+except OSError:
     errexit()
 
-print("[2/5] Compiling Adafruit requests")
-a = system(
-    f"{mpyn} ../other/Adafruit_CircuitPython_Requests/adafruit_requests.py -s adafruit_requests -v -O4 -o {picop}/lib/adafruit_requests.mpy".replace(
-        "/", slash
+print("[2/5] Compiling adafruit requests")
+try:
+    circuitmpy.compile_mpy(
+        "../other/Adafruit_CircuitPython_Requests/adafruit_requests.py".replace(
+            "/", slash
+        ),
+        f"{boardpath}/lib/adafruit_requests.mpy".replace("/", slash),
+        optim=optimis,
     )
-)
-if a != 0:
+except OSError:
     errexit()
 
-print("[3/5] Compiling Adafruit HTTPServer")
-a = system(
-    f"{mpyn} ../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver.py -s adafruit_httpserver -v -O4 -o {picop}/lib/adafruit_httpserver.mpy".replace(
+print("[3/5] Compiling adafruit HTTPServer")
+if not path.exists(f"{boardpath}/lib/adafruit_httpserver".replace("/", slash)):
+    mkdir(f"{boardpath}/lib/adafruit_httpserver".replace("/", slash))
+for filee in listdir(
+    "../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver/".replace(
         "/", slash
     )
-)
-if a != 0:
-    errexit()
+):
+    try:
+        circuitmpy.compile_mpy(
+            f"../other/Adafruit_CircuitPython_HTTPServer/adafruit_httpserver/{filee}".replace(
+                "/", slash
+            ),
+            f"{boardpath}/lib/adafruit_httpserver/{filee[:-3]}.mpy".replace("/", slash),
+            optim=optimis,
+        )
+    except OSError:
+        errexit()
 
 print("[4/5] Compiling Adafruit CircuitPython Wiznet5k")
-if system(f"test -d {picop}/lib/adafruit_wiznet5k".replace("/", slash)) != 0:
-    mkdir(f"{picop}/lib/adafruit_wiznet5k".replace("/", slash))
+if not path.exists(f"{boardpath}/lib/adafruit_wiznet5k".replace("/", slash)):
+    mkdir(f"{boardpath}/lib/adafruit_wiznet5k".replace("/", slash))
 for filee in listdir(
     "../other/Adafruit_CircuitPython_Wiznet5k/adafruit_wiznet5k/".replace("/", slash)
 ):
     if filee != "adafruit_wiznet5k_wsgiserver.py":
-        a = system(
-            f"{mpyn} ../other/Adafruit_CircuitPython_Wiznet5k/adafruit_wiznet5k/{filee} -s {filee[:-3]} -v {optimis} -o {picop}/lib/adafruit_wiznet5k/{filee[:-3]}.mpy".replace(
-                "/", slash
+        try:
+            circuitmpy.compile_mpy(
+                f"../other/Adafruit_CircuitPython_Wiznet5k/adafruit_wiznet5k/{filee}".replace(
+                    "/", slash
+                ),
+                f"{boardpath}/lib/adafruit_wiznet5k/{filee[:-3]}".replace("/", slash),
+                optim=optimis,
             )
-        )
-        if a != 0:
+        except OSError:
             errexit()
 
 print("[5/5] Compiling w5500 spi drivers")
-a = system(
-    f"{mpyn} ../other/drivers/w5500spi.py -s driver_w5500spi -v {optimis} -o {picop}/lib/drivers/driver_w5500spi.mpy".replace(
-        "/", slash
+try:
+    circuitmpy.compile_mpy(
+        "../other/drivers/w5500spi.py".replace("/", slash),
+        f"{boardpath}/lib/drivers/driver_w5500spi.mpy".replace("/", slash),
+        name="driver_w5500spi",
+        optim=optimis,
     )
-)
-if a != 0:
+except OSError:
     errexit()
 
 system("sync")
-print()
