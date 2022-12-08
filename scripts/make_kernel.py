@@ -44,7 +44,7 @@ if system(f"test -d {boardpath}/lib".replace("/", slash)) != 0:
 if system(f"test -d {boardpath}/lib/drivers".replace("/", slash)) != 0:
     mkdir(f"{boardpath}/lib/drivers".replace("/", slash))
 
-print("[1/5] Compiling source files")
+print("[1/6] Compiling source files")
 for filee in listdir():
     if filee.endswith(".py"):
         try:
@@ -54,7 +54,7 @@ for filee in listdir():
         except OSError:
             errexit()
 
-print("[2/5] Compiling jcurses")
+print("[2/6] Compiling jcurses")
 for filee in listdir("jcurses"):
     if filee.endswith(".py"):
         try:
@@ -64,7 +64,7 @@ for filee in listdir("jcurses"):
         except OSError:
             errexit()
 
-print("[3/5] Copying base files")
+print("[3/6] Copying base files")
 for filee in listdir("../rootfilesystem/".replace("/", slash)):
     system(
         f"cp ../rootfilesystem/{filee} {boardpath}/".replace("/", slash).replace(
@@ -72,7 +72,7 @@ for filee in listdir("../rootfilesystem/".replace("/", slash)):
         )
     )
 
-print("[4/5] Copying board configuration files")
+print("[4/6] Copying board configuration files")
 system(
     f"cp ../Boardfiles/{board}/config.json {boardpath}/".replace("/", slash).replace(
         "cp", copy
@@ -85,10 +85,20 @@ try:
 except OSError:
     errexit()
 
-print("[5/5] Compiling jz")
+print("[5/6] Compiling jz")
 try:
-    circuitmpy.compile_mpy(f"./jz/jz.py", f"{boardpath}/lib/jz.mpy", optim=optimis)
+    circuitmpy.compile_mpy("./jz/jz.py", f"{boardpath}/lib/jz.mpy", optim=optimis)
 except OSError:
     errexit()
+
+print("[6/6] Checking for additional requirements")
+if path.exists(f"../Boardfiles/{board}/needs_fake_cdc".replace("/", slash)):
+    print("This board needs fake-cdc\n\n[1/1] Compiling fake_cdc\n-> usb_cdc")
+    try:
+        circuitmpy.compile_mpy(
+            "../other/fakecdc/usb_cdc.py", f"{boardpath}/lib/usb_cdc.mpy", optim=optimis
+        )
+    except OSError:
+        errexit()
 
 system("sync")

@@ -3,8 +3,8 @@ SHELL = bash
 all: help
 install: kernel rootfs
 
-kernel: prep comp auto_fake_cdc
-kernel_debug: prep debug_comp auto_fake_cdc
+kernel: prep comp
+kernel_debug: prep debug_comp
 
 wifi: prep driver_wifi
 wifi_debug: prep driver_wifi_debug
@@ -16,8 +16,6 @@ prep: modules prepperms
 
 help:
 	@cat ../other/makefile_help.txt
-auto_fake_cdc:
-	@python3 ../scripts/auto_fake-cdc.py
 driver_wifi:
 	@echo -e "\nInstalling wifi driver"
 	@python3 ../scripts/copy_wifi.py
@@ -53,7 +51,6 @@ rootfs:
 prepperms:
 	@echo -n "Preparing script permissions.."
 	@chmod +x ../scripts/*.sh
-	@chmod +x ../scripts/mpy*
 	@echo " OK"
 comp:
 	@echo -e "\nCommencing kernel compilation.."
