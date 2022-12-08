@@ -1,7 +1,10 @@
-from os import system, mkdir, listdir, path, popen
+from os import system, mkdir, listdir, path, popen, getcwd
 from platform import uname
 from getpass import getuser
 from sys import argv
+from sys import path as spath
+
+spath.append("../scripts/CircuitMPY/")
 import circuitmpy
 
 
@@ -25,7 +28,7 @@ else:
     slash = "\\"
     copy = "copy"
 
-[boardpath, board, version] = detect_board()
+[boardpath, board, version] = circuitmpy.detect_board()
 
 if board == "":
     print(

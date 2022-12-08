@@ -1,3 +1,4 @@
+source/mpy-cross-*
 source/target
 *.pyc
 *.xml
