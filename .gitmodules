@@ -16,3 +16,6 @@
 [submodule "other/Adafruit_CircuitPython_Wiznet5k"]
 	path = other/Adafruit_CircuitPython_Wiznet5k
 	url = https://github.com/adafruit/Adafruit_CircuitPython_Wiznet5k
+[submodule "scripts/CircuitMPY"]
+	path = scripts/CircuitMPY
+	url = https://github.com/bill88t/CircuitMPY

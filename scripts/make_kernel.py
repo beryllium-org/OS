@@ -2,7 +2,7 @@ from os import system, mkdir, listdir, path, popen
 from platform import uname
 from getpass import getuser
 from sys import argv
-from detect_board import detect_board
+import circuitmpy
 
 
 def errexit():
@@ -10,11 +10,11 @@ def errexit():
     exit(1)
 
 
-optimis = "-O4"
+optimis = 3
 try:
     if argv[1] == "debug":
         print("Alert: Compiling with debug enabled.")
-        optimis = ""
+        optimis = 0
 except IndexError:
     pass
 
@@ -25,9 +25,7 @@ else:
     slash = "\\"
     copy = "copy"
 
-[picop, board, version] = detect_board()
-
-mpyn = f"../scripts/mpy-cross-{uname().machine}-{version[0]}"
+[boardpath, board, version] = detect_board()
 
 if board == "":
     print(
@@ -35,62 +33,59 @@ if board == "":
     )
     exit(1)
 
-print(f"\nUsing mpycross: {mpyn}")
-print(f"Using board path: {picop}")
+print(f"Using board path: {boardpath}")
 print(f"Building for board: {board}\n")
 
-if system(f"test -d {picop}/lib".replace("/", slash)) != 0:
-    mkdir(f"{picop}/lib".replace("/", slash))
-if system(f"test -d {picop}/lib/drivers".replace("/", slash)) != 0:
-    mkdir(f"{picop}/lib/drivers".replace("/", slash))
+if system(f"test -d {boardpath}/lib".replace("/", slash)) != 0:
+    mkdir(f"{boardpath}/lib".replace("/", slash))
+if system(f"test -d {boardpath}/lib/drivers".replace("/", slash)) != 0:
+    mkdir(f"{boardpath}/lib/drivers".replace("/", slash))
 
 print("[1/5] Compiling source files")
 for filee in listdir():
     if filee.endswith(".py"):
-        a = system(
-            f"{mpyn} ./{filee} -s {filee[:-3]} -v {optimis} -o {picop}/lib/{filee[:-3]}.mpy".replace(
-                "/", slash
+        try:
+            circuitmpy.compile_mpy(
+                f"./{filee}", f"{boardpath}/lib/{filee[:-3]}.mpy", optim=optimis
             )
-        )
-        if a != 0:
+        except OSError:
             errexit()
 
 print("[2/5] Compiling jcurses")
 for filee in listdir("jcurses"):
     if filee.endswith(".py"):
-        a = system(
-            f"{mpyn} ./jcurses/{filee} -s {filee[:-3]} -v {optimis} -o {picop}/lib/{filee[:-3]}.mpy".replace(
-                "/", slash
+        try:
+            circuitmpy.compile_mpy(
+                f"./jcurses/{filee}", f"{boardpath}/lib/{filee[:-3]}.mpy", optim=optimis
             )
-        )
-        if a != 0:
+        except OSError:
             errexit()
 
 print("[3/5] Copying base files")
 for filee in listdir("../rootfilesystem/".replace("/", slash)):
     system(
-        f"cp ../rootfilesystem/{filee} {picop}/".replace("/", slash).replace("cp", copy)
+        f"cp ../rootfilesystem/{filee} {boardpath}/".replace("/", slash).replace(
+            "cp", copy
+        )
     )
 
 print("[4/5] Copying board configuration files")
 system(
-    f"cp ../Boardfiles/{board}/config.json {picop}/".replace("/", slash).replace(
+    f"cp ../Boardfiles/{board}/config.json {boardpath}/".replace("/", slash).replace(
         "cp", copy
     )
 )
-a = system(
-    f"{mpyn} ../Boardfiles/{board}/pintab.py -s pintab -v -O4 -o {picop}/lib/pintab.mpy".replace(
-        "/", slash
+try:
+    circuitmpy.compile_mpy(
+        f"../Boardfiles/{board}/pintab.py", f"{boardpath}/lib/pintab.mpy", optim=optimis
     )
-)
-if a != 0:
+except OSError:
     errexit()
 
 print("[5/5] Compiling jz")
-a = system(
-    f"{mpyn} ./jz/jz.py -s jz -v {optimis} -o {picop}/lib/jz.mpy".replace("/", slash)
-)
-if a != 0:
+try:
+    circuitmpy.compile_mpy(f"./jz/jz.py", f"{boardpath}/lib/jz.mpy", optim=optimis)
+except OSError:
     errexit()
 
 system("sync")
