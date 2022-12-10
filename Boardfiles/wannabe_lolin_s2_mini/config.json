@@ -1,18 +1,18 @@
 {
   "_comment1": "WeMos Lolin S2 Mini (no PSram) configuration",
-  
-  "_comment3": "Board led, can be generic or neopixel",
+
+  "_comment2": "Board led, can be 'generic', 'generic_invert' or 'neopixel', set to -1 for board.LED",
   "led": -1,
   "ledtype": "generic",
-  
-  "_comment9": "SD card",
-  
+
+  "_comment3": "SD card pins, set to -1 to disable",
+
   "sd_SCLK": -1,
   "sd_SCSn": -1,
   "sd_MISO": -1,
   "sd_MOSI": -1,
 
-  "_comment10": "Debugging & extreme options",
+  "_comment4": "Developer options",
   "SKIPCP": false,
   "DEBUG": false
 }

@@ -31,6 +31,7 @@ At the moment the supported microcontrollers are:<br />
  - Waveshare ESP32-S2-Pico <br />
  - Adafruit Feather ESP32-S2 <br />
  - Pimoroni Pico Lipo (16mb) <br />
+ - Pimoroni Pico Lipo (4mb) <br />
  - Wemos Lolin S2 Mini <br />
 
 But it can probably run on many more.<br />
