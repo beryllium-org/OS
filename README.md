@@ -25,14 +25,15 @@ Runs on circuitpython 7.3.X or 8.0.X.<br />
 At the moment the supported microcontrollers are:<br />
 
  - Raspberry Pi Pico<br />
- - Raspberry Pi Pico W <br />
- - Waveshare RP2040-Zero <br />
- - Adafruit KB2040 <br />
- - Waveshare ESP32-S2-Pico <br />
- - Adafruit Feather ESP32-S2 <br />
- - Pimoroni Pico Lipo (16mb) <br />
- - Pimoroni Pico Lipo (4mb) <br />
- - Wemos Lolin S2 Mini <br />
+ - Raspberry Pi Pico W<br />
+ - Waveshare RP2040-Zero<br />
+ - Adafruit KB2040<br />
+ - Waveshare ESP32-S2-Pico<br />
+ - Adafruit Feather ESP32-S2<br />
+ - Pimoroni Pico Lipo (16mb)<br />
+ - Pimoroni Pico Lipo (4mb)<br />
+ - Wemos Lolin S2 Mini<br />
+ - Seeed XIAO nRF52840 (Sense)<br />
 
 But it can probably run on many more.<br />
 The only real limiting factor should be ram, as about 100k are needed for the system function.<br />
