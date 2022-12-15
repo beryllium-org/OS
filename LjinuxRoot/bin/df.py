@@ -72,7 +72,7 @@ if dfd:
 
     del vfree, vtotal, vused, vperc, sps
 else:
-    print("Not implemented")
+    term.write("Not implemented")
 
 ljinux.api.setvar("return", "0")
 del dfr, dfl, dfd, human_readable, opts

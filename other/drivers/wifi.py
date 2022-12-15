@@ -26,23 +26,32 @@ class driver_wifi:
         self.interface_type = "wifi"
         self.mode = "station"
 
-    def connect(self, ssid, passwd=None):
+    def connect(self, ssid, passwd=None, retries=3):
         """
         Connect to a wifi access point
         """
-        self.disconnect()
-        try:
-            if passwd is not None:
-                wifi.radio.connect(ssid=ssid, password=passwd)
-            else:
-                wifi.radio.connect(ssid=ssid)
-        except ConnectionError:
-            del ssid, passwd
+
+        if retries < 1:
+            retries = 1
+        fails = 0
+        while fails is not retries:
+            self.disconnect()
+
+            try:
+                if passwd is not None:
+                    wifi.radio.connect(ssid=ssid, password=passwd)
+                else:
+                    wifi.radio.connect(ssid=ssid)
+                break
+            except ConnectionError:
+                fails += 1
+        if fails is retries:
+            self.disconnect()
             return 1
+        del fails, ssid, passwd
         self._pool = SocketPool(wifi.radio)
         self._session = Session(self._pool, create_default_context())
         self.connected = True
-        del ssid, passwd
         return 0
 
     def hostname(self, name=None):
@@ -90,8 +99,12 @@ class driver_wifi:
         if wifi.radio.enabled:
             net = dict()
             for network in wifi.radio.start_scanning_networks():
-                sec = str(network.authmode)
-                sec = sec[sec.rfind(".") + 1 : -1]
+                sec = None
+                if len(network.authmode) is 3:
+                    sec = str(network.authmode[0])
+                    sec = sec[sec.rfind(".") + 1 :]
+                else:
+                    sec = "Unknown"
                 net.update({network.ssid: [sec, network.rssi]})
                 del sec
             wifi.radio.stop_scanning_networks()

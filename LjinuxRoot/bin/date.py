@@ -44,6 +44,6 @@ except IndexError:
     day = daydict[tt.tm_wday]
     del daydict
 
-    print(f"{day} {dat[0]} {dat[1]} {tt.tm_year} {dat[2]}:{dat[3]}:{dat[4]}")
+    term.write(f"{day} {dat[0]} {dat[1]} {tt.tm_year} {dat[2]}:{dat[3]}:{dat[4]}")
     del tt, day, dat
 del args

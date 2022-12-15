@@ -1,8 +1,8 @@
 {
-  "_comment1": "WeMos Lolin S2 Mini configuration",
+  "_comment1": "Seeed nRF52840 Sense configuration",
 
   "led": -1,
-  "ledtype": "generic",
+  "ledtype": "rgb_invert",
 
   "sd_SCLK": -1,
   "sd_SCSn": -1,

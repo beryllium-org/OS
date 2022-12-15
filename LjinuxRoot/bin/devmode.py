@@ -1,14 +1,14 @@
 try:
     with open("/devm", "r"):
         pass
-    print(
+    term.write(
         'Error: file exists\nIf you want to disable developer mode, delete the file "devm" from the board\'s USB filesystem and powercycle it.'
     )
 except OSError:
     opts = ljinux.api.xarg()
     try:
         if "q" not in opts["o"]:  # -q skips message & delay
-            print(
+            term.write(
                 "Enabling ljinux developer mode..\nKeep in mind that the board will restart automatically, after it's enabled."
             )
             time.sleep(5)

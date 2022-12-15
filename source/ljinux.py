@@ -21,6 +21,7 @@ try:
     import digitalio
 except ImportError:
     print("FATAL: Core libraries loading failed")
+
     from sys import exit
 
     exit(1)
@@ -61,6 +62,7 @@ try:
     from jcurses import jcurses
 
     term = jcurses()  # the main curses entity, used primarily for based.shell()
+    term.hold_stdout = True  # set it to buffered by default
     print("[    0.00000] Loaded jcurses")
     dmesg.append("[    0.00000] Loaded jcurses")
 except ImportError:
@@ -78,7 +80,7 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
     strr = "[{}{}] {}".format((11 - len(ct)) * " ", str(ct), texx) if timing else texx
 
     if (not term.dmtex_suppress) or force:
-        print(strr, end=end)  # using the provided end
+        term.write(strr, end=end)  # using the provided end
 
     global oend
     """
@@ -147,7 +149,7 @@ except ImportError:
 try:
     from lj_colours import lJ_Colours as colors
 
-    print(colors.reset_s_format, end="")
+    term.write(colors.reset_s_format, end="")
     dmtex("Loaded lj_colours")
 except ImportError:
     dmtex(f"{colors.error}FATAL:{colors.endc} FAILED TO LOAD LJ_COLOURS")
@@ -262,12 +264,14 @@ if not configg["SKIPCP"]:  # beta testing
             + "-" * 42
         )
         for i in range(10, 0):
-            print(f"WARNING: Unsupported CircuitPython version (Continuing in {i})")
+            term.write(
+                f"WARNING: Unsupported CircuitPython version (Continuing in {i})"
+            )
             time.sleep(1)
             del i
     del good
 else:
-    print("Skipped CircuitPython version checking, happy beta testing!")
+    term.write("Skipped CircuitPython version checking, happy beta testing!")
 
 dmtex((f"Board memory: {usable_ram} bytes"))
 dmtex((f"Memory free: {gc.mem_free()} bytes"))
@@ -348,17 +352,21 @@ class ljinux:
 
         def xarg(rinpt=None, fn=False):
             """
-            Proper argument parsing for ljinux, send your input stream to here and you will receive a dict in return
+            Proper argument parsing for ljinux.
+            Send your input stream to here and you will receive a dict in return
 
-            The return dict contains 3 items:
-                "w" for the words that don't belong to a specific option. Example: "ls /bin", "/bin" is gonna be returned in "w"
-                "hw" for the words, that were hidden due to an option. Example "ls -a /bin", "/bin" is
-                 not gonna be in "w" as it is a part of "o" but will be in "hw".
-                "o" for all the options, with their respective values. Example: "ls -a /bin", {"a": "/bin"} is gonna be in "o"
+            The return dict contains these items:
+                "w" for the words that don't belong to a specific option.
+                    Example: "ls /bin", "/bin" is gonna be returned in "w"
+                "hw" for the words, that were hidden due to an option.
+                    Example "ls -a /bin", "/bin" is not gonna be in "w"
+                    as it is a part of "o" but will be in "hw".
+                "o" for all the options, with their respective values.
+                    Example: "ls -a /bin", {"a": "/bin"} is gonna be in "o"
                 "n" if False is passed to fn, contains the filename
 
-            Variables automatically translated.
-            GPIO excluded.
+            Variables automatically converted to their values.
+            GPIO variables unaffected.
             """
 
             if rinpt is None:
@@ -473,6 +481,13 @@ class ljinux:
             return argd
 
         class fopen(object):
+            """
+            Ljinux standard api file operation function.
+            To be used in the place of "with open()".
+            Example:
+              with ljinux.api.fopen("file path here", "wb", getcwd()):
+            """
+
             def __init__(self, fname, mod="r", ctx=None):
                 self.fn = fname
                 self.mod = mod
@@ -553,7 +568,8 @@ class ljinux:
 
         def betterpath(back=None):
             """
-            Removes /LjinuxRoot from path and puts it back
+            Ljinux standard api path translation.
+            Removes the need to account for /LjinuxRoot
             """
             res = ""
             userr = ljinux.based.system_vars["USER"].lower()
@@ -724,13 +740,33 @@ class ljinux:
         getled = 0
 
         led = digitalio.DigitalInOut(boardLED)
+        ledg = None
+        ledb = None
+
+        defstate = True
+
         led.direction = digitalio.Direction.OUTPUT
+        if configg["ledtype"].startswith("rgb"):
+            ledg = digitalio.DigitalInOut(board.LED_GREEN)
+            ledg.direction = digitalio.Direction.OUTPUT
+            ledb = digitalio.DigitalInOut(board.LED_BLUE)
+            ledb.direction = digitalio.Direction.OUTPUT
+
+        if configg["ledtype"] == "generic_invert":
+            configg["ledtype"] = "generic"
+            defstate = False
+        elif configg["ledtype"] == "rgb_invert":
+            configg["ledtype"] = "rgb"
+            defstate = False
+
         if configg["ledtype"] == "generic":
-            led.value = True
-        elif configg["ledtype"] == "generic_invert":
-            led.value = False
+            led.value = defstate
         elif configg["ledtype"] == "neopixel":
             neopixel_write(led, nc.idle)
+        elif configg["ledtype"] == "rgb":
+            led.value = defstate
+            ledg.value = defstate
+            ledb.value = defstate
 
         def ledset(state):
             """
@@ -741,40 +777,49 @@ class ljinux:
 
             if isinstance(state, int):
                 ## use preconfigured led states
-                if configg["ledtype"] in ["generic", "generic_invert"]:
+                if configg["ledtype"] == "generic":
                     if state in [0, 3, 4, 5]:  # close tha led
-                        ljinux.io.led.value = (
-                            False if configg["ledtype"] == "generic" else True
-                        )
+                        ljinux.io.led.value = not ljinux.io.defstate
                     else:
-                        ljinux.io.led.value = (
-                            True if configg["ledtype"] == "generic" else False
-                        )
+                        ljinux.io.led.value = ljinux.io.defstate
                 elif configg["ledtype"] == "neopixel":
                     neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
+                elif configg["ledtype"] == "rgb":
+                    cl = ljinux.io.ledcases[state]
+                    ljinux.io.led.value, ljinux.io.ledg.value, ljinux.io.ledb.value = (
+                        (cl[1], cl[0], cl[2])
+                        if ljinux.io.defstate
+                        else (not cl[1], not cl[0], not cl[2])
+                    )
+                    del cl
 
                 ljinux.io.getled = state
                 del state
             elif isinstance(state, tuple):
-                # swap r and g
-                swapped_state = (state[1], state[0], state[2])
-                del state
 
                 # a custom color
-                if configg["ledtype"] in ["generic", "generic_invert"]:
-                    inv = True if configg["ledtype"] == "generic" else False
-                    if sum(swapped_state) is 0:
+                if configg["ledtype"] == "generic":
+                    inv = ljinux.io.defstate
+                    if sum(state) is 0:
                         inv = not inv
                     ljinux.io.led.value = inv
                     del inv
                 elif configg["ledtype"] == "neopixel":
+                    swapped_state = (state[1], state[0], state[2])
                     neopixel_write(ljinux.io.led, bytearray(swapped_state))
+                    del swapped_state
+                elif configg["ledtype"] == "rgb":
+                    ljinux.io.led.value, ljinux.io.ledg.value, ljinux.io.ledb.value = (
+                        (state[0], state[1], state[2])
+                        if ljinux.io.defstate
+                        else (not state[0], not state[1], not state[2])
+                    )
 
-                ljinux.io.getled = swapped_state
-                del swapped_state
+                ljinux.io.getled = state
+                del state
             else:
                 del state
-                raise TypeError
+                raise TypeError("Invalid led state value")
 
         def get_static_file(filename, m="rb"):
             "Static file generator"
@@ -904,7 +949,7 @@ class ljinux:
                 14: "Is a file",
                 15: "Is a directory",
             }
-            print(f"{prefix}: {errs[wh]}")
+            term.write(f"{prefix}: {errs[wh]}")
             ljinux.io.ledset(1)
             del errs
 
@@ -916,7 +961,7 @@ class ljinux:
 
             ljinux.based.system_vars["VERSION"] = Version
 
-            print(
+            term.write(
                 "\nWelcome to ljinux wannabe Kernel {}!\n\n".format(
                     ljinux.based.system_vars["VERSION"]
                 ),
@@ -963,12 +1008,16 @@ class ljinux:
             elif ljinux.based.system_vars["INIT"] == "loop":
                 Exit = True
                 Exit_code = 245
-                print(f"{colors.magenta_t}Based{colors.endc}: Complete. Restarting")
+                term.write(
+                    f"{colors.magenta_t}Based{colors.endc}: Complete. Restarting"
+                )
             elif ljinux.based.system_vars["INIT"] == "oneshot":
-                print(f"{colors.magenta_t}Based{colors.endc}: Init complete. Halting")
+                term.write(
+                    f"{colors.magenta_t}Based{colors.endc}: Init complete. Halting"
+                )
                 ljinux.based.run("halt")
             else:
-                print(
+                term.write(
                     f"{colors.magenta_t}Based{colors.endc}: INIT specified incorrectly!"
                 )
                 ljinux.based.run("halt")
@@ -1006,7 +1055,7 @@ class ljinux:
 
             def help(inpt):
                 del inpt
-                print(
+                term.write(
                     f"LNL {colors.magenta_t}based{colors.endc}\nThese shell commands are defined internally or are in PATH.\nType 'help' to see this list.\n{colors.green_t}"
                 )
 
@@ -1024,7 +1073,7 @@ class ljinux:
                 l.sort()
 
                 for index, tool in enumerate(l):
-                    print(tool, end=(" " * lenn).replace(" ", "", len(tool)))
+                    term.write(tool, end=(" " * lenn).replace(" ", "", len(tool)))
                     if index % 4 == 3:
                         stdout.write("\n")  # stdout faster than print cuz no logic
                     del index, tool
@@ -1123,7 +1172,7 @@ class ljinux:
                             if not (ljinux.based.system_vars["SECURITY"] == "on"):
                                 ljinux.based.system_vars[inpt[0]] = new_var
                             else:
-                                print(
+                                term.write(
                                     colors.error
                                     + "Cannot edit system variables, security is enabled."
                                     + colors.endc
@@ -1168,7 +1217,7 @@ class ljinux:
                             if not (ljinux.based.system_vars["SECURITY"] == "on"):
                                 del ljinux.based.system_vars[a]
                             else:
-                                print(
+                                term.write(
                                     colors.error
                                     + "Cannot edit system variables, security is enabled."
                                     + colors.endc
@@ -1197,11 +1246,11 @@ class ljinux:
                     ljinux.io.ledset(2)
                     if passwordarr["root"] == getpass():
                         ljinux.based.system_vars["SECURITY"] = "off"
-                        print("Authentication successful. Security disabled.")
+                        term.write("Authentication successful. Security disabled.")
                     else:
                         ljinux.io.ledset(3)
                         time.sleep(2)
-                        print(
+                        term.write(
                             colors.error + "Authentication unsuccessful." + colors.endc
                         )
 
@@ -1219,9 +1268,9 @@ class ljinux:
 
                     if dfpasswd == getpass():
                         ljinux.based.system_vars["security"] = "off"
-                        print("Authentication successful. Security disabled.")
+                        term.write("Authentication successful. Security disabled.")
                     else:
-                        print(
+                        term.write(
                             colors.error + "Authentication unsuccessful." + colors.endc
                         )
                 try:
@@ -1242,14 +1291,14 @@ class ljinux:
                 elif inpt[0] == "save":
                     ljinux.history.save(ljinux.based.user_vars["history-file"])
                 else:
-                    print(f"{colors.magenta_t}Based{colors.endc}: Invalid option")
+                    term.write(f"{colors.magenta_t}Based{colors.endc}: Invalid option")
 
             def pexec(inpt):  # Python exec
                 gc.collect()
                 try:
                     exec(inpt)  # Vulnerability.exe
                 except Exception as err:
-                    print(
+                    term.write(
                         "Traceback (most recent call last):\n\t"
                         + str(type(err))[8:-2]
                         + ": "
@@ -1287,7 +1336,7 @@ class ljinux:
                         exec(a, locals())
                     del a
                 except Exception as err:
-                    print(
+                    term.write(
                         "Traceback (most recent call last):\n\t"
                         + str(type(err))[8:-2]
                         + ": "
@@ -1330,6 +1379,7 @@ class ljinux:
 
         def run(executable, argv=None):
             # runs any single command
+
             ledmine = False  # ownership of led
             oldled = None
             if not ljinux.based.pled:
@@ -1398,7 +1448,7 @@ class ljinux:
 
                 ljinux.based.command.var(executable + " " + argv)
             else:  # error
-                print(
+                term.write(
                     f"{colors.magenta_t}Based{colors.endc}: '{executable}': command not found"
                 )
                 ljinux.based.user_vars["return"] = "1"

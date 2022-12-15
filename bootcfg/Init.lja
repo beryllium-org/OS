@@ -12,6 +12,10 @@ fpexec /LjinuxRoot/etc/hostname-reload.py
 # wait for connection
 _waitforconnection
 
+# Set buffer to unbuffered and flush current buffer
+pexec term.hold_stdout = False
+pexec term.flush_writes()
+
 fpexec /bin/ljinuxtitle.py
 
 # checks
