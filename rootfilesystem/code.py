@@ -1,6 +1,7 @@
 from sys import exit
 from time import sleep
 from microcontroller import reset, RunMode, on_next_reset
+from supervisor import reload
 from os import chdir, sync
 
 exit_l = {
@@ -9,6 +10,7 @@ exit_l = {
     241: lambda: (on_next_reset(RunMode.UF2), reset()),
     242: lambda: (on_next_reset(RunMode.SAFE_MODE), reset()),
     243: lambda: (on_next_reset(RunMode.BOOTLOADER), reset()),
+    244: lambda: (chdir("/"), reload()),
     245: lambda: reset(),
 }
 

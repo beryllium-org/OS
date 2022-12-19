@@ -1,0 +1,2 @@
+# supervisor.reload() gracefully
+pexec global Exit; Exit = True; global Exit_code; Exit_code = 244

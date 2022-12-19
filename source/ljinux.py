@@ -137,12 +137,6 @@ except ImportError:
 
 try:
     from neopixel_write import neopixel_write
-
-    try:  # we can't fail this part though
-        from neopixel_colors import neopixel_colors as nc
-    except ImportError:
-        dmtex("FATAL: FAILED TO LOAD NEOPIXEL_COLORS")
-        exit(1)
 except ImportError:
     pass  # no big deal, this just isn't a neopixel board
 
@@ -727,14 +721,14 @@ class ljinux:
         # activity led
 
         ledcases = {
-            0: nc.off,
-            1: nc.idle,
-            2: nc.idletype,
-            3: nc.activity,
-            4: nc.waiting,
-            5: nc.error,
-            6: nc.killtheuser,
-            7: nc.waiting2,
+            0: bytearray([0, 0, 0]), # off
+            1: bytearray([3, 0, 0]), # Alternative idle, to indicate input
+            2: bytearray([2, 0, 0]), # Idle
+            3: bytearray([7, 7, 0]), # Activity
+            4: bytearray([0, 0, 5]), # Waiting
+            5: bytearray([0, 50, 0]), # Error
+            6: bytearray([255, 255, 255]), # Your eyes are gone
+            7: bytearray([0, 0, 7]), # Alternative waiting
         }
 
         getled = 0
