@@ -97,7 +97,9 @@ for filee in listdir(
                 f"../other/Adafruit_CircuitPython_Wiznet5k/adafruit_wiznet5k/{filee}".replace(
                     "/", slash
                 ),
-                f"{boardpath}/lib/adafruit_wiznet5k/{filee[:-3]}.mpy".replace("/", slash),
+                f"{boardpath}/lib/adafruit_wiznet5k/{filee[:-3]}.mpy".replace(
+                    "/", slash
+                ),
                 optim=optimis,
             )
         except OSError:

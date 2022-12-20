@@ -721,14 +721,14 @@ class ljinux:
         # activity led
 
         ledcases = {
-            0: bytearray([0, 0, 0]), # off
-            1: bytearray([3, 0, 0]), # Alternative idle, to indicate input
-            2: bytearray([2, 0, 0]), # Idle
-            3: bytearray([7, 7, 0]), # Activity
-            4: bytearray([0, 0, 5]), # Waiting
-            5: bytearray([0, 50, 0]), # Error
-            6: bytearray([255, 255, 255]), # Your eyes are gone
-            7: bytearray([0, 0, 7]), # Alternative waiting
+            0: bytearray([0, 0, 0]),  # off
+            1: bytearray([3, 0, 0]),  # Alternative idle, to indicate input
+            2: bytearray([2, 0, 0]),  # Idle
+            3: bytearray([7, 7, 0]),  # Activity
+            4: bytearray([0, 0, 5]),  # Waiting
+            5: bytearray([0, 50, 0]),  # Error
+            6: bytearray([255, 255, 255]),  # Your eyes are gone
+            7: bytearray([0, 0, 7]),  # Alternative waiting
         }
 
         getled = 0
