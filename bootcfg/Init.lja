@@ -1,26 +1,33 @@
-# stop dmesg from flooding
+# Stop dmesg from flooding
 pexec systemprints(1, "Suppress dmesg flooding")
 pexec term.dmtex_suppress = True
 
-# configure init
-INIT = "normal"
+# Configure init overrides
+# INIT = "normal"
 
 cd /home/board
 USER = "board"
 fpexec /LjinuxRoot/etc/hostname-reload.py
 
-# wait for connection
-_waitforconnection
+# Clear the dmesg log on low-end board
+# _ndmesg
 
 # Set buffer to unbuffered and flush current buffer
 pexec term.hold_stdout = False
 pexec term.flush_writes()
 
-fpexec /bin/ljinuxtitle.py
+# Clear boot buffer
+# clear
 
-# checks
+# Wait for connection
+_waitforconnection
+
+# Checks
 _rebootprompt
 _devmodeprompt
 
-exec .basedrc
+# Setup terminal
+fpexec /bin/ljinuxtitle.py
 SECURITY = "on"
+exec .basedrc
+
