@@ -1,6 +1,6 @@
 # Ljinux
 A "linux" written in python, for CircuitPython powered microcontrollers.  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a><br />
-![neofetch](https://github.com/bill88t/ljinux/blob/main/other/screenshots/gifneofetch.gif)<br />
+![neofetch](https://github.com/bill88t/ljinux/blob/main/other/screenshots/boot.gif)<br />
 <b>Important notes:</b><br />
 This project is still <b>in it's early developement</b>!<br />
 This project is <b>NOT</b> a linux distribution.<br />
