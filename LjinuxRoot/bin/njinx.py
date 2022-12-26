@@ -60,8 +60,11 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
             + '   if "operation" in data:\n'
             + '    njcommand = data["operation"]\n'
             + "    del data\n"
+            + "    term.hold_stdout = True\n"
             + "    ljinux.based.run(njcommand)\n"
             + "    del njcommand\n"
+            + "    term.hold_stdout = False\n"
+            + "    res = term.flush_writes(to_stdout=False)\n"
             + "   else:\n"
             + '    res = "FAIL: \\"operation\\" missing."\n'
             + "    del data\n"
