@@ -1,7 +1,10 @@
 if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
     # init
-    globals()["adafruit_httpserver"] = __import__("adafruit_httpserver")
-    server = adafruit_httpserver.HTTPServer(ljinux.modules["network"]._pool)
+    global HTTPServer, HTTPResponse
+    from adafruit_httpserver.server import HTTPServer
+    from adafruit_httpserver.response import HTTPResponse
+
+    server = HTTPServer(ljinux.modules["network"]._pool)
 
     # fetch data
     ipconf = ljinux.modules["network"].get_ipconf()
@@ -26,7 +29,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
 
             @server.route("/admin")
             def base(request):
-                return adafruit_httpserver.HTTPResponse(
+                return HTTPResponse(
                     filename=ljinux.api.betterpath("/var/www/admin/index.html")
                 )
 
@@ -60,20 +63,25 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
             + '   if "operation" in data:\n'
             + '    njcommand = data["operation"]\n'
             + "    del data\n"
+            + "    term.hold_stdout = True\n"
             + "    ljinux.based.run(njcommand)\n"
             + "    del njcommand\n"
+            + "    term.hold_stdout = False\n"
+            + "    res = term.flush_writes(to_stdout=False)\n"
             + "   else:\n"
             + '    res = "FAIL: \\"operation\\" missing."\n'
             + "    del data\n"
             + " ljinux.io.ledset(1)\n"
-            + " return adafruit_httpserver.HTTPResponse(body=res)"
+            + " if res is None:\n"
+            + "  res = 'None'\n"
+            + " return HTTPResponse(body=res)"
         )
 
         # prepare root routing
         exec(
             '@server.route("/")\n'
             + "def base(request):\n"
-            + '    return adafruit_httpserver.HTTPResponse(filename="'
+            + '    return HTTPResponse(filename="'
             + ljinux.api.betterpath(webconf["path"])
             + '/index.html")'
         )
@@ -85,7 +93,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
 
         server.start(
             host=str(ipconf["ip"]),
-            root=ljinux.api.betterpath(webconf["path"]),
+            root_path=ljinux.api.betterpath(webconf["path"]),
             port=webconf["port"],
         )
         while True:
@@ -102,7 +110,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
     # cleanup
     print("Cleaning up..")
     ljinux.modules["network"].resetsock()
-    del globals()["adafruit_httpserver"], server, ipconf
+    del HTTPServer, HTTPResponse, server, ipconf
 else:
     ljinux.based.error(5)
     ljinux.based.user_vars["return"] = "1"
