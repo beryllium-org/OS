@@ -1,5 +1,6 @@
 if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
     # init
+    global HTTPServer, HTTPResponse
     from adafruit_httpserver.server import HTTPServer
     from adafruit_httpserver.response import HTTPResponse
 
@@ -71,6 +72,8 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
             + '    res = "FAIL: \\"operation\\" missing."\n'
             + "    del data\n"
             + " ljinux.io.ledset(1)\n"
+            + " if res is None:\n"
+            + "  res = 'None'\n"
             + " return HTTPResponse(body=res)"
         )
 
@@ -90,7 +93,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
 
         server.start(
             host=str(ipconf["ip"]),
-            root=ljinux.api.betterpath(webconf["path"]),
+            root_path=ljinux.api.betterpath(webconf["path"]),
             port=webconf["port"],
         )
         while True:
