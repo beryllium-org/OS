@@ -316,6 +316,20 @@ class ljinux:
     modules = dict()
 
     class api:
+        def remove_ansi(text):
+            result = ""
+            i = 0
+            while i < len(text):
+                if text[i : i + 2] == "\033[":  # Skip
+                    while i < len(text) and text[i] != "m":
+                        i += 1
+                    i += 1
+                else:
+                    result += text[i]
+                    i += 1
+            del i, text
+            return result
+
         def getvar(var):
             """
             Get a ljinux user variable without mem leaks
