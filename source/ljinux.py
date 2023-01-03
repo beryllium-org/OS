@@ -1359,12 +1359,16 @@ class ljinux:
             p_to = "|" in inpt
 
             comlist = list()
+            silencelist = list()
             comindex = -1
 
-            if p_and and p_to:
+            if p_and and p_to:  # TODO
+                # silencelist.append(False)
+                # silencelist.append(True)
                 pass
             elif p_and:
                 while "&&" in inpt:
+                    silencelist.append(False)
                     comlist.append(inpt[: inpt.find("&&")])
                     inpt = inpt[inpt.find("&&") + 2 :]
                     comindex += 1
@@ -1372,18 +1376,22 @@ class ljinux:
                         comlist[comindex] = comlist[comindex][:-1]
                     while comlist[comindex].startswith(" "):
                         comlist[comindex] = comlist[comindex][1:]
+
                 while inpt.endswith(" "):
                     inpt = inpt[:-1]
                 while inpt.startswith(" "):
                     inpt = inpt[1:]
+                silencelist.append(False)
                 comlist.append(inpt)
-            elif p_to:
+            elif p_to:  # TODO
+                # silencelist.append(False)
+                # silencelist.append(True)
                 pass
             else:
                 comlist.append(inpt)
 
             del p_and, p_to, comindex, inpt
-            return comlist
+            return comlist, silencelist
 
         def run(executable, argv=None):
             # runs any single command
@@ -1721,17 +1729,20 @@ class ljinux:
                         pass
 
                         # Fetch list of commands
-                        comlist = ljinux.based.parse_pipes(command_input)
-                        comlen = len(comlist)
-                        if comlen > 1:
-                            ljinux.based.silent = True
-                            for com in range(len(comlist) - 1):
-                                ljinux.based.run(comlist[com])
-                                del com
-                            ljinux.based.silent = False
-                        del comlen
-                        ljinux.based.run(comlist[-1])  # -1 works with one item
-                        del comlist  # abandon command_input
+                        comlist, silencelist = ljinux.based.parse_pipes(command_input)
+                        if len(comlist) > 1:
+                            comlist.reverse()
+                            silencelist.reverse()
+                        while len(comlist):
+                            currentcmd = comlist.pop()
+                            silencecmd = silencelist.pop()
+                            if silencecmd:
+                                ljinux.based.silent = True
+                            ljinux.based.run(currentcmd)
+                            if silencecmd:
+                                ljinux.based.silent = False
+                            del currentcmd, silencecmd
+                        del comlist, silencelist  # abandon command_input
 
                         # Write stdout to file, TODO
                         pass
