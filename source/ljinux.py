@@ -1388,6 +1388,7 @@ class ljinux:
                 # silencelist.append(True)
                 pass
             else:
+                silencelist.append(False)
                 comlist.append(inpt)
 
             del p_and, p_to, comindex, inpt
