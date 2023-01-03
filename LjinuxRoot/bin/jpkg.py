@@ -30,12 +30,10 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
         ljinux.based.command.fpexec("/bin/random.py")
         ljinux.based.silent = False
         extpath = "/tmp/" + ljinux.based.user_vars["return"][2:] + fileext[:-4]
-        ljinux.api.setvar("argj", "a " + extpath)
-        ljinux.based.command.fpexec("/bin/mkdir.py")
+        ljinux.based.run("mkdir " + extpath)
 
         print(f"{colors.green_t}JPKG{colors.endc}: Extracting {fileext[:-4]} ...")
-        ljinux.api.setvar("argj", f"a -q -d {fileext} {extpath}")
-        ljinux.based.command.fpexec("/bin/jz.py")
+        ljinux.based.run(f"jz -q -d {fileext} {extpath}")
         if ljinux.based.user_vars["return"] == "0":
             print(f"{colors.green_t}JPKG{colors.endc}: Extracted to " + extpath)
         else:
@@ -56,7 +54,7 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
             print(
                 f'{colors.green_t}JPKG{colors.endc}: Reading properties "{fileext}" ...'
             )
-            chdir("/LjinuxRoot" + fileext)
+            ljinux.based.run("cd " + fileext)
 
             if "Manifest.json" in listdir():
                 manifest = None
@@ -178,7 +176,7 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
     # installation
     if not errored:
         for fileext in fl:
-            chdir("/LjinuxRoot" + fileext)
+            ljinux.based.run("cd " + fileext)
             with open("Manifest.json", "r") as manifest_f:
                 manifest = json.load(manifest_f)  # safe to load now
                 print(
@@ -239,7 +237,7 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
             del fileext
 
     # go back
-    chdir(bckdir)
+    ljinux.based.run("cd " + bckdir)
     del bckdir, updatee
 
     # cleanup (mandatory)
