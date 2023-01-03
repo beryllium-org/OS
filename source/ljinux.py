@@ -532,46 +532,32 @@ class ljinux:
             Returns 2 if it doesn't exist.
             """
             dirr = ljinux.api.betterpath(dirr)
-            rdir = ljinux.api.betterpath(rdir)
-            cddd = getcwd() if rdir is None else rdir
+            bckdir = getcwd()
+            cddd = bckdir if rdir is None else ljinux.api.betterpath(rdir)
 
             res = 2
 
+            chdir(cddd)
             try:
                 chdir(dirr)
-                chdir(cddd)
+                chdir(bckdir)
                 res = 1
-            except OSError:
-                rr = "/"
-                try:
-                    # browsing deep
-                    if dirr.count(rr) not in [0, 1] and dirr[
-                        dirr.rfind(rr) + 1 :
-                    ] in listdir(dirr[: dirr.rfind(rr)]):
-                        res = 0
-                    elif dirr.count(rr) is 1 and dirr.startswith(rr):
-                        # browsing root
-                        if dirr[1:] in listdir(rr):
-                            res = 0
-                    else:
-                        # browsing dum
-                        if dirr[dirr.rfind(rr) + 1 :] in listdir(
-                            dirr[: dirr.rfind(rr)]
-                        ):
-                            res = 0
-                        else:
-                            raise OSError
-
-                except OSError:
+            except OSError:  # we are still in cddd
+                ds = ("/", "&")
+                if dirr in ds:
+                    res = 1
+                elif dirr[0] in ds:
                     try:
-                        if dirr in (
-                            listdir(cddd) + (listdir(rdir) if rdir is not None else [])
+                        if dirr[dirr.rfind("/") + 1 :] in listdir(
+                            dirr[: dirr.rfind("/")]
                         ):
                             res = 0
                     except OSError:
-                        res = 2  # we have had enough
-                del rr
-            del cddd, rdir, dirr
+                        pass
+                if dirr in listdir():
+                    res = 0
+                del ds
+            del cddd, rdir, dirr, bckdir
             return res
 
         def betterpath(back=None):
