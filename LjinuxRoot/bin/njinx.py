@@ -73,7 +73,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
             + "    del data\n"
             + " ljinux.io.ledset(1)\n"
             + " if res is None:\n"
-            + "  res = 'None'\n"
+            + "  res = 'None\\n'\n"
             + " return HTTPResponse(body=res)"
         )
 
