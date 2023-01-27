@@ -133,19 +133,19 @@ if argl is 0:
 
                                 if passwd is not None:
                                     ljinux.modules["network"].disconnect()
-                                    dmtex(f'Wifi: Connecting to: "{data[3]}"')
+                                    dmtex(f'IWD: Connecting to: "{data[3]}"')
                                     res = ljinux.modules["network"].connect(
                                         data[3], passwd
                                     )
                                 del passwd
                             else:
-                                dmtex(f'Wifi: Connecting to: "{data[3]}"')
+                                dmtex(f'IWD: Connecting to: "{data[3]}"')
                                 res = ljinux.modules["network"].connect(data[3])
                             if res is 0:
-                                dmtex("Wifi: Connected to network successfully.")
+                                dmtex("IWD: Connected to network successfully.")
                                 print("\nConnected successfully.")
                             else:
-                                dmtex("Wifi: Connection to network failed.")
+                                dmtex("IWD: Connection to network failed.")
                                 print("\nConnection failed.")
                             ljinux.based.user_vars["return"] = str(res)
                             del res
@@ -204,14 +204,19 @@ else:
                 if networks[args[3]][0] != "OPEN":
                     if passwd is not None:
                         ljinux.modules["network"].disconnect()
+                        dmtex(f'IWD: Connecting to: "{args[3]}"')
                         res = ljinux.modules["network"].connect(args[3], passwd)
                     else:
                         print("Error: No password specified")
                 else:
                     ljinux.modules["network"].disconnect()
+                    dmtex(f'IWD: Connecting to: "{args[3]}"')
                     res = ljinux.modules["network"].connect(args[3])
                 if res is not 0:
                     print("Connection failed.")
+                    dmtex("IWD: Connection to network failed.")
+                else:
+                    dmtex("IWD: Connected to network successfully.")
                 ljinux.based.user_vars["return"] = str(res)
                 del res
             else:

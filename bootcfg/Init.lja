@@ -1,23 +1,36 @@
-# Stop dmesg from flooding
+# Set buffer to unbuffered and flush current buffer
+pexec term.hold_stdout = False
+pexec term.flush_writes()
+pexec systemprints(1, "Dmesg flushed")
+
+# Connect to a network on boot (example uses wifi driver)
+#modprobe driver_wifi on network
+#pexec systemprints(2, "Connecting to your network")
+#iwctl --passphrase "your wifi password" station wifi connect "your ssid here"
+#pexec systemprints(1, "Connecting to your network")
+#pexec systemprints(2, "Sync time via ntp")
+#timesync
+#pexec systemprints(1, "Sync time via ntp")
+
+# Stop dmesg from flooding tty
 pexec systemprints(1, "Suppress dmesg flooding")
 pexec term.dmtex_suppress = True
 
 # Configure init overrides
-# INIT = "normal"
+#INIT = "normal"
 
-cd /home/board
-USER = "board"
-fpexec /LjinuxRoot/etc/hostname-reload.py
 
-# Clear the dmesg log on low-end board
-# _ndmesg
-
-# Set buffer to unbuffered and flush current buffer
-pexec term.hold_stdout = False
-pexec term.flush_writes()
+# Clear the dmesg log on low-end boards
+#_ndmesg
 
 # Clear boot buffer
 # clear
+
+# Final system configuration
+cd /home/board
+USER = "board"
+fpexec /LjinuxRoot/etc/hostname-reload.py
+SECURITY = "on"
 
 # Wait for connection
 _waitforconnection
@@ -28,6 +41,4 @@ _devmodeprompt
 
 # Setup terminal
 fpexec /bin/ljinuxtitle.py
-SECURITY = "on"
 exec .basedrc
-
