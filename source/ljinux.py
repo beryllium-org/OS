@@ -1489,6 +1489,7 @@ class ljinux:
                     "rest": "stack",
                     "rest_a": "common",
                     "echo": "common",
+                    "idle": 20,
                 }
 
             command_input = None
@@ -1687,6 +1688,11 @@ class ljinux:
                                     term.focus = 0
                                     ljinux.history.nav[0] = 0
                                 del store
+                            elif term.buf[0] is 20:  # console disconnected
+                                ljinux.based.command.exec(
+                                    "/LjinuxRoot/bin/_waitforconnection.lja"
+                                )
+                                term.clear_line()
                         except KeyboardInterrupt:
                             # duplicate code as by ^C^C you could escape somehow
                             print("^C")
