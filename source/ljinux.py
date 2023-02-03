@@ -956,7 +956,7 @@ class ljinux:
             ljinux.based.system_vars["VERSION"] = Version
 
             term.write(
-                "\nWelcome to ljinux wannabe Kernel {}!\n\n".format(
+                "\nWelcome to Ljinux wannabe kernel {}!\n\n".format(
                     ljinux.based.system_vars["VERSION"]
                 ),
                 end="",
