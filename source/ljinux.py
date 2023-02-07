@@ -286,9 +286,9 @@ except ImportError:
 try:
     import adafruit_sdcard
 
-    dmtex("Sdcard libraries loaded")
+    dmtex("TFcard libraries loaded")
 except ImportError:
-    dmtex(colors.error + "Notice: " + colors.endc + "SDcard libraries loading failed")
+    dmtex(colors.error + "Notice: " + colors.endc + "TFcard libraries loading failed")
 
 dmtex("Imports complete")
 
@@ -300,6 +300,7 @@ def systemprints(mod, tx1, tx2=None):
         1: lambda: dmtex(colors.green_t + "OK", timing=False, end=""),
         2: lambda: dmtex(colors.magenta_t + "..", timing=False, end=""),
         3: lambda: dmtex(colors.red_t + "FAILED", timing=False, end=""),
+        4: lambda: dmtex(colors.red_t + "EMERG", timing=False, end=""),
     }
     mods[mod]()
     dmtex(colors.endc + " ] " + tx1, timing=False)
@@ -717,8 +718,7 @@ class ljinux:
                 del index, item
 
     class io:
-        # activity led
-
+        # Activity led
         ledcases = {
             0: bytearray([0, 0, 0]),  # off
             1: bytearray([3, 0, 0]),  # Alternative idle, to indicate input
@@ -832,28 +832,28 @@ class ljinux:
                 and configg["sd_MISO"] != -1
                 and configg["sd_MOSI"] != -1
             ):
-                spi = busio.SPI(board.GP2, MOSI=board.GP3, MISO=board.GP4)
-                cs = digitalio.DigitalInOut(board.GP5)
+                spi = busio.SPI(
+                    pintab[configg["sd_SCLK"]],
+                    MOSI=pintab[configg["sd_MOSI"]],
+                    MISO=pintab[configg["sd_MISO"]],
+                )
+                cs = digitalio.DigitalInOut(pintab[configg["sd_SCSn"]])
+                dmtex("TF card bus ready")
+                try:
+                    sdcard = adafruit_sdcard.SDCard(spi, cs)
+                    del spi
+                    del cs
+                    vfs = VfsFat(sdcard)
+                    dmtex("TF card mount attempted")
+                    mount(vfs, "/LjinuxRoot")
+                    del sdcard, vfs
+                    sdcard_fs = True
+                except NameError:
+                    dmtex("adafruit_sdcard library not present, aborting.")
             else:
                 sdcard_fs = False
-                dmtex("No pins for sdcard, skipping setup")
+                dmtex("No pins for TF card, skipping setup")
                 return
-            dmtex("SD bus ready")
-            try:
-                sdcard = adafruit_sdcard.SDCard(spi, cs)
-                vfs = VfsFat(sdcard)
-                dmtex("SD mount attempted")
-                mount(vfs, "/LjinuxRoot")
-                sdcard_fs = True
-            except NameError:
-                dmtex("SD libraries not present, aborting.")
-            del spi
-            del cs
-            try:
-                del sdcard
-                del vfs
-            except NameError:
-                pass
 
         sys_getters = {
             "sdcard": lambda: str(sdcard_fs),
@@ -968,10 +968,25 @@ class ljinux:
                 systemprints(
                     3,
                     "Mount /LjinuxRoot",
-                    "Error: sd card not available, assuming built in fs",
+                    "Error: TF card not available, assuming built in fs",
                 )
                 del modules["adafruit_sdcard"]
-                dmtex("Unloaded sdio libraries")
+                dmtex("Unloaded TFcard libraries")
+
+            # Validate root exists
+            try:
+                chdir("/LjinuxRoot")
+                chdir("/")
+            except:
+                systemprints(
+                    4,
+                    "RootValidityCheck",
+                    "Cannot continue, you are on your own.",
+                )
+                term.hold_stdout = False
+                term.flush_writes()
+                return 1  # Abandon with EMERG
+
             ljinux.io.ledset(1)  # idle
             systemprints(
                 2,

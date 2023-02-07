@@ -185,6 +185,7 @@ else:
                 passwd = args[1] + " "
                 for i in range(2, inc + 1):
                     passwd += args[i] + " "
+                del i
                 passwd = passwd[1:-2]
         else:
             passwd = args[1]
@@ -231,4 +232,5 @@ else:
     else:
         ljinux.based.error(1)
 
+    del passwd
 del args, argl, device_n

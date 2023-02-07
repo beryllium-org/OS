@@ -6,6 +6,7 @@ pexec systemprints(1, "Dmesg flushed")
 # Add /lib to path
 pexec from sys import path as syspath
 pexec syspath.append("/LjinuxRoot/lib")
+pexec del syspath
 pexec systemprints(1, "System path updated")
 
 # Connect to a network on boot (example uses wifi driver)

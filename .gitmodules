@@ -19,3 +19,6 @@
 [submodule "scripts/CircuitMPY"]
 	path = scripts/CircuitMPY
 	url = https://github.com/bill88t/CircuitMPY
+[submodule "other/Adafruit_CircuitPython_SD"]
+	path = other/Adafruit_CircuitPython_SD
+	url = https://github.com/adafruit/Adafruit_CircuitPython_SD

@@ -52,11 +52,11 @@ try:
     oss.io.ledset(0)
     from storage import umount
 
-    umount("/ljinux")
-    jrub("Unmounted /ljinux")
+    umount("/LjinuxRoot")
+    jrub("Unmounted /LjinuxRoot")
     oss.io.ledset(1)
 except OSError:
-    jrub("Could not unmount /ljinux")
+    jrub("Could not unmount /LjinuxRoot")
 
 jrub("Reached target: Quit")
 oss.io.ledset(0)
