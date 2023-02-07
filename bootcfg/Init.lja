@@ -3,6 +3,11 @@ pexec term.hold_stdout = False
 pexec term.flush_writes()
 pexec systemprints(1, "Dmesg flushed")
 
+# Add /lib to path
+pexec from sys import path as syspath
+pexec syspath.append("/LjinuxRoot/lib")
+pexec systemprints(1, "System path updated")
+
 # Connect to a network on boot (example uses wifi driver)
 #modprobe driver_wifi on network
 #pexec systemprints(2, "Connecting to your network")
@@ -18,7 +23,6 @@ pexec term.dmtex_suppress = True
 
 # Configure init overrides
 #INIT = "normal"
-
 
 # Clear the dmesg log on low-end boards
 #_ndmesg
