@@ -5,7 +5,7 @@
 # -----------------
 
 Version = "0.3.6-dev"
-Circuitpython_supported = [(7, 3), (8, 0)]
+Circuitpython_supported = [(7, 3), (8, 0), (8, 1)]
 dmesg = []
 ndmesg = False  # disable dmesg for ram
 access_log = []
