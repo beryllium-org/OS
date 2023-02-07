@@ -2,7 +2,6 @@ try:
     with open(
         ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1]), "r"
     ) as f:
-
         lines = f.readlines()
         ljinux.based.user_vars["input"] = []
         for i in lines:

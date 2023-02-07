@@ -14,7 +14,6 @@ calc_cond = {
 }
 
 try:
-
     total = calc_cond[flag](usable_ram)
     free = calc_cond[flag](gc.mem_free())
     used = total - free

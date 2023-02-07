@@ -2,7 +2,6 @@ global sdcard_fs
 try:
     wd = ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1])
     if ljinux.api.isdir(wd) == 2:
-
         if not sdcard_fs:
             remount("/", False)
 

@@ -70,7 +70,6 @@ class driver_wifi:
         HTTP Get
         """
         if self._session is not None:
-
             if not (host.startswith("http://") or host.startswith("https://")):
                 host = "https://" + host
 

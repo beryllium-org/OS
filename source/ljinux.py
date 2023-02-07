@@ -154,7 +154,6 @@ except ImportError:
 
 # Board specific configurations
 try:
-
     with open("/config.json") as config_file:
         dmtex("Loaded /config.json")
         configg = json.load(config_file)
@@ -790,7 +789,6 @@ class ljinux:
                 ljinux.io.getled = state
                 del state
             elif isinstance(state, tuple):
-
                 # a custom color
                 if configg["ledtype"] == "generic":
                     inv = ljinux.io.defstate
@@ -1254,7 +1252,6 @@ class ljinux:
                         pass
 
                 except (KeyboardInterrupt, KeyError):  # I betya some cve's cover this
-
                     try:
                         del passwordarr
                     except NameError:
@@ -1448,7 +1445,6 @@ class ljinux:
                         + "')"
                     )
             elif argv is not None and argv.startswith("="):  # variable operation
-
                 ljinux.based.command.var(executable + " " + argv)
             else:  # error
                 term.write(
