@@ -7,7 +7,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.7.2"
+    versionn = "1.7.3"
 
     try:
         filee = ljinux.based.user_vars["argj"].split()[1]
@@ -15,7 +15,7 @@ if sizee[0] > 14 and sizee[1] > 105:
         pass
 
     if filee is not None:  # there is arg
-        exists = ljinux.api.isdir(filee, rdir=getcwd())
+        exists = ljinux.api.isdir(filee)
 
     if exists == 1:  # it is dir
         filee = None

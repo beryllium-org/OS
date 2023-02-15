@@ -531,32 +531,30 @@ class ljinux:
             Checks if given item is file (returns 0) or directory (returns 1).
             Returns 2 if it doesn't exist.
             """
-            dirr = ljinux.api.betterpath(dirr)
-            bckdir = getcwd()
-            cddd = bckdir if rdir is None else ljinux.api.betterpath(rdir)
-
             res = 2
 
-            chdir(cddd)
+            bckdir = getcwd()
+            if rdir is None:
+                if "/" in dirr and dirr not in ["/", "&/"]:
+                    rdir = dirr[: dirr.rfind("/")]
+                    if len(rdir) == 0:
+                        rdir = "/"
+                    dirr = dirr[dirr.rfind("/") + 1 :]
+                    cddd = ljinux.api.betterpath(rdir)
+                else:
+                    cddd = bckdir
+            else:
+                cddd = ljinux.api.betterpath(rdir)
+            dirr = ljinux.api.betterpath(dirr)
+            chdir(cddd)  # We assume ref dir exists
             try:
                 chdir(dirr)
                 chdir(bckdir)
-                res = 1
+                res = 1  # It's a dir
             except OSError:  # we are still in cddd
-                ds = ("/", "&")
-                if dirr in ds:
-                    res = 1
-                elif dirr[0] in ds:
-                    try:
-                        if dirr[dirr.rfind("/") + 1 :] in listdir(
-                            dirr[: dirr.rfind("/")]
-                        ):
-                            res = 0
-                    except OSError:
-                        pass
                 if dirr in listdir():
                     res = 0
-                del ds
+            chdir(bckdir)
             del cddd, rdir, dirr, bckdir
             return res
 
