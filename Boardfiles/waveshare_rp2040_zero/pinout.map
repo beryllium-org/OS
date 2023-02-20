@@ -1,14 +1,14 @@
                          Frontside
                               ,----|   |----.
-[        |        ]   5V  (-) |o5V \---/   o|  (0)  GP0  [SPI0 RX |I2C0 SDA|UART0 TX]
-[        |        ]  GND  (-) |o    usbC   o|  (1)  GP1  [SPI0 CSn|I2C0 SCL|UART0 RX]
-[        |        ]  3V3  (-) |oRP2040-ZEROo|  (2)  GP2  [SPI0 SCK|I2C1 SDA|        ]
+[        |        ]   5V (32) |o5V \---/   o|  (0)  GP0  [SPI0 RX |I2C0 SDA|UART0 TX]
+[        |        ]  GND (31) |o    usbC   o|  (1)  GP1  [SPI0 CSn|I2C0 SCL|UART0 RX]
+[        |        ]  3V3 (30) |oRP2040-ZEROo|  (2)  GP2  [SPI0 SCK|I2C1 SDA|        ]
 [        |  ADC3  ] GP29 (29) |o    ---    o|  (3)  GP3  [SPI0 TX |I2C1 SCL|        ]
 [        |  ADC2  ] GP28 (28) |o  B     R  o|  (4)  GP4  [SPI0 RX |I2C0 SDA|UART1 TX]
 [I2C1 SCL|  ADC1  ] GP27 (27) |o |-| O |-| o|  (5)  GP5  [SPI0 CSn|I2C0 SCL|UART1 RX]
 [I2C1 SDA|  ADC0  ] GP26 (26) |o |-|   |-| o|  (6)  GP6  [SPI0 SCK|I2C1 SDA|        ]
-[I2C1 SDA|SPI1 SCK] GP15 (15) |o    WS®    o|  (7)  GP7  [SPI0 TX |I2C1 SCL|        ]
-[I2C1 SCL|SPI1 TX ] GP14 (14) |o o o o o o o|  (8)  GP8  [SPI1 RX |I2C0 SDA|UART1 TX]
+[I2C1 SDA|SPI1 SCK] GP15 (25) |o    WS®    o|  (7)  GP7  [SPI0 TX |I2C1 SCL|        ]
+[I2C1 SCL|SPI1 TX ] GP14 (24) |o o o o o o o|  (8)  GP8  [SPI1 RX |I2C0 SDA|UART1 TX]
                               `-------------'
                                  | | | | |
                                  | | | |  \
