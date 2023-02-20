@@ -753,7 +753,7 @@ class ljinux:
         if configg["ledtype"] == "generic":
             led.value = defstate
         elif configg["ledtype"] == "neopixel":
-            neopixel_write(led, nc.idle)
+            neopixel_write(led, ledcases[2])
         elif configg["ledtype"] == "rgb":
             led.value = defstate
             ledg.value = defstate
