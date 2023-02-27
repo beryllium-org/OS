@@ -209,30 +209,6 @@ less [file]
 
 opposite for more, except we don't have more..
 
-      /------------|
-----<| Config.json |
-      \------------|
-
-This is a complete summary of all the options available.
-
-
-"displaySCL" & "displaySDA", int, specifies the SSD1606 display i2c pins
-"displayheight" & "displaywidth", int, said display height - width
-
-"led", int, specifies the activity led pin. Set to 0 for board.LED
-"ledtype", string, can be "generic" or "neopixel"
-
-"sd_SCLK": int, sdcard pin
-"sd_SCSn": int, sdcard pin
-"sd_MISO": int, sdcard pin
-"sd_MOSI": int, sdcard pin
-
-"SKIPTEMP" Debugging & extreme options, bools, keep them false
-"SKIPCP"
-"DEBUG"
-
-The config file is no longer mandatory on simple boards, as the defaults are hardcoded in case they are missing / errored.
-
       /----------|
 ----<| Scripting |
       \----------|
@@ -422,14 +398,13 @@ More documentation on jcurses will be added later.
       \-------------|
 
 Ljinux supports both generic led's as well as neopixels for it's activity led.
-It is adviced to use the onboard led.
 
 Generic leds stay on when idle, and off on command activity.
 Neopixels stay green when idle,
 Glow more when special characters are being inputted,
 Red when an error occurs,
-Yellow on command activity and
-Blue when waiting for serial connection.
+Yellow on activity and
+Blue when waiting.
 
       /-----------|
 ----<| BetterPath |
@@ -445,10 +420,10 @@ It work by mapping:
 
     Real path | Betterpath
        "/"    |  "&/"
-"/LjinuxRoot" |    "/"   
+"/LjinuxRoot" |  "/"
 
 And treating all subsequent paths by that rule.
-It additionally maps "~" to the user's home directory.
+It additionally maps "~" to the user's home directory, and "-" to the previous directory.
 
       /-----------|
 ----<| GPIO Usage |
