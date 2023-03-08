@@ -36,7 +36,7 @@ At the moment the supported microcontrollers are:<br />
  - Seeed XIAO nRF52840 (Sense)<br />
 
 But it can probably run on many more.<br />
-The only real limiting factor should be ram, as about 100k are needed for the system function.<br />
+The only real limiting factor should be ram, as about 70k (usable under circuitpython) are needed.<br />
 <i>(If you have gotten it running on an unsupported board, feel free to pr a configuration folder)</i><br />
 
 ## Installation / Updating
