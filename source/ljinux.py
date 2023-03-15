@@ -5,7 +5,7 @@
 # -----------------
 
 Version = "0.3.6-dev"
-Circuitpython_supported = [(7, 3), (8, 0), (8, 1)]
+Circuitpython_supported = [(8, 0), (8, 1)]
 dmesg = []
 ndmesg = False  # disable dmesg for ram
 access_log = []
@@ -878,6 +878,8 @@ class ljinux:
             "return": "0",
         }
 
+        from os import uname
+
         system_vars = {
             "OS": "Ljinux",
             "SHELL": "Based",
@@ -889,7 +891,10 @@ class ljinux:
             "LANG": "en_GB.UTF-8",
             "BOARD": board.board_id,
             "IMPLEMENTATION": ".".join(map(str, list(implementation.version))),
+            "IMPLEMENTATION_RAW": uname()[3][: uname()[3].find(" on ")],
+            "IMPLEMENTATION_DATE": uname()[3][uname()[3].rfind(" ") + 1 :],
         }
+        del uname
 
         def get_internal():
             intlist = dir(ljinux.based.command)

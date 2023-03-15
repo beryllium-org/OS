@@ -18,6 +18,9 @@ pexec systemprints(1, "System path updated")
 #timesync
 #pexec systemprints(1, "Sync time via ntp")
 
+## If no network use this instead
+advance_build_date
+
 # Stop dmesg from flooding tty
 pexec systemprints(1, "Suppress dmesg flooding")
 pexec term.dmtex_suppress = True
