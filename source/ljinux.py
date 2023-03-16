@@ -1,14 +1,18 @@
-# -----------------
-#      Ljinux
-# Coded on a Raspberry Pi 400
-# "It's all bloat" - Mariospapaz 2022
-# -----------------
+# ------------------------------------- #
+#           Ljinux 0.3.6-dev            #
+#                                       #
+#     Written on a Raspberry Pi 400     #
+# Now rapidly approaching your location #
+# ------------------------------------- #
 
 Version = "0.3.6-dev"
 Circuitpython_supported = [(8, 0), (8, 1)]
-dmesg = []
+
 ndmesg = False  # disable dmesg for ram
-access_log = []
+# run _ndmesg from the shell to properly trigger it
+
+dmesg = list()
+access_log = list()
 
 # Core board libs
 try:
@@ -32,9 +36,6 @@ dmesg.append("[    0.00000] Core libs loaded")
 # Pin allocation tables
 pin_alloc = set()
 gpio_alloc = {}
-
-# Default password, aka the password if no /etc/passwd is found
-dfpasswd = "Ljinux"
 
 # Exit code holder, has to be global for everyone to be able to see it.
 Exit = False
@@ -123,11 +124,8 @@ try:
 
     from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove, sync
 
-    from io import StringIO
     from usb_cdc import console
-    from getpass import getpass
     import json
-    from traceback import print_exception
     from math import trunc
 
     dmtex("System libraries loaded")
@@ -1239,53 +1237,6 @@ class ljinux:
                     del a
                 except IndexError:
                     ljinux.based.error(1)
-
-            def su(inpt):  # su command but worse
-                inpt = inpt.split(" ")
-                global dfpasswd
-                passwordarr = {}
-                try:
-                    try:
-                        with open("/LjinuxRoot/etc/passwd", "r") as data:
-                            for line in data:
-                                dt = line.split()
-                                passwordarr[dt[0]] = dt[1]
-                                del dt, line
-                    except OSError:
-                        pass
-                    ljinux.io.ledset(2)
-                    if passwordarr["root"] == getpass():
-                        ljinux.based.system_vars["SECURITY"] = "off"
-                        term.write("Authentication successful. Security disabled.")
-                    else:
-                        ljinux.io.ledset(3)
-                        time.sleep(2)
-                        term.write(
-                            colors.error + "Authentication unsuccessful." + colors.endc
-                        )
-
-                    try:
-                        del passwordarr
-                    except NameError:
-                        pass
-
-                except (KeyboardInterrupt, KeyError):  # I betya some cve's cover this
-                    try:
-                        del passwordarr
-                    except NameError:
-                        pass
-
-                    if dfpasswd == getpass():
-                        ljinux.based.system_vars["security"] = "off"
-                        term.write("Authentication successful. Security disabled.")
-                    else:
-                        term.write(
-                            colors.error + "Authentication unsuccessful." + colors.endc
-                        )
-                try:
-                    del passwordarr
-                except NameError:
-                    pass
 
             def history(inpt):  # history frontend
                 inpt = inpt.split(" ")
