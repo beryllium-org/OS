@@ -22,3 +22,6 @@
 [submodule "other/Adafruit_CircuitPython_SD"]
 	path = other/Adafruit_CircuitPython_SD
 	url = https://github.com/adafruit/Adafruit_CircuitPython_SD
+[submodule "other/cptoml"]
+	path = other/cptoml
+	url = https://github.com/bill88t/cptoml
