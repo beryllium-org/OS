@@ -78,7 +78,7 @@ To connect to the board it's recommended to use Putty for Windows and Tio for Li
 For Putty, select connection type to be Serial, select the port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the board and set the speed/baudrate to 115200.<br />
 (You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br />(The baudrate may differ for your board, do not explicitly stick to 115200)<br /><br />
 
-For Tio, if you are on linux, you need to be in the <code>dialout</code> user group and to connect, run: <code>tio /dev/ttyACM0</code>
+For Tio, if you are on linux, you need to be in the <code>dialout</code> or <code>uucp</code> user group and to connect, run: <code>tio /dev/ttyACM0</code>
 <br />If you are on a Mac instead, run: <code>ls /dev/tty.usb*</code> to find the device name, and connect to it by running: <code>tio /dev/tty.usb\<Device name here\></code><br />
 To disconnect, press <code>Ctrl</code> + <code>t</code>, <code>q</code>.<br />
 To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dialout \<your username here\></code> and restart.<br />
