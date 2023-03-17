@@ -98,7 +98,7 @@ except OSError:
 print("[6/7] Compiling cptoml")
 try:
     circuitmpy.compile_mpy(
-        "./other/cptoml/cptoml.py", f"{boardpath}/lib/cptoml.mpy", optim=optimis
+        "../other/cptoml/cptoml.py", f"{boardpath}/lib/cptoml.mpy", optim=optimis
     )
 except OSError:
     errexit()
