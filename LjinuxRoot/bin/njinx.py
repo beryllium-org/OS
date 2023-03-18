@@ -11,7 +11,10 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
     webconf = []
     try:
         with open(ljinux.api.betterpath("/etc/njinx/njinx.conf"), "r") as f:
-            webconf = json.load(f)
+            from json import load
+
+            webconf = load(f)
+            del load
     except Exception as Err:
         pass
     try:
@@ -43,13 +46,14 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
             + ' res = "OK"\n'
             + " pos = 0\n"
             + " data = None\n"
+            + " from json import loads\n"
             + " while pos < len(raw):\n"
             + '  if raw[pos].startswith("{\\""):\n'
-            + '   data = json.loads(" ".join(raw[pos:]))\n'
+            + '   data = loads(" ".join(raw[pos:]))\n'
             + "   break\n"
             + "  else:\n"
             + "   pos += 1\n"
-            + " del raw, pos\n"
+            + " del raw, pos, loads\n"
             + " if data is None:\n"
             + '  res = "FAIL: Invalid form."\n'
             + " else:\n"

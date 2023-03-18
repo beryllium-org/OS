@@ -60,7 +60,10 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                 manifest = None
                 with open("Manifest.json", "r") as manifest_f:
                     try:
-                        manifest = json.load(manifest_f)
+                        from json import load
+
+                        manifest = load(manifest_f)
+                        del load
                         if manifest["package_name"] not in pklist[0].keys():
                             pklist[0].update(
                                 {
@@ -178,7 +181,10 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
         for fileext in fl:
             ljinux.based.run("cd " + fileext)
             with open("Manifest.json", "r") as manifest_f:
-                manifest = json.load(manifest_f)  # safe to load now
+                from json import load
+
+                manifest = load(manifest_f)  # safe to load now
+                del load
                 print(
                     f"{colors.green_t}JPKG{colors.endc}: Setting up "
                     + manifest["package_name"]
@@ -216,8 +222,10 @@ if len(opts2["w"]) > 1 and opts2["w"][0] == "install":
                         "/etc/jpkg/installed/" + manifest["package_name"] + ".json",
                         "w",
                     ) as newman:
-                        json.dump(manifest, newman)
-                        del newman
+                        from json import dump
+
+                        dump(manifest, newman)
+                        del newman, dump
 
                     # copy uninstaller
                     ljinux.api.setvar(
@@ -335,7 +343,10 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
             with open(
                 "/LjinuxRoot/etc/jpkg/installed/" + pkgname + ".json", "r"
             ) as manifest_f:
-                manifest = json.load(manifest_f)  # safe to load now
+                from json import load
+
+                manifest = load(manifest_f)  # safe to load now
+                del load
                 print(
                     f"{colors.green_t}JPKG{colors.endc}: Removing "
                     + manifest["package_name"]
@@ -381,7 +392,10 @@ elif len(opts2["w"]) > 1 and opts2["w"][0] == "uninstall":
 elif len(opts2["w"]) is 1 and opts2["w"][0] == "list":
     for package in listdir("/LjinuxRoot/etc/jpkg/installed"):
         with open("/LjinuxRoot/etc/jpkg/installed/" + package) as manifest_f:
-            manifest = json.load(manifest_f)
+            from json import load
+
+            manifest = load(manifest_f)
+            del load
             print(
                 colors.green_t
                 + manifest["package_name"]
