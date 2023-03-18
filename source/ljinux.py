@@ -6,7 +6,6 @@
 # ------------------------------------- #
 
 Version = "0.3.6-dev"
-Circuitpython_supported = [(8, 0), (8, 1)]
 
 ndmesg = False  # disable dmesg for ram
 # run _ndmesg from the shell to properly trigger it
@@ -23,6 +22,26 @@ try:
 
     import board
     import digitalio
+
+    from sys import (
+        implementation,
+        platform,
+        modules,
+        exit,
+        stdout,
+    )
+
+    import busio
+    from microcontroller import cpu
+    from storage import remount, VfsFat, mount, getmount
+    from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove, sync
+    from usb_cdc import console
+    from math import trunc
+    import time
+
+    from jcurses import jcurses
+    import cptoml
+    from lj_colours import lJ_Colours as colors
 except ImportError:
     print("FATAL: Core libraries loading failed")
 
@@ -30,8 +49,8 @@ except ImportError:
 
     exit(1)
 
-print("[    0.00000] Core libs loaded")
-dmesg.append("[    0.00000] Core libs loaded")
+print("[    0.00000] Core modules loaded")
+dmesg.append("[    0.00000] Core modules loaded")
 
 # Pin allocation tables
 pin_alloc = set()
@@ -43,13 +62,7 @@ Exit_code = 0
 
 # Hardware autodetect vars, starts assuming everything is missing
 sdcard_fs = False
-print("[    0.00000] Sys vars loaded")
-dmesg.append("[    0.00000] Sys vars loaded")
 
-import time
-
-print("[    0.00000] Timing libraries done")
-dmesg.append("[    0.00000] Timing libraries done")
 uptimee = (
     -time.monotonic()
 )  # using uptimee as an offset, this way uptime + time.monotonic = 0 at this very moment and it goes + from here on out
@@ -60,14 +73,13 @@ dmesg.append("[    0.00000] Timings reset")
 oend = "\n"  # needed to mask print
 
 try:
-    from jcurses import jcurses
-
     term = jcurses()  # the main curses entity, used primarily for based.shell()
     term.hold_stdout = True  # set it to buffered by default
-    print("[    0.00000] Loaded jcurses")
-    dmesg.append("[    0.00000] Loaded jcurses")
+    term.write(colors.reset_s_format, end="")
+    print("[    0.00000] Jcurses init complete")
+    dmesg.append("[    0.00000] Jcurses init complete")
 except ImportError:
-    print("FATAL: FAILED TO LOAD JCURSES")
+    print("FATAL: FAILED TO INIT JCURSES")
     exit(0)
 
 
@@ -108,75 +120,21 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
 dmtex("Dmesg ready")
 
 try:
-    from sys import (
-        implementation,
-        platform,
-        modules,
-        exit,
-        stdout,
-    )
-
-    import busio
-
-    from microcontroller import cpu
-
-    from storage import remount, VfsFat, mount, getmount
-
-    from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove, sync
-
-    from usb_cdc import console
-    import json
-    from math import trunc
-
-    dmtex("System libraries loaded")
-except ImportError:
-    dmtex("FATAL: SYSTEM LIBRARIES LOAD FAILED")
-    exit(0)
-
-try:
     from neopixel_write import neopixel_write
 except ImportError:
     pass  # no big deal, this just isn't a neopixel board
 
-try:
-    from lj_colours import lJ_Colours as colors
-
-    term.write(colors.reset_s_format, end="")
-    dmtex("Loaded lj_colours")
-except ImportError:
-    dmtex(f"{colors.error}FATAL:{colors.endc} FAILED TO LOAD LJ_COLOURS")
-    dmtex(
-        "If you intented to disable colors, just rename lj_colours_placebo -> lj_colours"
-    )
-    exit(0)
-
 # Board specific configurations
-try:
-    with open("/config.json") as config_file:
-        dmtex("Loaded /config.json")
-        configg = json.load(config_file)
-        del config_file
-
-    for i in configg:
-        if i.startswith("_"):
-            del configg[i]
-        del i
-
-except (ValueError, OSError):
-    configg = {}
-    dmtex("Kernel config could not be found / parsed, applying defaults")
-
-dmtex("Options applied:")
-
 defaultoptions = {  # default configuration, in line with the manual (default value, type, allocates pin bool)
-    "led": (0, int, True),
+    "led": (-1, int, True),
     "ledtype": ("generic", str, False),
-    "SKIPCP": (False, bool, False),
+    "serial_console": (True, bool, False),
+    "usb_access": (True, bool, False),
     "DEBUG": (False, bool, False),
-    "sd_SCLK": (-1, int, True),
-    "sd_SCSn": (-1, int, True),
-    "sd_MISO": (-1, int, True),
-    "sd_MOSI": (-1, int, True),
+    "root_SCLK": (-1, int, True),
+    "root_SCSn": (-1, int, True),
+    "root_MISO": (-1, int, True),
+    "root_MOSI": (-1, int, True),
 }
 
 # pintab
@@ -190,8 +148,9 @@ except:
 
 # General options
 for optt in list(defaultoptions.keys()):
+    optt_dt = cptoml.fetch(optt, "LJINUX")
     try:
-        if isinstance(configg[optt], defaultoptions[optt][1]):
+        if isinstance(optt_dt, defaultoptions[optt][1]):
             dmtex(
                 "\t"
                 + colors.green_t
@@ -200,69 +159,49 @@ for optt in list(defaultoptions.keys()):
                 + " "
                 + optt
                 + "="
-                + str(configg[optt]),
+                + str(optt_dt),
                 timing=False,
             )
         else:
             raise KeyError
     except KeyError:
-        configg.update({optt: defaultoptions[optt][0]})
-        dmtex(
-            f'Missing / Invalid value for "{optt}" applied: {configg[optt]}',
-            timing=False,
-        )
+        try:
+            remount("/", False)
+            optt_dt = defaultoptions[optt][0]
+            cptoml.put(optt, optt_dt, "LJINUX")
+            dmtex(
+                colors.green_t + "Updated: " + colors.endc + optt + "=" + str(optt_dt),
+                timing=False,
+            )
+            remount("/", True)
+        except RuntimeError:
+            dmtex("Could not update /settings.toml, usb access is enabled.")
+            term.hold_stdout = True  # set it to buffered by default
+            term.flush_writes()
+            exit(0)
     if defaultoptions[optt][2]:
-        pin = configg[optt]
-        if pin in pin_alloc:
+        if optt_dt in pin_alloc:
             dmtex("PIN ALLOCATED, EXITING")
             exit(0)
-        elif pin == -1:
+        elif optt_dt == -1:
             pass
         else:
-            pin_alloc.add(pin)
-        del pin
+            pin_alloc.add(optt_dt)
+    del optt, optt_dt
 
 dmtex("Total pin alloc: ", end="")
 for pin in pin_alloc:
     dmtex(str(pin), timing=False, end=" ")
 dmtex("", timing=False)
 
-if configg["led"] == -1:
+ldd = cptoml.fetch("led", "LJINUX")
+if ldd == -1:
     boardLED = board.LED
 else:
-    boardLED = pintab[configg["led"]]
-
-del defaultoptions
-
-# basic checks
-if not configg["SKIPCP"]:  # beta testing
-    good = False
-    for i in Circuitpython_supported:
-        if implementation.version[:2] == i:
-            good = True
-            del i
-            break
-        del i
-    if good:
-        dmtex("Running on supported implementation")
-    else:
-        dmtex(
-            "-" * 42
-            + "\n"
-            + " " * 14
-            + "WARNING: Unsupported CircuitPython version\n"
-            + " " * 14
-            + "-" * 42
-        )
-        for i in range(10, 0):
-            term.write(
-                f"WARNING: Unsupported CircuitPython version (Continuing in {i})"
-            )
-            time.sleep(1)
-            del i
-    del good
-else:
-    term.write("Skipped CircuitPython version checking, happy beta testing!")
+    boardLED = pintab[ldd]
+del ldd, defaultoptions
+gc.collect()
+gc.collect()
 
 dmtex((f"Board memory: {usable_ram} bytes"))
 dmtex((f"Memory free: {gc.mem_free()} bytes"))
@@ -731,28 +670,24 @@ class ljinux:
         led = digitalio.DigitalInOut(boardLED)
         ledg = None
         ledb = None
-
         defstate = True
+        ledtype = cptoml.fetch("ledtype", "LJINUX")
 
         led.direction = digitalio.Direction.OUTPUT
-        if configg["ledtype"].startswith("rgb"):
+        if ledtype.startswith("rgb"):
             ledg = digitalio.DigitalInOut(board.LED_GREEN)
             ledg.direction = digitalio.Direction.OUTPUT
             ledb = digitalio.DigitalInOut(board.LED_BLUE)
             ledb.direction = digitalio.Direction.OUTPUT
 
-        if configg["ledtype"] == "generic_invert":
-            configg["ledtype"] = "generic"
-            defstate = False
-        elif configg["ledtype"] == "rgb_invert":
-            configg["ledtype"] = "rgb"
+        if ledtype.endswith("_invert"):
             defstate = False
 
-        if configg["ledtype"] == "generic":
+        if ledtype.startswith("generic"):
             led.value = defstate
-        elif configg["ledtype"] == "neopixel":
+        elif ledtype.startswith("neopixel"):
             neopixel_write(led, ledcases[2])
-        elif configg["ledtype"] == "rgb":
+        elif ledtype.startswith("rgb"):
             led.value = defstate
             ledg.value = defstate
             ledb.value = defstate
@@ -766,14 +701,14 @@ class ljinux:
 
             if isinstance(state, int):
                 ## use preconfigured led states
-                if configg["ledtype"] == "generic":
+                if ljinux.io.ledtype.startswith("generic"):
                     if state in [0, 3, 4, 5]:  # close tha led
                         ljinux.io.led.value = not ljinux.io.defstate
                     else:
                         ljinux.io.led.value = ljinux.io.defstate
-                elif configg["ledtype"] == "neopixel":
+                elif ljinux.io.ledtype.startswith("neopixel"):
                     neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
-                elif configg["ledtype"] == "rgb":
+                elif ljinux.io.ledtype.startswith("rgb"):
                     cl = ljinux.io.ledcases[state]
                     ljinux.io.led.value, ljinux.io.ledg.value, ljinux.io.ledb.value = (
                         (cl[1], cl[0], cl[2])
@@ -786,17 +721,17 @@ class ljinux:
                 del state
             elif isinstance(state, tuple):
                 # a custom color
-                if configg["ledtype"] == "generic":
+                if ljinux.io.ledtype.startswith("generic"):
                     inv = ljinux.io.defstate
                     if sum(state) is 0:
                         inv = not inv
                     ljinux.io.led.value = inv
                     del inv
-                elif configg["ledtype"] == "neopixel":
+                elif ljinux.io.ledtype.startswith("neopixel"):
                     swapped_state = (state[1], state[0], state[2])
                     neopixel_write(ljinux.io.led, bytearray(swapped_state))
                     del swapped_state
-                elif configg["ledtype"] == "rgb":
+                elif ljinux.io.ledtype.startswith("rgb"):
                     ljinux.io.led.value, ljinux.io.ledg.value, ljinux.io.ledb.value = (
                         (state[0], state[1], state[2])
                         if ljinux.io.defstate
@@ -822,18 +757,22 @@ class ljinux:
 
         def start_sdcard():
             global sdcard_fs
+            root_SCLK = cptoml.fetch("root_SCLK", "LJINUX")
+            root_SCSn = cptoml.fetch("root_SCSn", "LJINUX")
+            root_MISO = cptoml.fetch("root_MISO", "LJINUX")
+            root_MOSI = cptoml.fetch("root_MOSI", "LJINUX")
             if (
-                configg["sd_SCLK"] != -1
-                and configg["sd_SCSn"] != -1
-                and configg["sd_MISO"] != -1
-                and configg["sd_MOSI"] != -1
+                root_SCLK != -1
+                and root_SCSn != -1
+                and root_MISO != -1
+                and root_MOSI != -1
             ):
                 spi = busio.SPI(
-                    pintab[configg["sd_SCLK"]],
-                    MOSI=pintab[configg["sd_MOSI"]],
-                    MISO=pintab[configg["sd_MISO"]],
+                    pintab[root_SCLK],
+                    MOSI=pintab[root_MOSI],
+                    MISO=pintab[root_MISO],
                 )
-                cs = digitalio.DigitalInOut(pintab[configg["sd_SCSn"]])
+                cs = digitalio.DigitalInOut(pintab[root_SCSn])
                 dmtex("TF card bus ready")
                 try:
                     sdcard = adafruit_sdcard.SDCard(spi, cs)
@@ -846,9 +785,11 @@ class ljinux:
                     sdcard_fs = True
                 except NameError:
                     dmtex("adafruit_sdcard library not present, aborting.")
+                    del root_SCLK, root_SCSn, root_MISO, root_MOSI
             else:
                 sdcard_fs = False
                 dmtex("No pins for TF card, skipping setup")
+                del root_SCLK, root_SCSn, root_MISO, root_MOSI
                 return
 
         sys_getters = {

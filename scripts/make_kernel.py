@@ -5,7 +5,9 @@ from sys import argv
 from sys import path as spath
 
 spath.append("../scripts/CircuitMPY/")
+spath.append("../other/cptoml/")
 import circuitmpy
+from cptoml import fetch
 
 
 def errexit():
@@ -77,11 +79,20 @@ for filee in listdir("../rootfilesystem/".replace("/", slash)):
     )
 
 print("[4/7] Copying board configuration files")
-system(
-    f"cp ../Boardfiles/{board}/config.json {boardpath}/".replace("/", slash).replace(
-        "cp", copy
+skiptm = False
+try:
+    if fetch("setup", "LJINUX", toml=f"{boardpath}/settings.toml"):
+        skiptm = True
+except:
+    pass
+if not skiptm:
+    system(
+        f"cp ../Boardfiles/{board}/settings.toml {boardpath}/settings.toml".replace(
+            "/", slash
+        ).replace("cp", copy)
     )
-)
+else:
+    print(" - Skipped updating toml as setup variable already True")
 try:
     circuitmpy.compile_mpy(
         f"../Boardfiles/{board}/pintab.py", f"{boardpath}/lib/pintab.mpy", optim=optimis
