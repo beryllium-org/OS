@@ -1,0 +1,13 @@
+# CIRCUITPY_PYSTACK_SIZE=12288
+# Do not use resizable on S3 for now
+
+[LJINUX]
+serial_console = true
+usb_access = false
+ledtype = "neopixel"
+led = 48
+DEBUG = false
+root_SCLK = -1
+root_SCSn = -1
+root_MOSI = -1
+root_MISO = -1
