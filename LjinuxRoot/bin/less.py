@@ -44,7 +44,7 @@ try:
             ] = f"{colors.white_bg_black_bg}lines {pos}-{target+pos}/{lc} {int(float(target+pos)*100/float(lc))}%{endt if pos == lc-target else blank}{colors.endc}"
             for i in range(0, target):
                 l = lines3[i + pos]
-                stdout.write(l + (carry if l != carry else blank))
+                term.nwrite(l + (carry if l != carry else blank))
                 del l
             ctl = term.program()
             if ctl[0] == 2:

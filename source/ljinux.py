@@ -23,13 +23,7 @@ try:
     import board
     import digitalio
 
-    from sys import (
-        implementation,
-        platform,
-        modules,
-        exit,
-        stdout,
-    )
+    from sys import implementation, platform, modules, exit
 
     import busio
     from microcontroller import cpu
@@ -75,7 +69,8 @@ oend = "\n"  # needed to mask print
 try:
     term = jcurses()  # the main curses entity, used primarily for based.shell()
     term.hold_stdout = True  # set it to buffered by default
-    term.write(colors.reset_s_format, end="")
+    term.console = console
+    term.nwrite(colors.reset_s_format)
     print("[    0.00000] Jcurses init complete")
     dmesg.append("[    0.00000] Jcurses init complete")
 except ImportError:
@@ -976,7 +971,7 @@ class ljinux:
                 try:
                     ljinux.based.shell()
                 except KeyboardInterrupt:
-                    stdout.write("^C\n")
+                    term.write("^C")
             Exit = False  # to allow ljinux.based.shell to be rerun from code.py
             return Exit_code
 
@@ -1024,9 +1019,9 @@ class ljinux:
                 for index, tool in enumerate(l):
                     term.write(tool, end=(" " * lenn).replace(" ", "", len(tool)))
                     if index % 4 == 3:
-                        stdout.write("\n")  # stdout faster than print cuz no logic
+                        term.write()
                     del index, tool
-                stdout.write(colors.endc + "\n")
+                term.write(colors.endc)
 
                 del l
                 del lenn
@@ -1429,17 +1424,17 @@ class ljinux:
                                 command_input = term.buf[1]
                                 term.buf[1] = ""
                                 term.focus = 0
-                                stdout.write("\n")
+                                term.write()
                             elif term.buf[0] is 1:
                                 ljinux.io.ledset(2)  # keyact
-                                print("^C")
+                                term.write("^C")
                                 term.buf[1] = ""
                                 term.focus = 0
                                 term.clear_line()
                                 ljinux.io.ledset(1)  # idle
                             elif term.buf[0] is 2:
                                 ljinux.io.ledset(2)  # keyact
-                                print("^D")
+                                term.write("^D")
                                 Exit = True
                                 Exit_code = 0
                                 ljinux.io.ledset(1)  # idle
@@ -1473,7 +1468,7 @@ class ljinux:
                                             del i
                                         del bins, ints
                                     if len(candidates) > 1:
-                                        stdout.write("\n")
+                                        term.write()
                                         minn = 100
                                         for i in candidates:
                                             if not i.startswith("_"):  # discard those
@@ -1582,7 +1577,7 @@ class ljinux:
                                     ljinux.history.nav[0] = 0
                                     command_input = store + term.buf[1]
                                     term.buf[1] = ""
-                                    stdout.write("\n")
+                                    term.write()
                                 elif term.buf[0] is 14:  # more lines
                                     store += term.buf[1]
                                     ljinux.history.nav[0] = 0

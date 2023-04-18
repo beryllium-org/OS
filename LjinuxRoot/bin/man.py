@@ -14,7 +14,9 @@ if len(opts["w"]) is 1:
         ljinux.api.setvar("argj", f"a /LjinuxRoot/usr/share/man/{page_dayo}.man")
         ljinux.based.command.fpexec("/bin/less.py")
     else:
-        print(f"{colors.red_t}MAN-DB Error{colors.endc}: No such manual page found.")
+        term.write(
+            f"{colors.red_t}MAN-DB Error{colors.endc}: No such manual page found."
+        )
         ljinux.api.setvar("return", "1")
     del page_dayo
 else:

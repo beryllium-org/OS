@@ -10,7 +10,7 @@ try:
     ljinux.based.olddir = getcwd()
     del dirr
 except OSError:
-    print(
+    term.write(
         "Error: '" + ljinux.api.getvar("argj").split()[1] + "' Directory does not exist"
     )
 except IndexError:

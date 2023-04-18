@@ -43,10 +43,10 @@ while True:
     if term.buf[0] is 2:
         break
     elif term.buf[0] is 1:
-        print("^C")
+        term.write("^C")
     elif term.buf[0] is 0:
         if has_checked_args:
-            print()
+            term.write()
         if appending:
             if term.buf[1] != ".":
                 txbuf.append(term.buf[1])
@@ -77,15 +77,15 @@ while True:
                                 txbuf[linen] = txbuf[linen][:-1]
                                 bl += len(txbuf[linen]) + 1
                                 del linen
-                        print(str(bl))
+                        term.write(str(bl))
                         del bl
                     else:
-                        print(qu)
+                        term.write(qu)
                     del src
                 elif recv[0].isdigit():
                     d = int(recv[0])
                     if len(txbuf) >= d:
-                        print(txbuf[d - 1])
+                        term.write(txbuf[d - 1])
                     selected = d
                     del d
                 elif recv[0][0] == "s":
@@ -110,14 +110,14 @@ while True:
                             sfinal = slist
                         del slist, skip
                         if (len(sfinal) is not 2) or (selected is None):
-                            print(qu)
+                            term.write(qu)
                         else:
                             txbuf[selected - 1] = txbuf[selected - 1].replace(
                                 sfinal[0], sfinal[1]
                             )
                         del sfinal
                     else:
-                        print(qu)
+                        term.write(qu)
                 elif recv[0] == "c":
                     txbuf.clear()
                 elif recv[0] == "a":
@@ -131,26 +131,26 @@ while True:
                                     del line
                                     gc.collect()
                             else:
-                                print(qu)
+                                term.write(qu)
                     else:
-                        print(qu)
+                        term.write(qu)
                 elif recv[0] == q:
                     if selected is not None:
                         selected = None
-                        print(qu)
+                        term.write(qu)
                     else:
                         break
                 elif recv[0] == ",p":
                     if len(txbuf):
                         for line in txbuf:
-                            print(line)
+                            term.write(line)
                             del line
                     else:
-                        print(qu)
+                        term.write(qu)
                 else:
-                    print(qu)
+                    term.write(qu)
             else:
-                print(qu)
+                term.write(qu)
             del recv
 
 term.buf[1] = empt

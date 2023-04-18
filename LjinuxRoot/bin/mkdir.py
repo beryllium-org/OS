@@ -27,7 +27,7 @@ try:
         raise OSError
 
 except OSError:
-    print(
+    term.write(
         "mkdir: cannot create directory ‘"
         + ljinux.based.user_vars["argj"].split()[1]
         + "’: File exists"

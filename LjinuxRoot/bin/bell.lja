@@ -1,1 +1,1 @@
-pexec stdout.write("\007")
+pexec term.nwrite("\007")

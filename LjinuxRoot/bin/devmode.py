@@ -11,7 +11,7 @@ if not cptoml.fetch("usb_access", "LJINUX"):
             time.sleep(5)
         except KeyboardInterrupt:
             cont = False
-            print("Aborted.")
+            term.write("Aborted.")
             ljinux.api.setvar("return", "1")
     if cont:
         remount("/", False)

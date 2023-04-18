@@ -1,7 +1,5 @@
-# Set buffer to unbuffered and flush current buffer
-pexec term.hold_stdout = False
-pexec term.flush_writes()
-pexec systemprints(1, "Dmesg flushed")
+# Detect early serial connections and make logging immediately available
+_earlyconnection
 
 # Add /lib to path
 pexec from sys import path as syspath
@@ -21,10 +19,6 @@ pexec systemprints(1, "System path updated")
 ## If no network use this instead
 advance_build_date
 
-# Stop dmesg from flooding tty
-pexec systemprints(1, "Suppress dmesg flooding")
-pexec term.dmtex_suppress = True
-
 # Configure init overrides
 #INIT = "normal"
 
@@ -42,6 +36,15 @@ SECURITY = "on"
 
 # Wait for connection
 _waitforconnection
+
+# Late serial connection
+pexec term.hold_stdout = False
+pexec term.flush_writes()
+pexec systemprints(1, "Dmesg flushed")
+
+# Stop dmesg from flooding tty
+pexec systemprints(1, "Suppress dmesg flooding")
+pexec term.dmtex_suppress = True
 
 # Checks
 _rebootprompt

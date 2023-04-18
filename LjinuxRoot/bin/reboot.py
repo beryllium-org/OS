@@ -5,7 +5,7 @@ Exit = True
 try:
     if inpt[1] == "bootloader":
         Exit_code = 243
-        print(
+        term.write(
             "Please disconnect from serial to continue..\nTo continue anyways, press Ctrl + C"
         )
         try:

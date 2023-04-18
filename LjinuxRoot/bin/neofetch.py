@@ -127,13 +127,11 @@ tex += [
 ]
 for i in range(0, max(len(logo), len(tex))):
     try:
-        term.write(
-            logo[i] + ((seperat - len(ljinux.api.remove_ansi(logo[i]))) * " "), end=""
-        )
+        term.nwrite(logo[i] + ((seperat - len(ljinux.api.remove_ansi(logo[i]))) * " "))
     except IndexError:
-        term.write(seperat * " ", end="")
+        term.nwrite(seperat * " ")
     try:
-        term.write(tex[i], end="")
+        term.nwrite(tex[i])
     except IndexError:
         pass
     term.write()

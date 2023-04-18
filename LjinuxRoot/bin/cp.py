@@ -25,7 +25,7 @@ try:
         gc.collect()
         gc.collect()
         for i in listdir(src):
-            print(f"{src}/{i} -> {dst}/{i}")
+            term.write(f"{src}/{i} -> {dst}/{i}")
             if ljinux.api.isdir(f"{src}/{i}"):
                 ljinux.based.user_vars["argj"] = f"cp {src}/{i} {dst}/{i}"
                 ljinux.based.command.fpexec("/bin/cp.py")

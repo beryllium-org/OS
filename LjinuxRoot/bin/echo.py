@@ -15,4 +15,4 @@ if "n" not in opts["o"]:
 del opts
 
 if not ljinux.based.silent:
-    term.write(ljinux.based.user_vars["return"], end="")
+    term.nwrite(ljinux.based.user_vars["return"])

@@ -1,5 +1,5 @@
-stdout.write("\033]0;")
+term.nwrite("\033]0;")
 for i in ljinux.based.user_vars["argj"].split()[1:]:
-    stdout.write(i + " ")
+    term.nwrite(i + " ")
     del i
-stdout.write("\007")
+term.nwrite("\007")

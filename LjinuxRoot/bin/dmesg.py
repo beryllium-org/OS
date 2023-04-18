@@ -1,4 +1,4 @@
 global dmesg
 for i in dmesg:
-    print(i)
+    term.write(i)
     del i

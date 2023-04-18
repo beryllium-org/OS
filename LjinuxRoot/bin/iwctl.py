@@ -38,7 +38,7 @@ if argl is 0:
             continue
         ljinux.io.ledset(3)
         if term.buf[0] == 1:
-            print("^D")
+            term.write("^D")
             term.buf[1] = ""
             term.focus = 0
             break
@@ -49,17 +49,17 @@ if argl is 0:
             datal = len(data)
             if datal > 0:
                 if data[0] == "exit":
-                    print()
+                    term.write()
                     break
                 elif datal > 1 and data[0] == "device" and data[1] == "list":
                     ljinux.based.user_vars["return"] = "0"
-                    print("\n" + 26 * " " + "devices")
-                    print(60 * "-")
-                    print("Name" + " " * 5 + "Mac address" + " " * 6 + "Power")
-                    print(60 * "-")
+                    term.write("\n" + 26 * " " + "devices")
+                    term.write(60 * "-")
+                    term.write("Name" + " " * 5 + "Mac address" + " " * 6 + "Power")
+                    term.write(60 * "-")
                     if device_n is not None:
                         info = ljinux.modules["network"].get_ipconf()
-                        print(
+                        term.write(
                             device_n
                             + " " * 5
                             + info["mac_pretty"]
@@ -84,8 +84,8 @@ if argl is 0:
                         ranl = []  # net range list
                         maxn = lent = 0  # max len name and no of items
 
-                        print("\n" + 21 * " " + "Available networks")
-                        print(60 * "-")
+                        term.write("\n" + 21 * " " + "Available networks")
+                        term.write(60 * "-")
 
                         for i in networks:
                             namesl.append(i)
@@ -105,11 +105,11 @@ if argl is 0:
                                 ranl.append("bad")
                             lent += 1
 
-                        print(
+                        term.write(
                             "Name" + (maxn - 3) * " " + "Security" + 5 * " " + "Signal"
                         )
                         for i in range(0, lent):
-                            print(
+                            term.write(
                                 namesl[i]
                                 + " " * (maxn - len(namesl[i]) + 1)
                                 + secl[i]
@@ -143,29 +143,29 @@ if argl is 0:
                                 res = ljinux.modules["network"].connect(data[3])
                             if res is 0:
                                 dmtex("IWD: Connected to network successfully.")
-                                print("\nConnected successfully.")
+                                term.write("\nConnected successfully.")
                             else:
                                 dmtex("IWD: Connection to network failed.")
-                                print("\nConnection failed.")
+                                term.write("\nConnection failed.")
                             ljinux.based.user_vars["return"] = str(res)
                             del res
                         else:
-                            print("\nNetwork not found")
+                            term.write("\nNetwork not found")
                     elif datal > 2 and data[2] == "disconnect":
                         ljinux.modules["network"].disconnect()
                         dmtex("Wifi: Disconnected.")
                         ljinux.based.user_vars["return"] = "0"
                     else:
-                        print()
+                        term.write()
                         ljinux.based.error(1)
                         ljinux.based.user_vars["return"] = "1"
                 else:
-                    print()
+                    term.write()
                     ljinux.based.error(1)
                     ljinux.based.user_vars["return"] = "1"
             del data, datal
         term.buf[1] = ""
-        print()
+        term.write()
     term.trigger_dict = term_old
     del term_old, networks
 else:
@@ -207,20 +207,20 @@ else:
                         dmtex(f'IWD: Connecting to: "{args[3]}"')
                         res = ljinux.modules["network"].connect(args[3], passwd)
                     else:
-                        print("Error: No password specified")
+                        term.write("Error: No password specified")
                 else:
                     ljinux.modules["network"].disconnect()
                     dmtex(f'IWD: Connecting to: "{args[3]}"')
                     res = ljinux.modules["network"].connect(args[3])
                 if res is not 0:
-                    print("Connection failed.")
+                    term.write("Connection failed.")
                     dmtex("IWD: Connection to network failed.")
                 else:
                     dmtex("IWD: Connected to network successfully.")
                 ljinux.based.user_vars["return"] = str(res)
                 del res
             else:
-                print("Network not found")
+                term.write("Network not found")
                 ljinux.based.user_vars["return"] = "1"
             del networks
         elif args[2] == "disconnect":

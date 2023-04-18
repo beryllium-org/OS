@@ -1,5 +1,5 @@
 if (not hasattr(console, "fake")) and getmount("/").label == "CIRCUITPY":
-    print(
+    term.write(
         colors.red_t
         + "\nPlease unplug the microcontroller, and plug it back in to continue."
         + "\nThis is required in order to run the boot code.\n"
