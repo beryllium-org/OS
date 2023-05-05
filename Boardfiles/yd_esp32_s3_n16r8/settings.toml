@@ -4,6 +4,7 @@
 [LJINUX]
 serial_console = true
 usb_access = false
+leden = -1
 ledtype = "neopixel"
 led = 48
 DEBUG = false

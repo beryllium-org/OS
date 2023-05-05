@@ -123,6 +123,7 @@ except ImportError:
 defaultoptions = {  # default configuration, in line with the manual (default value, type, allocates pin bool)
     "led": (-1, int, True),
     "ledtype": ("generic", str, False),
+    "leden": (-1, int, True),
     "serial_console": (True, bool, False),
     "usb_access": (True, bool, False),
     "DEBUG": (False, bool, False),
@@ -190,8 +191,22 @@ for pin in pin_alloc:
 dmtex("", timing=False)
 
 ldd = cptoml.fetch("led", "LJINUX")
+boardLED = None
+boardLEDen = None
 if ldd == -1:
-    boardLED = board.LED
+    ct = cptoml.fetch("ledtype", "LJINUX")
+    if ct.startswith("generic"):
+        boardLED = board.LED
+    elif ct.startswith("neopixel"):
+        boardLED = board.NEOPIXEL
+        cen = cptoml.fetch("leden", "LJINUX")
+        if cen == -1:
+            if "NEOPIXEL_POWER" in dir(board):
+                boardLEDen = board.NEOPIXEL_POWER
+        else:
+            boardLEDen = pintab[cen]
+        del cen
+    del ct
 else:
     boardLED = pintab[ldd]
 del ldd, defaultoptions
@@ -663,6 +678,11 @@ class ljinux:
         getled = 0
 
         led = digitalio.DigitalInOut(boardLED)
+        leden = None
+        if boardLEDen is not None:
+            leden = digitalio.DigitalInOut(boardLEDen)
+            leden.switch_to_output()
+            leden.value = 1
         ledg = None
         ledb = None
         defstate = True

@@ -3,6 +3,7 @@ CIRCUITPY_PYSTACK_SIZE=6144
 [LJINUX]
 serial_console = true
 usb_access = false
+leden = -1
 ledtype = "neopixel"
 led = 16
 DEBUG = false

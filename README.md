@@ -30,6 +30,7 @@ At the moment the supported boards are:<br />
  - Adafruit KB2040<br />
  - Waveshare ESP32-S2-Pico<br />
  - Adafruit Feather ESP32-S2<br />
+ - Adafruit Feather ESP32-S3 TFT<br />
  - Pimoroni Pico Lipo (16mb)<br />
  - Pimoroni Pico Lipo (4mb)<br />
  - Wemos Lolin S2 Mini<br />
@@ -46,7 +47,7 @@ Note: Installation from windows is unsupported.<br />
 1) Install a supported CircuitPython version onto the board.<br />
     Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
 2) Download the latest ljinux release for your board and extract it onto it.<br />
-    Or alternatively, clone this repository and from within the "source" folder, run <code>make install</code>.<br />
+    Or alternatively, if you wish to use the latest master, clone this repository and from within the "source" folder, run <code>make install</code>.<br />
     If you are on windows (Note: Windows install in beta.), run the <code>windows-install.bat</code>.<br />
     This command will automatically update the system files if they already exist.<br />
     To only update the wanna-be kernel run <code>make</code> instead.<br />
