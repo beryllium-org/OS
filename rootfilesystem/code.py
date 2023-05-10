@@ -19,9 +19,9 @@ jrub = lambda text: print(f"jrub> {text}")
 try:
     from ljinux import ljinux
 
-    jrub("Ljinux basic init done")
+    jrub("Ljinux init complete")
 except ImportError:
-    jrub("Ljinux wanna-be kernel binary not found, cannot continue..")
+    jrub("Ljinux binary not found, cannot continue..")
     exit_l[1]()
 
 oss = ljinux()
@@ -30,12 +30,12 @@ jrub("Running Ljinux autorun..")
 
 try:
     Exit_code = oss.based.autorun()
-    jrub(f"Shell exited with exit code {Exit_code}")
+    jrub(f"Program exited with exit code {Exit_code}")
 except EOFError:
-    jrub("\nAlert: Serial Ctrl + D caught, exiting\n")
+    jrub("\nAlert: Ctrl + D caught, exiting\n")
     exit_l[0]()
 except Exception as err:
-    print(f"\n\nLjinux crashed with:\n\t{str(type(err))[8:-2]}: {str(err)}")
+    print(f"\n\nLjinux crashed with: {str(type(err))[8:-2]}: {str(err)}")
     del err
     exit_l[1]()
 

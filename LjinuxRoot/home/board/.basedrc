@@ -1,13 +1,14 @@
-# the splash 
 uname -a
 cat /etc/motd
 
-# set history size (default 10) to preserve memory
-# history-size = 10
+# Uncomment to override history size
+# Default is 10, to preserve memory
+# history-size = 100
 
-# nice aliases
-alias ifpexec="fpexec -i"
-alias lfpexec="fpexec -l"
-alias more="less"
+# nice aliases, enable whichever you want.
+#alias ifpexec="fpexec -i"
+#alias lfpexec="fpexec -l"
+#alias more="less"
 alias ll="ls -l"
 alias la="ls -la"
+alias py="python"

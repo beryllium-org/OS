@@ -9,7 +9,7 @@ print("-" * 16 + "\nL", end="")
 devm = fetch("usb_access", "LJINUX")
 stash = ""
 if devm:
-    stash = "Development mode usb_access has been enabled!\n"
+    stash = "Cannot write to filesystem! usb_access has been enabled!\n"
 print("J", end="")
 
 lj_mount = getmount("/")
@@ -27,4 +27,4 @@ if not devm:
         disable_usb_drive()
     except RuntimeError:
         pass
-print("UX boot core\n" + "-" * 16 + "\nOutput:\n" + stash)
+print("UX pre-boot core\n" + "-" * 16 + "\nOutput:\n" + stash)
