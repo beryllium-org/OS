@@ -481,6 +481,8 @@ class ljinux:
             res = 2
 
             bckdir = getcwd()
+            while dirr.endswith("/") and (dirr != "/"):
+                dirr = dirr[:-1]
             if rdir is None:
                 if "/" in dirr and dirr not in ["/", "&/"]:
                     rdir = dirr[: dirr.rfind("/")]
@@ -659,7 +661,7 @@ class ljinux:
 
         def getall():  # get the whole history, numbered, line by line
             for index, item in enumerate(ljinux.history.historyy):
-                print(f"{index + 1}: {item}")
+                term.write(f"{index + 1}: {item}")
                 del index, item
 
     class io:
@@ -897,6 +899,10 @@ class ljinux:
                 13: f"Terminal too small, minimum size: {f}",
                 14: "Is a file",
                 15: "Is a directory",
+                16: "Directory not empty",
+                17: "Not a directory",
+                18: "Not a file",
+                19: "Not a device",
             }
             term.write(f"{prefix}: {errs[wh]}")
             ljinux.io.ledset(1)
@@ -1493,7 +1499,7 @@ class ljinux:
                                         for i in candidates:
                                             if not i.startswith("_"):  # discard those
                                                 minn = min(minn, len(i))
-                                                print("\t" + i)
+                                                term.nwrite("\t" + i)
                                             del i
                                         letters_match = 0
                                         isMatch = True
@@ -1616,7 +1622,7 @@ class ljinux:
                                 term.clear_line()
                         except KeyboardInterrupt:
                             # duplicate code as by ^C^C you could escape somehow
-                            print("^C")
+                            term.nwrite("^C")
                             term.buf[1] = ""
                             term.focus = 0
                             term.clear_line()
