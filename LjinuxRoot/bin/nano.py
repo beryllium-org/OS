@@ -7,7 +7,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.7.3"
+    versionn = "1.7.5"
 
     try:
         filee = ljinux.based.user_vars["argj"].split()[1]
@@ -372,7 +372,14 @@ if sizee[0] > 14 and sizee[1] > 105:
                     del td, tf, magic
 
             elif term.buf[0] is 12:  # add tab
-                term.stdin = " " * 4
+                term.nwrite(" " * 4)
+                insertion_pos = len(term.buf[1]) - term.focus
+                term.buf[1] = (
+                    term.buf[1][:insertion_pos] + " " * 4 + term.buf[1][insertion_pos:]
+                )
+                dataa[cl] = term.buf[1]
+                del insertion_pos
+
             elif savee:
                 # counter visual bug
                 term.nwrite(len(term.buf[1]) * "\010")
