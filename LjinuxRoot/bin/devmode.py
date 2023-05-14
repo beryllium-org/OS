@@ -1,27 +1,28 @@
-try:
-    with open("/devm", "r"):
-        pass
-    term.write(
-        'Error: file exists\nIf you want to disable developer mode, delete the file "devm" from the board\'s USB filesystem and powercycle it.'
-    )
-except OSError:
+if not cptoml.fetch("usb_access", "LJINUX"):
     opts = ljinux.api.xarg()
-    try:
-        if "q" not in opts["o"]:  # -q skips message & delay
-            term.write(
-                "Enabling ljinux developer mode..\nKeep in mind that the board will restart automatically, after it's enabled."
-            )
+    cont = True
+    if "q" not in opts["o"]:  # -q skips message & delay
+        term.write(
+            "Enabling ljinux developer mode in 5 seconds..\n"
+            + "Keep in mind that the board will restart immediately after it's enabled.\n"
+            + "Press 'Ctrl + C' to abort"
+        )
+        try:
             time.sleep(5)
-        del opts
+        except KeyboardInterrupt:
+            cont = False
+            term.write("Aborted.")
+            ljinux.api.setvar("return", "1")
+    if cont:
         remount("/", False)
-        f = open("/devm", "w")
-        f.close()
+        cptoml.put("usb_access", True, "LJINUX")
         remount("/", True)
         global Exit
         global Exit_code
         Exit = True
         Exit_code = 245
-    except KeyboardInterrupt:
-        print("Aborted.")
-        del opts
-        ljinux.api.setvar("return", "1")
+    del opts, cont
+else:
+    term.write(
+        "Developer mode already enabled! To disable it, set 'usb_access' to 'false' in '&/settings.toml'."
+    )

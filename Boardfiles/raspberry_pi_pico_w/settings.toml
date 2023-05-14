@@ -1,0 +1,13 @@
+CIRCUITPY_PYSTACK_SIZE=6144
+
+[LJINUX]
+serial_console = true
+usb_access = false
+leden = -1
+ledtype = "generic"
+led = -1
+DEBUG = false
+root_SCLK = -1
+root_SCSn = -1
+root_MOSI = -1
+root_MISO = -1

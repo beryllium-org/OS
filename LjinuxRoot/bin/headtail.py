@@ -16,7 +16,7 @@ try:
         start = 0 if mod == "head" else count - lines
         end = lines if mod == "head" else count - 1
         for item in content[start:end]:
-            term.write(item, end="")
+            term.nwrite(item)
             del item
         if mod == "tail":
             term.write(content[-1])

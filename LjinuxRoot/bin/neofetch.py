@@ -125,17 +125,15 @@ tex += [
         + f"{colors.white_t}███{colors.endc}"
     ),
 ]
-pos = term.detect_pos()
 for i in range(0, max(len(logo), len(tex))):
     try:
-        stdout.write(logo[i])
+        term.nwrite(logo[i] + ((seperat - len(ljinux.api.remove_ansi(logo[i]))) * " "))
     except IndexError:
-        pass
-    term.move(y=seperat, x=pos[0] + i)
+        term.nwrite(seperat * " ")
     try:
-        stdout.write(tex[i])
+        term.nwrite(tex[i])
     except IndexError:
         pass
-    stdout.write("\n")
+    term.write()
     del i
-del tex, logo, seperat, pos
+del tex, logo, seperat

@@ -15,7 +15,7 @@ term.buf[1] = ""
 currdep = 0
 mass = []
 dmtex("Staring Python shell")
-print(
+term.write(
     "CircuitPython "
     + ljinux.based.system_vars["IMPLEMENTATION"]
     + " on ljinux "
@@ -36,7 +36,7 @@ while True:
         term.buf[0] = 2
     ljinux.io.ledset(3)
     if term.buf[0] == 1:
-        print("^D")
+        term.write("^D")
         term.buf[1] = ""
         term.focus = 0
         break
@@ -47,19 +47,19 @@ while True:
                     "ljdirtest = dir({})".format(term.buf[1][: term.buf[1].rfind(".")])
                 )
                 if len(ljdirtest):
-                    stdout.write("\n")
+                    term.write()
                     for i in ljdirtest:
                         if not i.startswith("_"):
-                            stdout.write(i + "    ")
+                            term.nwrite(i + "    ")
                         del i
-                    stdout.write("\n")
+                    term.write()
                 del ljdirtest
             else:
                 raise Exception
         except:
             term.buf[1] += "    "
     elif term.buf[0] == 0:
-        print()
+        term.write()
         if term.buf[1].startswith(" "):
             if term.buf[1].isspace():
                 term.trigger_dict["prefix"] = ">>> "
@@ -73,7 +73,7 @@ while True:
                 try:
                     exec(execstr)
                 except Exception as Err:
-                    print(str(Err))
+                    term.write(str(Err))
                 del execstr
             else:
                 mass.append(term.buf[1])
@@ -99,7 +99,7 @@ while True:
                 try:
                     exec(execstr)
                 except Exception as Err:
-                    print(str(Err))
+                    term.write(str(Err))
                 del execstr
 
         elif term.buf[1].startswith("exit"):
@@ -116,7 +116,7 @@ while True:
             except IndexError:
                 term.buf[1] = ""
                 term.focus = 0
-                print("Use exit() or Ctrl-D (i.e. EOF) to exit")
+                term.write("Use exit() or Ctrl-D (i.e. EOF) to exit")
 
         elif term.buf[1].endswith(":"):
             currdep += 4
@@ -146,14 +146,14 @@ while True:
                     exec(term.buf[1])
                 del pyskippri
                 if cppy is not None:
-                    print(str(cppy))
+                    term.write(str(cppy))
                 del cppy
             except Exception as Err:
-                print(str(Err))
+                term.write(str(Err))
             term.buf[1] = ""
             term.focus = 0
     elif term.buf[0] == 2:
-        print("\nKeyboardInterrupt")
+        term.write("\nKeyboardInterrupt")
         term.buf[1] = ""
         mass.clear()
         term.focus = 0

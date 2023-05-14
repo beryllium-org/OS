@@ -1,22 +1,25 @@
 args = ljinux.based.user_vars["argj"].split()
 try:
     if args[1] == "set":
+        import rtc
+
         try:
             rtc.RTC().datetime = time.struct_time(
                 (
-                    int(args[4]),
-                    int(args[3]),
                     int(args[2]),
-                    int(args[5]),
-                    int(args[6]),
-                    int(args[7]),
-                    1,
-                    -1,
-                    -1,
+                    int(args[3]),
+                    int(args[4]),
+                    int(args[5]) if len(args) > 5 else 0,
+                    int(args[6]) if len(args) > 6 else 0,
+                    int(args[7]) if len(args) > 7 else 0,
+                    int(args[8]) if len(args) > 8 else 0,
+                    int(args[9]) if len(args) > 9 else 0,
+                    int(args[10]) if len(args) > 10 else 0,
                 )
             )  # yr, mon, d, hr, m, s, ss, shit,shit,shit
         except IndexError:
             ljinux.based.error(1)
+        del rtc
     else:
         raise IndexError
 except IndexError:

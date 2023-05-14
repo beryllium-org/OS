@@ -3,7 +3,7 @@ inpt = ljinux.based.user_vars["argj"].split()
 try:
     with open(ljinux.api.betterpath(inpt[1]), "r") as f:
         for line in f:
-            term.write(line, end="")
+            term.nwrite(line)
             del line
         del f
         gc.collect()

@@ -1,4 +1,4 @@
-if not hasattr(console, "fake"):
+if term.check_activity():
     while not console.connected:
         ljinux.io.ledset(4)
         time.sleep(0.4)

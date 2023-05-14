@@ -1,26 +1,50 @@
-# Stop dmesg from flooding
-pexec systemprints(1, "Suppress dmesg flooding")
-pexec term.dmtex_suppress = True
+# Detect early serial connections and make logging immediately available
+_earlyconnection
+
+# Add /lib to path
+pexec from sys import path as syspath
+pexec syspath.append("/LjinuxRoot/lib")
+pexec del syspath
+pexec systemprints(1, "System path updated")
+
+# Connect to a network on boot (example uses wifi driver)
+#modprobe driver_wifi as network
+#pexec systemprints(2, "Connecting to your network")
+#iwctl --passphrase "your wifi password" station wifi connect ssid_here
+#pexec systemprints(1, "Connecting to your network")
+#pexec systemprints(2, "Sync time via ntp")
+#timesync
+#pexec systemprints(1, "Sync time via ntp")
+
+## If no network use this instead
+advance_build_date
 
 # Configure init overrides
-# INIT = "normal"
+#INIT = "normal"
 
-cd /home/board
-USER = "board"
-fpexec /LjinuxRoot/etc/hostname-reload.py
-
-# Clear the dmesg log on low-end board
-# _ndmesg
-
-# Set buffer to unbuffered and flush current buffer
-pexec term.hold_stdout = False
-pexec term.flush_writes()
+# Clear the dmesg log on low-end boards
+#_ndmesg
 
 # Clear boot buffer
 # clear
 
+# Final system configuration
+cd /home/board
+USER = "board"
+fpexec /LjinuxRoot/etc/hostname-reload.py
+SECURITY = "on"
+
 # Wait for connection
 _waitforconnection
+
+# Late serial connection
+pexec term.hold_stdout = False
+pexec term.flush_writes()
+pexec systemprints(1, "Dmesg flushed")
+
+# Stop dmesg from flooding tty
+pexec systemprints(1, "Suppress dmesg flooding")
+pexec term.dmtex_suppress = True
 
 # Checks
 _rebootprompt
@@ -28,6 +52,4 @@ _devmodeprompt
 
 # Setup terminal
 fpexec /bin/ljinuxtitle.py
-SECURITY = "on"
 exec .basedrc
-

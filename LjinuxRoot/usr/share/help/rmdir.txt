@@ -1,0 +1,3 @@
+Usage: rmdir [OPTION]... DIRECTORY...
+Remove the DIRECTORY(ies), if they are empty.
+  -h, --help        displays this help message.

@@ -21,8 +21,8 @@ Table of Contents
 
 ## Prerequisites and optional hardware
 
-Runs on circuitpython 7.3.X or 8.0.X.<br />
-At the moment the supported microcontrollers are:<br />
+Runs on circuitpython <code>8.X</code>.<br />
+At the moment the supported boards are:<br />
 
  - Raspberry Pi Pico<br />
  - Raspberry Pi Pico W<br />
@@ -30,13 +30,15 @@ At the moment the supported microcontrollers are:<br />
  - Adafruit KB2040<br />
  - Waveshare ESP32-S2-Pico<br />
  - Adafruit Feather ESP32-S2<br />
+ - Adafruit Feather ESP32-S3 TFT<br />
  - Pimoroni Pico Lipo (16mb)<br />
  - Pimoroni Pico Lipo (4mb)<br />
  - Wemos Lolin S2 Mini<br />
  - Seeed XIAO nRF52840 (Sense)<br />
+ - DFRobot Beetle ESP32-C3<br />
 
 But it can probably run on many more.<br />
-The only real limiting factor should be ram, as about 100k are needed for the system function.<br />
+The only real limiting factor should be ram, as about 70k (usable under circuitpython) are needed.<br />
 <i>(If you have gotten it running on an unsupported board, feel free to pr a configuration folder)</i><br />
 
 ## Installation / Updating
@@ -46,7 +48,7 @@ Note: Installation from windows is unsupported.<br />
 1) Install a supported CircuitPython version onto the board.<br />
     Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
 2) Download the latest ljinux release for your board and extract it onto it.<br />
-    Or alternatively, clone this repository and from within the "source" folder, run <code>make install</code>.<br />
+    Or alternatively, if you wish to use the latest master, clone this repository and from within the "source" folder, run <code>make install</code>.<br />
     If you are on windows (Note: Windows install in beta.), run the <code>windows-install.bat</code>.<br />
     This command will automatically update the system files if they already exist.<br />
     To only update the wanna-be kernel run <code>make</code> instead.<br />
@@ -78,7 +80,7 @@ To connect to the board it's recommended to use Putty for Windows and Tio for Li
 For Putty, select connection type to be Serial, select the port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the board and set the speed/baudrate to 115200.<br />
 (You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br />(The baudrate may differ for your board, do not explicitly stick to 115200)<br /><br />
 
-For Tio, if you are on linux, you need to be in the <code>dialout</code> user group and to connect, run: <code>tio /dev/ttyACM0</code>
+For Tio, if you are on linux, you need to be in the <code>dialout</code> or <code>uucp</code> user group and to connect, run: <code>tio /dev/ttyACM0</code>
 <br />If you are on a Mac instead, run: <code>ls /dev/tty.usb*</code> to find the device name, and connect to it by running: <code>tio /dev/tty.usb\<Device name here\></code><br />
 To disconnect, press <code>Ctrl</code> + <code>t</code>, <code>q</code>.<br />
 To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dialout \<your username here\></code> and restart.<br />

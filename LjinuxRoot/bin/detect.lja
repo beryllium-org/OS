@@ -1,1 +1,2 @@
+pexec term.clear_buffer()
 pexec term.detect_size()

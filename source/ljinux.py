@@ -1,14 +1,17 @@
-# -----------------
-#      Ljinux
-# Coded on a Raspberry Pi 400
-# "It's all bloat" - Mariospapaz 2022
-# -----------------
+# ------------------------------------- #
+#           Ljinux 0.3.6-dev            #
+#                                       #
+#     Written on a Raspberry Pi 400     #
+# Now rapidly approaching your location #
+# ------------------------------------- #
 
 Version = "0.3.6-dev"
-Circuitpython_supported = [(7, 3), (8, 0)]
-dmesg = []
+
 ndmesg = False  # disable dmesg for ram
-access_log = []
+# run _ndmesg from the shell to properly trigger it
+
+dmesg = list()
+access_log = list()
 
 # Core board libs
 try:
@@ -19,6 +22,19 @@ try:
 
     import board
     import digitalio
+
+    from sys import implementation, platform, modules, exit
+
+    import busio
+    from microcontroller import cpu
+    from storage import remount, VfsFat, mount, getmount
+    from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove, sync
+    from math import trunc
+    import time
+
+    from jcurses import jcurses
+    import cptoml
+    from lj_colours import lJ_Colours as colors
 except ImportError:
     print("FATAL: Core libraries loading failed")
 
@@ -26,15 +42,26 @@ except ImportError:
 
     exit(1)
 
-print("[    0.00000] Core libs loaded")
-dmesg.append("[    0.00000] Core libs loaded")
+global console
+try:
+    from usb_cdc import console
+except ImportError:
+    try:
+        global virtUART
+        from virtUART import virtUART
+
+        console = virtUART()
+    except ImportError:
+        from sys import exit
+
+        exit(1)
+
+print("[    0.00000] Core modules loaded")
+dmesg.append("[    0.00000] Core modules loaded")
 
 # Pin allocation tables
 pin_alloc = set()
 gpio_alloc = {}
-
-# Default password, aka the password if no /etc/passwd is found
-dfpasswd = "Ljinux"
 
 # Exit code holder, has to be global for everyone to be able to see it.
 Exit = False
@@ -42,13 +69,7 @@ Exit_code = 0
 
 # Hardware autodetect vars, starts assuming everything is missing
 sdcard_fs = False
-print("[    0.00000] Sys vars loaded")
-dmesg.append("[    0.00000] Sys vars loaded")
 
-import time
-
-print("[    0.00000] Timing libraries done")
-dmesg.append("[    0.00000] Timing libraries done")
 uptimee = (
     -time.monotonic()
 )  # using uptimee as an offset, this way uptime + time.monotonic = 0 at this very moment and it goes + from here on out
@@ -59,14 +80,14 @@ dmesg.append("[    0.00000] Timings reset")
 oend = "\n"  # needed to mask print
 
 try:
-    from jcurses import jcurses
-
     term = jcurses()  # the main curses entity, used primarily for based.shell()
     term.hold_stdout = True  # set it to buffered by default
-    print("[    0.00000] Loaded jcurses")
-    dmesg.append("[    0.00000] Loaded jcurses")
+    term.console = console
+    term.nwrite(colors.reset_s_format)
+    print("[    0.00000] Jcurses init complete")
+    dmesg.append("[    0.00000] Jcurses init complete")
 except ImportError:
-    print("FATAL: FAILED TO LOAD JCURSES")
+    print("FATAL: FAILED TO INIT JCURSES")
     exit(0)
 
 
@@ -107,79 +128,22 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
 dmtex("Dmesg ready")
 
 try:
-    from sys import (
-        implementation,
-        platform,
-        modules,
-        exit,
-        stdout,
-    )
-
-    import busio
-
-    from microcontroller import cpu
-
-    from storage import remount, VfsFat, mount, getmount
-
-    from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove, sync
-
-    from io import StringIO
-    from usb_cdc import console
-    from getpass import getpass
-    import json
-    from traceback import print_exception
-    from math import trunc
-
-    dmtex("System libraries loaded")
-except ImportError:
-    dmtex("FATAL: SYSTEM LIBRARIES LOAD FAILED")
-    exit(0)
-
-try:
     from neopixel_write import neopixel_write
 except ImportError:
     pass  # no big deal, this just isn't a neopixel board
 
-try:
-    from lj_colours import lJ_Colours as colors
-
-    term.write(colors.reset_s_format, end="")
-    dmtex("Loaded lj_colours")
-except ImportError:
-    dmtex(f"{colors.error}FATAL:{colors.endc} FAILED TO LOAD LJ_COLOURS")
-    dmtex(
-        "If you intented to disable colors, just rename lj_colours_placebo -> lj_colours"
-    )
-    exit(0)
-
 # Board specific configurations
-try:
-
-    with open("/config.json") as config_file:
-        dmtex("Loaded /config.json")
-        configg = json.load(config_file)
-        del config_file
-
-    for i in configg:
-        if i.startswith("_"):
-            del configg[i]
-        del i
-
-except (ValueError, OSError):
-    configg = {}
-    dmtex("Kernel config could not be found / parsed, applying defaults")
-
-dmtex("Options applied:")
-
 defaultoptions = {  # default configuration, in line with the manual (default value, type, allocates pin bool)
-    "led": (0, int, True),
+    "led": (-1, int, True),
     "ledtype": ("generic", str, False),
-    "SKIPCP": (False, bool, False),
+    "leden": (-1, int, True),
+    "serial_console": (True, bool, False),
+    "usb_access": (True, bool, False),
     "DEBUG": (False, bool, False),
-    "sd_SCLK": (-1, int, True),
-    "sd_SCSn": (-1, int, True),
-    "sd_MISO": (-1, int, True),
-    "sd_MOSI": (-1, int, True),
+    "root_SCLK": (-1, int, True),
+    "root_SCSn": (-1, int, True),
+    "root_MISO": (-1, int, True),
+    "root_MOSI": (-1, int, True),
 }
 
 # pintab
@@ -193,8 +157,9 @@ except:
 
 # General options
 for optt in list(defaultoptions.keys()):
+    optt_dt = cptoml.fetch(optt, "LJINUX")
     try:
-        if isinstance(configg[optt], defaultoptions[optt][1]):
+        if isinstance(optt_dt, defaultoptions[optt][1]):
             dmtex(
                 "\t"
                 + colors.green_t
@@ -203,69 +168,63 @@ for optt in list(defaultoptions.keys()):
                 + " "
                 + optt
                 + "="
-                + str(configg[optt]),
+                + str(optt_dt),
                 timing=False,
             )
         else:
             raise KeyError
     except KeyError:
-        configg.update({optt: defaultoptions[optt][0]})
-        dmtex(
-            f'Missing / Invalid value for "{optt}" applied: {configg[optt]}',
-            timing=False,
-        )
+        try:
+            remount("/", False)
+            optt_dt = defaultoptions[optt][0]
+            cptoml.put(optt, optt_dt, "LJINUX")
+            dmtex(
+                colors.green_t + "Updated: " + colors.endc + optt + "=" + str(optt_dt),
+                timing=False,
+            )
+            remount("/", True)
+        except RuntimeError:
+            dmtex("Could not update /settings.toml, usb access is enabled.")
+            term.hold_stdout = True  # set it to buffered by default
+            term.flush_writes()
+            exit(0)
     if defaultoptions[optt][2]:
-        pin = configg[optt]
-        if pin in pin_alloc:
+        if optt_dt in pin_alloc:
             dmtex("PIN ALLOCATED, EXITING")
             exit(0)
-        elif pin == -1:
+        elif optt_dt == -1:
             pass
         else:
-            pin_alloc.add(pin)
-        del pin
+            pin_alloc.add(optt_dt)
+    del optt, optt_dt
 
 dmtex("Total pin alloc: ", end="")
 for pin in pin_alloc:
     dmtex(str(pin), timing=False, end=" ")
 dmtex("", timing=False)
 
-if configg["led"] == -1:
-    boardLED = board.LED
+ldd = cptoml.fetch("led", "LJINUX")
+boardLED = None
+boardLEDen = None
+if ldd == -1:
+    ct = cptoml.fetch("ledtype", "LJINUX")
+    if ct.startswith("generic"):
+        boardLED = board.LED
+    elif ct.startswith("neopixel"):
+        boardLED = board.NEOPIXEL
+        cen = cptoml.fetch("leden", "LJINUX")
+        if cen == -1:
+            if "NEOPIXEL_POWER" in dir(board):
+                boardLEDen = board.NEOPIXEL_POWER
+        else:
+            boardLEDen = pintab[cen]
+        del cen
+    del ct
 else:
-    boardLED = pintab[configg["led"]]
-
-del defaultoptions
-
-# basic checks
-if not configg["SKIPCP"]:  # beta testing
-    good = False
-    for i in Circuitpython_supported:
-        if implementation.version[:2] == i:
-            good = True
-            del i
-            break
-        del i
-    if good:
-        dmtex("Running on supported implementation")
-    else:
-        dmtex(
-            "-" * 42
-            + "\n"
-            + " " * 14
-            + "WARNING: Unsupported CircuitPython version\n"
-            + " " * 14
-            + "-" * 42
-        )
-        for i in range(10, 0):
-            term.write(
-                f"WARNING: Unsupported CircuitPython version (Continuing in {i})"
-            )
-            time.sleep(1)
-            del i
-    del good
-else:
-    term.write("Skipped CircuitPython version checking, happy beta testing!")
+    boardLED = pintab[ldd]
+del ldd, defaultoptions
+gc.collect()
+gc.collect()
 
 dmtex((f"Board memory: {usable_ram} bytes"))
 dmtex((f"Memory free: {gc.mem_free()} bytes"))
@@ -287,9 +246,9 @@ except ImportError:
 try:
     import adafruit_sdcard
 
-    dmtex("Sdcard libraries loaded")
+    dmtex("TFcard libraries loaded")
 except ImportError:
-    dmtex(colors.error + "Notice: " + colors.endc + "SDcard libraries loading failed")
+    dmtex(colors.error + "Notice: " + colors.endc + "TFcard libraries loading failed")
 
 dmtex("Imports complete")
 
@@ -301,6 +260,7 @@ def systemprints(mod, tx1, tx2=None):
         1: lambda: dmtex(colors.green_t + "OK", timing=False, end=""),
         2: lambda: dmtex(colors.magenta_t + "..", timing=False, end=""),
         3: lambda: dmtex(colors.red_t + "FAILED", timing=False, end=""),
+        4: lambda: dmtex(colors.red_t + "EMERG", timing=False, end=""),
     }
     mods[mod]()
     dmtex(colors.endc + " ] " + tx1, timing=False)
@@ -316,6 +276,20 @@ class ljinux:
     modules = dict()
 
     class api:
+        def remove_ansi(text):
+            result = ""
+            i = 0
+            while i < len(text):
+                if text[i : i + 2] == "\033[":  # Skip
+                    while i < len(text) and text[i] != "m":
+                        i += 1
+                    i += 1
+                else:
+                    result += text[i]
+                    i += 1
+            del i, text
+            return result
+
         def getvar(var):
             """
             Get a ljinux user variable without mem leaks
@@ -517,47 +491,33 @@ class ljinux:
             Checks if given item is file (returns 0) or directory (returns 1).
             Returns 2 if it doesn't exist.
             """
-            dirr = ljinux.api.betterpath(dirr)
-            rdir = ljinux.api.betterpath(rdir)
-            cddd = getcwd() if rdir is None else rdir
-
             res = 2
 
+            bckdir = getcwd()
+            while dirr.endswith("/") and (dirr != "/"):
+                dirr = dirr[:-1]
+            if rdir is None:
+                if "/" in dirr and dirr not in ["/", "&/"]:
+                    rdir = dirr[: dirr.rfind("/")]
+                    if len(rdir) == 0:
+                        rdir = "/"
+                    dirr = dirr[dirr.rfind("/") + 1 :]
+                    cddd = ljinux.api.betterpath(rdir)
+                else:
+                    cddd = bckdir
+            else:
+                cddd = ljinux.api.betterpath(rdir)
+            dirr = ljinux.api.betterpath(dirr)
+            chdir(cddd)  # We assume ref dir exists
             try:
                 chdir(dirr)
-                chdir(cddd)
-                res = 1
-            except OSError:
-                rr = "/"
-                try:
-                    # browsing deep
-                    if dirr.count(rr) not in [0, 1] and dirr[
-                        dirr.rfind(rr) + 1 :
-                    ] in listdir(dirr[: dirr.rfind(rr)]):
-                        res = 0
-                    elif dirr.count(rr) is 1 and dirr.startswith(rr):
-                        # browsing root
-                        if dirr[1:] in listdir(rr):
-                            res = 0
-                    else:
-                        # browsing dum
-                        if dirr[dirr.rfind(rr) + 1 :] in listdir(
-                            dirr[: dirr.rfind(rr)]
-                        ):
-                            res = 0
-                        else:
-                            raise OSError
-
-                except OSError:
-                    try:
-                        if dirr in (
-                            listdir(cddd) + (listdir(rdir) if rdir is not None else [])
-                        ):
-                            res = 0
-                    except OSError:
-                        res = 2  # we have had enough
-                del rr
-            del cddd, rdir, dirr
+                chdir(bckdir)
+                res = 1  # It's a dir
+            except OSError:  # we are still in cddd
+                if dirr in listdir():
+                    res = 0
+            chdir(bckdir)
+            del cddd, rdir, dirr, bckdir
             return res
 
         def betterpath(back=None):
@@ -714,12 +674,11 @@ class ljinux:
 
         def getall():  # get the whole history, numbered, line by line
             for index, item in enumerate(ljinux.history.historyy):
-                print(f"{index + 1}: {item}")
+                term.write(f"{index + 1}: {item}")
                 del index, item
 
     class io:
-        # activity led
-
+        # Activity led
         ledcases = {
             0: bytearray([0, 0, 0]),  # off
             1: bytearray([3, 0, 0]),  # Alternative idle, to indicate input
@@ -734,30 +693,31 @@ class ljinux:
         getled = 0
 
         led = digitalio.DigitalInOut(boardLED)
+        leden = None
+        if boardLEDen is not None:
+            leden = digitalio.DigitalInOut(boardLEDen)
+            leden.switch_to_output()
+            leden.value = 1
         ledg = None
         ledb = None
-
         defstate = True
+        ledtype = cptoml.fetch("ledtype", "LJINUX")
 
         led.direction = digitalio.Direction.OUTPUT
-        if configg["ledtype"].startswith("rgb"):
+        if ledtype.startswith("rgb"):
             ledg = digitalio.DigitalInOut(board.LED_GREEN)
             ledg.direction = digitalio.Direction.OUTPUT
             ledb = digitalio.DigitalInOut(board.LED_BLUE)
             ledb.direction = digitalio.Direction.OUTPUT
 
-        if configg["ledtype"] == "generic_invert":
-            configg["ledtype"] = "generic"
-            defstate = False
-        elif configg["ledtype"] == "rgb_invert":
-            configg["ledtype"] = "rgb"
+        if ledtype.endswith("_invert"):
             defstate = False
 
-        if configg["ledtype"] == "generic":
+        if ledtype.startswith("generic"):
             led.value = defstate
-        elif configg["ledtype"] == "neopixel":
-            neopixel_write(led, nc.idle)
-        elif configg["ledtype"] == "rgb":
+        elif ledtype.startswith("neopixel"):
+            neopixel_write(led, ledcases[2])
+        elif ledtype.startswith("rgb"):
             led.value = defstate
             ledg.value = defstate
             ledb.value = defstate
@@ -771,14 +731,14 @@ class ljinux:
 
             if isinstance(state, int):
                 ## use preconfigured led states
-                if configg["ledtype"] == "generic":
+                if ljinux.io.ledtype.startswith("generic"):
                     if state in [0, 3, 4, 5]:  # close tha led
                         ljinux.io.led.value = not ljinux.io.defstate
                     else:
                         ljinux.io.led.value = ljinux.io.defstate
-                elif configg["ledtype"] == "neopixel":
+                elif ljinux.io.ledtype.startswith("neopixel"):
                     neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
-                elif configg["ledtype"] == "rgb":
+                elif ljinux.io.ledtype.startswith("rgb"):
                     cl = ljinux.io.ledcases[state]
                     ljinux.io.led.value, ljinux.io.ledg.value, ljinux.io.ledb.value = (
                         (cl[1], cl[0], cl[2])
@@ -790,19 +750,18 @@ class ljinux:
                 ljinux.io.getled = state
                 del state
             elif isinstance(state, tuple):
-
                 # a custom color
-                if configg["ledtype"] == "generic":
+                if ljinux.io.ledtype.startswith("generic"):
                     inv = ljinux.io.defstate
                     if sum(state) is 0:
                         inv = not inv
                     ljinux.io.led.value = inv
                     del inv
-                elif configg["ledtype"] == "neopixel":
+                elif ljinux.io.ledtype.startswith("neopixel"):
                     swapped_state = (state[1], state[0], state[2])
                     neopixel_write(ljinux.io.led, bytearray(swapped_state))
                     del swapped_state
-                elif configg["ledtype"] == "rgb":
+                elif ljinux.io.ledtype.startswith("rgb"):
                     ljinux.io.led.value, ljinux.io.ledg.value, ljinux.io.ledb.value = (
                         (state[0], state[1], state[2])
                         if ljinux.io.defstate
@@ -828,34 +787,40 @@ class ljinux:
 
         def start_sdcard():
             global sdcard_fs
+            root_SCLK = cptoml.fetch("root_SCLK", "LJINUX")
+            root_SCSn = cptoml.fetch("root_SCSn", "LJINUX")
+            root_MISO = cptoml.fetch("root_MISO", "LJINUX")
+            root_MOSI = cptoml.fetch("root_MOSI", "LJINUX")
             if (
-                configg["sd_SCLK"] != -1
-                and configg["sd_SCSn"] != -1
-                and configg["sd_MISO"] != -1
-                and configg["sd_MOSI"] != -1
+                root_SCLK != -1
+                and root_SCSn != -1
+                and root_MISO != -1
+                and root_MOSI != -1
             ):
-                spi = busio.SPI(board.GP2, MOSI=board.GP3, MISO=board.GP4)
-                cs = digitalio.DigitalInOut(board.GP5)
+                spi = busio.SPI(
+                    pintab[root_SCLK],
+                    MOSI=pintab[root_MOSI],
+                    MISO=pintab[root_MISO],
+                )
+                cs = digitalio.DigitalInOut(pintab[root_SCSn])
+                dmtex("TF card bus ready")
+                try:
+                    sdcard = adafruit_sdcard.SDCard(spi, cs)
+                    del spi
+                    del cs
+                    vfs = VfsFat(sdcard)
+                    dmtex("TF card mount attempted")
+                    mount(vfs, "/LjinuxRoot")
+                    del sdcard, vfs
+                    sdcard_fs = True
+                except NameError:
+                    dmtex("adafruit_sdcard library not present, aborting.")
+                    del root_SCLK, root_SCSn, root_MISO, root_MOSI
             else:
                 sdcard_fs = False
-                dmtex("No pins for sdcard, skipping setup")
+                dmtex("No pins for TF card, skipping setup")
+                del root_SCLK, root_SCSn, root_MISO, root_MOSI
                 return
-            dmtex("SD bus ready")
-            try:
-                sdcard = adafruit_sdcard.SDCard(spi, cs)
-                vfs = VfsFat(sdcard)
-                dmtex("SD mount attempted")
-                mount(vfs, "/LjinuxRoot")
-                sdcard_fs = True
-            except NameError:
-                dmtex("SD libraries not present, aborting.")
-            del spi
-            del cs
-            try:
-                del sdcard
-                del vfs
-            except NameError:
-                pass
 
         sys_getters = {
             "sdcard": lambda: str(sdcard_fs),
@@ -882,6 +847,8 @@ class ljinux:
             "return": "0",
         }
 
+        from os import uname
+
         system_vars = {
             "OS": "Ljinux",
             "SHELL": "Based",
@@ -893,7 +860,10 @@ class ljinux:
             "LANG": "en_GB.UTF-8",
             "BOARD": board.board_id,
             "IMPLEMENTATION": ".".join(map(str, list(implementation.version))),
+            "IMPLEMENTATION_RAW": uname()[3][: uname()[3].find(" on ")],
+            "IMPLEMENTATION_DATE": uname()[3][uname()[3].rfind(" ") + 1 :],
         }
+        del uname
 
         def get_internal():
             intlist = dir(ljinux.based.command)
@@ -942,6 +912,10 @@ class ljinux:
                 13: f"Terminal too small, minimum size: {f}",
                 14: "Is a file",
                 15: "Is a directory",
+                16: "Directory not empty",
+                17: "Not a directory",
+                18: "Not a file",
+                19: "Not a device",
             }
             term.write(f"{prefix}: {errs[wh]}")
             ljinux.io.ledset(1)
@@ -956,7 +930,7 @@ class ljinux:
             ljinux.based.system_vars["VERSION"] = Version
 
             term.write(
-                "\nWelcome to ljinux wannabe Kernel {}!\n\n".format(
+                "\nWelcome to Ljinux wannabe kernel {}!\n\n".format(
                     ljinux.based.system_vars["VERSION"]
                 ),
                 end="",
@@ -970,10 +944,25 @@ class ljinux:
                 systemprints(
                     3,
                     "Mount /LjinuxRoot",
-                    "Error: sd card not available, assuming built in fs",
+                    "Error: TF card not available, assuming built in fs",
                 )
                 del modules["adafruit_sdcard"]
-                dmtex("Unloaded sdio libraries")
+                dmtex("Unloaded TFcard libraries")
+
+            # Validate root exists
+            try:
+                chdir("/LjinuxRoot")
+                chdir("/")
+            except:
+                systemprints(
+                    4,
+                    "RootValidityCheck",
+                    "Cannot continue, you are on your own.",
+                )
+                term.hold_stdout = False
+                term.flush_writes()
+                return 1  # Abandon with EMERG
+
             ljinux.io.ledset(1)  # idle
             systemprints(
                 2,
@@ -1021,7 +1010,7 @@ class ljinux:
                 try:
                     ljinux.based.shell()
                 except KeyboardInterrupt:
-                    stdout.write("^C\n")
+                    term.write("^C")
             Exit = False  # to allow ljinux.based.shell to be rerun from code.py
             return Exit_code
 
@@ -1069,9 +1058,9 @@ class ljinux:
                 for index, tool in enumerate(l):
                     term.write(tool, end=(" " * lenn).replace(" ", "", len(tool)))
                     if index % 4 == 3:
-                        stdout.write("\n")  # stdout faster than print cuz no logic
+                        term.write()
                     del index, tool
-                stdout.write(colors.endc + "\n")
+                term.write(colors.endc)
 
                 del l
                 del lenn
@@ -1224,54 +1213,6 @@ class ljinux:
                 except IndexError:
                     ljinux.based.error(1)
 
-            def su(inpt):  # su command but worse
-                inpt = inpt.split(" ")
-                global dfpasswd
-                passwordarr = {}
-                try:
-                    try:
-                        with open("/LjinuxRoot/etc/passwd", "r") as data:
-                            for line in data:
-                                dt = line.split()
-                                passwordarr[dt[0]] = dt[1]
-                                del dt, line
-                    except OSError:
-                        pass
-                    ljinux.io.ledset(2)
-                    if passwordarr["root"] == getpass():
-                        ljinux.based.system_vars["SECURITY"] = "off"
-                        term.write("Authentication successful. Security disabled.")
-                    else:
-                        ljinux.io.ledset(3)
-                        time.sleep(2)
-                        term.write(
-                            colors.error + "Authentication unsuccessful." + colors.endc
-                        )
-
-                    try:
-                        del passwordarr
-                    except NameError:
-                        pass
-
-                except (KeyboardInterrupt, KeyError):  # I betya some cve's cover this
-
-                    try:
-                        del passwordarr
-                    except NameError:
-                        pass
-
-                    if dfpasswd == getpass():
-                        ljinux.based.system_vars["security"] = "off"
-                        term.write("Authentication successful. Security disabled.")
-                    else:
-                        term.write(
-                            colors.error + "Authentication unsuccessful." + colors.endc
-                        )
-                try:
-                    del passwordarr
-                except NameError:
-                    pass
-
             def history(inpt):  # history frontend
                 inpt = inpt.split(" ")
                 if inpt[0] == "":
@@ -1345,12 +1286,16 @@ class ljinux:
             p_to = "|" in inpt
 
             comlist = list()
+            silencelist = list()
             comindex = -1
 
-            if p_and and p_to:
+            if p_and and p_to:  # TODO
+                # silencelist.append(False)
+                # silencelist.append(True)
                 pass
             elif p_and:
                 while "&&" in inpt:
+                    silencelist.append(False)
                     comlist.append(inpt[: inpt.find("&&")])
                     inpt = inpt[inpt.find("&&") + 2 :]
                     comindex += 1
@@ -1358,18 +1303,23 @@ class ljinux:
                         comlist[comindex] = comlist[comindex][:-1]
                     while comlist[comindex].startswith(" "):
                         comlist[comindex] = comlist[comindex][1:]
+
                 while inpt.endswith(" "):
                     inpt = inpt[:-1]
                 while inpt.startswith(" "):
                     inpt = inpt[1:]
+                silencelist.append(False)
                 comlist.append(inpt)
-            elif p_to:
+            elif p_to:  # TODO
+                # silencelist.append(False)
+                # silencelist.append(True)
                 pass
             else:
+                silencelist.append(False)
                 comlist.append(inpt)
 
             del p_and, p_to, comindex, inpt
-            return comlist
+            return comlist, silencelist
 
         def run(executable, argv=None):
             # runs any single command
@@ -1439,7 +1389,6 @@ class ljinux:
                         + "')"
                     )
             elif argv is not None and argv.startswith("="):  # variable operation
-
                 ljinux.based.command.var(executable + " " + argv)
             else:  # error
                 term.write(
@@ -1480,6 +1429,7 @@ class ljinux:
                     "rest": "stack",
                     "rest_a": "common",
                     "echo": "common",
+                    "idle": 20,
                 }
 
             command_input = None
@@ -1513,17 +1463,17 @@ class ljinux:
                                 command_input = term.buf[1]
                                 term.buf[1] = ""
                                 term.focus = 0
-                                stdout.write("\n")
+                                term.write()
                             elif term.buf[0] is 1:
                                 ljinux.io.ledset(2)  # keyact
-                                print("^C")
+                                term.write("^C")
                                 term.buf[1] = ""
                                 term.focus = 0
                                 term.clear_line()
                                 ljinux.io.ledset(1)  # idle
                             elif term.buf[0] is 2:
                                 ljinux.io.ledset(2)  # keyact
-                                print("^D")
+                                term.write("^D")
                                 Exit = True
                                 Exit_code = 0
                                 ljinux.io.ledset(1)  # idle
@@ -1557,12 +1507,12 @@ class ljinux:
                                             del i
                                         del bins, ints
                                     if len(candidates) > 1:
-                                        stdout.write("\n")
+                                        term.write()
                                         minn = 100
                                         for i in candidates:
                                             if not i.startswith("_"):  # discard those
                                                 minn = min(minn, len(i))
-                                                print("\t" + i)
+                                                term.nwrite("\t" + i)
                                             del i
                                         letters_match = 0
                                         isMatch = True
@@ -1666,7 +1616,7 @@ class ljinux:
                                     ljinux.history.nav[0] = 0
                                     command_input = store + term.buf[1]
                                     term.buf[1] = ""
-                                    stdout.write("\n")
+                                    term.write()
                                 elif term.buf[0] is 14:  # more lines
                                     store += term.buf[1]
                                     ljinux.history.nav[0] = 0
@@ -1678,9 +1628,14 @@ class ljinux:
                                     term.focus = 0
                                     ljinux.history.nav[0] = 0
                                 del store
+                            elif term.buf[0] is 20:  # console disconnected
+                                ljinux.based.command.exec(
+                                    "/LjinuxRoot/bin/_waitforconnection.lja"
+                                )
+                                term.clear_line()
                         except KeyboardInterrupt:
                             # duplicate code as by ^C^C you could escape somehow
-                            print("^C")
+                            term.nwrite("^C")
                             term.buf[1] = ""
                             term.focus = 0
                             term.clear_line()
@@ -1707,17 +1662,20 @@ class ljinux:
                         pass
 
                         # Fetch list of commands
-                        comlist = ljinux.based.parse_pipes(command_input)
-                        comlen = len(comlist)
-                        if comlen > 1:
-                            ljinux.based.silent = True
-                            for com in range(len(comlist) - 1):
-                                ljinux.based.run(comlist[com])
-                                del com
-                            ljinux.based.silent = False
-                        del comlen
-                        ljinux.based.run(comlist[-1])  # -1 works with one item
-                        del comlist  # abandon command_input
+                        comlist, silencelist = ljinux.based.parse_pipes(command_input)
+                        if len(comlist) > 1:
+                            comlist.reverse()
+                            silencelist.reverse()
+                        while len(comlist):
+                            currentcmd = comlist.pop()
+                            silencecmd = silencelist.pop()
+                            if silencecmd:
+                                ljinux.based.silent = True
+                            ljinux.based.run(currentcmd)
+                            if silencecmd:
+                                ljinux.based.silent = False
+                            del currentcmd, silencecmd
+                        del comlist, silencelist  # abandon command_input
 
                         # Write stdout to file, TODO
                         pass

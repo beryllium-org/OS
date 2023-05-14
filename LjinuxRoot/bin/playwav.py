@@ -4,7 +4,7 @@ if not NoAudio:
         with open(ljinux.based.user_vars["argj"].split()[1], "rb") as data:
             wav = WaveFile(data)
             a = PWMAudioOut(board.GP15)
-            print("Playing")
+            term.write("Playing")
             try:
                 a.play(wav)
                 while a.playing:
@@ -13,8 +13,8 @@ if not NoAudio:
                 a.stop()
             a.deinit()
             wav.deinit()
-            print("Stopped")
+            term.write("Stopped")
     except OSError:
         ljinux.based.error(4)
 else:
-    print("No audio libraries loaded")
+    term.write("No audio libraries loaded")

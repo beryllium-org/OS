@@ -1,6 +1,6 @@
 global Exit
 global Exit_code
-print("Bye")
+term.write("Bye")
 Exit = True
 try:
     Exit_code = int(ljinux.based.user_vars["argj"].split()[1])

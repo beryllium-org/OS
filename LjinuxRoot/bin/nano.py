@@ -7,7 +7,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.7.2"
+    versionn = "1.7.5"
 
     try:
         filee = ljinux.based.user_vars["argj"].split()[1]
@@ -15,7 +15,7 @@ if sizee[0] > 14 and sizee[1] > 105:
         pass
 
     if filee is not None:  # there is arg
-        exists = ljinux.api.isdir(filee, rdir=getcwd())
+        exists = ljinux.api.isdir(filee)
 
     if exists == 1:  # it is dir
         filee = None
@@ -134,12 +134,12 @@ if sizee[0] > 14 and sizee[1] > 105:
     bmod = None  # 0 == saving, 1 == searching, more planned later
     savee = 0
     term.clear()
-    stdout.write(toptxt)
+    term.nwrite(toptxt)
     del toptxt  # not gonna use it again
     term.move(x=sizee[0] - 2, y=bottxt_offs)
-    stdout.write(bottxt)
+    term.nwrite(bottxt)
     del bottxt, bottxt_offs
-    stdout.write(toolbar_txt)
+    term.nwrite(toolbar_txt)
     if len(dataa) > 1:
         sz = sizee[0] - 4
         ld = len(dataa)
@@ -147,7 +147,7 @@ if sizee[0] > 14 and sizee[1] > 105:
         del sz, ld
         for i in range(0, ltd):
             term.move(x=i + 2)
-            stdout.write(dataa[i])
+            term.nwrite(dataa[i])
         del ltd
     while q:
         try:
@@ -168,17 +168,17 @@ if sizee[0] > 14 and sizee[1] > 105:
                 term.focus = 0
                 term.move(x=sizee[0] - 2)
                 spsz = (sizee[1] - 21) * " "
-                stdout.write(
-                    f"{colors.white_bg_black_bg}Save modified buffer?{spsz}{colors.endc}\n"
+                term.write(
+                    f"{colors.white_bg_black_bg}Save modified buffer?{spsz}{colors.endc}"
                 )
                 term.clear_line()
-                stdout.write(f"{colors.white_bg_black_bg} Y{colors.endc} Yes\n")
+                term.write(f"{colors.white_bg_black_bg} Y{colors.endc} Yes")
                 term.clear_line()
-                stdout.write(
+                term.nwrite(
                     f"{colors.white_bg_black_bg} N{colors.endc} No        {toolsplit}{colors.white_bg_black_bg}^C{colors.endc} Cancel"
                 )
                 term.move(x=sizee[0] - 2, y=23)
-                stdout.write(colors.white_bg_black_bg)
+                term.nwrite(colors.white_bg_black_bg)
                 del spsz
                 savee += 1
 
@@ -194,7 +194,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                     for i in range(2, sizee[0] - 2):  # shift data
                         term.move(x=i)
                         term.clear_line()
-                        stdout.write(dataa[vl + i - 2])
+                        term.nwrite(dataa[vl + i - 2])
 
             elif term.buf[0] is 2 and not savee:  # up
                 term.focus = 0
@@ -206,7 +206,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                         for i in range(2, sizee[0] - 2):  # shift data
                             term.move(x=i, y=0)
                             term.clear_line()
-                            stdout.write(dataa[vl + i - 2])
+                            term.nwrite(dataa[vl + i - 2])
 
             elif term.buf[0] is 10:  # insert empty line (enter)
                 if not savee:
@@ -242,7 +242,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                     for i in range(0, tf):
                         term.move(x=i + 2)
                         term.clear_line()
-                        stdout.write(dataa[vl + i])
+                        term.nwrite(dataa[vl + i])
                     del tf
                 elif savee is 1:
                     # the "save y/n" prompt
@@ -258,27 +258,25 @@ if sizee[0] > 14 and sizee[1] > 105:
 
                         # show the file name suggested
                         term.clear_line()
-                        stdout.write("File name to write:" + (" " * (sizee[1] - 19)))
+                        term.nwrite("File name to write:" + (" " * (sizee[1] - 19)))
                         term.move(x=sizee[0] - 1)
-                        stdout.write(colors.endc)
+                        term.nwrite(colors.endc)
                         term.clear_line()
                         term.move(x=sizee[0])
                         term.clear_line()
-                        stdout.write(
-                            f"{colors.white_bg_black_bg}^C{colors.endc} Cancel"
-                        )
+                        term.nwrite(f"{colors.white_bg_black_bg}^C{colors.endc} Cancel")
                         ffname = ""
                         try:
                             ffname = ljinux.based.user_vars["argj"].split()[1]
                         except IndexError:
                             pass
                         term.move(x=sizee[0] - 2, y=21)
-                        stdout.write(colors.white_bg_black_bg)
+                        term.nwrite(colors.white_bg_black_bg)
                         term.buf[1] = ffname
                         term.focus = 0
                         del ffname
                     else:
-                        stdout.write(
+                        term.nwrite(
                             "\010" * len(term.buf[1])
                             + " " * len(term.buf[1])
                             + "\010" * len(term.buf[1])
@@ -308,21 +306,21 @@ if sizee[0] > 14 and sizee[1] > 105:
                         term.move(x=sizee[0] - 2)
                         term.clear_line()
                         term.move(x=sizee[0] - 2, y=int((sizee[1] - len(nbottxt)) / 2))
-                        stdout.write(colors.white_bg_black_bg + nbottxt + colors.endc)
+                        term.nwrite(colors.white_bg_black_bg + nbottxt + colors.endc)
                         del nbottxt
                         savee = 0
                         term.buf[1] = ""
                         term.focus = 0
                         term.move(x=sizee[0] - 1)
-                        stdout.write(toolbar_txt)
+                        term.nwrite(toolbar_txt)
 
             elif term.buf[0] is 0 and savee:  # Ctrl C, abort saving
                 savee = 0
                 term.focus = 0
                 term.move(x=sizee[0] - 2)
-                stdout.write(colors.endc + (" " * sizee[1]))
+                term.nwrite(colors.endc + (" " * sizee[1]))
                 term.move(x=sizee[0] - 1)
-                stdout.write(toolbar_txt)
+                term.nwrite(toolbar_txt)
 
             elif term.buf[0] is 11:  # backspace
                 if len(term.buf[1]) - term.focus > 0:
@@ -330,7 +328,7 @@ if sizee[0] > 14 and sizee[1] > 105:
                     if not savee:
                         dataa[cl] = term.buf[1]
                     else:
-                        stdout.write(
+                        term.nwrite(
                             "\010" * len(term.buf[1])
                             + " " * len(term.buf[1])
                             + "\010" * len(term.buf[1])
@@ -367,24 +365,31 @@ if sizee[0] > 14 and sizee[1] > 105:
                     for i in range(0, tf):
                         term.move(x=i + 2)
                         term.clear_line()
-                        stdout.write(dataa[vl + i])
+                        term.nwrite(dataa[vl + i])
                     if td:
                         term.move(x=tf + 2)
                         term.clear_line()
                     del td, tf, magic
 
             elif term.buf[0] is 12:  # add tab
-                term.stdin = " " * 4
+                term.nwrite(" " * 4)
+                insertion_pos = len(term.buf[1]) - term.focus
+                term.buf[1] = (
+                    term.buf[1][:insertion_pos] + " " * 4 + term.buf[1][insertion_pos:]
+                )
+                dataa[cl] = term.buf[1]
+                del insertion_pos
+
             elif savee:
                 # counter visual bug
-                stdout.write(len(term.buf[1]) * "\010")
+                term.nwrite(len(term.buf[1]) * "\010")
 
         except KeyboardInterrupt:
             pass
 
     del q, cl, vl, target, toolbar_txt, inb, toolsplit, filee, exists
     term.buf[1] = ""
-    stdout.write(colors.endc)
+    term.nwrite(colors.endc)
     term.clear()
     term.trigger_dict = term_old
 

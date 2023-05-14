@@ -4,7 +4,7 @@ if not NoAudio:
         with open(ljinux.based.user_vars["argj"].split()[1], "rb") as data:
             mp3 = MP3Decoder(data)
             a = PWMAudioOut(board.GP15)
-            print("Playing")
+            term.write("Playing")
             try:
                 a.play(mp3)
                 while a.playing:
@@ -13,11 +13,11 @@ if not NoAudio:
                 a.stop()
             a.deinit()
             mp3.deinit()
-            print("Stopped")
+            term.write("Stopped")
             ljinux.based.user_vars["return"] = "0"
     except OSError:
         ljinux.based.error(4)
         ljinux.based.user_vars["return"] = "1"
 else:
-    print("No audio libraries loaded")
+    term.write("No audio libraries loaded")
     ljinux.based.user_vars["return"] = "1"

@@ -1,50 +1,30 @@
 from storage import getmount, remount, disable_usb_drive
+from supervisor import runtime, status_bar
+from cptoml import fetch
 
-try:
-    from supervisor import disable_autoreload
-except ImportError:
-    from supervisor import runtime
-
-    def disable_autoreload():
-        runtime.autoreload = False
-
-
-try:
-    from supervisor import status_bar
-
-    status_bar.console = False
-    del status_bar
-except ImportError:
-    pass
+runtime.autoreload = False
+status_bar.console = False
 print("-" * 16 + "\nL", end="")
-devf = False
+
+devm = fetch("usb_access", "LJINUX")
 stash = ""
-try:
-    with open("/devm", "r") as f:
-        stash = "Development mode file detected\n"
-    devf = not devf
-except OSError:
-    pass
+if devm:
+    stash = "Cannot write to filesystem! usb_access has been enabled!\n"
 print("J", end="")
+
 lj_mount = getmount("/")
 print("I", end="")
+
 desired_label = "ljinux"
 if lj_mount.label != desired_label:
-    remount("/", readonly=False)
+    remount("/", False)
     lj_mount.label = desired_label
-    remount("/", readonly=True)
-del desired_label, lj_mount
+    remount("/", True)
 print("N", end="")
-if not devf:
+
+if not devm:
     try:
         disable_usb_drive()
     except RuntimeError:
         pass
-print("U", end="")
-disable_autoreload()
-print("X boot core\n" + "-" * 16 + "\nOutput:\n" + stash)
-del devf, stash, disable_autoreload, disable_usb_drive, remount, getmount
-try:
-    del runtime
-except:
-    pass
+print("UX pre-boot core\n" + "-" * 16 + "\nOutput:\n" + stash)
