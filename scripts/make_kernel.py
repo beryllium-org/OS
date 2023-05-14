@@ -116,11 +116,11 @@ except OSError:
 
 
 print("[6/7] Checking for additional requirements")
-if path.exists(f"../Boardfiles/{board}/needs_fake_cdc".replace("/", slash)):
-    print("This board needs fake-cdc\n\n[1/1] Compiling fake_cdc\n-> usb_cdc")
+if path.exists(f"../Boardfiles/{board}/needs_virtUART".replace("/", slash)):
+    print("This board needs virtUART\n\n[1/1] Compiling virtUART")
     try:
         circuitmpy.compile_mpy(
-            "../other/fakecdc/usb_cdc.py", f"{boardpath}/lib/usb_cdc.mpy", optim=optimis
+            "../other/virtUART.py", f"{boardpath}/lib/virtUART.mpy", optim=optimis
         )
     except OSError:
         errexit()

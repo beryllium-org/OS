@@ -35,6 +35,7 @@ At the moment the supported boards are:<br />
  - Pimoroni Pico Lipo (4mb)<br />
  - Wemos Lolin S2 Mini<br />
  - Seeed XIAO nRF52840 (Sense)<br />
+ - DFRobot Beetle ESP32-C3<br />
 
 But it can probably run on many more.<br />
 The only real limiting factor should be ram, as about 70k (usable under circuitpython) are needed.<br />

@@ -29,7 +29,6 @@ try:
     from microcontroller import cpu
     from storage import remount, VfsFat, mount, getmount
     from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove, sync
-    from usb_cdc import console
     from math import trunc
     import time
 
@@ -42,6 +41,20 @@ except ImportError:
     from sys import exit
 
     exit(1)
+
+global console
+try:
+    from usb_cdc import console
+except ImportError:
+    try:
+        global virtUART
+        from virtUART import virtUART
+
+        console = virtUART()
+    except ImportError:
+        from sys import exit
+
+        exit(1)
 
 print("[    0.00000] Core modules loaded")
 dmesg.append("[    0.00000] Core modules loaded")
