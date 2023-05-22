@@ -36,7 +36,7 @@ At the moment the supported boards are:<br />
  - Wemos Lolin S2 Mini<br />
  - Seeed XIAO nRF52840 (Sense)<br />
  - DFRobot Beetle ESP32-C3<br />
- - M5Stack Timer Camera X<br />
+ - <s>M5Stack Timer Camera X</s> WIP<br />
 
 But it can probably run on many more.<br />
 The only real limiting factor should be ram, as about 70k (usable under circuitpython) are needed.<br />
@@ -54,8 +54,8 @@ Note: Installation from windows is unsupported.<br />
     This command will automatically update the system files if they already exist.<br />
     To only update the wanna-be kernel run <code>make</code> instead.<br />
     If you wish to install to the CIRCUITPY drive directly, the board has to be attached and mounted.<br />
-    If you plan on loading the files remotely (via web/ble workflow), run <code>make *your board.board_id* install</code> instead.<br />
-    The files for you to copy will be created inside <code>source/build_*your board.board_id*</code>.<br />
+    If you plan on loading the files remotely (via web/ble workflow), run <code>make \*your board.board_id\* install</code> instead.<br />
+    The files for you to copy will be created inside <code>source/build_\*your board.board_id\*</code>.<br />
 3) *(Optional)* Copy over the packages you wish to install with jpkg, or install drivers with make.<br />
     More info regarding packages in [Packages](#packages)
 4) Eject & powercycle the board<br />
