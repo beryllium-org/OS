@@ -20,6 +20,11 @@ These instructions are seperated into 3 big steps:
     For the pintab.py, you need to properly add all the user accessible pins of the board module.<br />
      <code>import board;dir(board)</code><br />
      Make sure not to add duplicate pins, or the board.LED.<br />
+    For the extras, include whatever modules your board's hardware needs.<br />
+    For example, or adding native wifi support, create a file named <code>driver_wifi.driver</code> in folder extras.<br />
+    Files in extras that have their name end with .driver will pull a .py file from other/drivers.<br />
+    Files in extras that have their name end with .other will pull from other/ a file or a folder.<br />
+    To include a folder deeper in other/, use dots in place of slashes, for example, to include other/Adafruit_CircuitPython_HTTPServer/, create a file named "Adafruit_CircuitPython_HTTPServer.adafruit_httpserver.other".<br />
     <br />
 3) Test your changes by loading ljinux onto the board.
     "make install" will update the config.
