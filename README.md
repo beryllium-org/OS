@@ -21,7 +21,7 @@ Table of Contents
 
 ## Prerequisites and optional hardware
 
-Runs on circuitpython <code>8.X</code>.<br />
+Runs on circuitpython <code>8.1.X</code> and <code>8.2.X</code>.<br />
 At the moment the supported boards are:<br />
 
  - Raspberry Pi Pico<br />
@@ -36,10 +36,11 @@ At the moment the supported boards are:<br />
  - Wemos Lolin S2 Mini<br />
  - Seeed XIAO nRF52840 (Sense)<br />
  - DFRobot Beetle ESP32-C3<br />
+ - M5Stack Timer Camera X<br />
 
 But it can probably run on many more.<br />
 The only real limiting factor should be ram, as about 70k (usable under circuitpython) are needed.<br />
-<i>(If you have gotten it running on an unsupported board, feel free to pr a configuration folder)</i><br />
+<i>(If you have gotten it running on an unsupported board, feel free to pr)</i><br />
 
 ## Installation / Updating
 
@@ -48,16 +49,18 @@ Note: Installation from windows is unsupported.<br />
 1) Install a supported CircuitPython version onto the board.<br />
     Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
 2) Download the latest ljinux release for your board and extract it onto it.<br />
-    Or alternatively, if you wish to use the latest master, clone this repository and from within the "source" folder, run <code>make install</code>.<br />
-    If you are on windows (Note: Windows install in beta.), run the <code>windows-install.bat</code>.<br />
+    Or even better, if you wish to use the latest master, clone this repository and from within the "source" folder, run <code>make install</code>.<br />
+    Installation from Windows is once again unsupported. If you are a bimbows user, this project isn't for you.<br />
     This command will automatically update the system files if they already exist.<br />
     To only update the wanna-be kernel run <code>make</code> instead.<br />
-    (For this to work you need to have python3 installed, even on windows, and the board attached & mounted)<br />
+    If you wish to install to the CIRCUITPY drive directly, the board has to be attached and mounted.<br />
+    If you plan on loading the files remotely (via web/ble workflow), run <code>make \*your board.board_id\* install</code> instead.<br />
+    The files for you to copy will be created inside <code>source/build_\*your board.board_id\*</code>.<br />
 3) *(Optional)* Copy over the packages you wish to install with jpkg, or install drivers with make.<br />
     More info regarding packages in [Packages](#packages)
 4) Eject & powercycle the board<br />
     When it's plugged back in, you can connect to it via serial.<br />
-    (You can use putty on Windows, or Tio on Linux or MacOS)<br />
+    (You can use putty to connect to the board on Windows, Tio or GNU/Screen on Linux or MacOS)<br />
 <b>IMPORTANT NOTE: To make the board appear again as a usb drive on the host, run the ljinux command </b><code>devmode</code><br />
 
 ## Packages

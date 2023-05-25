@@ -35,6 +35,5 @@ Waveshare RP2040-Zero
 SoC                : RP2040
 RAM                : 264KB
 Storage            : SQPI (2MB)
-USB ports          : 1 (of which 0 USB3)
 Wi-fi              : False
 Bluetooth          : False

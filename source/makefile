@@ -1,41 +1,28 @@
 SHELL = bash
 
 all: help
-install: kernel rootfs
+install: kernel rootfs extra
 
 kernel: prep comp
 kernel_debug: prep debug_comp
 
-wifi: prep driver_wifi
-wifi_debug: prep driver_wifi_debug
-
-w5500spi: prep driver_w5500spi
-w5500spi_debug: prep driver_w5500spi_debug
+#w5500spi: prep driver_w5500spi
+#w5500spi_debug: prep driver_w5500spi_debug
 
 prep: modules prepperms
 
 help:
 	@cat ../other/makefile_help.txt
-driver_wifi:
-	@echo -e "\nInstalling wifi driver"
-	@python3 ../scripts/copy_wifi.py
-	@sync
-	@echo "Wifi driver done"
-driver_wifi_debug:
-	@echo -e "\nInstalling wifi driver (debug)"
-	@python3 ../scripts/copy_wifi.py debug
-	@sync
-	@echo "Wifi driver done"
-driver_w5500spi:
-	@echo -e "\nInstalling w5500 spi driver"
-	@python3 ../scripts/copy_w5500spi.py
-	@sync
-	@echo "w5500 spi driver done"
-driver_w5500spi_debug:
-	@echo -e "\nInstalling w5500 spi driver (debug)"
-	@python3 ../scripts/copy_w5500spi.py debug
-	@sync
-	@echo "w5500 spi driver done"
+#driver_w5500spi:
+#	@echo -e "\nInstalling w5500 spi driver"
+#	@python3 ../scripts/copy_w5500spi.py
+#	@sync
+#	@echo "w5500 spi driver done"
+#driver_w5500spi_debug:
+#	@echo -e "\nInstalling w5500 spi driver (debug)"
+#	@python3 ../scripts/copy_w5500spi.py debug
+#	@sync
+#	@echo "w5500 spi driver done"
 update_modules:
 	@echo "Updating git submodules from remotes.."
 	@git submodule update --init --recursive --remote ..
@@ -80,3 +67,6 @@ ccon:
 	@echo "Installing ccon to the machine.."
 	@python3 ../scripts/ccon.py
 	@echo -e "\nDone, now try running ccon\n"
+extra:
+	@python3 ../scripts/make_extras.py
+	@sync

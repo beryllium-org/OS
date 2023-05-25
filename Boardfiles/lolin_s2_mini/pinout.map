@@ -18,7 +18,6 @@ WeMos Lolin S2 Mini
 
 SoC                : ESP32-S2
 RAM                : 2368KB
-Storage            : SOC (4MB)
-USB ports          : 1 (of which 0 USB3)
+Storage            : DIO (4MB)
 Wi-fi              : True
-Bluetooth          : True
+Bluetooth          : False

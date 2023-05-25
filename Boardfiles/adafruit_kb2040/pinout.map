@@ -25,7 +25,6 @@ Adafruit KB2040
 
 SoC                : RP2040
 RAM                : 264KB
-Storage            : QSPI
-USB ports          : 1 (of which 0 USB3)
+Storage            : QSPI (8MB)
 Wi-fi              : False
 Bluetooth          : False
