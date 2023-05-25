@@ -25,7 +25,6 @@ Waveshare ESP32-S2-Pico
 
 SoC                : ESP32-S2
 RAM                : 8MB
-Storage            : SOC (4MB)
-USB ports          : 1 (of which 0 USB3)
+Storage            : QIO (4MB)
 Wi-fi              : True
-Bluetooth          : True
+Bluetooth          : False
