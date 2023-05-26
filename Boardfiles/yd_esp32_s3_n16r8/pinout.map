@@ -1,1 +1,11 @@
-Pinout pending.
+[ FSPIWP | SUBSPIWP | FSPIDQS | ADC2_3 | TOUCH14 | RTC ] GPIO14
+                                                            5V0
+                                                            GND
+
+VCC-GND YD-ESP32-S3 (N16R8)
+
+SoC                : ESP32-S3
+RAM                : 8704KB
+Storage            : DIO (16MB)
+Wi-fi              : True
+Bluetooth          : True
