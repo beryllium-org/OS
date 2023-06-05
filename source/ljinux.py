@@ -1444,7 +1444,7 @@ class ljinux:
                         + colors.cyan_t
                         + ljinux.based.system_vars["HOSTNAME"]
                         + colors.endc
-                        + "| "
+                        + " | "
                         + colors.yellow_t
                         + ljinux.api.betterpath()
                         + colors.endc
