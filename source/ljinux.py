@@ -1229,7 +1229,6 @@ class ljinux:
                     term.write(f"{colors.magenta_t}Based{colors.endc}: Invalid option")
 
             def pexec(inpt):  # Python exec
-                gc.collect()
                 try:
                     exec(inpt)  # Vulnerability.exe
                 except Exception as err:
@@ -1259,7 +1258,6 @@ class ljinux:
                     ljinux.based.user_vars["return"] = "1"
                     return
 
-                gc.collect()
                 try:
                     a = open(ljinux.api.betterpath(inpt[offs])).read()
                     gc.collect()
@@ -1278,6 +1276,7 @@ class ljinux:
                         + str(err)
                     )
                     del err
+                gc.collect()
                 del offs, fpargs
 
         def parse_pipes(inpt):
