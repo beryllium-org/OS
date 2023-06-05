@@ -916,10 +916,13 @@ class ljinux:
                 17: "Not a directory",
                 18: "Not a file",
                 19: "Not a device",
+                20: f"Unhandled exception: {f}",
+                21: "Uncaught KeyboardInterrupt",
+                22: "Critical exception",
             }
             term.write(f"{prefix}: {errs[wh]}")
             ljinux.io.ledset(1)
-            del errs
+            del errs, f, prefix
 
         def autorun():
             ljinux.io.ledset(3)  # act
@@ -1007,11 +1010,7 @@ class ljinux:
 
             ljinux.io.ledset(1)  # idle
             while not Exit:
-                try:
-                    ljinux.based.shell()
-                except KeyboardInterrupt:
-                    term.write("^C")
-            Exit = False  # to allow ljinux.based.shell to be rerun from code.py
+                ljinux.based.shell()
             return Exit_code
 
         class command:
@@ -1455,188 +1454,173 @@ class ljinux:
 
                     command_input = None
                     while (command_input in [None, ""]) and not Exit:
-                        try:
-                            term.program()
-                            if term.buf[0] is 0:  # enter
-                                ljinux.history.nav[0] = 0
-                                command_input = term.buf[1]
-                                term.buf[1] = ""
-                                term.focus = 0
-                                term.write()
-                            elif term.buf[0] is 1:
+                        term.program()
+                        if term.buf[0] is 0:  # enter
+                            ljinux.history.nav[0] = 0
+                            command_input = term.buf[1]
+                            term.buf[1] = ""
+                            term.focus = 0
+                            term.write()
+                        elif term.buf[0] is 1:
+                            ljinux.io.ledset(2)  # keyact
+                            term.write("^C")
+                            term.buf[1] = ""
+                            term.focus = 0
+                            term.clear_line()
+                            ljinux.io.ledset(1)  # idle
+                        elif term.buf[0] is 2:
+                            ljinux.io.ledset(2)  # keyact
+                            term.write("^D")
+                            Exit = True
+                            Exit_code = 0
+                            ljinux.io.ledset(1)  # idle
+                            break
+                        elif term.buf[0] is 3:  # tab key
+                            if len(term.buf[1]):
                                 ljinux.io.ledset(2)  # keyact
-                                term.write("^C")
-                                term.buf[1] = ""
-                                term.focus = 0
-                                term.clear_line()
-                                ljinux.io.ledset(1)  # idle
-                            elif term.buf[0] is 2:
-                                ljinux.io.ledset(2)  # keyact
-                                term.write("^D")
-                                Exit = True
-                                Exit_code = 0
-                                ljinux.io.ledset(1)  # idle
-                                break
-                            elif term.buf[0] is 3:  # tab key
-                                if len(term.buf[1]):
-                                    ljinux.io.ledset(2)  # keyact
-                                    tofind = term.buf[
-                                        1
-                                    ]  # made into var for speed reasons
-                                    candidates = []
-                                    slicedd = tofind.split()
-                                    lent = len(slicedd)
-                                    if lent > 1:  # suggesting files
-                                        files = listdir()
-                                        for i in files:
-                                            if i.startswith(
-                                                slicedd[lent - 1]
-                                            ):  # only on the arg we are in
-                                                candidates.append(i)
-                                            del i
-                                        del files
-                                    else:  # suggesting bins
-                                        bins = ljinux.based.get_bins()
-                                        ints = ljinux.based.get_internal()
-                                        for i in [ints, bins]:
-                                            for j in i:
-                                                if j.startswith(tofind):
-                                                    candidates.append(j)
-                                                del j
-                                            del i
-                                        del bins, ints
-                                    if len(candidates) > 1:
-                                        term.write()
-                                        minn = 100
-                                        for i in candidates:
-                                            if not i.startswith("_"):  # discard those
-                                                minn = min(minn, len(i))
-                                                term.nwrite("\t" + i)
-                                            del i
-                                        letters_match = 0
-                                        isMatch = True
-                                        while isMatch:
-                                            for i in range(0, minn):
-                                                for j in range(1, len(candidates)):
-                                                    try:
-                                                        if (
-                                                            not candidates[j][
-                                                                letters_match
-                                                            ]
-                                                            == candidates[j - 1][
-                                                                letters_match
-                                                            ]
-                                                        ):
-                                                            isMatch = False
-                                                            break
-                                                        else:
-                                                            letters_match += 1
-                                                    except IndexError:
+                                tofind = term.buf[1]  # made into var for speed reasons
+                                candidates = []
+                                slicedd = tofind.split()
+                                lent = len(slicedd)
+                                if lent > 1:  # suggesting files
+                                    files = listdir()
+                                    for i in files:
+                                        if i.startswith(
+                                            slicedd[lent - 1]
+                                        ):  # only on the arg we are in
+                                            candidates.append(i)
+                                        del i
+                                    del files
+                                else:  # suggesting bins
+                                    bins = ljinux.based.get_bins()
+                                    ints = ljinux.based.get_internal()
+                                    for i in [ints, bins]:
+                                        for j in i:
+                                            if j.startswith(tofind):
+                                                candidates.append(j)
+                                            del j
+                                        del i
+                                    del bins, ints
+                                if len(candidates) > 1:
+                                    term.write()
+                                    minn = 100
+                                    for i in candidates:
+                                        if not i.startswith("_"):  # discard those
+                                            minn = min(minn, len(i))
+                                            term.nwrite("\t" + i)
+                                        del i
+                                    letters_match = 0
+                                    isMatch = True
+                                    while isMatch:
+                                        for i in range(0, minn):
+                                            for j in range(1, len(candidates)):
+                                                try:
+                                                    if (
+                                                        not candidates[j][letters_match]
+                                                        == candidates[j - 1][
+                                                            letters_match
+                                                        ]
+                                                    ):
                                                         isMatch = False
                                                         break
-                                                    del j
-                                                del i
-                                                if not isMatch:
+                                                    else:
+                                                        letters_match += 1
+                                                except IndexError:
+                                                    isMatch = False
                                                     break
-                                        del minn, isMatch
-                                        if letters_match > 0:
-                                            term.clear_line()
-                                            if lent > 1:
-                                                term.buf[1] = " ".join(
-                                                    slicedd[:-1]
-                                                    + [candidates[0][:letters_match]]
-                                                )
-                                            else:
-                                                term.buf[1] = candidates[0][
-                                                    :letters_match
-                                                ]
-                                        term.focus = 0
-                                        del letters_match
-                                    elif len(candidates) == 1:
+                                                del j
+                                            del i
+                                            if not isMatch:
+                                                break
+                                    del minn, isMatch
+                                    if letters_match > 0:
                                         term.clear_line()
                                         if lent > 1:
                                             term.buf[1] = " ".join(
-                                                slicedd[:-1] + [candidates[0]]
+                                                slicedd[:-1]
+                                                + [candidates[0][:letters_match]]
                                             )
                                         else:
-                                            term.buf[1] = candidates[0]
-                                        term.focus = 0
+                                            term.buf[1] = candidates[0][:letters_match]
+                                    term.focus = 0
+                                    del letters_match
+                                elif len(candidates) == 1:
+                                    term.clear_line()
+                                    if lent > 1:
+                                        term.buf[1] = " ".join(
+                                            slicedd[:-1] + [candidates[0]]
+                                        )
                                     else:
-                                        term.clear_line()
-                                    del candidates, lent, tofind, slicedd
-                                    ljinux.io.ledset(1)  # idle
+                                        term.buf[1] = candidates[0]
+                                    term.focus = 0
                                 else:
                                     term.clear_line()
-                            elif term.buf[0] is 4:  # up
-                                ljinux.io.ledset(2)  # keyact
-                                try:
-                                    neww = ljinux.history.gett(
-                                        ljinux.history.nav[0] + 1
-                                    )
-                                    # if no historyitem, we wont run the items below
-                                    if ljinux.history.nav[0] == 0:
-                                        ljinux.history.nav[2] = term.buf[1]
-                                        ljinux.history.nav[1] = term.focus
-                                    term.buf[1] = neww
-                                    del neww
-                                    ljinux.history.nav[0] += 1
-                                    term.focus = 0
-                                except IndexError:
-                                    pass
-                                term.clear_line()
+                                del candidates, lent, tofind, slicedd
                                 ljinux.io.ledset(1)  # idle
-                            elif term.buf[0] is 7:  # down
-                                ljinux.io.ledset(2)  # keyact
-                                if ljinux.history.nav[0] > 0:
-                                    if ljinux.history.nav[0] > 1:
-                                        term.buf[1] = ljinux.history.gett(
-                                            ljinux.history.nav[0] - 1
-                                        )
-                                        ljinux.history.nav[0] -= 1
-                                        term.focus = 0
-                                    else:
-                                        # have to give back the temporarily stored one
-                                        term.buf[1] = ljinux.history.nav[2]
-                                        term.focus = ljinux.history.nav[1]
-                                        ljinux.history.nav[0] = 0
+                            else:
                                 term.clear_line()
-                            elif term.buf[0] in [11, 12]:  # pgup / pgdw
-                                term.clear_line()
-                            elif term.buf[0] is 13:  # Ctrl + L (clear screen)
-                                term.clear()
-                            elif term.buf[0] is 14:  # overflow
-                                store = term.buf[1]
+                        elif term.buf[0] is 4:  # up
+                            ljinux.io.ledset(2)  # keyact
+                            try:
+                                neww = ljinux.history.gett(ljinux.history.nav[0] + 1)
+                                # if no historyitem, we wont run the items below
+                                if ljinux.history.nav[0] == 0:
+                                    ljinux.history.nav[2] = term.buf[1]
+                                    ljinux.history.nav[1] = term.focus
+                                term.buf[1] = neww
+                                del neww
+                                ljinux.history.nav[0] += 1
                                 term.focus = 0
-                                term.buf[1] = ""
-                                term.trigger_dict["prefix"] = "> "
-                                term.clear_line()
-                                term.program()
-                                if term.buf[0] is 0:  # enter
-                                    ljinux.history.nav[0] = 0
-                                    command_input = store + term.buf[1]
-                                    term.buf[1] = ""
-                                    term.write()
-                                elif term.buf[0] is 14:  # more lines
-                                    store += term.buf[1]
-                                    ljinux.history.nav[0] = 0
-                                    term.buf[1] = ""
+                            except IndexError:
+                                pass
+                            term.clear_line()
+                            ljinux.io.ledset(1)  # idle
+                        elif term.buf[0] is 7:  # down
+                            ljinux.io.ledset(2)  # keyact
+                            if ljinux.history.nav[0] > 0:
+                                if ljinux.history.nav[0] > 1:
+                                    term.buf[1] = ljinux.history.gett(
+                                        ljinux.history.nav[0] - 1
+                                    )
+                                    ljinux.history.nav[0] -= 1
                                     term.focus = 0
-                                    term.clear_line()
-                                else:  # not gonna
-                                    term.buf[0] = ""
-                                    term.focus = 0
+                                else:
+                                    # have to give back the temporarily stored one
+                                    term.buf[1] = ljinux.history.nav[2]
+                                    term.focus = ljinux.history.nav[1]
                                     ljinux.history.nav[0] = 0
-                                del store
-                            elif term.buf[0] is 20:  # console disconnected
-                                ljinux.based.command.exec(
-                                    "/LjinuxRoot/bin/_waitforconnection.lja"
-                                )
-                                term.clear_line()
-                        except KeyboardInterrupt:
-                            # duplicate code as by ^C^C you could escape somehow
-                            term.nwrite("^C")
-                            term.buf[1] = ""
+                            term.clear_line()
+                        elif term.buf[0] in [11, 12]:  # pgup / pgdw
+                            term.clear_line()
+                        elif term.buf[0] is 13:  # Ctrl + L (clear screen)
+                            term.clear()
+                        elif term.buf[0] is 14:  # overflow
+                            store = term.buf[1]
                             term.focus = 0
+                            term.buf[1] = ""
+                            term.trigger_dict["prefix"] = "> "
+                            term.clear_line()
+                            term.program()
+                            if term.buf[0] is 0:  # enter
+                                ljinux.history.nav[0] = 0
+                                command_input = store + term.buf[1]
+                                term.buf[1] = ""
+                                term.write()
+                            elif term.buf[0] is 14:  # more lines
+                                store += term.buf[1]
+                                ljinux.history.nav[0] = 0
+                                term.buf[1] = ""
+                                term.focus = 0
+                                term.clear_line()
+                            else:  # not gonna
+                                term.buf[0] = ""
+                                term.focus = 0
+                                ljinux.history.nav[0] = 0
+                            del store
+                        elif term.buf[0] is 20:  # console disconnected
+                            ljinux.based.command.exec(
+                                "/LjinuxRoot/bin/_waitforconnection.lja"
+                            )
                             term.clear_line()
                 if not Exit:
                     res = ""
@@ -1670,7 +1654,14 @@ class ljinux:
                             silencecmd = silencelist.pop()
                             if silencecmd:
                                 ljinux.based.silent = True
-                            ljinux.based.run(currentcmd)
+                            try:
+                                ljinux.based.run(currentcmd)
+                            except KeyboardInterrupt:
+                                ljinux.based.error(21)
+                            except Exception as Err:
+                                ljinux.based.error(20, Err)
+                            except:
+                                ljinux.based.error(22)
                             if silencecmd:
                                 ljinux.based.silent = False
                             del currentcmd, silencecmd
