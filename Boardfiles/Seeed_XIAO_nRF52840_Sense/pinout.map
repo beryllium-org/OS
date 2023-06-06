@@ -1,8 +1,15 @@
+[ P0.02 |     | A0 ] D00 ,---|   |---. 5V0
+[ P0.03 |     | A1 ] D01 |RST     CRG| GND
+[ P0.28 |     | A2 ] D02 |        LED| 3V3
+[ P0.29 |     | A3 ] D03 | ,-------. | D10 [ MOSI | P1.15 ]
+[ P0.04 | SDA | A4 ] D04 | |  nRF  | | D09 [ MISO | P1.14 ]
+[ P0.05 | SCL | A5 ] D05 | `-------' | D08 [ SCK  | P1.13 ]
+[ P1.11 |  TX |    ] D06 `-----------' D07 [  RX  | P1.12 ]
 
 Seeed XIAO nRF52840 (Sense)
 
 SoC                : nRF52840
-RAM                : 2048KB
-Storage            : SOC (4MB)
-Wi-fi              : True
+RAM                : 256KB
+Storage            : QSPI (2MB)
+Wi-fi              : False
 Bluetooth          : True
