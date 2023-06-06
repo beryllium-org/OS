@@ -21,7 +21,7 @@ Table of Contents
 
 ## Prerequisites and optional hardware
 
-Runs on circuitpython <code>8.1.X</code>.<br />
+Runs on circuitpython <code>8.1.X</code> and <code>8.2.X</code>.<br />
 At the moment the supported boards are:<br />
 
  - Raspberry Pi Pico<br />
@@ -36,7 +36,7 @@ At the moment the supported boards are:<br />
  - Wemos Lolin S2 Mini<br />
  - Seeed XIAO nRF52840 (Sense)<br />
  - DFRobot Beetle ESP32-C3<br />
- - <s>M5Stack Timer Camera X</s> WIP<br />
+ - M5Stack Timer Camera X<br />
 
 But it can probably run on many more.<br />
 The only real limiting factor should be ram, as about 70k (usable under circuitpython) are needed.<br />

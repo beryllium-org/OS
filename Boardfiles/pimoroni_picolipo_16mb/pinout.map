@@ -27,6 +27,5 @@ Pimoroni Pico Lipo 16mb
 SoC                : RP2040
 RAM                : 264KB
 Storage            : Flash (16MB)
-USB ports          : 1 (of which 0 USB3)
 Wi-fi              : False
 Bluetooth          : False

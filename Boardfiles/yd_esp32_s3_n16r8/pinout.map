@@ -1,1 +1,33 @@
-Pinout pending.
+                                                              ,------------.
+                                                              |-, .-, .--- |
+                                                            ,-||`-' `-' || |-.
+                                                        3V3 | = ESP32-S3   = | GND
+                                                        3V3 | =    WROOM-1 = | GPIO43 [  U0TXD  | CLK_OUT1 ]
+                                                      RESET | =            = | GPIO44 [  U0RXD  | CLK_OUT2 ]
+                                [ ADC1_3 | TOUCH04 ] GPIO04 | =            = | GPIO01 [ TOUCH1  |  ADC1_0  ]
+                                [ ADC1_4 | TOUCH05 ] GPIO05 | =            = | GPIO02 [ TOUCH2  |  ADC1_1  ]
+                                [ ADC1_5 | TOUCH06 ] GPIO06 | =            = | GPIO42 [  MTMS   ]
+                                [ ADC1_6 | TOUCH07 ] GPIO07 | =            = | GPIO41 [  MTDI   | CLK_OUT1 ]
+                   [ XTAL_32K_P | ADC2_4 |  U0RTS  ] GPIO15 |  ||||||||||||  | GPIO40 [  MTDO   | CLK_OUT2 ]
+                   [ XTAL_32K_N | ADC2_5 |  U0CTS  ] GPIO16 |                | GPIO39 [  MTCK   | CLK_OUT3 | SUBSPICS1 ]
+                                [ ADC2_6 |  U1TXD  ] GPIO17 |                | GPIO38 [ FSPIWP  |          | SUBSPIWP  ]
+                     [ CLK_OUT3 | ADC2_7 |  U1RXD  ] GPIO18 |        RESET   | GPIO37 [ SPIDQS  |  FSPIQ   |  SUBSPIQ  ]
+                                [ ADC1_7 | TOUCH08 ] GPIO08 |          =O=   | GPIO36 [ SPIIO7  | FSPICLK  | SUBSPICLK ]
+                       [  JTAG  | ADC1_2 | TOUCH03 ] GPIO03 |         BOOT   | GPIO35 [ SPIIO6  |  FSPID   |  SUBSPID  ]
+                                         [   LOG   ] GPIO46 |          =O=   | GPIO00 [  BOOT   ]
+[ FSPICLK | SUBSPICLK | FSPIIO6 | ADC2_1 | TOUCH09 ] GPIO09 |                | GPIO45 [  VSPI   ]
+[ FSPICLK | SUBSPICLK | FSPIIO6 | ADC2_1 | TOUCH10 ] GPIO10 | ,----.         | GPIO48 [         |          | SPICLK_N  ]
+[ FSPICLK | SUBSPICLK | FSPIIO6 | ADC2_0 | TOUCH11 ] GPIO11 | |2812| ,-----. | GPIO47 [ RGB_LED |          | SPICLK_P  ]
+[ FSPICLK | SUBSPICLK | FSPIIO6 | ADC2_1 | TOUCH12 ] GPIO12 | `----' |CH343| | GPIO21
+[  FSPIQ  | SUBSPIQ   | FSPIIO7 | ADC2_2 | TOUCH13 ] GPIO13 |        `-----' | GPIO20 [ USB_D+ | U1CTS | ADC2_9 | CLK_OUT1 ]
+[ FSPIWP  | SUBSPIWP  | FSPIDQS | ADC2_3 | TOUCH14 ] GPIO14 |  USB     UART  | GPIO19 [ USB_D- | U1RTS | ADC2_8 | CLK_OUT2 ]
+                                                        5V0 | ,---.    ,---. | GND
+                                                        GND `-|   |----|   |-' GND
+
+VCC-GND YD-ESP32-S3 (N16R8)
+
+SoC                : ESP32-S3
+RAM                : 8704KB
+Storage            : DIO (16MB)
+Wi-fi              : True
+Bluetooth          : True

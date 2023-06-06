@@ -1,37 +1,37 @@
                                                            ,----|   |-----.
-                                                    RESET  |1   \---/  (-)|
-                                                     3.3v  |o    usbC ,---| - GND
-                                                     3.3v  |o         | - |      
-                                                      GND  |o         .---| - VBAT
-[   DAC_2    | U1RXD | ADC2 CH7 | RTC | GPIO18 ]       A0  |o  B     (+) o| VBAT
-[   DAC_1    | U1TXD | ADC2 CH6 | RTC | GPIO18 ]       A1  |o   (RESET)  o| EN
-[ XTAL_32K_N | U0CTS | ADC2 CH5 | RTC | GPIO18 ]       A2  |o            o| VBUS
-[ XTAL_32K_P | U0RTS | ADC2 CH4 | RTC | GPIO18 ]       A3  |o            o| D13   [ GPIO13 | RTC | ADC2 CH2 | FSPIQ   | T13 ]
-     [ T14 | FSPIWP  | ADC2 CH3 | RTC | GPIO18 ]       A4  |o   (BOOT)   o| D12   [ GPIO12 | RTC | ADC2 CH1 | FSPICLK | T12 ]
-     [ T8  |         | ADC2 CH7 | RTC | GPIO18 ]       A5  |o  B         o| D11   [ GPIO11 | RTC | ADC2 CH0 | FSPID   | T11 ]
-           [ FSPICLK |          | RTC | GPIO18 ]      SCK  |o    I2C     o| D10   [ GPIO10 | RTC | ADC1 CH9 | FSPICS0 | T10 ]
-           [  FSPID  |          | RTC | GPIO18 ]     MOSI  |o   [....]   o| D9    [ GPIO9  | RTC | ADC1 CH8 | FSPIHD  | T9  ]
-           [  FSPIQ  |          | RTC | GPIO18 ]     MISO  |o            o| D6    [ GPIO6  | RTC | ADC1 CH5 |         | T6  ]
-           [ FSPIWP  |          | RTC | GPIO18 ]       RX  |o ,--------. o| D5    [ GPIO5  | RTC | ADC1 CH4 |         | T5  ]
-           [   MTCK  |          | RTC | GPIO18 ]       TX  |o |        | o| SCL   [ GPIO4  | RTC | ADC1 CH3 |         | T4  ]
-                                                 DEBUG_TX  |o | ESP32  | o| SDA   [ GPIO3  | RTC | ADC1 CH2 |         | T4  ]
-                                                           |  |     S2 |  |
-                                                           |O |        | O|
+  BUTTON [ GPIO00 | RTC ]             [ CHARGE ]  -------  |O C `---` 13 O| LED   [ GPIO13 | RTC | ADC2 CH2 |  FSPIQ  | T13  ]
+  ,----.                                            RESET  |1 usbC[]      |
+  | GR | - [ NEOPIXEL       | GPIO33 ]               3.3v  |o Rst []I ,---| - GND
+  | B  | - [ NEOPIXEL_POWER | GPIO34 ]               3.3v  |o Boot[]2 | - |
+  `----'                                              GND  |o     []C .---| - VBAT
+[            | U1RXD | ADC2 CH7 | RTC | GPIO18 ]       A0  |o        (+) o| VBAT
+[            | U1TXD | ADC2 CH6 | RTC | GPIO17 ]       A1  |o ,--------. o| EN
+[ XTAL_32K_N | U0CTS | ADC2 CH5 | RTC | GPIO16 ]       A2  |o |        | o| VBUS
+[ XTAL_32K_P | U0RTS | ADC2 CH4 | RTC | GPIO15 ]       A3  |o |   E F  | o| D13   [ GPIO13 | RTC | ADC2 CH2 |  FSPIQ  | T13  ]
+     [ T14 | FSPIWP  | ADC2 CH3 | RTC | GPIO14 ]       A4  |o |   S E  | o| D12   [ GPIO12 | RTC | ADC2 CH1 | FSPICLK | T12  ]
+     [ T8  |         | ADC2 CH7 | RTC | GPIO08 ]       A5  |o | T P A  | o| D11   [ GPIO11 | RTC | ADC2 CH0 |  FSPID  | T11  ]
+           [ FSPICLK |      | SPI/CPU | GPIO36 ]      SCK  |o | F 3 T  | o| D10   [ GPIO10 | RTC | ADC1 CH9 | FSPICS0 | T10  ]
+           [  FSPID  |      | SPI/CPU | GPIO35 ]     MOSI  |o | T 2 E  | o| D9    [ GPIO09 | RTC | ADC1 CH8 | FSPIHD  | T9   ]
+           [  FSPIQ  |      | SPI/CPU | GPIO37 ]     MISO  |o |   - R  | o| D6    [ GPIO06 | RTC | ADC1 CH5 |         | T6   ]
+     [ T2  |         | ADC1 CH1 | RTC | GPIO02 ]       RX  |o |   S    | o| D5    [ GPIO05 | RTC | ADC1 CH4 |         | T5   ]
+     [ T1  |         | ADC1 CH0 | RTC | GPIO01 ]       TX  |o |   3    | o| SCL   [ GPIO41 | CPU |          |         | MTDI ]
+                                                     TXD0  |o |        | o| SDA   [ GPIO42 | CPU |          |         | MTMS ]
+                                                           |  `--------'  |
+                                                           |O  F TFT S3  O|
                                                            `--------------'
     ,---
-   .| O - GND                                        ,----.
-   .| O - VSENSOR                                    | GR | - [ NEOPIXEL_POWER | GPIO21 | RTC ]
-   .| O - SDA [ GPIO3 | RTC | ADC1 CH2 | T3 ]        |  B | - [ NEOPIXEL | GPIO33 | RTC ]
-   .| O - SCL [ GPIO4 | RTC | ADC1 CH3 | T4 ]        `----'
-    `---
-    
-    
+   .| O - SCL [ GPIO41 | CPU | MTDI ]               ,-------------------. TFT_I2C_POWER [ GPIO21 | RTC ]
+   .| O - SDA [ GPIO42 | CPU | MTMS ]               |   FEATHER         | TFT_CS        [ GPIO07 | RTC | ADC1 CH6 | T7   ]
+   .| O - VSENSOR                                   |    ESP32-S3       | TFT_DC        [ GPIO39 | CPU |          | MTCK ]
+   .| O - GND                                       |      TFT          | TFT_RESET     [ GPIO40 | CPU |          | MTDO ]
+    `---                                            `-------------------' TFT_BACKLIGHT [ GPIO45 | CPU ]
 
-Adafruit Feather ESP32-S2
 
-SoC                : ESP32-S2
-RAM                : 2048KB
-Storage            : SOC (4MB)
-USB ports          : 1 (of which 0 USB3)
+
+Adafruit Feather ESP32-S3 TFT
+
+SoC                : ESP32-S3
+RAM                : 2368KB
+Storage            : DIO (4MB)
 Wi-fi              : True
 Bluetooth          : True
