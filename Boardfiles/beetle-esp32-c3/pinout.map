@@ -1,1 +1,20 @@
-No pinout yet available.
+       [ ADC1_3 |      |  A3  ] GPIO03 _         _ GPIO10
+                                        \       /
+                                   GND ,--|   |--. BAT
+                                   3V3 |L `---'O | GND
+       [ ADC1_0 |  SCK |  A0  ] GPIO00 |L      O | VIN
+       [ ADC1_1 |  SCK |  A1  ] GPIO01 |     RST | GPIO20 [ RX  ]
+[ MTMS | ADC1_4 |  SCK |  A4  ] GPIO04 | ,-----. | GPIO21 [ TX  ]
+[ MTCK |        | MOSI |      ] GPIO06 | |ESP32| | GPIO08 [ SDA ]
+[ MTDI | ADC2_0 | MISO |  A5  ] GPIO05 | | C3  | | GPIO09 [ SCL ]
+[ MTDO |        |      |      ] GPIO07 | `-----' | GPIO02 [ A2  | ADC1_2 ]
+                                       `---------'
+
+DFRobot Beetle ESP32-C3 V1.0.0
+
+SoC                : ESP32-C3
+RAM                : 400KB
+Storage            : QIO (4MB)
+Wi-fi              : True
+Bluetooth          : True
+
