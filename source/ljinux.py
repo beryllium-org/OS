@@ -1,11 +1,11 @@
 # ------------------------------------- #
-#             Ljinux 0.3.7              #
+#                Ljinux                 #
 #                                       #
 #     Written on a Raspberry Pi 400     #
-# Now rapidly approaching your location #
+#  What is this? - A smoothie, you say? #
 # ------------------------------------- #
 
-Version = "0.3.7"
+Version = "0.3.8-dev"
 
 ndmesg = False  # disable dmesg for ram
 # run _ndmesg from the shell to properly trigger it
