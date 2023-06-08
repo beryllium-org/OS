@@ -5,7 +5,7 @@
 #  What is this? - A smoothie, you say? #
 # ------------------------------------- #
 
-Version = "0.3.8-dev"
+Version = "0.3.7-dev"
 
 ndmesg = False  # disable dmesg for ram
 # run _ndmesg from the shell to properly trigger it
