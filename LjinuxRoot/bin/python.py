@@ -1,3 +1,5 @@
+from traceback import format_exception
+
 term_old = term.trigger_dict
 term.trigger_dict = {
     "ctrlD": 1,
@@ -73,7 +75,7 @@ while True:
                 try:
                     exec(execstr)
                 except Exception as Err:
-                    term.write(str(Err))
+                    term.write(format_exception(Err)[0])
                 del execstr
             else:
                 mass.append(term.buf[1])
@@ -149,7 +151,7 @@ while True:
                     term.write(str(cppy))
                 del cppy
             except Exception as Err:
-                term.write(str(Err))
+                term.write(format_exception(Err)[0])
             term.buf[1] = ""
             term.focus = 0
     elif term.buf[0] == 2:
@@ -161,3 +163,4 @@ dmtex("Python shell session has ended")
 term.trigger_dict = term_old
 del term_old, mass, currdep
 ljinux.based.user_vars["return"] = "0"
+del format_exception
