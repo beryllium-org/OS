@@ -12,6 +12,8 @@ ndmesg = False  # disable dmesg for ram
 
 dmesg = list()
 access_log = list()
+consoles = dict()
+console_active = None
 
 # Core board libs
 try:
@@ -45,12 +47,17 @@ except ImportError:
 global console
 try:
     from usb_cdc import console
+
+    consoles.update({"ttyUSB0": console})
+    console_active = "ttyUSB0"
 except ImportError:
     try:
         global virtUART
         from virtUART import virtUART
 
         console = virtUART()
+        consoles.update({"ttyUART0": console})
+        console_active = "ttyUART0"
     except ImportError:
         from sys import exit
 
@@ -1277,6 +1284,27 @@ class ljinux:
                     del err
                 gc.collect()
                 del offs, fpargs
+
+            def terminal(inpt):  # Manage active terminal
+                opts = inpt.split(" ")
+                if "--help" in opts or "-h" in opts or len(opts) == 0 or opts[0] == "":
+                    term.write("Usage: terminal [get/list/activate] [ttyXXXX]")
+                else:
+                    if opts[0] == "get":
+                        term.write(console_active)
+                    elif opts[0] == "activate":
+                        if len(opts) > 1 and opts[1] in consoles:
+                            term.console = consoles[opts[1]]
+                        else:
+                            term.write("Console not found.")
+                    elif opts[0] == "list":
+                        for i in consoles.keys():
+                            term.write(i)
+                    else:
+                        term.write(
+                            "Unknown option specified, try running `terminal --help`"
+                        )
+                del opts
 
         def parse_pipes(inpt):
             # This is a pipe
