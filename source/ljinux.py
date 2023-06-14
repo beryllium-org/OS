@@ -13,6 +13,7 @@ ndmesg = False  # disable dmesg for ram
 dmesg = list()
 access_log = list()
 consoles = dict()
+global console_active
 console_active = None
 
 # Core board libs
@@ -1305,16 +1306,17 @@ class ljinux:
                     term.write("Usage: terminal [get/list/activate] [ttyXXXX]")
                 else:
                     if opts[0] == "get":
-                        term.write(console_active)
+                        term.write(globals()["console_active"])
                     elif opts[0] == "activate":
                         if len(opts) > 1 and opts[1] in consoles:
                             term.console = consoles[opts[1]]
+                            globals()["console_active"] = opts[1]
                         else:
                             term.write("Console not found.")
                     elif opts[0] == "list":
                         for i in consoles.keys():
                             term.nwrite(i)
-                            if i == console_active:
+                            if i == globals()["console_active"]:
                                 term.write(" [ACTIVE]")
                             else:
                                 term.write()
