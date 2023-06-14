@@ -93,16 +93,16 @@ class telnet_console:  # The actual class you need to use
                                 ps += 1
                                 cont = False  # We are finally done.
                             else:
-                                self._disconnect()
+                                self.disconnect()
                                 raise ConnectionError("Negotiation failed")
                         else:  # Negotiation failed
-                            self._disconnect()
+                            self.disconnect()
                             raise ConnectionError("Negotiation failed")
                         self._rt()  # Transmit
                     del size, ps
                 del cont
             except OSError:  # No connection took place.
-                self._disconnect()
+                self.disconnect()
 
             if self._conn is not None:
                 """
@@ -117,11 +117,14 @@ class telnet_console:  # The actual class you need to use
         The internal transmit function.
         Clears the tx bytearray.
         """
-        if len(self._tx_buf):
+        while len(self._tx_buf) > 32:  # Bulk
+            self._conn.send(self._tx_buf[:32])
+            self._tx_buf = self._tx_buf[32:]
+        if len(self._tx_buf):  # regular
             self._conn.send(self._tx_buf)
-            self._tx_buf = bytearray()
+        self._tx_buf = bytearray()
 
-    def _disconnect(self) -> None:
+    def disconnect(self) -> None:
         """
         Disconnect and clear the connection.
         """
@@ -153,7 +156,7 @@ class telnet_console:  # The actual class you need to use
                 self._conn.settimeout(10)
                 self._conn.setblocking(True)
             try:
-                while True:  # Will get interrupted by except
+                while self.connected:  # Will get interrupted by except
                     size = self._conn.recv_into(self._rx_buf, self._maxbuf)
                     if size:
                         self._ps_buf += self._rx_buf[:size]
@@ -208,16 +211,17 @@ class telnet_console:  # The actual class you need to use
 
     def write(self, data="") -> int:
         lent = len(data)
-        self._tx_buf += data
-        if self.connected:
-            self._rt()
+        if hasattr(self, "_tx_buf"):
+            self._tx_buf += data
+            if self.connected:
+                self._rt()
         return lent
 
     def deinit(self) -> None:
         """
         Delete the internal stuff and close any connections.
         """
-        self._disconnect()
+        self.disconnect()
         del (
             self._in_buf,
             self._conn,
