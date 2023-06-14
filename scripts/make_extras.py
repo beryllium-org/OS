@@ -1,6 +1,7 @@
 from os import system, mkdir, listdir, path, getcwd
 from sys import argv
 from sys import path as spath
+from shutil import copy
 
 spath.append("../scripts/CircuitMPY/")
 spath.append("../other/cptoml/")
@@ -73,6 +74,8 @@ if path.exists(f"../Boardfiles/{board}/extras"):
                     )
                 except OSError:
                     errexit()
+            else:
+                errexit()
         elif i.endswith(".driver"):
             print(f"[-/-] Compiling extras: drivers/{i[:-7]}")
             if path.isdir(f"../Boardfiles/{board}/extras/{i}"):
@@ -87,6 +90,18 @@ if path.exists(f"../Boardfiles/{board}/extras"):
                     )
                 except OSError:
                     errexit()
+            else:
+                errexit()
+        elif i.endswith(".bin"):
+            print("[-/-] Copying extras: binextra/" + i[:-4])
+            if path.isdir("../other/binextra/" + i[:-4]):
+                source_p = f"../other/binextra/{i[:-4]}/"
+                target_p = boardpath + "/LjinuxRoot/bin/"
+                for j in listdir(source_p):
+                    copy(source_p + j, target_p + j)
+            else:
+                print("Use folders instead")
+                errexit()
         else:
             errexit()
 

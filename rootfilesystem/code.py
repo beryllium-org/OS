@@ -35,7 +35,11 @@ except EOFError:
     jrub("\nAlert: Ctrl + D caught, exiting\n")
     exit_l[0]()
 except Exception as err:
-    print(f"\n\nLjinux crashed with: {str(type(err))[8:-2]}: {str(err)}")
+    from traceback import print_exception
+
+    print(f"\n\nLjinux crashed with:\n")
+    print_exception(err)
+    print()
     del err
     exit_l[1]()
 

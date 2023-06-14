@@ -7,7 +7,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     exists = 2
     weltxt = "[ Welcome to nano.  For basic help, type Ctrl+G. ]"
 
-    versionn = "1.7.5"
+    versionn = "1.7.6"
 
     try:
         filee = ljinux.based.user_vars["argj"].split()[1]
@@ -133,6 +133,7 @@ if sizee[0] > 14 and sizee[1] > 105:
     inb = False  # in bottom box
     bmod = None  # 0 == saving, 1 == searching, more planned later
     savee = 0
+    term.hold_stdout = True
     term.clear()
     term.nwrite(toptxt)
     del toptxt  # not gonna use it again
@@ -149,6 +150,8 @@ if sizee[0] > 14 and sizee[1] > 105:
             term.move(x=i + 2)
             term.nwrite(dataa[i])
         del ltd
+    term.hold_stdout = False
+    term.flush_writes()
     while q:
         try:
             if not savee:
@@ -156,7 +159,10 @@ if sizee[0] > 14 and sizee[1] > 105:
                 term.move(x=cl - vl + 2, y=len(term.buf[1]))
                 term.clear_line()
             ljinux.io.ledset(1)
+            term.hold_stdout = False
+            term.flush_writes()
             term.program()
+            term.hold_stdout = True
             if not savee:
                 dataa[cl] = term.buf[1]
             ljinux.io.ledset(3)
@@ -398,3 +404,5 @@ if sizee[0] > 14 and sizee[1] > 105:
 else:
     ljinux.based.error(13, "15x106")  # minimum size error
     ljinux.based.user_vars["return"] = "1"
+term.hold_stdout = False
+term.flush_writes()

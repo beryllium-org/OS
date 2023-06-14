@@ -16,6 +16,14 @@ pexec systemprints(1, "System path updated")
 #timesync
 #pexec systemprints(1, "Sync time via ntp")
 
+# Uncomment this to activate telnet serial
+# Depends on network being up
+#pexec systemprints(2, "Activate telnet")
+#telnet setup -q # quiet
+#terminal activate ttyTELNET0
+#pexec systemprints(1, "Activate telnet")
+
+
 ## If no network use this instead
 advance_build_date
 

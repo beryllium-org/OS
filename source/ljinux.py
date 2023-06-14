@@ -1,17 +1,20 @@
 # ------------------------------------- #
-#             Ljinux 0.3.7              #
+#                Ljinux                 #
 #                                       #
 #     Written on a Raspberry Pi 400     #
-# Now rapidly approaching your location #
+#  What is this? - A smoothie, you say? #
 # ------------------------------------- #
 
-Version = "0.3.7"
+Version = "0.3.7-dev"
 
 ndmesg = False  # disable dmesg for ram
 # run _ndmesg from the shell to properly trigger it
 
 dmesg = list()
 access_log = list()
+consoles = dict()
+global console_active
+console_active = None
 
 # Core board libs
 try:
@@ -45,12 +48,17 @@ except ImportError:
 global console
 try:
     from usb_cdc import console
+
+    consoles.update({"ttyUSB0": console})
+    console_active = "ttyUSB0"
 except ImportError:
     try:
         global virtUART
         from virtUART import virtUART
 
         console = virtUART()
+        consoles.update({"ttyUART0": console})
+        console_active = "ttyUART0"
     except ImportError:
         from sys import exit
 
@@ -274,6 +282,13 @@ dmtex("Additional loading done")
 
 class ljinux:
     modules = dict()
+
+    def deinit_consoles() -> None:
+        for i in consoles.keys():
+            if hasattr(consoles[i], "deinit"):
+                consoles[i].deinit()
+                consoles.pop(i)
+                print(f"Deinit console {i}")
 
     class api:
         def remove_ansi(text):
@@ -499,7 +514,7 @@ class ljinux:
             if rdir is None:
                 if "/" in dirr and dirr not in ["/", "&/"]:
                     rdir = dirr[: dirr.rfind("/")]
-                    if len(rdir) == 0:
+                    if not len(rdir):
                         rdir = "/"
                     dirr = dirr[dirr.rfind("/") + 1 :]
                     cddd = ljinux.api.betterpath(rdir)
@@ -1011,9 +1026,16 @@ class ljinux:
             ljinux.io.ledset(1)  # idle
             while not Exit:
                 ljinux.based.shell()
+            ljinux.deinit_consoles()
             return Exit_code
 
         class command:
+            def disconnect(inpt):
+                if hasattr(term.console, "disconnect"):
+                    term.console.disconnect()
+                else:
+                    term.write("This console does not support disconnection.")
+
             def exec(inpt):
                 inpt = inpt.split(" ")
                 global Exit
@@ -1278,6 +1300,32 @@ class ljinux:
                 gc.collect()
                 del offs, fpargs
 
+            def terminal(inpt):  # Manage active terminal
+                opts = inpt.split(" ")
+                if "--help" in opts or "-h" in opts or (not len(opts)) or opts[0] == "":
+                    term.write("Usage: terminal [get/list/activate] [ttyXXXX]")
+                else:
+                    if opts[0] == "get":
+                        term.write(globals()["console_active"])
+                    elif opts[0] == "activate":
+                        if len(opts) > 1 and opts[1] in consoles:
+                            term.console = consoles[opts[1]]
+                            globals()["console_active"] = opts[1]
+                        else:
+                            term.write("Console not found.")
+                    elif opts[0] == "list":
+                        for i in consoles.keys():
+                            term.nwrite(i)
+                            if i == globals()["console_active"]:
+                                term.write(" [ACTIVE]")
+                            else:
+                                term.write()
+                    else:
+                        term.write(
+                            "Unknown option specified, try running `terminal --help`"
+                        )
+                del opts
+
         def parse_pipes(inpt):
             # This is a pipe
             p_and = "&&" in inpt
@@ -1471,8 +1519,13 @@ class ljinux:
                         elif term.buf[0] is 2:
                             ljinux.io.ledset(2)  # keyact
                             term.write("^D")
-                            Exit = True
-                            Exit_code = 0
+                            if hasattr(term.console, "disconnect"):
+                                # We are running on a remote shell
+                                term.write("Bye")
+                                term.console.disconnect()
+                            else:
+                                Exit = True
+                                Exit_code = 0
                             ljinux.io.ledset(1)  # idle
                             break
                         elif term.buf[0] is 3:  # tab key
@@ -1564,7 +1617,7 @@ class ljinux:
                             try:
                                 neww = ljinux.history.gett(ljinux.history.nav[0] + 1)
                                 # if no historyitem, we wont run the items below
-                                if ljinux.history.nav[0] == 0:
+                                if not ljinux.history.nav[0]:
                                     ljinux.history.nav[2] = term.buf[1]
                                     ljinux.history.nav[1] = term.focus
                                 term.buf[1] = neww
