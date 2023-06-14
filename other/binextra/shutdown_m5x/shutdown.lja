@@ -1,0 +1,4 @@
+history save
+sync
+echo "Bye"
+fpexec /bin/shutdown.py
