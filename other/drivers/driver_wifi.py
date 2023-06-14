@@ -26,6 +26,12 @@ class driver_wifi:
         self.interface_type = "wifi"
         self.mode = "station"
 
+        if wifi.radio.connected:
+            # We need to inherit connection
+            self._pool = SocketPool(wifi.radio)
+            self._session = Session(self._pool, create_default_context())
+            self.connected = True
+
     def connect(self, ssid, passwd=None, retries=3):
         """
         Connect to a wifi access point
