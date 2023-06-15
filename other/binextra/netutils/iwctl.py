@@ -137,6 +137,16 @@ if argl is 0:
                                     res = ljinux.modules["network"].connect(
                                         data[3], passwd
                                     )
+                                    if (not res) and (
+                                        data[3] not in cptoml.keys("IWD")
+                                        or cptoml.fetch(data[3], subtable="IWD")
+                                        != passwd
+                                    ):
+                                        # Store this network
+                                        cptoml.put(data[3], passwd, subtable="IWD")
+                                        term.write(
+                                            "\nConnection stored in `&/settings.toml`."
+                                        )
                                 del passwd
                             else:
                                 dmtex(f'IWD: Connecting to: "{data[3]}"')
@@ -239,6 +249,12 @@ else:
                     dmtex("IWD: Connection to network failed.")
                 else:
                     dmtex("IWD: Connected to network successfully.")
+                    if (
+                        args[3] not in cptoml.keys("IWD")
+                        or cptoml.fetch(args[3], subtable="IWD") != passwd
+                    ):
+                        # Store this network
+                        cptoml.put(args[3], passwd, subtable="IWD")
                 ljinux.based.user_vars["return"] = str(res)
                 del res
             else:
@@ -259,7 +275,7 @@ else:
         elif args[2] == "auto":
             if not ljinux.modules["network"].connected:
                 # We don't need to run on an already connected interface
-                stored_networks = cptoml.keys("IWCTL")
+                stored_networks = cptoml.keys("IWD")
                 if len(stored_networks):
                     scanned_networks = ljinux.modules["network"].scan()
                     best = None
@@ -278,7 +294,7 @@ else:
                     del best_index, stored_networks, scanned_networks
                     if best is not None:  # We can connect
                         res = ljinux.modules["network"].connect(
-                            best, cptoml.fetch(best, subtable="IWCTL")
+                            best, cptoml.fetch(best, subtable="IWD")
                         )
                         if not res:
                             dmtex(
@@ -288,8 +304,8 @@ else:
                             dmtex(f"IWD-AUTO: Connection to network {best} failed.")
                         del res
                     else:  # We have to create a hotspot based on toml settings.
-                        apssid = cptoml.fetch("SSID", subtable="IWCTL-AP")
-                        appasswd = cptoml.fetch("PASSWD", subtable="IWCTL-AP")
+                        apssid = cptoml.fetch("SSID", subtable="IWD-AP")
+                        appasswd = cptoml.fetch("PASSWD", subtable="IWD-AP")
                         if apssid is not None:
                             res = ljinux.modules["network"].connect_ap(apssid, appasswd)
                             if not res:
