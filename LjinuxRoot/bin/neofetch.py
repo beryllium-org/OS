@@ -90,7 +90,7 @@ tex = [
     f"{colors.red_t}Shell{colors.endc}: {colors.magenta_t}Based{colors.endc}",
     f"{colors.red_t}Resolution:{colors.endc} {sizee[1]}x{sizee[0]}",
     f"{colors.red_t}WM{colors.endc}: Farland",
-    f"{colors.red_t}Terminal{colors.endc}: TTYACM0",
+    f"{colors.red_t}Terminal{colors.endc}: {console_active}",
     f"{colors.red_t}CPU{colors.endc}: {Ccpu}",
     f"{colors.red_t}System Memory{colors.endc}: {Rram}",
 ]
