@@ -11,3 +11,11 @@ root_SCLK = -1
 root_SCSn = -1
 root_MOSI = -1
 root_MISO = -1
+
+[IWD]
+#Network1 = "password1"
+#Network2 = "password2"
+
+[IWD-AP]
+SSID = "ljinux"
+PASSWD = "ljinuxingallovertheplace"

@@ -1,5 +1,4 @@
-# CIRCUITPY_PYSTACK_SIZE=12288
-# Do not use resizable on S3 for now
+CIRCUITPY_PYSTACK_SIZE=12288
 
 [LJINUX]
 serial_console = true
@@ -12,3 +11,11 @@ root_SCLK = -1
 root_SCSn = -1
 root_MOSI = -1
 root_MISO = -1
+
+[IWD]
+#Network1 = "password1"
+#Network2 = "password2"
+
+[IWD-AP]
+SSID = "ljinux"
+PASSWD = "ljinuxingallovertheplace"
