@@ -9,6 +9,8 @@ This project is <b>NOT</b> compatible with any linux code / binaries.<br />
 <b><i>We also now have a [discord](https://discord.gg/V8AejwGpCv) server!<br />
 If you need support or want to hang out, feel free to join in!</i></b><br />
 
+We also work with [Github Discussions](https://github.com/bill88t/ljinux/discussions).<br />
+
 Table of Contents
 =================
 * [Prerequisites](#prerequisites-and-optional-hardware)
