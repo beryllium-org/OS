@@ -9,9 +9,9 @@ pexec systemprints(1, "System path updated")
 
 # Connect to a network on boot (example uses wifi driver)
 #modprobe driver_wifi as network
-#pexec systemprints(2, "Connecting to your network")
-#iwctl --passphrase "your wifi password" station wifi connect ssid_here
-#pexec systemprints(1, "Connecting to your network")
+#pexec systemprints(2, "Connecting wifi")
+#iwctl station wifi auto # Configure connections in &/settings.toml
+#pexec systemprints(1, "Connecting wifi")
 #pexec systemprints(2, "Sync time via ntp")
 #timesync
 #pexec systemprints(1, "Sync time via ntp")

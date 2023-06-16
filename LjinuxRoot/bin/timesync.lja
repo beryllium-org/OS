@@ -1,1 +1,0 @@
-pexec if "network" in ljinux.modules and ljinux.modules["network"].connected == True: ljinux.modules["network"].timeset()

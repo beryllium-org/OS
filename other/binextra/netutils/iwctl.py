@@ -124,11 +124,14 @@ if argl is 0:
                             res = 1
                             if networks[data[3]][0] != "OPEN":
                                 ljinux.io.ledset(1)
-                                passwd = None
-                                try:
-                                    passwd = input(f"\nEnter password for {data[3]}: ")
-                                except KeyboardInterrupt:
-                                    pass
+                                passwd = cptoml.fetch(data[3], subtable="IWD")
+                                if passwd is not None:
+                                    try:
+                                        passwd = input(
+                                            f"\nEnter password for {data[3]}: "
+                                        )
+                                    except KeyboardInterrupt:
+                                        pass
                                 ljinux.io.ledset(3)
 
                                 if passwd is not None:
@@ -137,11 +140,25 @@ if argl is 0:
                                     res = ljinux.modules["network"].connect(
                                         data[3], passwd
                                     )
+                                    if (
+                                        (not res)
+                                        and passwd is not None
+                                        and (
+                                            data[3] not in cptoml.keys("IWD")
+                                            or cptoml.fetch(data[3], subtable="IWD")
+                                            != passwd
+                                        )
+                                    ):
+                                        # Store this network
+                                        cptoml.put(data[3], passwd, subtable="IWD")
+                                        term.write(
+                                            "\nConnection stored in `&/settings.toml`."
+                                        )
                                 del passwd
                             else:
                                 dmtex(f'IWD: Connecting to: "{data[3]}"')
                                 res = ljinux.modules["network"].connect(data[3])
-                            if res is 0:
+                            if not res:
                                 dmtex("IWD: Connected to network successfully.")
                                 term.write("\nConnected successfully.")
                             else:
@@ -151,6 +168,28 @@ if argl is 0:
                             del res
                         else:
                             term.write("\nNetwork not found")
+                    elif datal > 3 and data[2] == "ap_mode":
+                        if hasattr(ljinux.modules["network"], "connect_ap"):
+                            passwd = None
+                            try:
+                                passwd = input(
+                                    f"\nEnter password for AP {data[3]}, or press CTRL+C: "
+                                )
+                            except KeyboardInterrupt:
+                                pass
+                            res = ljinux.modules["network"].connect_ap(data[3], passwd)
+                            if not res:
+                                dmtex("IWD: AP started successfully.")
+                                term.write("\nIWD: AP started successfully.")
+                            else:
+                                dmtex("IWD: AP creation failed.")
+                                term.write("\nIWD: AP creation failed.")
+                            ljinux.based.user_vars["return"] = str(res)
+                            del passwd, res
+                        else:
+                            dmtex("IWD: This interface does not support AP.")
+                            term.write("\nIWD: This interface does not support AP.")
+
                     elif datal > 2 and data[2] == "disconnect":
                         ljinux.modules["network"].disconnect()
                         dmtex("Wifi: Disconnected.")
@@ -202,12 +241,18 @@ else:
             if args[3] in networks:
                 res = 1
                 if networks[args[3]][0] != "OPEN":
+                    tpd = cptoml.fetch(args[3], subtable="IWD")
                     if passwd is not None:
                         ljinux.modules["network"].disconnect()
                         dmtex(f'IWD: Connecting to: "{args[3]}"')
                         res = ljinux.modules["network"].connect(args[3], passwd)
+                    elif tpd is not None:
+                        ljinux.modules["network"].disconnect()
+                        dmtex(f'IWD: Connecting to: "{args[3]}" with stored password.')
+                        res = ljinux.modules["network"].connect(args[3], tpd)
                     else:
                         term.write("Error: No password specified")
+                    del tpd
                 else:
                     ljinux.modules["network"].disconnect()
                     dmtex(f'IWD: Connecting to: "{args[3]}"')
@@ -217,12 +262,102 @@ else:
                     dmtex("IWD: Connection to network failed.")
                 else:
                     dmtex("IWD: Connected to network successfully.")
+                    if (
+                        args[3] not in cptoml.keys("IWD")
+                        or cptoml.fetch(args[3], subtable="IWD") != passwd
+                    ) and passwd is not None:
+                        # Store this network
+                        cptoml.put(args[3], passwd, subtable="IWD")
                 ljinux.based.user_vars["return"] = str(res)
                 del res
             else:
                 term.write("Network not found")
                 ljinux.based.user_vars["return"] = "1"
             del networks
+        elif args[2] == "ap_mode" and argl > 3:
+            if hasattr(ljinux.modules["network"], "connect_ap"):
+                res = ljinux.modules["network"].connect_ap(args[3], passwd)
+                if not res:
+                    dmtex("IWD: AP started successfully.")
+                else:
+                    dmtex("IWD: AP creation failed.")
+                ljinux.based.user_vars["return"] = str(res)
+                del res
+            else:
+                dmtex("IWD: This interface does not support AP.")
+        elif args[2] == "auto":
+            if not ljinux.modules["network"].connected:
+                # We don't need to run on an already connected interface
+                stored_networks = cptoml.keys("IWD")
+                if len(stored_networks):
+                    scanned_networks = ljinux.modules["network"].scan()
+                    best = None  # The best network to connect to
+                    best_alt = None  # An alternative, just in case.
+                    best_index = None  # Rating
+                    best_alt_index = None  # Rating for alt
+                    for i in scanned_networks:
+                        if i in stored_networks:
+                            if best is None:  # We have no alternative
+                                best = i
+                                best_index = stored_networks.index(i)
+                            else:  # We already have a network we can use
+                                cind = stored_networks.index(
+                                    i
+                                )  # To test if it's better
+                                if best_index > cind:
+                                    # It's a better network
+                                    best_alt = best
+                                    best_alt_index = best_index
+                                    best = i
+                                    best_index = cind
+                                elif best_alt is None or best_alt_index > cind:
+                                    best_alt = i
+                                    best_alt_index = cind
+                                del cind
+                    del best_index, best_alt_index, stored_networks, scanned_networks
+                    if best is not None:  # We can connect
+                        res = ljinux.modules["network"].connect(
+                            best, cptoml.fetch(best, subtable="IWD")
+                        )
+                        if not res:
+                            dmtex(
+                                f"IWD-AUTO: Connected to network {best} successfully."
+                            )
+                        else:
+                            dmtex(f"IWD-AUTO: Connection to network {best} failed.")
+                            if best_alt is not None:
+                                res = ljinux.modules["network"].connect(
+                                    best_alt, cptoml.fetch(best_alt, subtable="IWD")
+                                )
+                                if not res:
+                                    dmtex(
+                                        f"IWD-AUTO: Connected to network {best_alt} successfully."
+                                    )
+                                else:
+                                    dmtex(
+                                        f"IWD-AUTO: Connection to network {best_alt} failed."
+                                    )
+                            else:
+                                dmtex(
+                                    f"IWD-AUTO: No available alternative networks. ABORT."
+                                )
+                                best = None
+                        del res
+                    # Workaround after failure.
+                    if (
+                        best is None
+                    ):  # We have to create a hotspot based on toml settings.
+                        apssid = cptoml.fetch("SSID", subtable="IWD-AP")
+                        appasswd = cptoml.fetch("PASSWD", subtable="IWD-AP")
+                        if apssid is not None:
+                            res = ljinux.modules["network"].connect_ap(apssid, appasswd)
+                            if not res:
+                                dmtex("IWD-AUTO: AP started successfully.")
+                            else:
+                                dmtex("IWD-AUTO: AP creation failed.")
+                            del res
+                        del apssid, appasswd
+                    del best, best_alt
         elif args[2] == "disconnect":
             ljinux.modules["network"].disconnect()
             ljinux.based.user_vars["return"] = "0"

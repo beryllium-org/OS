@@ -855,6 +855,7 @@ class ljinux:
         olddir = None
         pled = False  # persistent led state for nested exec
         alias_dict = {}
+        trigger_dict_bck = None
 
         user_vars = {
             "history-file": "/LjinuxRoot/home/board/.history",
@@ -1477,9 +1478,14 @@ class ljinux:
                     "echo": "common",
                     "idle": 20,
                 }
+                ljinux.based.trigger_dict_bck = term.trigger_dict
 
             command_input = None
             if not Exit:
+                if term.trigger_dict != ljinux.based.trigger_dict_bck:
+                    term.trigger_dict = ljinux.based.trigger_dict_bck
+                    # This can trigger for different prefix
+
                 while ((command_input == None) or (command_input == "\n")) and not Exit:
                     term.trigger_dict["prefix"] = (
                         "["

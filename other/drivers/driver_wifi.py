@@ -21,16 +21,18 @@ class driver_wifi:
 
         # public
         self.error = False
-        self.connected = False
         self.hw_name = "wifi"
         self.interface_type = "wifi"
         self.mode = "station"
 
-        if wifi.radio.connected:
+        if wifi.radio.connected or wifi.radio.ap_active:
             # We need to inherit connection
             self._pool = SocketPool(wifi.radio)
             self._session = Session(self._pool, create_default_context())
-            self.connected = True
+
+    @property
+    def connected(self):
+        return wifi.radio.connected or wifi.radio.ap_active
 
     def connect(self, ssid, passwd=None, retries=3):
         """
@@ -57,7 +59,21 @@ class driver_wifi:
         del fails, ssid, passwd
         self._pool = SocketPool(wifi.radio)
         self._session = Session(self._pool, create_default_context())
-        self.connected = True
+        return 0
+
+    def connect_ap(self, ssid, passwd=None):
+        """
+        Create an AP.
+        """
+
+        self.disconnect()
+        if passwd is not None:
+            wifi.radio.start_ap(ssid=ssid, password=passwd)
+        else:
+            wifi.radio.start_ap(ssid=ssid)
+        del ssid, passwd
+        self._pool = SocketPool(wifi.radio)
+        self._session = Session(self._pool, create_default_context())
         return 0
 
     def hostname(self, name=None):
@@ -127,14 +143,26 @@ class driver_wifi:
             "bssid": None,
             "channel": None,
             "country": None,
-            "ip": wifi.radio.ipv4_address,
+            "ip": wifi.radio.ipv4_address
+            if not wifi.radio.ap_active
+            else wifi.radio.ipv4_address_ap,
             "power": str(wifi.radio.enabled),
-            "gateway": wifi.radio.ipv4_gateway,
-            "mode": self.mode,
+            "gateway": wifi.radio.ipv4_gateway
+            if not wifi.radio.ap_active
+            else wifi.radio.ipv4_gateway_ap,
+            "mode": "ap" if wifi.radio.ap_active else "station",
             "dns": wifi.radio.ipv4_dns,
-            "subnet": wifi.radio.ipv4_subnet,
-            "mac": wifi.radio.mac_address,
-            "mac_pretty": str(wifi.radio.mac_address).replace("\\x", ":")[3:-3],
+            "subnet": wifi.radio.ipv4_subnet
+            if not wifi.radio.ap_active
+            else wifi.radio.ipv4_subnet_ap,
+            "mac": wifi.radio.mac_address
+            if not wifi.radio.ap_active
+            else wifi.radio.mac_address_ap,
+            "mac_pretty": str(
+                wifi.radio.mac_address
+                if not wifi.radio.ap_active
+                else wifi.radio.mac_address_ap
+            ).replace("\\x", ":")[3:-3],
             "hostname": wifi.radio.hostname,
         }
 
@@ -155,8 +183,11 @@ class driver_wifi:
         """
         Disconnect from the wifi
         """
-        wifi.radio.stop_station()
-        wifi.radio.stop_scanning_networks()
+        if wifi.radio.ap_active:
+            wifi.radio.stop_ap()
+        if wifi.radio.connected:
+            wifi.radio.stop_station()
+            wifi.radio.stop_scanning_networks()
         try:
             wifi.radio.enabled = False
         except:
@@ -176,7 +207,6 @@ class driver_wifi:
         del self._pool, self._session
         self._pool = None
         self._session = None
-        self.connected = False
 
     def start(self):
         """
