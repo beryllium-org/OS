@@ -289,6 +289,7 @@ class ljinux:
                 consoles[i].deinit()
                 consoles.pop(i)
                 print(f"Deinit console {i}")
+                time.sleep(1.2)  # Time needed for a proper disconnection
 
     class api:
         def remove_ansi(text):
