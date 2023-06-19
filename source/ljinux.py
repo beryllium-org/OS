@@ -238,18 +238,6 @@ dmtex((f"Board memory: {usable_ram} bytes"))
 dmtex((f"Memory free: {gc.mem_free()} bytes"))
 dmtex("Basic checks done")
 
-# audio
-NoAudio = False  # used to ensure audio will NOT be used in case of libs missing
-try:
-    from audiomp3 import MP3Decoder
-    from audiopwmio import PWMAudioOut
-    from audiocore import WaveFile
-
-    dmtex("Audio libraries loaded")
-except ImportError:
-    NoAudio = True
-    dmtex(colors.error + "Notice: " + colors.endc + "Audio libraries loading failed")
-
 # sd card
 try:
     import adafruit_sdcard
