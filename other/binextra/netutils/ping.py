@@ -24,7 +24,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
                 bads = 0
                 timetab = list()
                 try:
-                    while True:
+                    while not term.is_interrupted():
                         ljinux.io.ledset(2)
                         done += 1
                         a = ljinux.modules["network"].ping(domain)
