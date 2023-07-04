@@ -8,6 +8,9 @@ while cont:
                 term.console = consoles[i]
                 globals()["console_active"] = i
                 cont = False
+            else:
+                ljinux.io.ledset(7)
+                time.sleep(0.1)
         else:
             if consoles[i].in_waiting:
                 term.console = consoles[i]
@@ -18,8 +21,8 @@ while cont:
                 consoles[i].write(
                     b"\nCannot autodetect connection\nPress any key to continue\n"
                 )
-        ljinux.io.ledset(7)
-        time.sleep(0.1)
+                ljinux.io.ledset(7)
+                time.sleep(0.3)  # Reduced spam
         del i
 del cont
 time.sleep(0.2)  # Delay for the terminal to get used to it.

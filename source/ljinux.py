@@ -1020,12 +1020,6 @@ class ljinux:
             return Exit_code
 
         class command:
-            def disconnect(inpt):
-                if hasattr(term.console, "disconnect"):
-                    term.console.disconnect()
-                else:
-                    term.write("This console does not support disconnection.")
-
             def exec(inpt):
                 inpt = inpt.split(" ")
                 global Exit
@@ -1519,6 +1513,12 @@ class ljinux:
                                 # We are running on a remote shell
                                 term.write("Bye")
                                 term.console.disconnect()
+                            elif term._active == False:  # Can be None
+                                # We want to disconnect from a passive console.
+                                ljinux.based.command.exec(
+                                    "/LjinuxRoot/bin/_waitforconnection.lja"
+                                )
+                                term.clear_line()
                             else:
                                 Exit = True
                                 Exit_code = 0
