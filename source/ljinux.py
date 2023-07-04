@@ -250,7 +250,7 @@ dmtex("Imports complete")
 
 
 def systemprints(mod, tx1, tx2=None):
-    dmtex("[ ", timing=False, end="")
+    dmtex(colors.white_t + "[ " + colors.endc, timing=False, end="")
 
     mods = {
         1: lambda: dmtex(colors.green_t + "OK", timing=False, end=""),
@@ -259,7 +259,7 @@ def systemprints(mod, tx1, tx2=None):
         4: lambda: dmtex(colors.red_t + "EMERG", timing=False, end=""),
     }
     mods[mod]()
-    dmtex(colors.endc + " ] " + tx1, timing=False)
+    dmtex(colors.white_t + " ] " + colors.endc + tx1, timing=False)
     if tx2 is not None:
         dmtex("           -> " if mod is 3 else "       -> ", timing=False, end="")
         dmtex(tx2, timing=False)
@@ -1477,18 +1477,19 @@ class ljinux:
 
                 while ((command_input == None) or (command_input == "\n")) and not Exit:
                     term.trigger_dict["prefix"] = (
-                        "["
+                        colors.white_t
+                        + "["
                         + colors.cyan_t
                         + ljinux.based.system_vars["USER"]
-                        + colors.endc
+                        + colors.white_t
                         + "@"
                         + colors.cyan_t
                         + ljinux.based.system_vars["HOSTNAME"]
-                        + colors.endc
+                        + colors.white_t
                         + " | "
                         + colors.yellow_t
                         + ljinux.api.betterpath()
-                        + colors.endc
+                        + colors.white_t
                         + "]"
                         + colors.blue_t
                         + "> "
