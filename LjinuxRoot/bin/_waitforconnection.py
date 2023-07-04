@@ -16,7 +16,7 @@ while cont:
                 cont = False
             else:
                 consoles[i].write(
-                    "\nCannot autodetect connection\nPress any key to continue\n"
+                    b"\nCannot autodetect connection\nPress any key to continue\n"
                 )
         ljinux.io.ledset(7)
         time.sleep(0.1)
