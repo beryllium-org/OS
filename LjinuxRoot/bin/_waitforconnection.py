@@ -1,15 +1,25 @@
-if term.check_activity():  # has .connected
-    while not term.console.connected:
+cont = True
+while cont:
+    for i in consoles.keys():
         ljinux.io.ledset(4)
-        for i in range(4):
-            if term.console.connected:
-                break
-            time.sleep(0.1)
+        time.sleep(0.1)
+        if hasattr(consoles[i], "connected"):
+            if consoles[i].connected:
+                term.console = consoles[i]
+                globals()["console_active"] = i
+                cont = False
+        else:
+            if consoles[i].in_waiting:
+                term.console = consoles[i]
+                globals()["console_active"] = i
+                consoles[i].reset_input_buffer()
+                cont = False
+            else:
+                consoles[i].write(
+                    "\nCannot autodetect connection\nPress any key to continue\n"
+                )
         ljinux.io.ledset(7)
-        for i in range(4):
-            if term.console.connected:
-                break
-            time.sleep(0.1)
-    time.sleep(0.2)  # Delay for the terminal to get used to it.
-else:
-    term.anykey("\nCannot autodetect connection\nPress any key to open based shell\n")
+        time.sleep(0.1)
+        del i
+del cont
+time.sleep(0.2)  # Delay for the terminal to get used to it.
