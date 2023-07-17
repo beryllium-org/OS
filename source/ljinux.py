@@ -1017,7 +1017,13 @@ class ljinux:
 
             ljinux.io.ledset(1)  # idle
             while not Exit:
-                ljinux.based.shell()
+                try:
+                    try:
+                        ljinux.based.shell()
+                    except KeyboardInterrupt:
+                        pass
+                except KeyboardInterrupt:
+                    pass
             ljinux.deinit_consoles()
             return Exit_code
 
