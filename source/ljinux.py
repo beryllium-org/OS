@@ -227,6 +227,8 @@ if ldd == -1:
         else:
             boardLEDen = pintab[cen]
         del cen
+    elif ct.startswith("rgb"):
+        boardLED = board.LED_RED
     del ct
 else:
     boardLED = pintab[ldd]
