@@ -1,47 +1,52 @@
-opts = ljinux.api.xarg()
-li = opts["hw"] + opts["w"]
-co = "".join(opts["o"])
-del opts
+rename_process("ls")
+pv[get_pid()]["opts"] = ljinux.api.xarg()
+pv[get_pid()]["li"] = pv[get_pid()]["opts"]["hw"] + pv[get_pid()]["opts"]["w"]
+pv[get_pid()]["co"] = "".join(pv[get_pid()]["opts"]["o"])
 
-sps = "   "
-path = "./"
+pv[get_pid()]["sps"] = "   "
+pv[get_pid()]["path"] = "./"
 
-if len(li):
-    if ljinux.api.isdir(li[0]) is 1:
-        path = li[0]
-        if not path.endswith("/"):
-            path += "/"
+if len(pv[get_pid()]["li"]):
+    if ljinux.api.isdir(pv[get_pid()]["li"][0]) is 1:
+        pv[get_pid()]["path"] = pv[get_pid()]["li"][0]
+        if not pv[get_pid()]["path"].endswith("/"):
+            pv[get_pid()]["path"] += "/"
     else:
         ljinux.based.error(2)
 
-directory_listing = listdir(ljinux.api.betterpath(path))
-directory_listing.sort()
+pv[get_pid()]["directory_listing"] = listdir(
+    ljinux.api.betterpath(pv[get_pid()]["path"])
+)
+pv[get_pid()]["directory_listing"].sort()
 
-if "l" in co:
-    sps = "\n"
+if "l" in pv[get_pid()]["co"]:
+    pv[get_pid()]["sps"] = "\n"
 
-if "a" in co:
-    term.write(colors.green_t + "." + colors.endc, end=sps)
-    if not (path == "/" or (path == "./" and getcwd() == "/")):
-        term.write(colors.green_t + ".." + colors.endc, end=sps)
+if "a" in pv[get_pid()]["co"]:
+    term.write(colors.green_t + "." + colors.endc, end=pv[get_pid()]["sps"])
+    if not (
+        pv[get_pid()]["path"] == "/"
+        or (pv[get_pid()]["path"] == "./" and getcwd() == "/")
+    ):
+        term.write(colors.green_t + ".." + colors.endc, end=pv[get_pid()]["sps"])
 
-if directory_listing is not None:
-    for dirr in directory_listing:
-        col = ""
-        if ljinux.api.isdir(f"{dirr}", path) is 0:
-            if dirr.startswith("."):
-                col = colors.green_t
+if pv[get_pid()]["directory_listing"] is not None:
+    for pv[get_pid()]["dirr"] in pv[get_pid()]["directory_listing"]:
+        pv[get_pid()]["col"] = ""
+        if not ljinux.api.isdir(pv[get_pid()]["dirr"], pv[get_pid()]["path"]):
+            if pv[get_pid()]["dirr"].startswith("."):
+                pv[get_pid()]["col"] = colors.green_t
         else:
-            col = colors.okcyan
-        if dirr[:1] == "." and not "a" in co:
+            pv[get_pid()]["col"] = colors.okcyan
+        if pv[get_pid()]["dirr"][:1] == "." and not "a" in pv[get_pid()]["co"]:
             continue
         else:
-            term.write(col + dirr + colors.endc, end=sps)
-        del col, dirr
+            term.write(
+                pv[get_pid()]["col"] + pv[get_pid()]["dirr"] + colors.endc,
+                end=pv[get_pid()]["sps"],
+            )
 
-if not "l" in co:
+if not "l" in pv[get_pid()]["co"]:
     term.write()
 
 ljinux.api.setvar("return", "0")
-
-del sps, path, directory_listing, li, co

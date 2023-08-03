@@ -1,7 +1,5 @@
-global Exit
-global Exit_code
-Exit_code = 245
-Exit = True
+pv[0]["Exit_code"] = 245
+pv[0]["Exit"] = True
 term.nwrite("System halted, press Ctrl+C to restart.")
 try:
     while True:

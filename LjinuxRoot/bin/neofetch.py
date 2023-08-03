@@ -1,44 +1,36 @@
-global uptimee
+rename_process("neofetch")
 
-neofetch_time = int(uptimee + time.monotonic())
+gc.collect()
+gc.collect()
+gc.collect()
+gc.collect()
 
-uptimestr = ""
+pv[get_pid()]["raml"] = "{}KiB / {}KiB".format(
+    trunc((pv[0]["usable_ram"] - gc.mem_free()) / 1024), int(pv[0]["usable_ram"] / 1024)
+)
 
-hours = neofetch_time // 3600  # Take out the hours
-neofetch_time -= hours * 3600
-minutes = neofetch_time // 60  # Take out the minutes
-neofetch_time -= minutes * 60
-
-if hours > 0:
-    uptimestr += str(hours) + " hours, "
-if minutes > 0:
-    uptimestr += str(minutes) + " minutes, "
-if neofetch_time > 0:
-    uptimestr += str(neofetch_time) + " seconds"
+pv[get_pid()]["time"] = int(pv[0]["uptimee"] + time.monotonic())
+pv[get_pid()]["ustr"] = ""
+pv[get_pid()]["hr"] = pv[get_pid()]["time"] // 3600  # Take out the hours
+pv[get_pid()]["time"] -= pv[get_pid()]["hr"] * 3600
+pv[get_pid()]["min"] = pv[get_pid()]["time"] // 60  # Take out the minutes
+pv[get_pid()]["time"] -= pv[get_pid()]["min"] * 60
+if pv[get_pid()]["hr"] > 0:
+    pv[get_pid()]["ustr"] += str(pv[get_pid()]["hr"]) + " hours, "
+if pv[get_pid()]["min"] > 0:
+    pv[get_pid()]["ustr"] += str(pv[get_pid()]["min"]) + " minutes, "
+if pv[get_pid()]["time"] > 0:
+    pv[get_pid()]["ustr"] += str(pv[get_pid()]["time"]) + " seconds"
 else:
-    uptimestr = uptimestr[:-2]
-del hours, minutes, neofetch_time
+    pv[get_pid()]["ustr"] = pv[get_pid()]["ustr"][:-2]
 
-Ccpu = f"{platform}"
-try:
-    from microcontroller import cpus
+pv[get_pid()]["cpul"] = str(platform)
+pv[get_pid()]["cpul"] += f" (1) @ {trunc(cpu.frequency / 1000000)}Mhz"
 
-    Ccpu += f" ({len(cpus)})"
-except:
-    Ccpu += " (1)"
-Ccpu += f" @ {trunc(cpu.frequency / 1000000)}Mhz"
+pv[get_pid()]["size"] = term.detect_size()
 
-gc.collect()
-gc.collect()
-
-Rram = f"{trunc((usable_ram - gc.mem_free()) / 1024)}KiB / {int(usable_ram/1024)}KiB"
-sizee = term.detect_size()
-
-# to edit the neofetch, you need to swap logo, tex and seperat
-
-seperat = 28  # where do we begin collumn #2
-
-logo = [
+pv[get_pid()]["sep"] = 28  # where do we begin collumn #2
+pv[get_pid()]["logo"] = [
     f"{colors.green_t}  ,----,{colors.endc}                    ",
     f"{colors.green_t}  ,----.|{colors.endc}      {colors.magenta_t},----._{colors.endc}",
     f"{colors.green_t}  |LLL|l:{colors.endc}     {colors.magenta_t}.-- -.'j\\{colors.endc}",
@@ -55,8 +47,7 @@ logo = [
     f"{colors.green_t}        {colors.endc}{colors.magenta_t}\JJJJ\jjjjjj,'{colors.endc}",
     f"{colors.magenta_t}         \"---....--'{colors.endc}",
 ]
-
-tex = [
+pv[get_pid()]["tex"] = [
     (
         colors.cyan_t
         + ljinux.based.system_vars["USER"]
@@ -83,20 +74,19 @@ tex = [
         + ": "
         + ljinux.based.system_vars["IMPLEMENTATION"]
     ),
-    f"{colors.red_t}Uptime{colors.endc}: {uptimestr}",
+    "{}Uptime{}: {}".format(colors.red_t, colors.endc, pv[get_pid()]["ustr"]),
     f"{colors.red_t}Packages{colors.endc}: "
     + str(len(listdir("/LjinuxRoot/etc/jpkg/Installed")))
     + " (jpkg)",
     f"{colors.red_t}Shell{colors.endc}: {colors.magenta_t}Based{colors.endc}",
-    f"{colors.red_t}Resolution:{colors.endc} {sizee[1]}x{sizee[0]}",
+    "{}Resolution:{} {}x{}".format(
+        colors.red_t, colors.endc, pv[get_pid()]["size"][1], pv[get_pid()]["size"][0]
+    ),
     f"{colors.red_t}WM{colors.endc}: Farland",
-    f"{colors.red_t}Terminal{colors.endc}: {console_active}",
-    f"{colors.red_t}CPU{colors.endc}: {Ccpu}",
-    f"{colors.red_t}System Memory{colors.endc}: {Rram}",
+    "{}Terminal{}: {}".format(colors.red_t, colors.endc, pv[0]["console_active"]),
+    "{}CPU{}: {}".format(colors.red_t, colors.endc, pv[get_pid()]["cpul"]),
+    "{}System Memory{}: {}".format(colors.red_t, colors.endc, pv[get_pid()]["raml"]),
 ]
-
-del Rram, Ccpu, sizee
-del uptimestr
 
 try:
     import espidf
@@ -104,12 +94,13 @@ try:
     total = espidf.heap_caps_get_total_size()
     used = total - espidf.heap_caps_get_free_size()
     erram = f"{trunc((used) / 1024)}KiB / {trunc((total) / 1024)}KiB"
-    tex += [f"\033[31mESPIDF Memory{colors.endc}: {erram}"]
-    del total, used, erram, espidf
+    pv[get_pid()]["tex"] += [f"\033[31mESPIDF Memory{colors.endc}: {erram}"]
+
+    del espidf
 except ImportError:
     pass
 
-tex += [
+pv[get_pid()]["tex"] += [
     "",
     (
         f"{colors.black_t}███{colors.endc}{colors.red_t}███{colors.endc}"
@@ -125,15 +116,22 @@ tex += [
         + f"{colors.white_t}███{colors.endc}"
     ),
 ]
-for i in range(0, max(len(logo), len(tex))):
+for i in range(0, max(len(pv[get_pid()]["logo"]), len(pv[get_pid()]["tex"]))):
     try:
-        term.nwrite(logo[i] + ((seperat - len(ljinux.api.remove_ansi(logo[i]))) * " "))
+        term.nwrite(
+            pv[get_pid()]["logo"][i]
+            + (
+                (
+                    pv[get_pid()]["sep"]
+                    - len(ljinux.api.remove_ansi(pv[get_pid()]["logo"][i]))
+                )
+                * " "
+            )
+        )
     except IndexError:
-        term.nwrite(seperat * " ")
+        term.nwrite(pv[get_pid()]["sep"] * " ")
     try:
-        term.nwrite(tex[i])
+        term.nwrite(pv[get_pid()]["tex"][i])
     except IndexError:
         pass
     term.write()
-    del i
-del tex, logo, seperat

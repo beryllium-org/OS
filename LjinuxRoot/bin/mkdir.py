@@ -1,43 +1,44 @@
-global sdcard_fs
+rename_process("mkdir")
 try:
-    wd = ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1])
-    if ljinux.api.isdir(wd) == 2:
-        if not sdcard_fs:
+    pv[get_pid()]["wd"] = ljinux.api.betterpath(
+        ljinux.based.user_vars["argj"].split()[1]
+    )
+    if ljinux.api.isdir(pv[get_pid()]["wd"]) == 2:
+        if not pv[0]["sdcard_fs"]:
             remount("/", False)
-
-        if ljinux.api.isdir(wd[: wd.rfind("/")]) == 2:
-            fpaths = wd[: wd.find("/") + 1]
-            wd = wd[wd.find("/") + 1 :]
-            while wd.find("/") != -1:
-                fpaths += wd[: wd.find("/") + 1]
-                wd = wd[wd.find("/") + 1 :]
-                if ljinux.api.isdir(fpaths) == 2:
-                    mkdir(fpaths)
-            wd = fpaths + wd
-            del fpaths
-        mkdir(wd)
-        del wd
-
-        if not sdcard_fs:
+        if ljinux.api.isdir(pv[get_pid()]["wd"][: wd.rfind("/")]) == 2:
+            pv[get_pid()]["fpaths"] = pv[get_pid()]["wd"][
+                : pv[get_pid()]["wd"].find("/") + 1
+            ]
+            pv[get_pid()]["wd"] = pv[get_pid()]["wd"][
+                pv[get_pid()]["wd"].find("/") + 1 :
+            ]
+            while pv[get_pid()]["wd"].find("/") != -1:
+                pv[get_pid()]["fpaths"] += pv[get_pid()]["wd"][
+                    : pv[get_pid()]["wd"].find("/") + 1
+                ]
+                pv[get_pid()]["wd"] = pv[get_pid()]["wd"][
+                    pv[get_pid()]["wd"].find("/") + 1 :
+                ]
+                if ljinux.api.isdir(pv[get_pid()]["fpaths"]) == 2:
+                    mkdir(pv[get_pid()]["fpaths"])
+            pv[get_pid()]["wd"] = pv[get_pid()]["fpaths"] + pv[get_pid()]["wd"]
+        mkdir(pv[get_pid()]["wd"])
+        if not pv[0]["sdcard_fs"]:
             remount("/", True)
-
-        ljinux.based.user_vars["return"] = "0"
-
+        ljinux.api.setvar("return", "0")
     else:
         raise OSError
-
 except OSError:
     term.write(
         "mkdir: cannot create directory ‘"
         + ljinux.based.user_vars["argj"].split()[1]
         + "’: File exists"
     )
-    ljinux.based.user_vars["return"] = "1"
-
+    ljinux.api.setvar("return", "1")
 except RuntimeError:
     ljinux.based.error(7)
-    ljinux.based.user_vars["return"] = "1"
-
+    ljinux.api.setvar("return", "1")
 except IndexError:
     ljinux.based.error(1)
-    ljinux.based.user_vars["return"] = "1"
+    ljinux.api.setvar("return", "1")

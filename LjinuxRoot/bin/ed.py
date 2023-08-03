@@ -1,24 +1,15 @@
+rename_process("ed")
 gc.collect()
-opts = ljinux.api.xarg()
-appending = False
-has_checked_args = False
-txbuf = list()
-sps = " "
-empt = ""
-qu = "?"
-r = "r"
-w = "w"
-q = "q"
-sl = "/"
-bsl = "\\"
-selected = None
+pv[get_pid()]["opts"] = ljinux.api.xarg()
+pv[get_pid()]["appending"] = False
+pv[get_pid()]["has_checked_args"] = False
+pv[get_pid()]["txbuf"] = []
+pv[get_pid()]["selected"] = None
 
-oldtr = dict()
-oldtr.update(term.trigger_dict)
 term.trigger_dict.clear()
 term.trigger_dict.update(
     {
-        "prefix": empt,
+        "prefix": "",
         "enter": 0,
         "ctrlC": 1,
         "ctrlD": 2,
@@ -31,11 +22,11 @@ term.trigger_dict.update(
 
 while True:
     term.clear_line()
-    term.buf[1] = empt
+    term.buf[1] = ""
     term.focus = 0
     ljinux.io.ledset(1)
     gc.collect()
-    if has_checked_args:
+    if pv[get_pid()]["has_checked_args"]:
         term.program()
     else:
         term.buf[0] = 0
@@ -45,115 +36,145 @@ while True:
     elif term.buf[0] is 1:
         term.write("^C")
     elif term.buf[0] is 0:
-        if has_checked_args:
+        if pv[get_pid()]["has_checked_args"]:
             term.write()
-        if appending:
+        if pv[get_pid()]["appending"]:
             if term.buf[1] != ".":
-                txbuf.append(term.buf[1])
+                pv[get_pid()]["txbuf"].append(term.buf[1])
             else:
-                appending = False
+                pv[get_pid()]["appending"] = False
         else:
-            recv = term.buf[1].split(sps)
-            if len(recv):
-                if (recv[0] == r) or (not has_checked_args):
-                    src = None
-                    if not has_checked_args:
-                        has_checked_args = True
-                        if len(opts[w]) is not 0:
-                            src = opts[w][0]
+            pv[get_pid()]["recv"] = term.buf[1].split(" ")
+            if len(pv[get_pid()]["recv"]):
+                if (pv[get_pid()]["recv"][0] == "r") or (
+                    not pv[get_pid()]["has_checked_args"]
+                ):
+                    pv[get_pid()]["src"] = None
+                    if not pv[get_pid()]["has_checked_args"]:
+                        pv[get_pid()]["has_checked_args"] = True
+                        if len(pv[get_pid()]["opts"]["w"]) is not 0:
+                            pv[get_pid()]["src"] = pv[get_pid()]["opts"]["w"][0]
                     else:
-                        if len(recv) > 1:
-                            src = recv[1]
-                    if src is not None and (src.isspace() or src == ""):
-                        src = None
-                    if src is not None:
-                        if ljinux.api.isdir(src, getcwd()) is not 0:
-                            src = None
-                    if src is not None:
-                        with ljinux.api.fopen(src) as f:
-                            txbuf += f.readlines()
-                            bl = 0
-                            for linen in range(len(txbuf)):
-                                txbuf[linen] = txbuf[linen][:-1]
-                                bl += len(txbuf[linen]) + 1
-                                del linen
-                        term.write(str(bl))
-                        del bl
+                        if len(pv[get_pid()]["recv"]) > 1:
+                            pv[get_pid()]["src"] = pv[get_pid()]["recv"][1]
+                    if pv[get_pid()]["src"] is not None and (
+                        pv[get_pid()]["src"].isspace() or pv[get_pid()]["src"] == ""
+                    ):
+                        pv[get_pid()]["src"] = None
+                    if pv[get_pid()]["src"] is not None:
+                        if ljinux.api.isdir(pv[get_pid()]["src"], getcwd()) is not 0:
+                            pv[get_pid()]["src"] = None
+                    if pv[get_pid()]["src"] is not None:
+                        with ljinux.api.fopen(pv[get_pid()]["src"]) as f:
+                            pv[get_pid()]["txbuf"] += f.readlines()
+                            pv[get_pid()]["bl"] = 0
+                            for pv[get_pid()]["linen"] in range(
+                                len(pv[get_pid()]["txbuf"])
+                            ):
+                                pv[get_pid()]["txbuf"][pv[get_pid()]["linen"]] = pv[
+                                    get_pid()
+                                ]["txbuf"][pv[get_pid()]["linen"]][:-1]
+                                pv[get_pid()]["bl"] += (
+                                    len(pv[get_pid()]["txbuf"][pv[get_pid()]["linen"]])
+                                    + 1
+                                )
+                                del pv[get_pid()]["linen"]
+                        term.write(str(pv[get_pid()]["bl"]))
+                        del pv[get_pid()]["bl"]
                     else:
-                        term.write(qu)
-                    del src
-                elif recv[0].isdigit():
-                    d = int(recv[0])
-                    if len(txbuf) >= d:
-                        term.write(txbuf[d - 1])
-                    selected = d
-                    del d
-                elif recv[0][0] == "s":
-                    if recv[0][1] == sl and recv[0][-1] == sl:
-                        slist = recv[0][2:-1].split(sl)
-                        sfinal = list()
-                        skip = 0
-                        if len(slist) is not 2:
-                            for itemn in range(len(slist)):
-                                if not skip:
-                                    cit = slist[itemn]
-                                    while cit.endswith(bsl):
-                                        cit += "/"
-                                        if itemn < len(slist) + skip:
-                                            cit += slist[itemn + 1 + skip]
-                                        skip += 1
-                                    sfinal.append(cit)
-                                    del itemn, cit
+                        term.write("?")
+                    del pv[get_pid()]["src"]
+                elif pv[get_pid()]["recv"][0].isdigit():
+                    pv[get_pid()]["d"] = int(pv[get_pid()]["recv"][0])
+                    if len(pv[get_pid()]["txbuf"]) >= pv[get_pid()]["d"]:
+                        term.write(pv[get_pid()]["txbuf"][pv[get_pid()]["d"] - 1])
+                    pv[get_pid()]["selected"] = pv[get_pid()]["d"]
+                    del pv[get_pid()]["d"]
+                elif pv[get_pid()]["recv"][0][0] == "s":
+                    if (
+                        pv[get_pid()]["recv"][0][1] == "/"
+                        and pv[get_pid()]["recv"][0][-1] == "/"
+                    ):
+                        pv[get_pid()]["slist"] = pv[get_pid()]["recv"][0][2:-1].split(
+                            "/"
+                        )
+                        pv[get_pid()]["sfinal"] = []
+                        pv[get_pid()]["skip"] = 0
+                        if len(pv[get_pid()]["slist"]) is not 2:
+                            for pv[get_pid()]["itemn"] in range(
+                                len(pv[get_pid()]["slist"])
+                            ):
+                                if not pv[get_pid()]["skip"]:
+                                    pv[get_pid()]["cit"] = pv[get_pid()]["slist"][
+                                        pv[get_pid()]["itemn"]
+                                    ]
+                                    while pv[get_pid()]["cit"].endswith("\\"):
+                                        pv[get_pid()]["cit"] += "/"
+                                        if (
+                                            pv[get_pid()]["itemn"]
+                                            < len(pv[get_pid()]["slist"])
+                                            + pv[get_pid()]["skip"]
+                                        ):
+                                            pv[get_pid()]["cit"] += pv[get_pid()][
+                                                "slist"
+                                            ][
+                                                pv[get_pid()]["itemn"]
+                                                + 1
+                                                + pv[get_pid()]["skip"]
+                                            ]
+                                        pv[get_pid()]["skip"] += 1
+                                    pv[get_pid()]["sfinal"].append(pv[get_pid()]["cit"])
                                 else:
-                                    skip -= 1
+                                    pv[get_pid()]["skip"] -= 1
+                            del pv[get_pid()]["itemn"], pv[get_pid()]["cit"]
                         else:
-                            sfinal = slist
-                        del slist, skip
-                        if (len(sfinal) is not 2) or (selected is None):
-                            term.write(qu)
+                            pv[get_pid()]["sfinal"] = pv[get_pid()]["slist"]
+                        del pv[get_pid()]["slist"], pv[get_pid()]["skip"]
+                        if (len(pv[get_pid()]["sfinal"]) is not 2) or (
+                            pv[get_pid()]["selected"] is None
+                        ):
+                            term.write("?")
                         else:
-                            txbuf[selected - 1] = txbuf[selected - 1].replace(
-                                sfinal[0], sfinal[1]
+                            pv[get_pid()]["txbuf"][pv[get_pid()]["selected"] - 1] = pv[
+                                get_pid()
+                            ]["txbuf"][pv[get_pid()]["selected"] - 1].replace(
+                                pv[get_pid()]["sfinal"][0], pv[get_pid()]["sfinal"][1]
                             )
-                        del sfinal
+                        del pv[get_pid()]["sfinal"]
                     else:
-                        term.write(qu)
-                elif recv[0] == "c":
-                    txbuf.clear()
-                elif recv[0] == "a":
-                    appending = True
-                elif recv[0] == w:
-                    if len(recv) > 1:
-                        with ljinux.api.fopen(recv[1], "w") as f:
+                        term.write("?")
+                elif pv[get_pid()]["recv"][0] == "c":
+                    pv[get_pid()]["txbuf"].clear()
+                elif pv[get_pid()]["recv"][0] == "a":
+                    pv[get_pid()]["appending"] = True
+                elif pv[get_pid()]["recv"][0] == "w":
+                    if len(pv[get_pid()]["recv"]) > 1:
+                        with ljinux.api.fopen(pv[get_pid()]["recv"][1], "w") as f:
                             if f is not None:
-                                for line in txbuf:
-                                    f.write(f"{line}\n")
-                                    del line
+                                for pv[get_pid()]["line"] in pv[get_pid()]["txbuf"]:
+                                    f.write("{}\n".format(pv[get_pid()]["line"]))
                                     gc.collect()
+                                del pv[get_pid()]["line"]
                             else:
-                                term.write(qu)
+                                term.write("?")
                     else:
-                        term.write(qu)
-                elif recv[0] == q:
-                    if selected is not None:
-                        selected = None
-                        term.write(qu)
+                        term.write("?")
+                elif pv[get_pid()]["recv"][0] == "q":
+                    if pv[get_pid()]["selected"] is not None:
+                        pv[get_pid()]["selected"] = None
+                        term.write("?")
                     else:
                         break
-                elif recv[0] == ",p":
-                    if len(txbuf):
-                        for line in txbuf:
-                            term.write(line)
-                            del line
+                elif pv[get_pid()]["recv"][0] == ",p":
+                    if len(pv[get_pid()]["txbuf"]):
+                        for pv[get_pid()]["line"] in pv[get_pid()]["txbuf"]:
+                            term.write(pv[get_pid()]["line"])
+                            del pv[get_pid()]["line"]
                     else:
-                        term.write(qu)
+                        term.write("?")
                 else:
-                    term.write(qu)
+                    term.write("?")
             else:
-                term.write(qu)
-            del recv
-
-term.buf[1] = empt
-term.trigger_dict.clear()
-term.trigger_dict.update(oldtr)
-del oldtr, appending, has_checked_args, txbuf, sps, empt, qu, q, r, w, selected, sl, bsl
+                term.write("?")
+            del pv[get_pid()]["recv"]
+term.buf[1] = ""

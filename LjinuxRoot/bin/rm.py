@@ -1,29 +1,28 @@
-opts = ljinux.api.xarg()
-fw = opts["hw"] + opts["w"]
+rename_process("rm")
+pv[get_pid()]["opts"] = ljinux.api.xarg()
+pv[get_pid()]["fw"] = pv[get_pid()]["opts"]["hw"] + pv[get_pid()]["opts"]["w"]
 
 try:
-    if not sdcard_fs:
+    if not pv[0]["sdcard_fs"]:
         remount("/", False)
 
-    for filee in fw:
+    for pv[get_pid()]["filee"] in pv[get_pid()]["fw"]:
         try:
-            remove(ljinux.api.betterpath(filee))
+            remove(ljinux.api.betterpath(pv[get_pid()]["filee"]))
         except OSError as errr:
-            if str(errr) == "[Errno 2] No such file/directory":
-                ljinux.based.error(4, f=filee)
-            elif str(errr) == "[Errno 21] EISDIR":
+            if str(pv[get_pid()]["errr"]) == "[Errno 2] No such file/directory":
+                ljinux.based.error(4, f=pv[get_pid()]["filee"])
+            elif str(pv[get_pid()]["errr"]) == "[Errno 21] EISDIR":
                 ljinux.based.error(15, prefix="rm")
             else:
                 ljinux.based.error(3)
-            del filee
+            del errr
 
     try:
-        if not sdcard_fs:
+        if not pv[0]["sdcard_fs"]:
             remount("/", True)
     except RuntimeError:
         pass
 
 except RuntimeError:
     ljinux.based.error(7)
-
-del opts, fw

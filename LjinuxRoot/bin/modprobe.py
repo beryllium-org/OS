@@ -1,35 +1,41 @@
-args = ljinux.based.user_vars["argj"].split()[1:]
-argl = len(args)
-if argl is not 0:
-    module = args[0]
-    ass = None
+rename_process("modprobe")
+pv[get_pid()]["args"] = ljinux.based.user_vars["argj"].split()[1:]
+pv[get_pid()]["argl"] = len(pv[get_pid()]["args"])
+if pv[get_pid()]["argl"] is not 0:
+    pv[get_pid()]["module"] = pv[get_pid()]["args"][0]
+    pv[get_pid()]["ass"] = None
     try:
-        if args[1] == "as":
-            ass = args[2]
+        if pv[get_pid()]["args"][1] == "as":
+            pv[get_pid()]["ass"] = pv[get_pid()]["args"][2]
     except IndexError:
         pass
-    loadstr = f"from drivers.{module} import {module}"
-    dmtextt = f'Modprobe: Loading module "{module}"'
+    pv[get_pid()]["loadstr"] = "from drivers.{} import {}".format(
+        pv[get_pid()]["module"], pv[get_pid()]["module"]
+    )
+    pv[get_pid()]["dmtextt"] = 'Modprobe: Loading module "{}"'.format(
+        pv[get_pid()]["module"]
+    )
 
-    if ass is not None:
-        module = ass
-        loadstr += f" as {module}"
-        dmtextt += f" as {module}"
+    if pv[get_pid()]["ass"] is not None:
+        pv[get_pid()]["module"] = pv[get_pid()]["ass"]
+        pv[get_pid()]["loadstr"] += " as " + pv[get_pid()]["module"]
+        pv[get_pid()]["dmtextt"] += " as " + pv[get_pid()]["module"]
 
-    dmtex(dmtextt)
-    del ass, dmtextt
+    dmtex(pv[get_pid()]["dmtextt"])
     try:
-        exec(loadstr)
-        if module not in ljinux.modules:
-            execstr = 'ljinux.modules.update({"' + module + '": ' + module + "()})"
-            exec(execstr)
-            del execstr
+        exec(pv[get_pid()]["loadstr"])
+        if pv[get_pid()]["module"] not in ljinux.modules:
+            pv[get_pid()]["execstr"] = (
+                'ljinux.modules.update({"'
+                + pv[get_pid()]["module"]
+                + '": '
+                + pv[get_pid()]["module"]
+                + "()})"
+            )
+            exec(pv[get_pid()]["execstr"])
         else:
             ljinux.based.error()
     except ImportError:
         ljinux.based.error()
-    del loadstr
 else:
     ljinux.based.error(1)
-
-del args, argl

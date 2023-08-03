@@ -1,7 +1,14 @@
+rename_process("m5x-shutdown")
 ljinux.io.ledset(1)
 ljinux.deinit_consoles()
-a = digitalio.DigitalInOut(board.BAT_HOLD)
-a.switch_to_output()
-a.value = 0
+vr("a", digitalio.DigitalInOut(board.BAT_HOLD))
+pv[get_pid()]["a"].switch_to_output()
+pv[get_pid()]["a"].value = 0
 while True:
-    sleep(100)
+    try:
+        try:
+            sleep(100)
+        except KeyboardInterrupt:
+            pass
+    except KeyboardInterrupt:
+        pass

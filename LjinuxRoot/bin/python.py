@@ -1,7 +1,7 @@
+rename_process("python")
 from traceback import format_exception
 
-term_old = term.trigger_dict
-term.trigger_dict = {
+term.trigger_dict = {  # Will automatically be reverted.
     "ctrlD": 1,
     "ctrlC": 2,
     "enter": 0,
@@ -14,8 +14,8 @@ term.trigger_dict = {
 }
 term.buf[1] = ""
 
-currdep = 0
-mass = []
+pv[get_pid()]["currdep"] = 0
+pv[get_pid()]["mass"] = []
 dmtex("Staring Python shell")
 term.write(
     "CircuitPython "
@@ -46,16 +46,16 @@ while True:
         try:
             if term.focus is 0 and term.buf[1].endswith("."):
                 exec(
-                    "ljdirtest = dir({})".format(term.buf[1][: term.buf[1].rfind(".")])
+                    'pv[get_pid()]["ljdirtest"] = dir({})'.format(
+                        term.buf[1][: term.buf[1].rfind(".")]
+                    )
                 )
-                if len(ljdirtest):
+                if len(pv[get_pid()]["ljdirtest"]):
                     term.write()
-                    for i in ljdirtest:
-                        if not i.startswith("_"):
-                            term.nwrite(i + "    ")
-                        del i
+                    for pv[get_pid()]["i"] in pv[get_pid()]["ljdirtest"]:
+                        if not pv[get_pid()]["i"].startswith("_"):
+                            term.nwrite(pv[get_pid()]["i"] + "    ")
                     term.write()
-                del ljdirtest
             else:
                 raise Exception
         except:
@@ -65,51 +65,66 @@ while True:
         if term.buf[1].startswith(" "):
             if term.buf[1].isspace():
                 term.trigger_dict["prefix"] = ">>> "
-                currdep = 0
+                pv[get_pid()]["currdep"] = 0
                 term.buf[1] = ""
                 term.focus = 0
-                execstr = ""
-                for i in mass:
-                    execstr += i + "\n"
-                mass.clear()
+                pv[get_pid()]["execstr"] = ""
+                for pv[get_pid()]["i"] in pv[get_pid()]["mass"]:
+                    pv[get_pid()]["execstr"] += pv[get_pid()]["i"] + "\n"
+                pv[get_pid()]["mass"].clear()
                 try:
-                    exec(execstr)
-                except Exception as Err:
-                    term.write(format_exception(Err)[0])
-                del execstr
+                    try:
+                        exec(pv[get_pid()]["execstr"])
+                    except Exception as Err:
+                        term.write(format_exception(Err)[0])
+                except KeyboardInterrupt as Err:
+                    term.write("KeyboardInterrupt")
+                    term.buf[1] = ""
+                    pv[get_pid()]["mass"].clear()
+                    term.focus = 0
+
             else:
-                mass.append(term.buf[1])
-                currdep = term.buf[1].count(" ")
+                pv[get_pid()]["mass"].append(term.buf[1])
+                pv[get_pid()]["currdep"] = term.buf[1].count(" ")
                 while True:
-                    if not term.buf[1][currdep - 1 :][0] == " ":
-                        currdep -= 1
+                    if not term.buf[1][pv[get_pid()]["currdep"] - 1 :][0] == " ":
+                        pv[get_pid()]["currdep"] -= 1
                     else:
                         break
-                term.buf[1] = " " * currdep
+                term.buf[1] = " " * pv[get_pid()]["currdep"]
                 term.trigger_dict["prefix"] = "... "
                 term.focus = 0
-                i = 1
+                pv[get_pid()]["i"] = 1
 
         elif term.buf[1] == "":
             term.trigger_dict["prefix"] = ">>> "
-            if currdep > 0:
-                currdep = 0
-                execstr = ""
-                for i in mass:
-                    execstr += i + "\n"
-                mass.clear()
+            if pv[get_pid()]["currdep"] > 0:
+                pv[get_pid()]["currdep"] = 0
+                pv[get_pid()]["execstr"] = ""
+                for pv[get_pid()]["i"] in pv[get_pid()]["mass"]:
+                    pv[get_pid()]["execstr"] += pv[get_pid()]["i"] + "\n"
+                pv[get_pid()]["mass"].clear()
                 try:
-                    exec(execstr)
-                except Exception as Err:
-                    term.write(str(Err))
-                del execstr
+                    try:
+                        exec(pv[get_pid()]["execstr"])
+                    except Exception as Err:
+                        term.write(format_exception(Err)[0])
+                except KeyboardInterrupt as Err:
+                    term.write("KeyboardInterrupt")
+                    term.buf[1] = ""
+                    pv[get_pid()]["mass"].clear()
+                    term.focus = 0
 
         elif term.buf[1].startswith("exit"):
             try:
                 if term.buf[1][4] == "(":
-                    cod = term.buf[1][term.buf[1].find("(") + 1 : term.buf[1].find(")")]
-                    ljinux.based.user_vars["return"] = cod if len(cod) > 0 else "0"
-                    del cod
+                    pv[get_pid()]["cod"] = term.buf[1][
+                        term.buf[1].find("(") + 1 : term.buf[1].find(")")
+                    ]
+                    ljinux.api.setvar(
+                        "return",
+                        pv[get_pid()]["cod"] if len(pv[get_pid()]["cod"]) > 0 else "0",
+                    )
                     term.buf[1] = ""
                     term.focus = 0
                     break
@@ -121,46 +136,50 @@ while True:
                 term.write("Use exit() or Ctrl-D (i.e. EOF) to exit")
 
         elif term.buf[1].endswith(":"):
-            currdep += 4
-            mass.append(term.buf[1])
+            pv[get_pid()]["currdep"] += 4
+            pv[get_pid()]["mass"].append(term.buf[1])
             term.trigger_dict["prefix"] = "... "
-            term.buf[1] = " " * currdep
+            term.buf[1] = " " * pv[get_pid()]["currdep"]
             term.focus = 0
 
         else:
+            pv[get_pid()]["cppy"] = None
+            pv[get_pid()]["pyeqpos1"] = term.buf[1].find("=")
+            pv[get_pid()]["pyeqpos2"] = term.buf[1].find("==")
+            pv[get_pid()]["pyskippri"] = False
+            if (
+                (
+                    (pv[get_pid()]["pyeqpos1"] is not -1)
+                    and (pv[get_pid()]["pyeqpos1"] is not pv[get_pid()]["pyeqpos2"])
+                )
+                or (term.buf[1][:7] == "import ")
+                or (term.buf[1][:4] in ["del ", "for ", "from"])
+                or (term.buf[1][:3] == "if ")
+                or (term.buf[1][:6] == "raise ")
+            ):
+                pv[get_pid()]["pyskippri"] = True
             try:
-                cppy = None
-                pyeqpos1 = term.buf[1].find("=")
-                pyeqpos2 = term.buf[1].find("==")
-                pyskippri = False
-                if (
-                    ((pyeqpos1 is not -1) and (pyeqpos1 is not pyeqpos2))
-                    or (term.buf[1][:7] == "import ")
-                    or (term.buf[1][:4] in ["del ", "for ", "from"])
-                    or (term.buf[1][:3] == "if ")
-                    or (term.buf[1][:6] == "raise ")
-                ):
-                    pyskippri = True
-                del pyeqpos1, pyeqpos2
-                if not pyskippri:
-                    exec("cppy=" + term.buf[1])
-                else:
-                    exec(term.buf[1])
-                del pyskippri
-                if cppy is not None:
-                    term.write(str(cppy))
-                del cppy
-            except Exception as Err:
-                term.write(format_exception(Err)[0])
+                try:
+                    if not pv[get_pid()]["pyskippri"]:
+                        exec('pv[get_pid()]["cppy"]=' + term.buf[1])
+                    else:
+                        exec(term.buf[1])
+                    if pv[get_pid()]["cppy"] is not None:
+                        term.write(str(pv[get_pid()]["cppy"]))
+                except Exception as Err:
+                    term.write(format_exception(Err)[0])
+            except KeyboardInterrupt as Err:
+                term.write("KeyboardInterrupt")
+                term.buf[1] = ""
+                pv[get_pid()]["mass"].clear()
+                term.focus = 0
             term.buf[1] = ""
             term.focus = 0
     elif term.buf[0] == 2:
         term.write("\nKeyboardInterrupt")
         term.buf[1] = ""
-        mass.clear()
+        pv[get_pid()]["mass"].clear()
         term.focus = 0
 dmtex("Python shell session has ended")
-term.trigger_dict = term_old
-del term_old, mass, currdep
-ljinux.based.user_vars["return"] = "0"
+ljinux.api.setvar("return", "0")
 del format_exception

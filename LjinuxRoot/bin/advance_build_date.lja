@@ -1,4 +1,1 @@
-pexec systemprints(2, "Advancing time to build date")
-pexec ljinux.api.setvar("argj", ". set " + str(ljinux.api.getvar("IMPLEMENTATION_DATE").split("-"))[1:-1].replace("'", "").replace(",", ""))
-fpexec /bin/date.py
-pexec systemprints(1, "Advancing time to build date")
+fpexec /bin/advance_build_date.py

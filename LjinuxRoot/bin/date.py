@@ -1,20 +1,33 @@
-args = ljinux.based.user_vars["argj"].split()
+rename_process("date")
+pv[get_pid()]["args"] = ljinux.based.user_vars["argj"].split()
 try:
-    if args[1] == "set":
+    if pv[get_pid()]["args"][1] == "set":
         import rtc
 
         try:
             rtc.RTC().datetime = time.struct_time(
                 (
-                    int(args[2]),
-                    int(args[3]),
-                    int(args[4]),
-                    int(args[5]) if len(args) > 5 else 0,
-                    int(args[6]) if len(args) > 6 else 0,
-                    int(args[7]) if len(args) > 7 else 0,
-                    int(args[8]) if len(args) > 8 else 0,
-                    int(args[9]) if len(args) > 9 else 0,
-                    int(args[10]) if len(args) > 10 else 0,
+                    int(pv[get_pid()]["args"][2]),
+                    int(pv[get_pid()]["args"][3]),
+                    int(pv[get_pid()]["args"][4]),
+                    int(pv[get_pid()]["args"][5])
+                    if len(pv[get_pid()]["args"]) > 5
+                    else 0,
+                    int(pv[get_pid()]["args"][6])
+                    if len(pv[get_pid()]["args"]) > 6
+                    else 0,
+                    int(pv[get_pid()]["args"][7])
+                    if len(pv[get_pid()]["args"]) > 7
+                    else 0,
+                    int(pv[get_pid()]["args"][8])
+                    if len(pv[get_pid()]["args"]) > 8
+                    else 0,
+                    int(pv[get_pid()]["args"][9])
+                    if len(pv[get_pid()]["args"]) > 9
+                    else 0,
+                    int(pv[get_pid()]["args"][10])
+                    if len(pv[get_pid()]["args"]) > 10
+                    else 0,
                 )
             )  # yr, mon, d, hr, m, s, ss, shit,shit,shit
         except IndexError:
@@ -23,19 +36,25 @@ try:
     else:
         raise IndexError
 except IndexError:
-    tt = time.localtime()
-    dat = [
-        tt.tm_mday,
-        tt.tm_mon,
-        tt.tm_hour,
-        tt.tm_min,
-        tt.tm_sec,
+    pv[get_pid()]["tt"] = time.localtime()
+    pv[get_pid()]["dat"] = [
+        pv[get_pid()]["tt"].tm_mday,
+        pv[get_pid()]["tt"].tm_mon,
+        pv[get_pid()]["tt"].tm_hour,
+        pv[get_pid()]["tt"].tm_min,
+        pv[get_pid()]["tt"].tm_sec,
     ]
 
-    for i in range(0, 5):
-        dat[i] = f"0{dat[i]}" if len(str(dat[i])) < 2 else dat[i]
+    for pv[get_pid()]["i"] in range(0, 5):
+        pv[get_pid()]["dat"][pv[get_pid()]["i"]] = str(
+            pv[get_pid()]["dat"][pv[get_pid()]["i"]]
+        )
+        if len(str(pv[get_pid()]["dat"][pv[get_pid()]["i"]])) < 2:
+            pv[get_pid()]["dat"][pv[get_pid()]["i"]] = (
+                "0" + pv[get_pid()]["dat"][pv[get_pid()]["i"]]
+            )
 
-    daydict = {
+    pv[get_pid()]["daydict"] = {
         0: "Mon",
         1: "Tue",
         2: "Wed",
@@ -44,9 +63,17 @@ except IndexError:
         5: "Sat",
         6: "Sun",
     }
-    day = daydict[tt.tm_wday]
-    del daydict
+    pv[get_pid()]["day"] = pv[get_pid()]["daydict"][pv[get_pid()]["tt"].tm_wday]
+    del pv[get_pid()]["daydict"]
 
-    term.write(f"{day} {dat[0]} {dat[1]} {tt.tm_year} {dat[2]}:{dat[3]}:{dat[4]}")
-    del tt, day, dat
-del args
+    term.write(
+        "{} {} {} {} {}:{}:{}".format(
+            pv[get_pid()]["day"],
+            pv[get_pid()]["dat"][0],
+            pv[get_pid()]["dat"][1],
+            pv[get_pid()]["tt"].tm_year,
+            pv[get_pid()]["dat"][2],
+            pv[get_pid()]["dat"][3],
+            pv[get_pid()]["dat"][4],
+        )
+    )

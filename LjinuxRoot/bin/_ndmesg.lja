@@ -1,2 +1,2 @@
 # disable dmesg for ram
-pexec global ndmesg; ndmesg = True; dmesg.clear(); dmesg.append("Dmesg is disabled"); gc.collect()
+pexec vr("ndmesg", True, pid=0); pv[0]["dmesg"].clear(); pv[0]["dmesg"].append("Dmesg is disabled"); gc.collect()

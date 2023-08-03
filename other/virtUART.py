@@ -24,9 +24,15 @@ class virtUART:
         """
         if not block:
             while _runtime.serial_bytes_available:
-                self._in_buf += _stdin.read(1)
+                try:
+                    self._in_buf += _stdin.read(1)
+                except UnicodeError:
+                    pass
         else:
-            self._in_buf += _stdin.read()
+            try:
+                self._in_buf += _stdin.read()
+            except UnicodeError:
+                pass
         del block
 
     def reset_input_buffer(self):

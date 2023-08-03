@@ -1,1 +1,3 @@
+pexec systemprints(2, "Sync time via ntp")
 fpexec /bin/timesync.py
+pexec systemprints(1, "Sync time via ntp")
