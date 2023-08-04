@@ -2,8 +2,8 @@ rename_process("nano")
 gc.collect()
 gc.collect()
 ljinux.io.ledset(1)  # we don't want to pretend activity
-vr("sizee", term.detect_size())
-if vr("sizee")[0] > 14 and vr("sizee")[1] > 105:
+vr("sizee", term.detect_size(3))
+if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
     vr("filee", None)
     vr("exists", 2)
     vr("weltxt", "[ Welcome to nano.  For basic help, type Ctrl+G. ]")
