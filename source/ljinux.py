@@ -31,7 +31,8 @@ def pid_alloc(pr_name, owner, resume) -> int:
     pv[pid_seq] = {}
     pvd[pid_seq] = {}
     pvd[pid_seq]["name"] = pr_name
-    pvd[pid_seq]["preserve"] = False
+    pvd[pid_seq]["preserve"] = resume
+    # If you asked to resume, you sure want a resumable task.
     pvd[pid_seq]["owner"] = owner
     pvd[pid_seq]["status"] = 0  # 0 Active, 1 Sleep, 2 Zombie.
     pvn[pr_name] = pid_seq
