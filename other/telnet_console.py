@@ -118,10 +118,16 @@ class telnet_console:  # The actual class you need to use
         Clears the tx bytearray.
         """
         while len(self._tx_buf) > 32:  # Bulk
-            self._conn.send(self._tx_buf[:32])
+            try:
+                self._conn.send(self._tx_buf[:32])
+            except BrokenPipeError:
+                self.disconnect()
             self._tx_buf = self._tx_buf[32:]
         if len(self._tx_buf):  # regular
-            self._conn.send(self._tx_buf)
+            try:
+                self._conn.send(self._tx_buf)
+            except BrokenPipeError:
+                self.disconnect()
         self._tx_buf = bytearray()
 
     def disconnect(self) -> None:
@@ -146,7 +152,7 @@ class telnet_console:  # The actual class you need to use
         """
         return self._client if self.connected else None
 
-    def _rr(self, block=False):
+    def _rr(self, block=False) -> None:
         """
         The internal receive function.
         Leaves the data in the internal buffer _ps_buf.
@@ -163,6 +169,8 @@ class telnet_console:  # The actual class you need to use
                     del size
             except OSError:
                 pass
+            except BrokenPipeError:
+                self.disconnect()
             if block:
                 self._conn.settimeout(0)
                 self._conn.setblocking(False)
