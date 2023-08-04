@@ -1,23 +1,23 @@
 rename_process("rmdir")
-pv[get_pid()]["opts"] = ljinux.api.xarg()
-if ("help" in pv[get_pid()]["opts"]["o"]) or ("h" in pv[get_pid()]["opts"]["o"]):
+vr("opts", ljinux.api.xarg())
+if ("help" in vr("opts")["o"]) or ("h" in vr("opts")["o"]):
     ljinux.api.setvar("argj", "a /usr/share/help/rmdir.txt")
     ljinux.based.command.fpexec("/bin/cat.py")
     ljinux.api.setvar("return", "1")
 else:
-    if len(pv[get_pid()]["opts"]["w"]) > 0:
-        for pv[get_pid()]["i"] in pv[get_pid()]["opts"]["w"]:
-            if ljinux.api.isdir(pv[get_pid()]["i"]) == 1:
-                pv[get_pid()]["pr"] = ljinux.api.betterpath(pv[get_pid()]["i"])
-                if not len(listdir(pv[get_pid()]["pr"])):
+    if len(vr("opts")["w"]) > 0:
+        for pv[get_pid()]["i"] in vr("opts")["w"]:
+            if ljinux.api.isdir(vr("i")) == 1:
+                vr("pr", ljinux.api.betterpath(vr("i")))
+                if not len(listdir(vr("pr"))):
                     try:
-                        if not pv[0]["sdcard_fs"]:
+                        if not vr("sdcard_fs", pid=0):
                             remount("/", False)
                         try:
-                            rmdir(ljinux.api.betterpath(pv[get_pid()]["pr"]))
+                            rmdir(ljinux.api.betterpath(vr("pr")))
                         except OSError:
-                            ljinux.based.error(4, "not done", prefix="rmdir")
-                        if not pv[0]["sdcard_fs"]:
+                            ljinux.based.error(4, vr("pr"), prefix="rmdir")
+                        if not vr("sdcard_fs", pid=0):
                             remount("/", True)
                     except RuntimeError:
                         ljinux.based.error(7, prefix="rmdir")

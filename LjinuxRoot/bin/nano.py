@@ -83,12 +83,12 @@ if vr("sizee")[0] > 14 and vr("sizee")[1] > 105:
     vr(
         "toptxt",
         "{}  LNL nano {}{}{}{}{}\n".format(
-            colors.white_bg_black_bg,
+            colors.inverse,
             vr("versionn"),
             vr("sps1"),
             vr("fnam"),
             vr("sps2"),
-            colors.endc,
+            colors.uninverse,
         ),
     )
     vrd("versionn")
@@ -96,7 +96,7 @@ if vr("sizee")[0] > 14 and vr("sizee")[1] > 105:
     vrd("sps2")
     vrd("fnam")
 
-    vr("bottxt", "{}{}{}\n".format(colors.white_bg_black_bg, vr("weltxt"), colors.endc))
+    vr("bottxt", "{}{}{}\n".format(colors.inverse, vr("weltxt"), colors.uninverse))
     vr("bottxt_offs", int((vr("sizee")[1] - len(vr("weltxt"))) / 2))
     vrd("weltxt")
 
@@ -144,9 +144,9 @@ if vr("sizee")[0] > 14 and vr("sizee")[1] > 105:
 
     for pv[get_pid()]["i"] in range(0, len(vr("toolbar_items")), 2):
         pv[get_pid()]["toolbar_txt"] += (
-            colors.white_bg_black_bg
+            colors.inverse
             + vr("toolbar_items")[vr("i")]
-            + colors.endc
+            + colors.uninverse
             + vr("toolbar_items")[vr("i") + 1]
             + vr("toolsplit")
         )
@@ -202,23 +202,23 @@ if vr("sizee")[0] > 14 and vr("sizee")[1] > 105:
                 vr("spsz", (vr("sizee")[1] - 21) * " ")
                 term.write(
                     "{}Save modified buffer?{}{}".format(
-                        colors.white_bg_black_bg, vr("spsz"), colors.endc
+                        colors.inverse, vr("spsz"), colors.uninverse
                     )
                 )
                 term.clear_line()
-                term.write(f"{colors.white_bg_black_bg} Y{colors.endc} Yes")
+                term.write(f"{colors.inverse} Y{colors.uninverse} Yes")
                 term.clear_line()
                 term.nwrite(
                     "{} N{} No        {}{}^C{} Cancel".format(
-                        colors.white_bg_black_bg,
-                        colors.endc,
+                        colors.inverse,
+                        colors.uninverse,
                         vr("toolsplit"),
-                        colors.white_bg_black_bg,
-                        colors.endc,
+                        colors.inverse,
+                        colors.uninverse,
                     )
                 )
                 term.move(x=vr("sizee")[0] - 2, y=23)
-                term.nwrite(colors.white_bg_black_bg)
+                term.nwrite(colors.inverse)
                 vrd("spsz")
                 pv[get_pid()]["savee"] += 1
 
@@ -327,14 +327,14 @@ if vr("sizee")[0] > 14 and vr("sizee")[1] > 105:
                         term.clear_line()
                         term.move(x=vr("sizee")[0])
                         term.clear_line()
-                        term.nwrite(f"{colors.white_bg_black_bg}^C{colors.endc} Cancel")
+                        term.nwrite(f"{colors.inverse}^C{colors.uninverse} Cancel")
                         vr("ffname", "")
                         try:
                             vr("ffname", ljinux.based.user_vars["argj"].split()[1])
                         except IndexError:
                             pass
                         term.move(x=vr("sizee")[0] - 2, y=21)
-                        term.nwrite(colors.white_bg_black_bg)
+                        term.nwrite(colors.inverse)
                         term.buf[1] = vr("ffname")
                         term.focus = 0
                         vrd("ffname")
@@ -373,7 +373,7 @@ if vr("sizee")[0] > 14 and vr("sizee")[1] > 105:
                                 y=int((vr("sizee")[1] - len(vr("nbottxt"))) / 2),
                             )
                             term.nwrite(
-                                colors.white_bg_black_bg + vr("nbottxt") + colors.endc
+                                colors.inverse + vr("nbottxt") + colors.uninverse
                             )
                             vrd("nbottxt")
                             vr("savee", 0)

@@ -1,30 +1,20 @@
 rename_process("mkdir")
 try:
-    pv[get_pid()]["wd"] = ljinux.api.betterpath(
-        ljinux.based.user_vars["argj"].split()[1]
-    )
-    if ljinux.api.isdir(pv[get_pid()]["wd"]) == 2:
-        if not pv[0]["sdcard_fs"]:
+    vr("wd", ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1]))
+    if ljinux.api.isdir(vr("wd")) == 2:
+        if not vr("sdcard_fs", pid=0):
             remount("/", False)
-        if ljinux.api.isdir(pv[get_pid()]["wd"][: wd.rfind("/")]) == 2:
-            pv[get_pid()]["fpaths"] = pv[get_pid()]["wd"][
-                : pv[get_pid()]["wd"].find("/") + 1
-            ]
-            pv[get_pid()]["wd"] = pv[get_pid()]["wd"][
-                pv[get_pid()]["wd"].find("/") + 1 :
-            ]
-            while pv[get_pid()]["wd"].find("/") != -1:
-                pv[get_pid()]["fpaths"] += pv[get_pid()]["wd"][
-                    : pv[get_pid()]["wd"].find("/") + 1
-                ]
-                pv[get_pid()]["wd"] = pv[get_pid()]["wd"][
-                    pv[get_pid()]["wd"].find("/") + 1 :
-                ]
-                if ljinux.api.isdir(pv[get_pid()]["fpaths"]) == 2:
-                    mkdir(pv[get_pid()]["fpaths"])
-            pv[get_pid()]["wd"] = pv[get_pid()]["fpaths"] + pv[get_pid()]["wd"]
-        mkdir(pv[get_pid()]["wd"])
-        if not pv[0]["sdcard_fs"]:
+        if ljinux.api.isdir(vr("wd")[: vr("wd").rfind("/")]) == 2:
+            vr("fpaths", vr("wd")[: vr("wd").find("/") + 1])
+            vr("wd", vr("wd")[vr("wd").find("/") + 1 :])
+            while vr("wd").find("/") != -1:
+                pv[get_pid()]["fpaths"] += vr("wd")[: vr("wd").find("/") + 1]
+                vr("wd", vr("wd")[vr("wd").find("/") + 1 :])
+                if ljinux.api.isdir(vr("fpaths")) == 2:
+                    mkdir(vr("fpaths"))
+            vr("wd", vr("fpaths") + vr("wd"))
+        mkdir(vr("wd"))
+        if not vr("sdcard_fs", pid=0):
             remount("/", True)
         ljinux.api.setvar("return", "0")
     else:
