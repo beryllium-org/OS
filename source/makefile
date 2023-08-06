@@ -70,3 +70,5 @@ ccon:
 extra:
 	@python3 ../scripts/make_extras.py
 	@sync
+clean:
+	@rm -r ./build_*

@@ -22,12 +22,15 @@ Targets:
     ccon        Install CircuitPythonConnect to your system. It will be available as "ccon".
     connection  Run a board connection without installing ccon.
 
+    clean       Wipe any local build folders.
+
 To create a installation folder in the source directory for use with wifi/ble-only boards, use:
     
-    no_install=<INSERT BOARD NAME HERE> install
+    BOARD=<INSERT BOARD NAME HERE> install
     
 This will create a folder in within source, that contains all the files needed.
 You can upload these over the workflow of your choice.
+You can find the board name in the folder "Boardfiles".
 
 IMPORTANT NOTE: Do not run with -j > 1
 
