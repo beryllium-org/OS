@@ -29,8 +29,8 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
     vr("dataa", [""])
     vr("lc", 0)  # line count
     if vr("exists") is 0:  # is file
-        with ljinux.api.fopen(vr("filee")) as f:
-            vr("ll", f.readlines())
+        with ljinux.api.fopen(vr("filee")) as pv[get_pid()]["f"]:
+            vr("ll", vr("f").readlines())
             vr("lines", [])
             for pv[get_pid()]["i"] in range(0, len(vr("ll"))):
                 if vr("ll")[vr("i")] != "\n":
@@ -38,7 +38,7 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
                 else:
                     pv[get_pid()]["lines"].append("")
             vrd("ll")
-            vrd("i")
+            # vrd("i")
 
         ljinux.based.command.fpexec("/LjinuxRoot/bin/stringproccessing/line_wrap.py")
         vr("dataa", vr("lines"))
@@ -74,7 +74,7 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
     if vr("exists") == 2:
         vr("fnam", "New buffer")
     else:
-        vr("fnam", vr("filee")[pv[get_pid()]["filee"].rfind("/") + 1 :])
+        vr("fnam", vr("filee")[vr("filee").rfind("/") + 1 :])
     vr("spz", int((vr("sizee")[1] - 11 - len(vr("versionn")) - len(vr("fnam"))) / 2))
     vr("sps1", " " * (vr("spz") - 5))
     vr("sps2", " " * (vr("spz") + 6))
@@ -270,9 +270,7 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
                     for pv[get_pid()]["i"] in range(
                         vr("lc") - 1, vr("cl") + 1 + vr("noffs"), -1
                     ):  # all lines from the end to here
-                        pv[get_pid()]["dataa"][vr("i")] = pv[get_pid()]["dataa"][
-                            vr("i") - 1
-                        ]
+                        pv[get_pid()]["dataa"][vr("i")] = vr("dataa")[vr("i") - 1]
                     pv[get_pid()]["lc"] += 1
                     pv[get_pid()]["cl"] += 1
                     if vr("copyover"):
@@ -358,10 +356,10 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
                             vr("cc", False)
                     vrd("cc")
                     vrd("cl1")
-                    with ljinux.api.fopen(term.buf[1], "w") as f:
-                        if f is not None:
-                            for pv[get_pid()]["i"] in pv[get_pid()]["dataa"]:
-                                f.write(vr("i") + "\n")
+                    with ljinux.api.fopen(term.buf[1], "w") as pv[get_pid()]["f"]:
+                        if vr("f") is not None:
+                            for pv[get_pid()]["i"] in vr("dataa"):
+                                vr("f").write(vr("i") + "\n")
                             vrd("i")
                             vr("q", False)
                         else:

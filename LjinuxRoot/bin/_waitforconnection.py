@@ -7,14 +7,14 @@ while vr("cont"):
         ljinux.io.ledset(4)
         sleep(0.1)
     for pv[get_pid()]["i"] in pv[0]["consoles"].keys():
-        if hasattr(pv[0]["consoles"][pv[get_pid()]["i"]], "connected"):
-            if pv[0]["consoles"][pv[get_pid()]["i"]].connected:
+        if hasattr(pv[0]["consoles"][vr("i")], "connected"):
+            if pv[0]["consoles"][vr("i")].connected:
                 term.console = pv[0]["consoles"][vr("i")]
                 vr("console_active", vr("i"))
                 vr("cont", False)
         else:
             # Fallback to detect_size for console detection.
-            term.console = pv[0]["consoles"][pv[get_pid()]["i"]]
+            term.console = pv[0]["consoles"][vr("i")]
             vr("tmpd", term.detect_size())
             if vr("tmpd") != False:
                 vr("console_active", vr("i"), pid=0)
