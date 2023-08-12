@@ -1,14 +1,14 @@
 rename_process("echo")
-pv[get_pid()]["opts"] = ljinux.api.xarg()
+vr("opts", ljinux.api.xarg())
 ljinux.api.setvar("return", "")
 
-pv[get_pid()]["li"] = pv[get_pid()]["opts"]["hw"] + pv[get_pid()]["opts"]["w"]
-for pv[get_pid()]["i"] in pv[get_pid()]["li"]:
-    ljinux.based.user_vars["return"] += pv[get_pid()]["i"] + " "
+vr("li", vr("opts")["hw"] + vr("opts")["w"])
+for pv[get_pid()]["i"] in vr("li"):
+    ljinux.based.user_vars["return"] += vr("i") + " "
 
 ljinux.api.setvar("return", ljinux.based.user_vars["return"][:-1])
 
-if "n" not in pv[get_pid()]["opts"]["o"]:
+if "n" not in vr("opts")["o"]:
     ljinux.based.user_vars["return"] += "\n"
 
 if not ljinux.based.silent:
