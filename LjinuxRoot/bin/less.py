@@ -14,6 +14,9 @@ try:
         ljinux.based.command.fpexec("/LjinuxRoot/bin/stringproccessing/line_wrap.py")
         # Now our lines has been formatted
 
+        if not len(vr("lines")):
+            raise OSError
+
         pv[get_pid()]["sizee"] = term.detect_size()
 
         term.trigger_dict = {

@@ -1,18 +1,18 @@
 rename_process("man")
-pv[get_pid()]["manls"] = listdir("/LjinuxRoot/usr/share/man")
-pv[get_pid()]["manpages"] = set()
-for pv[get_pid()]["manpage"] in pv[get_pid()]["manls"]:
-    if pv[get_pid()]["manpage"].endswith(".man"):
-        pv[get_pid()]["manpages"].add(pv[get_pid()]["manpage"][:-4])
+vr("manls", listdir("/LjinuxRoot/usr/share/man"))
+vr("manpages", set())
+for pv[get_pid()]["manpage"] in vr("manls"):
+    if vr("manpage").endswith(".man"):
+        pv[get_pid()]["manpages"].add(vr("manpage")[:-4])
 
-pv[get_pid()]["opts"] = ljinux.api.xarg()
+vr("opts", ljinux.api.xarg())
 
-if len(pv[get_pid()]["opts"]["w"]) is 1:
-    pv[get_pid()]["page_dayo"] = pv[get_pid()]["opts"]["w"][0]
-    if pv[get_pid()]["page_dayo"] in pv[get_pid()]["manpages"]:
+if len(vr("opts")["w"]) is 1:
+    vr("page_dayo", vr("opts")["w"][0])
+    if vr("page_dayo") in vr("manpages"):
         ljinux.based.run(
             "less",
-            ["/LjinuxRoot/usr/share/man/{}.man".format(pv[get_pid()]["page_dayo"])],
+            ["/LjinuxRoot/usr/share/man/{}.man".format(vr("page_dayo"))],
         )
     else:
         term.write(

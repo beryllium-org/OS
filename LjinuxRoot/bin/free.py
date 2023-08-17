@@ -1,59 +1,46 @@
 rename_process("free")
-pv[get_pid()]["opts"] = ljinux.api.xarg()
+vr("opts", ljinux.api.xarg())
 
-pv[get_pid()]["flag"] = "k"
-if len(pv[get_pid()]["opts"]["o"]) > 0:
-    pv[get_pid()]["flag"] = list(pv[get_pid()]["opts"]["o"].keys())[0]
+vr("flag", "k")
+if len(vr("opts")["o"]) > 0:
+    vr("flag", list(vr("opts")["o"].keys())[0])
 
-pv[get_pid()]["calc_cond"] = {
-    "b": lambda num: num,  # Bytes
-    "k": lambda num: num // 1024,  # Kilobytes
-    "m": lambda num: num // (1024**2),  # Megabytes
-    "g": lambda num: num // (1024**3),  # Gigabytes
-}
+vr(
+    "calc_cond",
+    {
+        "b": lambda num: num,  # Bytes
+        "k": lambda num: num // 1024,  # Kilobytes
+        "m": lambda num: num // (1024**2),  # Megabytes
+        "g": lambda num: num // (1024**3),  # Gigabytes
+    },
+)
 
 try:
-    pv[get_pid()]["total"] = pv[get_pid()]["calc_cond"][pv[get_pid()]["flag"]](
-        pv[0]["usable_ram"]
-    )
-    pv[get_pid()]["free"] = pv[get_pid()]["calc_cond"][pv[get_pid()]["flag"]](
-        gc.mem_free()
-    )
-    pv[get_pid()]["used"] = pv[get_pid()]["total"] - pv[get_pid()]["free"]
-    pv[get_pid()]["gnspace"] = 12
-    pv[get_pid()]["space"] = " "
-    pv[get_pid()]["spacer0"] = (
-        pv[get_pid()]["gnspace"] * pv[get_pid()]["space"]
-    )  # initial spacer
-    pv[get_pid()]["spacer1"] = (pv[get_pid()]["gnspace"] - 4) * pv[get_pid()][
-        "space"
-    ]  # mem spacer
-    pv[get_pid()]["spacer2"] = (
-        pv[get_pid()]["gnspace"] - len(str(pv[get_pid()]["total"]))
-    ) * pv[get_pid()][
-        "space"
-    ]  # total spacer
-    pv[get_pid()]["spacer3"] = (
-        pv[get_pid()]["gnspace"] - len(str(pv[get_pid()]["used"]))
-    ) * pv[get_pid()][
-        "space"
-    ]  # used spacer
+    vr("total", vr("calc_cond")[vr("flag")](vr("usable_ram", pid=0)))
+    vr("free", vr("calc_cond")[vr("flag")](gc.mem_free()))
+    vr("used", vr("total") - vr("free"))
+    vr("gnspace", 12)
+    vr("space", " ")
+    vr("spacer0", (vr("gnspace") * vr("space")))  # initial spacer
+    vr("spacer1", (vr("gnspace") - 4) * vr("space"))  # mem spacer
+    vr("spacer2", (vr("gnspace") - len(str(vr("total")))) * vr("space"))  # total spacer
+    vr("spacer3", (vr("gnspace") - len(str(vr("used")))) * vr("space"))  # used spacer
     term.write(
         "{}Total{}{}{}{}\nMem:{}{}{}{}{}{}".format(
-            pv[get_pid()]["spacer0"],
-            pv[get_pid()]["spacer1"][:-1],
+            vr("spacer0"),
+            vr("spacer1")[:-1],
             "Used",
-            pv[get_pid()]["spacer2"],
+            vr("spacer2"),
             "Free",
-            pv[get_pid()]["spacer1"],
-            pv[get_pid()]["total"],
-            pv[get_pid()]["spacer2"],
-            pv[get_pid()]["used"],
-            pv[get_pid()]["spacer3"],
-            pv[get_pid()]["free"],
+            vr("spacer1"),
+            vr("total"),
+            vr("spacer2"),
+            vr("used"),
+            vr("spacer3"),
+            vr("free"),
         )
     )
-    ljinux.api.setvar("return", str(pv[get_pid()]["free"]))
+    ljinux.api.setvar("return", str(vr("free")))
 except KeyError:
     ljinux.based.error(1)
     ljinux.api.setvar("return", 1)
