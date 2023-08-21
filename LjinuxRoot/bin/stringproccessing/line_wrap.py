@@ -7,10 +7,10 @@ for pv[get_pid()]["i"] in vr("l"):
     if vr("rem") != "":
         while len(vr("rem")):
             if len(vr("rem")) > vr("sizee")[1]:
-                pv[get_parent_pid()]["lines"].append(vr("rem")[: vr("sizee")[1]])
+                vra("lines", vr("rem")[: vr("sizee")[1]], pid=get_parent_pid())
                 vr("rem", vr("rem")[vr("sizee")[1] :])
             else:
-                pv[get_parent_pid()]["lines"].append(vr("rem"))
+                vra("lines", vr("rem"), pid=get_parent_pid())
                 vr("rem", "")
     else:
-        pv[get_parent_pid()]["lines"].append(vr("rem"))
+        vra("lines", vr("rem"), pid=get_parent_pid())

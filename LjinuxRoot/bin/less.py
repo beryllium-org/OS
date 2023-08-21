@@ -5,10 +5,11 @@ try:
 
         vr("lines", [])
         for pv[get_pid()]["i"] in vr("lines_tmp"):
-            pv[get_pid()]["lines"].append(
+            vra(
+                "lines",
                 pv[get_pid()]["i"].replace("\n", "")
                 if pv[get_pid()]["i"] != "\n"
-                else pv[get_pid()]["i"]
+                else pv[get_pid()]["i"],
             )
         vrd("lines_tmp")
         ljinux.based.command.fpexec("/LjinuxRoot/bin/stringproccessing/line_wrap.py")

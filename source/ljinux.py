@@ -101,6 +101,19 @@ def vr(variable_name, variable_data=Unset, pid=None):
     return res
 
 
+def vra(variable_name, append_data, pid=None) -> None:
+    """
+    Append to a variable in container storage.
+
+    You can safely pass None to be set as a value.
+    """
+    if pid is None:
+        pid = get_pid()
+    # print(f"APPEND [{pid}][{variable_name}] + {append_data}")
+    pv[pid][variable_name].append(append_data)
+    del variable_name, append_data, pid
+
+
 def vrd(variable_name, pid=None) -> None:
     # Delete a variable in container storage.
     if pid is None:
@@ -1199,10 +1212,10 @@ class ljinux:
             def exec(inpt):
                 vr("inpt", inpt.split(" "))
 
-                if pv[get_pid()]["inpt"][0] == "exec":
-                    vr("inpt", pv[get_pid()]["inpt"][1:])
+                if vr("inpt")[0] == "exec":
+                    vr("inpt", vr("inpt")[1:])
                 try:
-                    with ljinux.api.fopen(pv[get_pid()]["inpt"][0], "r") as filee:
+                    with ljinux.api.fopen(vr("inpt")[0], "r") as filee:
                         for linee in filee:
                             linee = linee.strip()
                             ljinux.based.run(linee)
@@ -1212,7 +1225,7 @@ class ljinux:
                     ) and ljinux.based.olddir != getcwd():
                         chdir(ljinux.based.olddir)
                 except OSError:
-                    ljinux.based.error(4, pv[get_pid()]["inpt"][0])
+                    ljinux.based.error(4, vr("inpt")[0])
 
             def help(inpt):
                 del inpt
@@ -1648,13 +1661,13 @@ class ljinux:
                     "echo": "common",
                     "idle": 20,
                 }
-                pv[get_pid()]["trigger_dict_bck"] = term.trigger_dict
+                vr("trigger_dict_bck", term.trigger_dict)
                 pvd[get_pid()]["preserve"] = True
 
             command_input = None
             if not pv[0]["Exit"]:
-                if term.trigger_dict != pv[get_pid()]["trigger_dict_bck"]:
-                    term.trigger_dict = pv[get_pid()]["trigger_dict_bck"]
+                if term.trigger_dict != vr("trigger_dict_bck"):
+                    term.trigger_dict = vr("trigger_dict_bck")
                     # This can trigger for different prefix
 
                 while ((command_input == None) or (command_input == "\n")) and not pv[
