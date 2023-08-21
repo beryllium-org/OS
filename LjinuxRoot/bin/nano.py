@@ -34,9 +34,9 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
             vr("lines", [])
             for pv[get_pid()]["i"] in range(0, len(vr("ll"))):
                 if vr("ll")[vr("i")] != "\n":
-                    pv[get_pid()]["lines"].append(vr("ll")[vr("i")].replace("\n", ""))
+                    vra("lines", vr("ll")[vr("i")].replace("\n", ""))
                 else:
-                    pv[get_pid()]["lines"].append("")
+                    vra("lines", "")
             vrd("ll")
             # vrd("i")
 
@@ -143,12 +143,15 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
     vr("toolbar_txt", "")
 
     for pv[get_pid()]["i"] in range(0, len(vr("toolbar_items")), 2):
-        pv[get_pid()]["toolbar_txt"] += (
-            colors.inverse
-            + vr("toolbar_items")[vr("i")]
-            + colors.uninverse
-            + vr("toolbar_items")[vr("i") + 1]
-            + vr("toolsplit")
+        vrp(
+            "toolbar_txt",
+            (
+                colors.inverse
+                + vr("toolbar_items")[vr("i")]
+                + colors.uninverse
+                + vr("toolbar_items")[vr("i") + 1]
+                + vr("toolsplit")
+            ),
         )
     vrd("toolbar_items")
     vrd("i")
@@ -220,19 +223,19 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
                 term.move(x=vr("sizee")[0] - 2, y=23)
                 term.nwrite(colors.inverse)
                 vrd("spsz")
-                pv[get_pid()]["savee"] += 1
+                vrp("savee")
 
             elif term.buf[0] is 8 and not vr("savee"):  # down
                 term.focus = 0
-                pv[get_pid()]["cl"] += 1
+                vrp("cl")
                 if vr("lc") - 1 <= vr("cl"):
-                    pv[get_pid()]["dataa"].append("")
-                    pv[get_pid()]["lc"] += 1
+                    vra("dataa", "")
+                    vrp("lc")
                 if (
                     vr("cl") - vr("vl") > vr("sizee")[0] - 5
                 ):  # we are going out of screen
                     term.clear_line()
-                    pv[get_pid()]["vl"] += 1
+                    vrp("vl")
                     for pv[get_pid()]["i"] in range(
                         2, vr("sizee")[0] - 2
                     ):  # shift data
@@ -244,9 +247,9 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
                 term.focus = 0
 
                 if vr("cl") > 0:
-                    pv[get_pid()]["cl"] -= 1
+                    vrm("cl")
                     if vr("cl") - vr("vl") < 0:
-                        pv[get_pid()]["vl"] -= 1
+                        vrm("vl")
                         for pv[get_pid()]["i"] in range(
                             2, vr("sizee")[0] - 2
                         ):  # shift data
@@ -256,13 +259,11 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
 
             elif term.buf[0] is 10:  # insert empty line (enter)
                 if not vr("savee"):
-                    pv[get_pid()]["dataa"].append(
-                        vr("dataa")[vr("lc") - 1]
-                    )  # last line to new line
+                    vra("dataa", vr("dataa")[vr("lc") - 1])  # last line to new line
                     vr("noffs", 0)
                     vr("copyover", False)
                     if len(term.buf[1]) == term.focus and len(term.buf[1]) is not 0:
-                        pv[get_pid()]["noffs"] -= 1
+                        vrm("noffs")
                     elif term.focus is not 0:
                         vr("copyover", True)
                     else:
@@ -271,8 +272,8 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
                         vr("lc") - 1, vr("cl") + 1 + vr("noffs"), -1
                     ):  # all lines from the end to here
                         pv[get_pid()]["dataa"][vr("i")] = vr("dataa")[vr("i") - 1]
-                    pv[get_pid()]["lc"] += 1
-                    pv[get_pid()]["cl"] += 1
+                    vrp("lc")  # lc++
+                    vrp("cl")
                     if vr("copyover"):
                         pv[get_pid()]["dataa"][vr("cl")] = vr("dataa")[vr("cl") - 1][
                             len(vr("dataa")[vr("cl") - 1]) - term.focus :
@@ -310,7 +311,7 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
                     elif term.buf[1] in ["y", "Y"]:
                         term.buf[1] = ""
                         term.focus = 0
-                        pv[get_pid()]["savee"] += 1  # 2
+                        vrp("savee")  # 2
 
                         # the "choose file name" prompt
                         term.move(x=vr("sizee")[0] - 2)
@@ -347,11 +348,11 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
                     vr("cl1", vr("lc") - 1)
                     while vr("cc"):
                         if (
-                            pv[get_pid()]["dataa"][vr("cl1")].isspace()
-                            or pv[get_pid()]["dataa"][vr("cl1")] == ""
+                            vr("dataa")[vr("cl1")].isspace()
+                            or vr("dataa")[vr("cl1")] == ""
                         ):
                             pv[get_pid()]["dataa"].pop()
-                            pv[get_pid()]["cl1"] -= 1
+                            vrm("cl1")
                         else:
                             vr("cc", False)
                     vrd("cc")
@@ -414,8 +415,8 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
                             break
 
                     pv[get_pid()]["dataa"].pop()
-                    pv[get_pid()]["lc"] -= 1
-                    pv[get_pid()]["cl"] -= 1
+                    vrm("lc")
+                    vrm("cl")
 
                     # shift data
                     vr("td", False)  # to delete last line

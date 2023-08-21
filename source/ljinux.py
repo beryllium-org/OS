@@ -72,17 +72,17 @@ def pid_deactivate() -> None:
 
 
 # Frontend functions
-def get_pid():
+def get_pid() -> int:
     # Get current active pid
     return pid_act[-1]
 
 
-def get_parent_pid():
+def get_parent_pid() -> int:
     # Get parent pid
     return pid_act[-2]
 
 
-def vr(variable_name, variable_data=Unset, pid=None):
+def vr(varn, dat=Unset, pid=None):
     """
     Set / Get a variable in container storage.
 
@@ -91,36 +91,69 @@ def vr(variable_name, variable_data=Unset, pid=None):
     res = None
     if pid is None:
         pid = get_pid()
-    if variable_data is Unset:
-        # print(f"GET [{pid}][{variable_name}]")
-        res = pv[pid][variable_name]
+    if dat is Unset:
+        # print(f"GET [{pid}][{varn}]")
+        res = pv[pid][varn]
     else:
-        # print(f"SET [{pid}][{variable_name}] = {variable_data}")
-        pv[pid][variable_name] = variable_data
-    del variable_name, variable_data, pid
+        # print(f"SET [{pid}][{varn}] = {dat}")
+        pv[pid][varn] = dat
+    del varn, dat, pid
     return res
 
 
-def vra(variable_name, append_data, pid=None) -> None:
+def vra(varn, dat, pid=None) -> None:
     """
+    Variable append.
     Append to a variable in container storage.
 
-    You can safely pass None to be set as a value.
+    You can safely pass None to be appended.
     """
     if pid is None:
         pid = get_pid()
-    # print(f"APPEND [{pid}][{variable_name}] + {append_data}")
-    pv[pid][variable_name].append(append_data)
-    del variable_name, append_data, pid
+    # print(f"APPEND [{pid}][{varn}] + {dat}")
+    pv[pid][varn].append(dat)
+    del varn, dat, pid
 
 
-def vrd(variable_name, pid=None) -> None:
-    # Delete a variable in container storage.
+def vrp(varn, dat=1, pid=None) -> None:
+    """
+    Variable plus.
+    Add something to a variable in container storage.
+
+    Adds 1 by default.
+    """
+    if pid is None:
+        pid = get_pid()
+    # print(f"ADD [{pid}][{varn}] + {dat}")
+    pv[pid][varn] += dat
+    del varn, dat, pid
+
+
+def vrm(varn, dat=1, pid=None) -> None:
+    """
+    Variable minus.
+    Subtract something to a variable in container storage.
+
+    Subtracts 1 by default.
+    """
+    if pid is None:
+        pid = get_pid()
+    # print(f"SUB [{pid}][{varn}] - {dat}")
+    pv[pid][varn] -= dat
+    del varn, dat, pid
+
+
+def vrd(varn, pid=None) -> None:
+    """
+    Variable delete.
+
+    Delete a variable from container storage.
+    """
     if pid is None:
         pid = get_pid()
     # print(f"DEL [{pid}][{variable_name}]")
-    del pv[pid][variable_name]
-    del variable_name, pid
+    del pv[pid][varn]
+    del varn, pid
 
 
 def launch_process(pr_name, owner="Nobody", resume=False):
@@ -153,14 +186,14 @@ def rename_process(pr_name):
         # print("Renamed process:", pr_name, get_pid())
 
 
-def end_process():
+def end_process() -> None:
     # End current process.
     # print("End process:", pvd[get_pid()]["name"], get_pid())
     pid_free(get_pid())
     pid_deactivate()
 
 
-def clear_process_storage():
+def clear_process_storage() -> None:
     pv.pop(get_pid())
     pv[get_pid()] = {}
 
@@ -1638,8 +1671,8 @@ class ljinux:
             # The interactive main shell
 
             launch_process("based", resume=True)  # Preserve shell data.
-            term.hold_stdout = False
             stored_pid = get_pid()
+            term.hold_stdout = False
 
             if not term.enabled:
                 ljinux.io.ledset(4)  # waiting for serial
@@ -1661,7 +1694,10 @@ class ljinux:
                     "echo": "common",
                     "idle": 20,
                 }
-                vr("trigger_dict_bck", term.trigger_dict)
+
+            if "trigger_dict_bck" not in pv[get_pid()]:
+                vr("trigger_dict_bck", dict(term.trigger_dict))
+                # the dict() is needed to actually copy.
                 pvd[get_pid()]["preserve"] = True
 
             command_input = None
