@@ -57,12 +57,12 @@ Note: Installation from windows is unsupported.<br />
 1) Install a supported CircuitPython version onto the board.<br />
     Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
 2) Download the latest ljinux release for your board and extract it onto it.<br />
-    Or even better, if you wish to use the latest master, clone this repository and from within the "source" folder, run <code>make install</code>.<br />
+    Or even better, if you wish to use the latest master, clone this repository and from within the "source" folder, run <code>make install</code> (DO NOT run with <code>-j</code>).<br />
     Installation from Windows is once again unsupported. If you are a bimbows user, this project isn't for you.<br />
     This command will automatically update the system files if they already exist.<br />
-    To only update the wanna-be kernel run <code>make</code> instead.<br />
+    To only update the wanna-be kernel run <code>make</code> instead (DO NOT run with <code>-j</code>).<br />
     If you wish to install to the CIRCUITPY drive directly, the board has to be attached and mounted.<br />
-    If you plan on loading the files remotely (via web/ble workflow), run <code>make \*your board.board_id\* install</code> instead.<br />
+    If you plan on loading the files remotely (via web/ble workflow), run <code>make \*your board.board_id\* install</code> instead (DO NOT run with <code>-j</code>).<br />
     The files for you to copy will be created inside <code>source/build_\*your board.board_id\*</code>.<br />
 3) *(Optional)* Copy over the packages you wish to install with jpkg, or install drivers with make.<br />
     More info regarding packages in [Packages](#packages)
