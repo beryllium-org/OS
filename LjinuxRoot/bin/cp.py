@@ -10,10 +10,12 @@ try:
     if vr("srcisd") is 2 or (vr("dstisd") is 2 and vr("dst").endswith("/")):
         raise OSError
     elif vr("srcisd") is 0 and vr("dstisd") in [0, 2]:
-        with ljinux.api.fopen(vr("src"), "rb") as srcf:
-            vr("srcd", srcf.read())
-            with ljinux.api.fopen(vr("dst"), "wb") as dstf:
-                dstf.write(vr("srcd"))
+        with ljinux.api.fopen(vr("src"), "rb") as pv[get_pid()]["srcf"]:
+            vr("srcd", vr("srcf").read())
+            with ljinux.api.fopen(vr("dst"), "wb") as pv[get_pid()]["dstf"]:
+                if vr("dstf") is None:
+                    raise RuntimeError
+                vr("dstf").write(vr("srcd"))
     elif vr("srcisd") is 1 and vr("dstisd") is 2:
         ljinux.api.setvar("argj", "mkdir {}".format(vr("dst")))
         ljinux.based.command.fpexec("/bin/mkdir.py")
@@ -40,12 +42,13 @@ try:
             gc.collect()
             gc.collect()
     elif vr("srcisd") is 0 and vr("dstisd") is 1:
-        with ljinux.api.fopen(vr("src"), "rb") as srcf:
-            vr("srcd", srcf.read())
+        with ljinux.api.fopen(vr("src"), "rb") as pv[get_pid()]["srcf"]:
             with ljinux.api.fopen(
                 vr("dst") + "/" + vr("src")[vr("src").rfind("/") + 1 :], "wb"
-            ) as dstf:
-                dstf.write(vr("srcd"))
+            ) as pv[get_pid()]["dstf"]:
+                if vr("dstf") is None:
+                    raise RuntimeError
+                vr("dstf").write(vr("srcd"))
     ljinux.api.setvar("return", "0")
 
 except IndexError:

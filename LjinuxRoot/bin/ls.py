@@ -1,52 +1,47 @@
 rename_process("ls")
-pv[get_pid()]["opts"] = ljinux.api.xarg()
-pv[get_pid()]["li"] = pv[get_pid()]["opts"]["hw"] + pv[get_pid()]["opts"]["w"]
-pv[get_pid()]["co"] = "".join(pv[get_pid()]["opts"]["o"])
+vr("opts", ljinux.api.xarg())
+vr("li", vr("opts")["hw"] + vr("opts")["w"])
+vr("co", "".join(vr("opts")["o"]))
 
-pv[get_pid()]["sps"] = "   "
-pv[get_pid()]["path"] = "./"
+vr("sps", "   ")
+vr("path", "./")
 
-if len(pv[get_pid()]["li"]):
-    if ljinux.api.isdir(pv[get_pid()]["li"][0]) is 1:
-        pv[get_pid()]["path"] = pv[get_pid()]["li"][0]
-        if not pv[get_pid()]["path"].endswith("/"):
-            pv[get_pid()]["path"] += "/"
+if len(vr("li")):
+    if ljinux.api.isdir(vr("li")[0]) is 1:
+        vr("path", vr("li")[0])
+        if not vr("path").endswith("/"):
+            vrp("path", "/")
     else:
         ljinux.based.error(2)
 
-pv[get_pid()]["directory_listing"] = listdir(
-    ljinux.api.betterpath(pv[get_pid()]["path"])
-)
+vr("directory_listing", listdir(ljinux.api.betterpath(vr("path"))))
 pv[get_pid()]["directory_listing"].sort()
 
-if "l" in pv[get_pid()]["co"]:
-    pv[get_pid()]["sps"] = "\n"
+if "l" in vr("co"):
+    vr("sps", "\n")
 
-if "a" in pv[get_pid()]["co"]:
-    term.write(colors.green_t + "." + colors.endc, end=pv[get_pid()]["sps"])
-    if not (
-        pv[get_pid()]["path"] == "/"
-        or (pv[get_pid()]["path"] == "./" and getcwd() == "/")
-    ):
-        term.write(colors.green_t + ".." + colors.endc, end=pv[get_pid()]["sps"])
+if "a" in vr("co"):
+    term.write(colors.green_t + "." + colors.endc, end=vr("sps"))
+    if not (vr("path") == "/" or (vr("path") == "./" and getcwd() == "/")):
+        term.write(colors.green_t + ".." + colors.endc, end=vr("sps"))
 
-if pv[get_pid()]["directory_listing"] is not None:
-    for pv[get_pid()]["dirr"] in pv[get_pid()]["directory_listing"]:
-        pv[get_pid()]["col"] = ""
-        if not ljinux.api.isdir(pv[get_pid()]["dirr"], pv[get_pid()]["path"]):
-            if pv[get_pid()]["dirr"].startswith("."):
-                pv[get_pid()]["col"] = colors.green_t
+if vr("directory_listing") is not None:
+    for pv[get_pid()]["dirr"] in vr("directory_listing"):
+        vr("col", "")
+        if not ljinux.api.isdir(vr("dirr"), vr("path")):
+            if vr("dirr").startswith("."):
+                vr("col", colors.green_t)
         else:
-            pv[get_pid()]["col"] = colors.okcyan
-        if pv[get_pid()]["dirr"][:1] == "." and not "a" in pv[get_pid()]["co"]:
+            vr("col", colors.okcyan)
+        if vr("dirr")[:1] == "." and not "a" in vr("co"):
             continue
         else:
             term.write(
-                pv[get_pid()]["col"] + pv[get_pid()]["dirr"] + colors.endc,
-                end=pv[get_pid()]["sps"],
+                vr("col") + vr("dirr") + colors.endc,
+                end=vr("sps"),
             )
 
-if not "l" in pv[get_pid()]["co"]:
+if not "l" in vr("co"):
     term.write()
 
 ljinux.api.setvar("return", "0")

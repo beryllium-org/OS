@@ -1,59 +1,54 @@
 rename_process("top")
-# term.clear()
 
 # Time
-pv[get_pid()]["tt"] = time.localtime()
-pv[get_pid()]["tmh"] = str(pv[get_pid()]["tt"].tm_hour)
-if len(pv[get_pid()]["tmh"]) < 2:
-    pv[get_pid()]["tmh"] = "0" + pv[get_pid()]["tmh"]
-pv[get_pid()]["tmh"] += ":"
-pv[get_pid()]["tmm"] = str(pv[get_pid()]["tt"].tm_min)
-if len(pv[get_pid()]["tmm"]) < 2:
-    pv[get_pid()]["tmm"] = "0" + pv[get_pid()]["tmm"]
-pv[get_pid()]["tmm"] += ":"
-pv[get_pid()]["tms"] = str(pv[get_pid()]["tt"].tm_sec)
-if len(pv[get_pid()]["tms"]) < 2:
-    pv[get_pid()]["tms"] = "0" + pv[get_pid()]["tms"]
-pv[get_pid()]["tstr"] = (
-    pv[get_pid()]["tmh"] + pv[get_pid()]["tmm"] + pv[get_pid()]["tms"]
-)
+vr("tt", time.localtime())
+vr("tmh", str(vr("tt").tm_hour))
+if len(vr("tmh")) < 2:
+    vr("tmh", "0" + vr("tmh"))
+vrp("tmh", ":")
+vr("tmm", str(vr("tt").tm_min))
+if len(vr("tmm")) < 2:
+    vr("tmm", "0" + vr("tmm"))
+vrp("tmm", ":")
+vr("tms", str(vr("tt").tm_sec))
+if len(vr("tms")) < 2:
+    vr("tms", "0" + vr("tms"))
+vr("tstr", (vr("tmh") + vr("tmm") + vr("tms")))
 
 # Uptime
-pv[get_pid()]["time"] = int(pv[0]["uptimee"] + time.monotonic())
-pv[get_pid()]["hr"] = pv[get_pid()]["time"] // 3600
-pv[get_pid()]["time"] -= pv[get_pid()]["hr"] * 3600
-pv[get_pid()]["min"] = pv[get_pid()]["time"] // 60
-pv[get_pid()]["time"] -= pv[get_pid()]["min"] * 60
+vr("time", int(pv[0]["uptimee"] + time.monotonic()))
+vr("hr", vr("time") // 3600)
+vrm("time", vr("hr") * 3600)
+vr("min", vr("time") // 60)
+vrm("time", vr("min") * 60)
 
-pv[get_pid()]["hr"] = str(pv[get_pid()]["hr"])
-if len(pv[get_pid()]["hr"]) < 2:
-    pv[get_pid()]["hr"] = "0" + pv[get_pid()]["hr"]
-pv[get_pid()]["hr"] += ":"
-pv[get_pid()]["min"] = str(pv[get_pid()]["min"])
-if len(pv[get_pid()]["min"]) < 2:
-    pv[get_pid()]["min"] = "0" + pv[get_pid()]["min"]
-pv[get_pid()]["min"] += ":"
-pv[get_pid()]["time"] = str(pv[get_pid()]["time"])
-if len(pv[get_pid()]["time"]) < 2:
-    pv[get_pid()]["time"] = "0" + pv[get_pid()]["time"]
-pv[get_pid()]["ustr"] = (
-    pv[get_pid()]["hr"] + pv[get_pid()]["min"] + pv[get_pid()]["time"]
-)
+vr("hr", str(vr("hr")))
+if len(vr("hr")) < 2:
+    vr("hr", "0" + vr("hr"))
+vrp("hr", ":")
+vr("min", str(vr("min")))
+if len(vr("min")) < 2:
+    vr("min", "0" + vr("min"))
+vrp("min", ":")
+vr("time", str(vr("time")))
+if len(vr("time")) < 2:
+    vr("time", "0" + vr("time"))
+vr("ustr", (vr("hr") + vr("min") + vr("time")))
 
 term.write(
     "top - {} up {}, 1 users, load average: 1,00, 1,00, 1,00".format(
-        pv[get_pid()]["tstr"], pv[get_pid()]["ustr"]
+        vr("tstr"), vr("ustr")
     )
 )
 clear_process_storage()
 
-pv[get_pid()]["c"] = [0, 0, 0]
+vr("c", [0, 0, 0])
 for pv[get_pid()]["i"] in pvd.keys():
     pv[get_pid()]["c"][pvd[pv[get_pid()]["i"]]["status"]] += 1
 
 term.write(
     "Tasks:    {} total,    {} running,    {} sleeping,    {} zombie".format(
-        len(pvd), pv[get_pid()]["c"][0], pv[get_pid()]["c"][1], pv[get_pid()]["c"][2]
+        len(pvd), vr("c")[0], vr("c")[1], vr("c")[2]
     )
 )
 
@@ -67,22 +62,19 @@ term.write(
 )
 term.write(f"{colors.inverse}    PID USER      PRESERVE NAME{colors.uninverse}")
 
-pv[get_pid()]["k"] = list(pvd.keys())
+vr("k", list(pvd.keys()))
 pv[get_pid()]["k"].sort()
 pv[get_pid()]["k"].reverse()
-for pv[get_pid()]["i"] in pv[get_pid()]["k"]:
-    pv[get_pid()]["strpid"] = str(pv[get_pid()]["i"])
-    while len(pv[get_pid()]["strpid"]) < 7:
-        pv[get_pid()]["strpid"] = " " + pv[get_pid()]["strpid"]
-    term.nwrite(pv[get_pid()]["strpid"])
-    del pv[get_pid()]["strpid"]
+for pv[get_pid()]["i"] in vr("k"):
+    vr("strpid", str(vr("i")))
+    while len(vr("strpid")) < 7:
+        vr("strpid", " " + vr("strpid"))
+    term.nwrite(vr("strpid"))
+    vrd("strpid")
     term.nwrite(
-        " "
-        + pvd[pv[get_pid()]["i"]]["owner"][:10]
-        + " " * (10 - len(pvd[pv[get_pid()]["i"]]["owner"][:10]))
+        " " + pvd[vr("i")]["owner"][:10] + " " * (10 - len(pvd[vr("i")]["owner"][:10]))
     )
     term.nwrite(
-        str(pvd[pv[get_pid()]["i"]]["preserve"])
-        + " " * (5 if pvd[pv[get_pid()]["i"]]["preserve"] else 4)
+        str(pvd[vr("i")]["preserve"]) + " " * (5 if pvd[vr("i")]["preserve"] else 4)
     )
-    term.write(pvd[pv[get_pid()]["i"]]["name"])
+    term.write(pvd[vr("i")]["name"])

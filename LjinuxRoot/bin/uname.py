@@ -1,36 +1,35 @@
 try:
     if ljinux.based.user_vars["argj"].split()[1] == "-a":
-        pv[get_pid()]["tt"] = time.localtime()
-        pv[get_pid()]["dat"] = [
-            ljinux.based.system_vars["BOARD"],
-            ljinux.based.system_vars["VERSION"],
-            pv[get_pid()]["tt"].tm_year,
-            pv[get_pid()]["tt"].tm_mday,
-            pv[get_pid()]["tt"].tm_mon,
-            pv[get_pid()]["tt"].tm_hour,
-            pv[get_pid()]["tt"].tm_min,
-            pv[get_pid()]["tt"].tm_sec,
-        ]
+        vr("tt", time.localtime())
+        vr(
+            "dat",
+            [
+                ljinux.based.system_vars["BOARD"],
+                ljinux.based.system_vars["VERSION"],
+                vr("tt").tm_year,
+                vr("tt").tm_mday,
+                vr("tt").tm_mon,
+                vr("tt").tm_hour,
+                vr("tt").tm_min,
+                vr("tt").tm_sec,
+            ],
+        )
 
         for pv[get_pid()]["i"] in range(3, 8):
-            pv[get_pid()]["dat"][pv[get_pid()]["i"]] = str(
-                pv[get_pid()]["dat"][pv[get_pid()]["i"]]
-            )
-            if len(pv[get_pid()]["dat"][pv[get_pid()]["i"]]) == 1:
-                pv[get_pid()]["dat"][pv[get_pid()]["i"]] = (
-                    "0" + pv[get_pid()]["dat"][pv[get_pid()]["i"]]
-                )
+            pv[get_pid()]["dat"][vr("i")] = str(vr("dat")[vr("i")])
+            if len(vr("dat")[vr("i")]) == 1:
+                pv[get_pid()]["dat"][vr("i")] = "0" + vr("dat")[vr("i")]
 
         term.write(
             "Ljinux {} {} {}/{}/{} {}:{}:{} circuitpython Ljinux".format(
-                pv[get_pid()]["dat"][0],
-                pv[get_pid()]["dat"][1],
-                pv[get_pid()]["dat"][3],
-                pv[get_pid()]["dat"][4],
-                pv[get_pid()]["dat"][2],
-                pv[get_pid()]["dat"][5],
-                pv[get_pid()]["dat"][6],
-                pv[get_pid()]["dat"][7],
+                vr("dat")[0],
+                vr("dat")[1],
+                vr("dat")[3],
+                vr("dat")[4],
+                vr("dat")[2],
+                vr("dat")[5],
+                vr("dat")[6],
+                vr("dat")[7],
             )
         )
 except IndexError:

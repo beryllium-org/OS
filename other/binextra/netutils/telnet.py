@@ -3,7 +3,7 @@ vr("opts", ljinux.api.xarg())
 vr("li", vr("opts")["w"] + vr("opts")["hw"])
 if "help" in vr("opts")["o"] or "h" in vr("opts")["o"] or not len(vr("li")):
     term.write("USAGE: telnet [setup/deinit]")
-elif len(pv[get_pid()]["li"]) and pv[get_pid()]["li"][0] == "setup":
+elif len(vr("li")) and vr("li")[0] == "setup":
     systemprints(2, "Setup telnet")
     if "network" in ljinux.modules and ljinux.modules["network"].connected:
         if "ttyTELNET0" not in pv[0]["consoles"]:

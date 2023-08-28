@@ -1,102 +1,82 @@
 rename_process("ping")
-pv[get_pid()]["args"] = ljinux.based.user_vars["argj"].split()[1:]
-pv[get_pid()]["argl"] = len(pv[get_pid()]["args"])
+vr("args", ljinux.based.user_vars["argj"].split()[1:])
+vr("argl", len(vr("args")))
 if "network" in ljinux.modules and ljinux.modules["network"].connected:
-    if pv[get_pid()]["argl"] > 0:
+    if vr("argl") > 0:
         ljinux.api.setvar("return", "0")
-        pv[get_pid()]["domain"] = pv[get_pid()]["args"][0]
-        if pv[get_pid()]["argl"] > 1 and pv[get_pid()]["args"][1].startswith("n="):
+        vr("domain", vr("args")[0])
+        if vr("argl") > 1 and vr("args")[1].startswith("n="):
             try:
-                pv[get_pid()]["n"] = int(pv[get_pid()]["args"][1][2:])
-                if pv[get_pid()]["n"] < 1:
+                vr("n", int(vr("args")[1][2:]))
+                if vr("n") < 1:
                     raise IndexError
             except:
                 ljinux.based.error(1)
                 ljinux.api.setvar("return", "1")
 
         if ljinux.api.getvar("return") == "0":
-            pv[get_pid()]["resolved"] = pv[get_pid()]["domain"]
+            vr("resolved", vr("domain"))
             try:
-                pv[get_pid()]["resolved"] = ljinux.modules["network"].resolve(
-                    pv[get_pid()]["domain"]
-                )
-                term.write(
-                    "PING {} ({}) data.".format(
-                        pv[get_pid()]["domain"], pv[get_pid()]["resolved"]
-                    )
-                )
-                pv[get_pid()]["done"] = 0
-                pv[get_pid()]["good"] = 0
-                pv[get_pid()]["bads"] = 0
-                pv[get_pid()]["timetab"] = []
+                vr("resolved", ljinux.modules["network"].resolve(vr("domain")))
+                term.write("PING {} ({}) data.".format(vr("domain"), vr("resolved")))
+                vr("done", 0)
+                vr("good", 0)
+                vr("bads", 0)
+                vr("timetab", [])
                 try:
                     while not term.is_interrupted():
                         ljinux.io.ledset(3)
-                        pv[get_pid()]["done"] += 1
-                        pv[get_pid()]["a"] = ljinux.modules["network"].ping(
-                            pv[get_pid()]["domain"]
-                        )
-                        if pv[get_pid()]["a"] is not None:
-                            pv[get_pid()]["timetab"].append(pv[get_pid()]["a"])
-                            pv[get_pid()]["good"] += 1
+                        vrp("done")
+                        vr("a", float(ljinux.modules["network"].ping(vr("domain"))))
+                        if vr("a") is not None:
+                            vra("timetab", vr("a"))
+                            vrp("good")
                             term.write(
                                 "PING from {}: icmp_seq={} time={} ms".format(
-                                    pv[get_pid()]["domain"],
-                                    pv[get_pid()]["done"],
-                                    round(pv[get_pid()]["a"] * 1000, 1),
+                                    vr("domain"),
+                                    vr("done"),
+                                    round(vr("a") * 1000, 1),
                                 )
                             )
                         else:
-                            pv[get_pid()]["bads"] += 1
+                            vrp("bads")
                         ljinux.io.ledset(2)
                         sleep(0.9)
-                        if (
-                            "n" in pv[get_pid()].keys()
-                            and pv[get_pid()]["n"] is pv[get_pid()]["done"]
-                        ):
+                        if "n" in pv[get_pid()].keys() and vr("n") is vr("done"):
                             break
                 except KeyboardInterrupt:
                     term.write("^C")
                 term.write(
                     "--- {} ping statistics ---\n{} packets transmitted, {} received, {} lost".format(
-                        pv[get_pid()]["domain"],
-                        pv[get_pid()]["done"],
-                        pv[get_pid()]["good"],
-                        pv[get_pid()]["bads"],
+                        vr("domain"),
+                        vr("done"),
+                        vr("good"),
+                        vr("bads"),
                     )
                 )
 
-                pv[get_pid()]["minn"] = (
-                    round(min(pv[get_pid()]["timetab"]) * 1000, 1)
-                    if pv[get_pid()]["good"]
-                    else 0
+                vr("minn", (round(min(vr("timetab")) * 1000, 1) if vr("good") else 0))
+                vr(
+                    "avgg",
+                    (
+                        round(
+                            (sum(vr("timetab")) / vr("good")) * 1000,
+                            1,
+                        )
+                        if vr("good")
+                        else 0
+                    ),
                 )
-                pv[get_pid()]["avgg"] = (
-                    round(
-                        (sum(pv[get_pid()]["timetab"]) / pv[get_pid()]["good"]) * 1000,
-                        1,
-                    )
-                    if pv[get_pid()]["good"]
-                    else 0
-                )
-                pv[get_pid()]["maxx"] = (
-                    round(max(pv[get_pid()]["timetab"]) * 1000, 1)
-                    if pv[get_pid()]["good"]
-                    else 0
-                )
+                vr("maxx", (round(max(vr("timetab")) * 1000, 1) if vr("good") else 0))
                 from ulab.numpy import std
 
-                pv[get_pid()]["mdev"] = (
-                    round(std(pv[get_pid()]["timetab"]) * 1000, 1)
-                    if pv[get_pid()]["good"]
-                    else 0
-                )
+                vr("mdev", (round(std(vr("timetab")) * 1000, 1) if vr("good") else 0))
                 term.write(
                     "rtt min/avg/max/mdev = {}/{}/{}/{} ms".format(
-                        pv[get_pid()]["minn"],
-                        pv[get_pid()]["avgg"],
-                        pv[get_pid()]["maxx"],
-                        pv[get_pid()]["mdev"],
+                        vr("minn"),
+                        vr("avgg"),
+                        vr("maxx"),
+                        vr("mdev"),
                     )
                 )
                 del std

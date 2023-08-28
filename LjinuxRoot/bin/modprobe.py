@@ -1,38 +1,37 @@
 rename_process("modprobe")
-pv[get_pid()]["args"] = ljinux.based.user_vars["argj"].split()[1:]
-pv[get_pid()]["argl"] = len(pv[get_pid()]["args"])
-if pv[get_pid()]["argl"] is not 0:
-    pv[get_pid()]["module"] = pv[get_pid()]["args"][0]
-    pv[get_pid()]["ass"] = None
+vr("args", ljinux.based.user_vars["argj"].split()[1:])
+vr("argl", len(vr("args")))
+if vr("argl") is not 0:
+    vr("module", vr("args")[0])
+    vr("ass", None)
     try:
-        if pv[get_pid()]["args"][1] == "as":
-            pv[get_pid()]["ass"] = pv[get_pid()]["args"][2]
+        if vr("args")[1] == "as":
+            vr("ass", vr("args")[2])
     except IndexError:
         pass
-    pv[get_pid()]["loadstr"] = "from drivers.{} import {}".format(
-        pv[get_pid()]["module"], pv[get_pid()]["module"]
-    )
-    pv[get_pid()]["dmtextt"] = 'Modprobe: Loading module "{}"'.format(
-        pv[get_pid()]["module"]
-    )
+    vr("loadstr", "from drivers.{} import {}".format(vr("module"), vr("module")))
+    vr("dmtextt", 'Modprobe: Loading module "{}"'.format(vr("module")))
 
-    if pv[get_pid()]["ass"] is not None:
-        pv[get_pid()]["module"] = pv[get_pid()]["ass"]
-        pv[get_pid()]["loadstr"] += " as " + pv[get_pid()]["module"]
-        pv[get_pid()]["dmtextt"] += " as " + pv[get_pid()]["module"]
+    if vr("ass") is not None:
+        vr("module", vr("ass"))
+        vrp("loadstr", " as " + vr("module"))
+        vrp("dmtextt", " as " + vr("module"))
 
-    dmtex(pv[get_pid()]["dmtextt"])
+    dmtex(vr("dmtextt"))
     try:
-        exec(pv[get_pid()]["loadstr"])
-        if pv[get_pid()]["module"] not in ljinux.modules:
-            pv[get_pid()]["execstr"] = (
-                'ljinux.modules.update({"'
-                + pv[get_pid()]["module"]
-                + '": '
-                + pv[get_pid()]["module"]
-                + "()})"
+        exec(vr("loadstr"))
+        if vr("module") not in ljinux.modules:
+            vr(
+                "execstr",
+                (
+                    'ljinux.modules.update({"'
+                    + vr("module")
+                    + '": '
+                    + vr("module")
+                    + "()})"
+                ),
             )
-            exec(pv[get_pid()]["execstr"])
+            exec(vr("execstr"))
         else:
             ljinux.based.error()
     except ImportError:
