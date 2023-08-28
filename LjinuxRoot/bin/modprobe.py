@@ -1,35 +1,40 @@
-args = ljinux.based.user_vars["argj"].split()[1:]
-argl = len(args)
-if argl is not 0:
-    module = args[0]
-    ass = None
+rename_process("modprobe")
+vr("args", ljinux.based.user_vars["argj"].split()[1:])
+vr("argl", len(vr("args")))
+if vr("argl") is not 0:
+    vr("module", vr("args")[0])
+    vr("ass", None)
     try:
-        if args[1] == "as":
-            ass = args[2]
+        if vr("args")[1] == "as":
+            vr("ass", vr("args")[2])
     except IndexError:
         pass
-    loadstr = f"from drivers.{module} import {module}"
-    dmtextt = f'Modprobe: Loading module "{module}"'
+    vr("loadstr", "from drivers.{} import {}".format(vr("module"), vr("module")))
+    vr("dmtextt", 'Modprobe: Loading module "{}"'.format(vr("module")))
 
-    if ass is not None:
-        module = ass
-        loadstr += f" as {module}"
-        dmtextt += f" as {module}"
+    if vr("ass") is not None:
+        vr("module", vr("ass"))
+        vrp("loadstr", " as " + vr("module"))
+        vrp("dmtextt", " as " + vr("module"))
 
-    dmtex(dmtextt)
-    del ass, dmtextt
+    dmtex(vr("dmtextt"))
     try:
-        exec(loadstr)
-        if module not in ljinux.modules:
-            execstr = 'ljinux.modules.update({"' + module + '": ' + module + "()})"
-            exec(execstr)
-            del execstr
+        exec(vr("loadstr"))
+        if vr("module") not in ljinux.modules:
+            vr(
+                "execstr",
+                (
+                    'ljinux.modules.update({"'
+                    + vr("module")
+                    + '": '
+                    + vr("module")
+                    + "()})"
+                ),
+            )
+            exec(vr("execstr"))
         else:
             ljinux.based.error()
     except ImportError:
         ljinux.based.error()
-    del loadstr
 else:
     ljinux.based.error(1)
-
-del args, argl

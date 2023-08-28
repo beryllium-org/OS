@@ -1,27 +1,30 @@
-opts = ljinux.api.xarg()
-li = opts["hw"] + opts["w"]
-quiett = ljinux.based.silent or "q" in opts["o"]
-jzdebug = "debug" in opts["o"]
+rename_process("jz")
+vr("opts", ljinux.api.xarg())
+vr("li", vr("opts")["hw"] + vr("opts")["w"])
+vr("quiett", ljinux.based.silent or "q" in vr("opts")["o"])
+vr("jzdebug", "debug" in vr("opts")["o"])
 
-if ("d" in opts["o"] or "decompress" in opts["o"]) and len(li) > 0:
+if ("d" in vr("opts")["o"] or "decompress" in vr("opts")["o"]) and len(vr("li")) > 0:
     from jz import decompress
 
-    zname = li[0]
-    unzpath = "." if len(li) < 2 else li[1]
-    if not unzpath.endswith("/"):
-        unzpath += "/"
-    if not sdcard_fs:
+    vr("zname", vr("li")[0])
+    vr("unzpath", ("." if len(vr("li")) < 2 else vr("li")[1]))
+    if not vr("unzpath").endswith("/"):
+        vrp("unzpath", "/")
+    if not vr("sdcard_fs", pid=0):
         remount("/", False)
-    decompress(zname, ljinux.api.betterpath(unzpath), quiet=quiett, debug=jzdebug)
-    if not sdcard_fs:
+    decompress(
+        vr("zname"),
+        ljinux.api.betterpath(vr("unzpath")),
+        quiet=vr("quiett"),
+        debug=vr("jzdebug"),
+    )
+    if not vr("sdcard_fs", pid=0):
         remount("/", True)
-    del decompress, zname, unzpath
-    ljinux.based.user_vars["return"] = "0"
-elif "c" in opts["o"] or "compress" in opts["o"]:
+    ljinux.api.setvar("return", "0")
+elif "c" in vr("opts")["o"] or "compress" in vr("opts")["o"]:
     term.write("Compression not yet supported on-board")
-    ljinux.based.user_vars["return"] = "0"
+    ljinux.api.setvar("return", "0")
 else:
     ljinux.based.error(1)
-    ljinux.based.user_vars["return"] = "1"
-
-del opts, quiett, li, jzdebug
+    ljinux.api.setvar("return", "1")

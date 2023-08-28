@@ -1,16 +1,16 @@
-ljinux.api.setvar("output")
-ljinux.based.user_vars["output"] = list()
-for i in ljinux.based.user_vars["input"]:
-    remaining = i
-    if remaining != "":
-        while len(remaining) > 0:
-            if len(remaining) > sizee[1]:
-                ljinux.based.user_vars["output"].append(remaining[: sizee[1]])
-                remaining = remaining[sizee[1] :]
+rename_process("line_wrap")
+vr("l", pv[get_parent_pid()]["lines"])
+vr("lines", [], pid=get_parent_pid())
+vr("sizee", term.detect_size())
+for pv[get_pid()]["i"] in vr("l"):
+    vr("rem", vr("i"))
+    if vr("rem") != "":
+        while len(vr("rem")):
+            if len(vr("rem")) > vr("sizee")[1]:
+                vra("lines", vr("rem")[: vr("sizee")[1]], pid=get_parent_pid())
+                vr("rem", vr("rem")[vr("sizee")[1] :])
             else:
-                ljinux.based.user_vars["output"].append(remaining)
-                remaining = ""
+                vra("lines", vr("rem"), pid=get_parent_pid())
+                vr("rem", "")
     else:
-        ljinux.based.user_vars["output"].append(remaining)
-    del remaining
-ljinux.api.setvar("input")
+        vra("lines", vr("rem"), pid=get_parent_pid())

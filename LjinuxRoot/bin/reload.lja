@@ -1,2 +1,1 @@
-# supervisor.reload() gracefully
-pexec global Exit; Exit = True; global Exit_code; Exit_code = 244
+pexec vr("Exit", True, pid=0); vr("Exit_code", 244, pid=0)

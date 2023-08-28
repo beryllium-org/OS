@@ -1,38 +1,35 @@
-opts = ljinux.api.xarg(ljinux.based.user_vars["argj"], False)
-mod = opts["n"][opts["n"].rfind("/") + 1 :]
+rename_process("headtail")  # Rename to headtail till we load opts
 
-lines = 10 if not ("n" in opts["o"]) else int(opts["o"]["n"])
+vr("opts", ljinux.api.xarg())
+vr("mod", vr("opts")["n"][vr("opts")["n"].rfind("/") + 1 :])
 
-was_held = False
+rename_process(pv[get_pid()]["mod"])  # Set name to current mode.
+
+vr("lines", (10 if not ("n" in vr("opts")["o"]) else int(vr("opts")["o"]["n"])))
+
+vr("held", False)  # Was stdout suppressed already?
 if term.hold_stdout:
-    was_held = True
+    vr("held", True)
 else:
     term.hold_stdout = True
 
 try:
-    with ljinux.api.fopen(opts["w"][0], "r") as f:
-        content = f.readlines()
-        count = len(content)
-        start = 0 if mod == "head" else count - lines
-        end = lines if mod == "head" else count - 1
-        for item in content[start:end]:
-            term.nwrite(item)
-            del item
-        if mod == "tail":
-            term.write(content[-1])
-        del content, count, start, end
+    with ljinux.api.fopen(vr("opts")["w"][0], "r") as pv[get_pid()]["f"]:
+        vr("content", vr("f").readlines())
+        vr("count", len(vr("content")))
+        vr("start", (0 if vr("mod") == "head" else vr("count") - vr("lines")))
+        vr("end", (vr("lines") if vr("mod") == "head" else vr("count") - 1))
+        for pv[get_pid()]["item"] in vr("content")[vr("start") : vr("end")]:
+            term.nwrite(vr("item"))
+        if vr("mod") == "tail":
+            term.write(vr("content")[-1])
         ljinux.api.setvar("return", "0")
-
 except OSError:
-    ljinux.based.error(4, filee)
+    ljinux.based.error(4, vr("opts")["w"][0])
     ljinux.api.setvar("return", "1")
-
 except IndexError:
     ljinux.based.error(9)
     ljinux.api.setvar("return", "1")
-
-if not was_held:
+if not vr("held"):
     term.hold_stdout = False
     term.flush_writes()
-
-del lines, opts, mod, was_held

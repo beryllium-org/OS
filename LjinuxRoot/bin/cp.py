@@ -1,57 +1,59 @@
-global sdcard_fs
+rename_process("cp")
 try:
-    rd = getcwd()
-    if not sdcard_fs:
-        remount("/", False)
-    src = ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1])
-    srcisd = ljinux.api.isdir(src, rdir=rd)
-    dst = ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[2])
-    dstisd = ljinux.api.isdir(dst, rdir=rd)
-    del rd
+    vr("rd", getcwd())
+    vr("src", ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[1]))
+    vr("srcisd", ljinux.api.isdir(vr("src"), rdir=vr("rd")))
+    vr("dst", ljinux.api.betterpath(ljinux.based.user_vars["argj"].split()[2]))
+    vr("dstisd", ljinux.api.isdir(vr("dst"), rdir=vr("rd")))
+    vrd("rd")
 
-    if srcisd is 2 or (dstisd is 2 and dst.endswith("/")):
+    if vr("srcisd") is 2 or (vr("dstisd") is 2 and vr("dst").endswith("/")):
         raise OSError
-    elif srcisd is 0 and dstisd in [0, 2]:  # both files / dst non existent
-        with open(src, "rb") as srcf:
-            srcd = srcf.read()
-            with open(dst, "wb") as dstf:
-                dstf.write(srcd)
-            del srcd
-    elif srcisd is 1 and dstisd is 2:
-        ljinux.based.user_vars["argj"] = f"mkdir {dst}"
+    elif vr("srcisd") is 0 and vr("dstisd") in [0, 2]:
+        with ljinux.api.fopen(vr("src"), "rb") as pv[get_pid()]["srcf"]:
+            vr("srcd", vr("srcf").read())
+            with ljinux.api.fopen(vr("dst"), "wb") as pv[get_pid()]["dstf"]:
+                if vr("dstf") is None:
+                    raise RuntimeError
+                vr("dstf").write(vr("srcd"))
+    elif vr("srcisd") is 1 and vr("dstisd") is 2:
+        ljinux.api.setvar("argj", "mkdir {}".format(vr("dst")))
         ljinux.based.command.fpexec("/bin/mkdir.py")
-        if not sdcard_fs:
-            remount("/", False)
         gc.collect()
         gc.collect()
-        for i in listdir(src):
-            term.write(f"{src}/{i} -> {dst}/{i}")
-            if ljinux.api.isdir(f"{src}/{i}"):
-                ljinux.based.user_vars["argj"] = f"cp {src}/{i} {dst}/{i}"
+        for pv[get_pid()]["i"] in listdir(vr("src")):
+            term.write(vr("src") + "/" + vr("i") + " -> " + vr("dst") + "/" + vr("i"))
+            if ljinux.api.isdir(pv[get_pid()]["src"] + "/" + pv[get_pid()]["i"]):
+                ljinux.api.setvar(
+                    "argj",
+                    "cp " + vr("src") + "/" + vr("i") + " " + vr("dst") + "/" + vr("i"),
+                )
                 ljinux.based.command.fpexec("/bin/cp.py")
-                if not sdcard_fs:
-                    remount("/", False)
-                src = src[: src.rfind("/")]
-                dst = dst[: dst.rfind("/")]
-                srcisd = ljinux.api.isdir(src)
-                dstisd = ljinux.api.isdir(dst)
+                vr("src", pv[get_pid()]["src"][: vr("src").rfind("/")])
+                vr("dst", vr("dst")[: vr("dst").rfind("/")])
+                vr("srcisd", ljinux.api.isdir(vr("src")))
+                vr("dstisd", ljinux.api.isdir(vr("dst")))
             else:
-                with open(f"{src}/{i}", "rb") as srcf:
-                    srcd = srcf.read()
-                    with open(f"{dst}/{i}", "wb") as dstf:
-                        dstf.write(srcd)
+                with ljinux.api.fopen(vr("src") + "/" + vr("i"), "rb") as srcf:
+                    vr("srcd", srcf.read())
+                    with ljinux.api.fopen(vr("dst") + "/" + vr("i"), "wb") as dstf:
+                        dstf.write(vr("srcd"))
+                    vrd("srcd")
             gc.collect()
             gc.collect()
-
-    if not sdcard_fs:
-        remount("/", True)
+    elif vr("srcisd") is 0 and vr("dstisd") is 1:
+        with ljinux.api.fopen(vr("src"), "rb") as pv[get_pid()]["srcf"]:
+            with ljinux.api.fopen(
+                vr("dst") + "/" + vr("src")[vr("src").rfind("/") + 1 :], "wb"
+            ) as pv[get_pid()]["dstf"]:
+                if vr("dstf") is None:
+                    raise RuntimeError
+                vr("dstf").write(vr("srcd"))
     ljinux.api.setvar("return", "0")
 
 except IndexError:
     ljinux.based.error(1)
     ljinux.api.setvar("return", "1")
-    if not sdcard_fs:
-        remount("/", True)
 
 except RuntimeError:
     ljinux.based.error(7)

@@ -1,68 +1,90 @@
-args = ljinux.based.user_vars["argj"].split()[1:]
-argl = len(args)
-if "network" in ljinux.modules and ljinux.modules["network"].connected == True:
-    if argl > 0:
-        ljinux.based.user_vars["return"] = "0"
-        domain = args[0]
-        n = None
-        if argl > 1 and args[1].startswith("n="):
+rename_process("ping")
+vr("args", ljinux.based.user_vars["argj"].split()[1:])
+vr("argl", len(vr("args")))
+if "network" in ljinux.modules and ljinux.modules["network"].connected:
+    if vr("argl") > 0:
+        ljinux.api.setvar("return", "0")
+        vr("domain", vr("args")[0])
+        if vr("argl") > 1 and vr("args")[1].startswith("n="):
             try:
-                n = int(args[1][2:])
-                if n < 1:
+                vr("n", int(vr("args")[1][2:]))
+                if vr("n") < 1:
                     raise IndexError
             except:
                 ljinux.based.error(1)
-                ljinux.based.user_vars["return"] = "1"
+                ljinux.api.setvar("return", "1")
 
-        if ljinux.based.user_vars["return"] == "0":
-            resolved = domain
+        if ljinux.api.getvar("return") == "0":
+            vr("resolved", vr("domain"))
             try:
-                resolved = ljinux.modules["network"].resolve(domain)
-                term.write(f"PING {domain} ({resolved}) data.")
-                done = 0
-                good = 0
-                bads = 0
-                timetab = list()
+                vr("resolved", ljinux.modules["network"].resolve(vr("domain")))
+                term.write("PING {} ({}) data.".format(vr("domain"), vr("resolved")))
+                vr("done", 0)
+                vr("good", 0)
+                vr("bads", 0)
+                vr("timetab", [])
                 try:
                     while not term.is_interrupted():
-                        ljinux.io.ledset(2)
-                        done += 1
-                        a = ljinux.modules["network"].ping(domain)
                         ljinux.io.ledset(3)
-                        if a is not None:
-                            timetab.append(a)
-                            good += 1
+                        vrp("done")
+                        vr("a", float(ljinux.modules["network"].ping(vr("domain"))))
+                        if vr("a") is not None:
+                            vra("timetab", vr("a"))
+                            vrp("good")
                             term.write(
-                                f"PING from {domain}: icmp_seq={done} time={round(a*1000,1)} ms"
+                                "PING from {}: icmp_seq={} time={} ms".format(
+                                    vr("domain"),
+                                    vr("done"),
+                                    round(vr("a") * 1000, 1),
+                                )
                             )
                         else:
-                            bads += 1
-                        del a
+                            vrp("bads")
+                        ljinux.io.ledset(2)
                         sleep(0.9)
-                        if n is not None and n is done:
+                        if "n" in pv[get_pid()].keys() and vr("n") is vr("done"):
                             break
                 except KeyboardInterrupt:
                     term.write("^C")
                 term.write(
-                    f"--- {domain} ping statistics ---\n{done} packets transmitted, {good} received, {bads} lost"
+                    "--- {} ping statistics ---\n{} packets transmitted, {} received, {} lost".format(
+                        vr("domain"),
+                        vr("done"),
+                        vr("good"),
+                        vr("bads"),
+                    )
                 )
 
-                minn = round(min(timetab) * 1000, 1) if good else 0
-                avgg = round((sum(timetab) / good) * 1000, 1) if good else 0
-                maxx = round(max(timetab) * 1000, 1) if good else 0
+                vr("minn", (round(min(vr("timetab")) * 1000, 1) if vr("good") else 0))
+                vr(
+                    "avgg",
+                    (
+                        round(
+                            (sum(vr("timetab")) / vr("good")) * 1000,
+                            1,
+                        )
+                        if vr("good")
+                        else 0
+                    ),
+                )
+                vr("maxx", (round(max(vr("timetab")) * 1000, 1) if vr("good") else 0))
                 from ulab.numpy import std
 
-                mdev = round(std(timetab) * 1000, 1) if good else 0
-                term.write(f"rtt min/avg/max/mdev = {minn}/{avgg}/{maxx}/{mdev} ms")
-                del done, good, bads, timetab, minn, avgg, maxx, mdev, std, resolved
+                vr("mdev", (round(std(vr("timetab")) * 1000, 1) if vr("good") else 0))
+                term.write(
+                    "rtt min/avg/max/mdev = {}/{}/{}/{} ms".format(
+                        vr("minn"),
+                        vr("avgg"),
+                        vr("maxx"),
+                        vr("mdev"),
+                    )
+                )
+                del std
             except ConnectionError:
                 term.write("Domain could not be resolved.")
-        del domain, n
     else:
         ljinux.based.error(1)
-        ljinux.based.user_vars["return"] = "1"
+        ljinux.api.setvar("return", "1")
 else:
     ljinux.based.error(5)
-    ljinux.based.user_vars["return"] = "1"
-
-del args, argl
+    ljinux.api.setvar("return", "1")

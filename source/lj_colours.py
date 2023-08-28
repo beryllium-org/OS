@@ -40,3 +40,5 @@ class lJ_Colours:
         Backround color
     """
     white_bg_black_bg = "\033[38;5;0m\033[48;5;255m"
+    inverse = "\033[7m"
+    uninverse = "\033[27m"

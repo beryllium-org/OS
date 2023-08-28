@@ -1,28 +1,25 @@
-cont = True
-while cont:
-    for i in consoles.keys():
+rename_process("waitforconnection")
+vr("cont", True)
+while vr("cont"):
+    for pv[get_pid()]["i"] in range(2):
+        ljinux.io.ledset(7)
+        sleep(0.1)
         ljinux.io.ledset(4)
-        time.sleep(0.1)
-        if hasattr(consoles[i], "connected"):
-            if consoles[i].connected:
-                term.console = consoles[i]
-                globals()["console_active"] = i
-                cont = False
-            else:
-                ljinux.io.ledset(7)
-                time.sleep(0.1)
+        sleep(0.1)
+    for pv[get_pid()]["i"] in pv[0]["consoles"].keys():
+        if hasattr(pv[0]["consoles"][vr("i")], "connected"):
+            if pv[0]["consoles"][vr("i")].connected:
+                term.console = pv[0]["consoles"][vr("i")]
+                vr("console_active", vr("i"))
+                vr("cont", False)
         else:
-            if consoles[i].in_waiting:
-                term.console = consoles[i]
-                globals()["console_active"] = i
-                consoles[i].reset_input_buffer()
-                cont = False
-            else:
-                consoles[i].write(
-                    b"\nCannot autodetect connection\nPress any key to continue\n"
-                )
-                ljinux.io.ledset(7)
-                time.sleep(0.3)  # Reduced spam
-        del i
-del cont
+            # Fallback to detect_size for console detection.
+            term.console = pv[0]["consoles"][vr("i")]
+            vr("tmpd", term.detect_size())
+            if vr("tmpd") != False:
+                vr("console_active", vr("i"), pid=0)
+                term.console.reset_input_buffer()
+                vr("cont", False)
+    ljinux.io.ledset(4)
+    time.sleep(0.2)
 time.sleep(0.2)  # Delay for the terminal to get used to it.

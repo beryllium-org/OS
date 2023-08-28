@@ -5,23 +5,216 @@
 #  What is this? - A smoothie, you say? #
 # ------------------------------------- #
 
-Version = "0.3.7-dev"
+# Process stuffs
+pv = {}  # Process variables
+pvn = {}  # Process names
+pvd = {}  # Process control data
+pid_seq = -1
+pid_act = []  # Active process list
+# It would be a tree, but we only operate on one thread, so list.
 
-ndmesg = False  # disable dmesg for ram
+
+class Unset:  # None 2.0
+    pass
+
+
+# Backend functions
+def pid_alloc(pr_name, owner, resume) -> int:
+    # Allocate a pid and variable storage for that process
+    global pid_seq, pid_act
+    if resume and pr_name in pvn:
+        res = pvn[pr_name]
+        del resume, pr_name
+        return res
+    # Fall through otherwise
+    pid_seq += 1
+    pv[pid_seq] = {}
+    pvd[pid_seq] = {}
+    pvd[pid_seq]["name"] = pr_name
+    pvd[pid_seq]["preserve"] = resume
+    # If you asked to resume, you sure want a resumable task.
+    pvd[pid_seq]["owner"] = owner
+    pvd[pid_seq]["status"] = 0  # 0 Active, 1 Sleep, 2 Zombie.
+    pvn[pr_name] = pid_seq
+    del resume, pr_name, owner
+    return pid_seq
+
+
+def pid_free(pid) -> bool:
+    # End a task and wipe it's memory, returns False when stuff was tampered with.
+    res = True
+    if pid in pv:
+        if not pvd[pid]["preserve"]:
+            pvn.pop(pvd[pid]["name"])
+            pvd.pop(pid)
+            pv.pop(pid)
+        else:
+            pvd[pid]["sleep"] = 1
+    else:
+        res = False
+    del pid
+    return res
+
+
+def pid_activate(pid) -> bool:
+    # Add pid in list of active pids.
+    if pid in pv and pid not in pid_act:
+        pid_act.append(pid)
+        pvd[pid]["sleep"] = 0
+        return True
+    else:
+        return False
+
+
+def pid_deactivate() -> None:
+    # Removes active pid from pid list.
+    pid_act.pop()
+
+
+# Frontend functions
+def get_pid() -> int:
+    # Get current active pid
+    return pid_act[-1]
+
+
+def get_parent_pid() -> int:
+    # Get parent pid
+    return pid_act[-2]
+
+
+def vr(varn, dat=Unset, pid=None):
+    """
+    Set / Get a variable in container storage.
+
+    You can safely pass None to be set as a value.
+    """
+    res = None
+    if pid is None:
+        pid = get_pid()
+    if dat is Unset:
+        # print(f"GET [{pid}][{varn}]")
+        res = pv[pid][varn]
+    else:
+        # print(f"SET [{pid}][{varn}] = {dat}")
+        pv[pid][varn] = dat
+    del varn, dat, pid
+    return res
+
+
+def vra(varn, dat, pid=None) -> None:
+    """
+    Variable append.
+    Append to a variable in container storage.
+
+    You can safely pass None to be appended.
+    """
+    if pid is None:
+        pid = get_pid()
+    # print(f"APPEND [{pid}][{varn}] + {dat}")
+    pv[pid][varn].append(dat)
+    del varn, dat, pid
+
+
+def vrp(varn, dat=1, pid=None) -> None:
+    """
+    Variable plus.
+    Add something to a variable in container storage.
+
+    Adds 1 by default.
+    """
+    if pid is None:
+        pid = get_pid()
+    # print(f"ADD [{pid}][{varn}] + {dat}")
+    pv[pid][varn] += dat
+    del varn, dat, pid
+
+
+def vrm(varn, dat=1, pid=None) -> None:
+    """
+    Variable minus.
+    Subtract something to a variable in container storage.
+
+    Subtracts 1 by default.
+    """
+    if pid is None:
+        pid = get_pid()
+    # print(f"SUB [{pid}][{varn}] - {dat}")
+    pv[pid][varn] -= dat
+    del varn, dat, pid
+
+
+def vrd(varn, pid=None) -> None:
+    """
+    Variable delete.
+
+    Delete a variable from container storage.
+    """
+    if pid is None:
+        pid = get_pid()
+    # print(f"DEL [{pid}][{variable_name}]")
+    del pv[pid][varn]
+    del varn, pid
+
+
+def launch_process(pr_name, owner="Nobody", resume=False):
+    # Get a pid, and activate it immediately.
+    if not resume:
+        pr_name_og = pr_name
+        pr_name_inc = 1
+        while pr_name in pvn:
+            pr_name = pr_name_og + str(pr_name_inc)
+            pr_name_inc += 1
+        del pr_name_inc, pr_name_og
+    tmppid = pid_alloc(pr_name, owner=owner, resume=resume)
+    pid_activate(tmppid)
+    # print("Launched process:", pr_name, tmppid)
+    del tmppid
+
+
+def rename_process(pr_name):
+    # Rename current process to target name.
+    if pr_name != pvd[get_pid()]["name"]:
+        pr_name_og = pr_name
+        pr_name_inc = 1
+        while pr_name in pvn:
+            pr_name = pr_name_og + str(pr_name_inc)
+            pr_name_inc += 1
+        del pr_name_og, pr_name_inc
+        pvn.pop(pvd[get_pid()]["name"])
+        pvn[pr_name] = get_pid()
+        pvd[get_pid()]["name"] = pr_name
+        # print("Renamed process:", pr_name, get_pid())
+
+
+def end_process() -> None:
+    # End current process.
+    # print("End process:", pvd[get_pid()]["name"], get_pid())
+    pid_free(get_pid())
+    pid_deactivate()
+
+
+def clear_process_storage() -> None:
+    pv.pop(get_pid())
+    pv[get_pid()] = {}
+
+
+# Allocate kernel task
+launch_process("kernel", "root", True)  # pid will always be 0
+vr("Version", "0.3.7-dev")
+
+vr("dmesg", [])
+vr("access_log", [])
+vr("consoles", {})
+vr("console_active", None)
+vr("ndmesg", False)  # disable dmesg for ram
 # run _ndmesg from the shell to properly trigger it
-
-dmesg = list()
-access_log = list()
-consoles = dict()
-global console_active
-console_active = None
 
 # Core board libs
 try:
     import gc
 
     gc.enable()
-    usable_ram = gc.mem_alloc() + gc.mem_free()
+    vr("usable_ram", gc.mem_alloc() + gc.mem_free())
 
     import board
     import digitalio
@@ -38,6 +231,7 @@ try:
     from jcurses import jcurses
     import cptoml
     from lj_colours import lJ_Colours as colors
+    from traceback import format_exception
 except ImportError:
     print("FATAL: Core libraries loading failed")
 
@@ -49,43 +243,42 @@ global console
 try:
     from usb_cdc import console
 
-    consoles.update({"ttyUSB0": console})
-    console_active = "ttyUSB0"
+    pv[0]["consoles"]["ttyUSB0"] = console
+    vr("console_active", "ttyUSB0")
 except ImportError:
     try:
         global virtUART
         from virtUART import virtUART
 
         console = virtUART()
-        consoles.update({"ttyUART0": console})
-        console_active = "ttyUART0"
+        pv[0]["consoles"]["ttyUART0"] = console
+        vr("console_active", "ttyUART0")
     except ImportError:
         from sys import exit
 
         exit(1)
 
 print("[    0.00000] Core modules loaded")
-dmesg.append("[    0.00000] Core modules loaded")
+pv[0]["dmesg"].append("[    0.00000] Core modules loaded")
 
 # Pin allocation tables
-pin_alloc = set()
-gpio_alloc = {}
+vr("pin_alloc", set())
+vr("gpio_alloc", {})
 
 # Exit code holder, has to be global for everyone to be able to see it.
-Exit = False
-Exit_code = 0
+vr("Exit", False)
+vr("Exit_code", 0)
 
 # Hardware autodetect vars, starts assuming everything is missing
-sdcard_fs = False
+vr("sdcard_fs", False)
 
-uptimee = (
-    -time.monotonic()
-)  # using uptimee as an offset, this way uptime + time.monotonic = 0 at this very moment and it goes + from here on out
+vr("uptimee", -time.monotonic())
+# using uptimee as an offset, this way uptime + time.monotonic = 0 at this very moment and it goes + from here on out
 print("[    0.00000] Timings reset")
-dmesg.append("[    0.00000] Timings reset")
+pv[0]["dmesg"].append("[    0.00000] Timings reset")
 
 # dmtex previous end holder
-oend = "\n"  # needed to mask print
+pv[0]["oend"] = "\n"  # needed to mask print
 
 try:
     term = jcurses()  # the main curses entity, used primarily for based.shell()
@@ -93,7 +286,7 @@ try:
     term.console = console
     term.nwrite(colors.reset_s_format)
     print("[    0.00000] Jcurses init complete")
-    dmesg.append("[    0.00000] Jcurses init complete")
+    pv[0]["dmesg"].append("[    0.00000] Jcurses init complete")
 except ImportError:
     print("FATAL: FAILED TO INIT JCURSES")
     exit(0)
@@ -103,7 +296,7 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
     # Persistent offset, Print "end=" preserver
 
     # current time since ljinux start rounded to 5 digits
-    ct = "%.5f" % (uptimee + time.monotonic())
+    ct = "%.5f" % (pv[0]["uptimee"] + time.monotonic())
 
     # used to disable the time print
     strr = "[{}{}] {}".format((11 - len(ct)) * " ", str(ct), texx) if timing else texx
@@ -111,23 +304,22 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
     if (not term.dmtex_suppress) or force:
         term.write(strr, end=end)  # using the provided end
 
-    global oend
     """
     if the oend of the last print is a newline we add a new entry
     otherwise we go to the last one and we add it along with the old oend
     """
 
-    if not ndmesg:
-        if "\n" == oend:
-            dmesg.append(strr)
-        elif (len(oend.replace("\n", "")) > 0) and (
-            "\n" in oend
+    if not pv[0]["ndmesg"]:
+        if "\n" == pv[0]["oend"]:
+            pv[0]["dmesg"].append(strr)
+        elif (len(pv[0]["oend"].replace("\n", "")) > 0) and (
+            "\n" in vr[0]["oend"]
         ):  # there is hanging text in old oend
-            dmesg[-1] += oend.replace("\n", "")
-            dmesg.append(strr)
+            pv[0]["dmesg"][-1] += pv[0]["oend"].replace("\n", "")
+            pv[0]["dmesg"].append(strr)
         else:
-            dmesg[-1] += oend + strr
-        oend = end  # oend for next
+            pv[0]["dmesg"][-1] += pv[0]["oend"] + strr
+        pv[0]["oend"] = end  # oend for next
 
     del ct, strr
 
@@ -164,6 +356,7 @@ except:
     exit(1)
 
 # General options
+dmtex("Options loaded:")
 for optt in list(defaultoptions.keys()):
     optt_dt = cptoml.fetch(optt, "LJINUX")
     try:
@@ -197,45 +390,47 @@ for optt in list(defaultoptions.keys()):
             term.flush_writes()
             exit(0)
     if defaultoptions[optt][2]:
-        if optt_dt in pin_alloc:
+        if optt_dt in pv[0]["pin_alloc"]:
             dmtex("PIN ALLOCATED, EXITING")
             exit(0)
         elif optt_dt == -1:
             pass
         else:
-            pin_alloc.add(optt_dt)
+            pv[0]["pin_alloc"].add(optt_dt)
     del optt, optt_dt
 
 dmtex("Total pin alloc: ", end="")
-for pin in pin_alloc:
+for pin in pv[0]["pin_alloc"]:
     dmtex(str(pin), timing=False, end=" ")
 dmtex("", timing=False)
 
 ldd = cptoml.fetch("led", "LJINUX")
-boardLED = None
-boardLEDen = None
+vr("boardLED", None)
+vr("boardLEDen", None)
 if ldd == -1:
     ct = cptoml.fetch("ledtype", "LJINUX")
     if ct.startswith("generic"):
-        boardLED = board.LED
+        vr("boardLED", board.LED)
     elif ct.startswith("neopixel"):
-        boardLED = board.NEOPIXEL
+        vr("boardLED", board.NEOPIXEL)
         cen = cptoml.fetch("leden", "LJINUX")
         if cen == -1:
             if "NEOPIXEL_POWER" in dir(board):
-                boardLEDen = board.NEOPIXEL_POWER
+                vr("boardLEDen", board.NEOPIXEL_POWER)
         else:
-            boardLEDen = pintab[cen]
+            vr("boardLEDen", pintab[cen])
         del cen
+    elif ct.startswith("rgb"):
+        vr("boardLED", board.LED_RED)
     del ct
 else:
-    boardLED = pintab[ldd]
+    vr("boardLED", pintab[ldd])
 del ldd, defaultoptions
 gc.collect()
 gc.collect()
 
-dmtex((f"Board memory: {usable_ram} bytes"))
-dmtex((f"Memory free: {gc.mem_free()} bytes"))
+dmtex(f"Board memory: " + str(vr("usable_ram")) + " bytes")
+dmtex(f"Memory free: " + str(gc.mem_free()) + " bytes")
 dmtex("Basic checks done")
 
 # sd card
@@ -257,6 +452,7 @@ def systemprints(mod, tx1, tx2=None):
         2: lambda: dmtex(colors.magenta_t + "..", timing=False, end=""),
         3: lambda: dmtex(colors.red_t + "FAILED", timing=False, end=""),
         4: lambda: dmtex(colors.red_t + "EMERG", timing=False, end=""),
+        5: lambda: dmtex(colors.white_t + "SKIP", timing=False, end=""),
     }
     mods[mod]()
     dmtex(colors.white_t + " ] " + colors.endc + tx1, timing=False)
@@ -265,17 +461,17 @@ def systemprints(mod, tx1, tx2=None):
         dmtex(tx2, timing=False)
 
 
-dmtex("Additional loading done")
+dmtex("Load complete")
 
 
 class ljinux:
-    modules = dict()
+    modules = {}
 
     def deinit_consoles() -> None:
-        for i in consoles.keys():
-            if hasattr(consoles[i], "deinit"):
-                consoles[i].deinit()
-                consoles.pop(i)
+        for i in vr("consoles", pid=0).keys():
+            if hasattr(pv[0]["consoles"][i], "deinit"):
+                pv[0]["consoles"][i].deinit()
+                pv[0]["consoles"].pop(i)
                 print(f"Deinit console {i}")
                 time.sleep(1.2)  # Time needed for a proper disconnection
 
@@ -347,9 +543,9 @@ class ljinux:
             inpt = rinpt.split(" ")
             del rinpt
 
-            options = dict()
-            words = list()
-            hidwords = list()
+            options = {}
+            words = []
+            hidwords = []
 
             n = False  # in keyword
             s = False  # in string
@@ -465,15 +661,15 @@ class ljinux:
                 self.mod = mod
 
             def __enter__(self):
+                # print(f"DEBUG FOPEN: {self.fn}:{self.mod}")
                 try:
-                    global sdcard_fs
                     rm = False  # remount
                     if "w" in self.mod or "a" in self.mod:
                         rm = True
-                    if rm and not sdcard_fs:
+                    if rm and not pv[0]["sdcard_fs"]:
                         remount("/", False)
                     self.file = open(ljinux.api.betterpath(self.fn), self.mod)
-                    if rm and not sdcard_fs:
+                    if rm and not pv[0]["sdcard_fs"]:
                         remount("/", True)
                     del rm
                 except RuntimeError:
@@ -601,9 +797,9 @@ class ljinux:
         sz = 50
 
         def load(filen):
-            ljinux.history.historyy = list()
+            ljinux.history.historyy = []
             try:
-                with open(filen, "r") as historyfile:
+                with ljinux.api.fopen(filen, "r") as historyfile:
                     for line in historyfile:
                         ljinux.io.ledset(3)  # act
                         ljinux.history.historyy.append(line.strip())
@@ -612,12 +808,8 @@ class ljinux:
 
             except OSError:
                 try:
-                    if not sdcard_fs:
-                        remount("/", False)
-                    with open(filen, "w") as historyfile:
+                    with ljinux.api.fopen(filen, "w") as historyfile:
                         pass
-                    if not sdcard_fs:
-                        remount("/", True)
                 except RuntimeError:
                     ljinux.based.error(4, filen)
                 ljinux.io.ledset(1)  # idle
@@ -644,28 +836,24 @@ class ljinux:
 
         def save(filen):
             try:
-                if not sdcard_fs:
-                    remount("/", False)
-                with open(filen, "w") as historyfile:
+                with ljinux.api.fopen(filen, "w") as historyfile:
+                    if historyfile is None:
+                        raise RuntimeError
                     for item in ljinux.history.historyy:
                         historyfile.write(item + "\n")
-                if not sdcard_fs:
-                    remount("/", True)
             except (OSError, RuntimeError):
                 ljinux.based.error(7, filen)
 
         def clear(filen):
             try:
                 # deletes all history, from ram and storage
-                a = open(filen, "r")
+                a = ljinux.api.fopen(filen, "r")
                 a.close()
                 del a
-                if not sdcard_fs:
-                    remount("/", False)
-                with open(filen, "w") as historyfile:
+                with ljinux.api.fopen(filen, "w") as historyfile:
+                    if historyfile is None:
+                        raise RuntimeError
                     historyfile.flush()
-                if not sdcard_fs:
-                    remount("/", True)
                 ljinux.history.historyy.clear()
             except (OSError, RuntimeError):
                 ljinux.based.error(4, filen)
@@ -696,10 +884,10 @@ class ljinux:
 
         getled = 0
 
-        led = digitalio.DigitalInOut(boardLED)
+        led = digitalio.DigitalInOut(vr("boardLED", pid=0))
         leden = None
-        if boardLEDen is not None:
-            leden = digitalio.DigitalInOut(boardLEDen)
+        if vr("boardLEDen", pid=0) is not None:
+            leden = digitalio.DigitalInOut(vr("boardLEDen", pid=0))
             leden.switch_to_output()
             leden.value = 1
         ledg = None
@@ -790,7 +978,6 @@ class ljinux:
                 yield f"Error: File '{filename}' Not Found"
 
         def start_sdcard():
-            global sdcard_fs
             root_SCLK = cptoml.fetch("root_SCLK", "LJINUX")
             root_SCSn = cptoml.fetch("root_SCSn", "LJINUX")
             root_MISO = cptoml.fetch("root_MISO", "LJINUX")
@@ -816,25 +1003,24 @@ class ljinux:
                     dmtex("TF card mount attempted")
                     mount(vfs, "/LjinuxRoot")
                     del sdcard, vfs
-                    sdcard_fs = True
+                    vr("sdcard_fs", True, 0)
                 except NameError:
                     dmtex("adafruit_sdcard library not present, aborting.")
                     del root_SCLK, root_SCSn, root_MISO, root_MOSI
             else:
-                sdcard_fs = False
+                vr("sdcard_fs", False, 0)
                 dmtex("No pins for TF card, skipping setup")
                 del root_SCLK, root_SCSn, root_MISO, root_MOSI
-                return
 
         sys_getters = {
-            "sdcard": lambda: str(sdcard_fs),
-            "uptime": lambda: str("%.5f" % (uptimee + time.monotonic())),
+            "sdcard": lambda: str(vr("sdcard_fs", pid0)),
+            "uptime": lambda: str("%.5f" % (vr("uptimee", pid=0) + time.monotonic())),
             "temperature": lambda: str("%.2f" % cpu.temperature),
             "memory": lambda: str(gc.mem_free()),
+            "implementation": lambda: implementation.name,
             "implementation_version": lambda: ljinux.based.system_vars[
                 "IMPLEMENTATION"
             ],
-            "implementation": lambda: implementation.name,
             "frequency": lambda: str(cpu.frequency),
             "voltage": lambda: str(cpu.voltage),
         }
@@ -844,10 +1030,9 @@ class ljinux:
         olddir = None
         pled = False  # persistent led state for nested exec
         alias_dict = {}
-        trigger_dict_bck = None
 
         user_vars = {
-            "history-file": "/LjinuxRoot/home/board/.history",
+            "history-file": "/home/board/.history",
             "history-size": "10",
             "return": "0",
         }
@@ -890,9 +1075,9 @@ class ljinux:
                     if dirr.endswith(".lja") and not dirr.startswith(".")
                 ]
             except OSError:  # Yea no root, we cope
-                return list()
+                return []
 
-        def error(wh=3, f=None, prefix=f"{colors.magenta_t}Based{colors.endc}"):
+        def error(wh=3, f=None, prefix=f"{colors.magenta_t}Based{colors.endc}") -> None:
             """
             The different errors used by the based shell.
             CODE:
@@ -922,20 +1107,52 @@ class ljinux:
                 18: "Not a file",
                 19: "Not a device",
                 20: f"Unhandled exception: {f}",
-                21: "Uncaught KeyboardInterrupt",
-                22: "Critical exception",
             }
             term.write(f"{prefix}: {errs[wh]}")
             ljinux.io.ledset(1)
             del errs, f, prefix
 
-        def autorun():
-            ljinux.io.ledset(3)  # act
-            global Exit
-            global Exit_code
-            global Version
+        def process_failure(err) -> None:
+            # Report a process failure properly. Pass an exception.
+            namee = pvd[get_pid()]["name"]
+            pid = get_pid()
+            ownd = pvd[get_pid()]["owner"]
+            gc.collect()
+            gc.collect()
+            term.hold_stdout = False
+            term.write(
+                f"Process {namee} Failure:\n"
+                + (17 + len(namee)) * "="
+                + f"\n\nProcess ID (PID): {pid}\n"
+                + f"Process Name: {namee}\n"
+                + f"Process Owner: {ownd}\n"
+                + "\nError Details:"
+            )
+            del namee, pid, ownd
+            erl = format_exception(err)
+            for i in erl:
+                term.write(i)
+                del i
+            del erl
+            term.write(
+                "Please take note of the above information and report it"
+                + " to your system administrator for further assistance.\n"
+                + "If you plan on opening a Github issue, "
+                + "please provide this information along with the program.\n"
+            )
+            if (  # Restore dir
+                ljinux.based.olddir is not None
+            ) and ljinux.based.olddir != getcwd():
+                chdir(ljinux.based.olddir)
+            del err
+            gc.collect()
+            gc.collect()
 
-            ljinux.based.system_vars["VERSION"] = Version
+        def autorun():
+            launch_process("autorun")
+            ljinux.io.ledset(3)  # act
+
+            ljinux.based.system_vars["VERSION"] = vr("Version", pid=0)
 
             term.write(
                 "\nWelcome to Ljinux wannabe kernel {}!\n\n".format(
@@ -980,8 +1197,7 @@ class ljinux:
                 2,
                 "Attempting to open /LjinuxRoot/boot/Init.lja..",
             )
-            lines = None
-            Exit_code = 0
+            vr("Exit_code", 0, 0)
             try:
                 ljinux.io.ledset(3)  # act
                 ljinux.based.command.exec("/LjinuxRoot/boot/Init.lja")
@@ -997,8 +1213,8 @@ class ljinux:
             if ljinux.based.system_vars["INIT"] == "normal":
                 systemprints(1, "Init complete")
             elif ljinux.based.system_vars["INIT"] == "loop":
-                Exit = True
-                Exit_code = 245
+                vr("Exit", True, 0)
+                vr("Exit_code", 245, 0)
                 term.write(
                     f"{colors.magenta_t}Based{colors.endc}: Complete. Restarting"
                 )
@@ -1014,21 +1230,25 @@ class ljinux:
                 ljinux.based.run("halt")
 
             ljinux.io.ledset(1)  # idle
-            while not Exit:
-                ljinux.based.shell()
+            while not vr("Exit", pid=0):
+                try:
+                    try:
+                        ljinux.based.shell()
+                    except KeyboardInterrupt:
+                        pass
+                except KeyboardInterrupt:
+                    pass
             ljinux.deinit_consoles()
-            return Exit_code
+            return pv[0]["Exit_code"]
 
         class command:
             def exec(inpt):
-                inpt = inpt.split(" ")
-                global Exit
-                global Exit_code
+                vr("inpt", inpt.split(" "))
 
-                if inpt[0] == "exec":
-                    inpt = inpt[1:]
+                if vr("inpt")[0] == "exec":
+                    vr("inpt", vr("inpt")[1:])
                 try:
-                    with open(inpt[0], "r") as filee:
+                    with ljinux.api.fopen(vr("inpt")[0], "r") as filee:
                         for linee in filee:
                             linee = linee.strip()
                             ljinux.based.run(linee)
@@ -1038,8 +1258,7 @@ class ljinux:
                     ) and ljinux.based.olddir != getcwd():
                         chdir(ljinux.based.olddir)
                 except OSError:
-                    ljinux.based.error(4, inpt[0])
-                del inpt
+                    ljinux.based.error(4, vr("inpt")[0])
 
             def help(inpt):
                 del inpt
@@ -1048,7 +1267,7 @@ class ljinux:
                 )
 
                 lt = set(ljinux.based.get_bins() + ljinux.based.get_internal())
-                l = list()
+                l = []
                 lenn = 0
                 for i in lt:
                     if not i.startswith("_"):
@@ -1090,7 +1309,7 @@ class ljinux:
                         or inpt[2].isdigit()
                         or inpt[2].startswith("/")
                         or inpt[2].startswith("GP")
-                        or inpt[2] in gpio_alloc
+                        or inpt[2] in vr("gpio_alloc", pid=0)
                     ):
                         valid = False
                         del chh
@@ -1120,7 +1339,7 @@ class ljinux:
                                 return "1"
                             else:
                                 if ljinux.api.adv_input(inpt[0], str) == inpt[0]:
-                                    gpio_alloc.update(
+                                    pv[0]["gpio_alloc"].update(
                                         {
                                             inpt[0]: [
                                                 digitalio.DigitalInOut(pintab[gpp]),
@@ -1128,7 +1347,7 @@ class ljinux:
                                             ]
                                         }
                                     )
-                                    gpio_alloc[inpt[0]][0].switch_to_input(
+                                    pv[0]["gpio_alloc"][inpt[0]][0].switch_to_input(
                                         pull=digitalio.Pull.DOWN
                                     )
                                     pin_alloc.add(gpp)
@@ -1137,18 +1356,18 @@ class ljinux:
                             del gpp
                             valid = False  # skip the next stuff
 
-                        elif inpt[0] in gpio_alloc:
+                        elif inpt[0] in vr("gpio_alloc", pid=0):
                             if inpt[2].isdigit():
                                 if (
-                                    gpio_alloc[inpt[0]][0].direction
+                                    pv[0]["gpio_alloc"][inpt[0]][0].direction
                                     != digitalio.Direction.OUTPUT
                                 ):
-                                    gpio_alloc[inpt[0]][
+                                    pv[0]["gpio_alloc"][inpt[0]][
                                         0
                                     ].direction = digitalio.Direction.OUTPUT
-                                gpio_alloc[inpt[0]][0].value = int(inpt[2])
+                                pv[0]["gpio_alloc"][inpt[0]][0].value = int(inpt[2])
                                 valid = False  # skip the next stuff
-                        elif inpt[2] in gpio_alloc:
+                        elif inpt[2] in pv[0]["gpio_alloc"]:
                             pass  # yes we really have to pass
                         else:
                             new_var += str(inpt[2])
@@ -1169,19 +1388,21 @@ class ljinux:
                             inpt[0] == ljinux.api.adv_input(inpt[0], str)
                             or inpt[0] in ljinux.based.user_vars
                         ):
-                            if inpt[2] in gpio_alloc:  # if setting value is gpio
+                            if (
+                                inpt[2] in pv[0]["gpio_alloc"]
+                            ):  # if setting value is gpio
                                 if (
-                                    gpio_alloc[inpt[2]][0].direction
+                                    pv[0]["gpio_alloc"][inpt[2]][0].direction
                                     != digitalio.Direction.INPUT
                                 ):
-                                    gpio_alloc[inpt[2]][
+                                    pv[0]["gpio_alloc"][inpt[2]][
                                         0
                                     ].direction = digitalio.Direction.INPUT
-                                    gpio_alloc[inpt[2]][0].switch_to_input(
+                                    pv[0]["gpio_alloc"][inpt[2]][0].switch_to_input(
                                         pull=digitalio.Pull.DOWN
                                     )
                                 ljinux.based.user_vars[inpt[0]] = str(
-                                    int(gpio_alloc[inpt[2]][0].value)
+                                    int(pv[0]["gpio_alloc"][inpt[2]][0].value)
                                 )
                             else:
                                 ljinux.based.user_vars[inpt[0]] = new_var
@@ -1194,13 +1415,16 @@ class ljinux:
                 inpt = inpt.split(" ")
                 try:
                     a = inpt[0]
-                    if a == ljinux.api.adv_input(a, str) and a not in gpio_alloc:
+                    if (
+                        a == ljinux.api.adv_input(a, str)
+                        and a not in pv[0]["gpio_alloc"]
+                    ):
                         ljinux.based.error(2)
                     else:
-                        if a in gpio_alloc:
-                            gpio_alloc[a][0].deinit()
-                            pin_alloc.remove(gpio_alloc[a][1])
-                            del gpio_alloc[a]
+                        if a in vr("gpio_alloc", pid=0):
+                            pv[0]["gpio_alloc"][a][0].deinit()
+                            pin_alloc.remove(pv[0]["gpio_alloc"][a][1])
+                            del pv[0]["gpio_alloc"][a]
                         elif a in ljinux.based.system_vars:
                             if not (ljinux.based.system_vars["SECURITY"] == "on"):
                                 del ljinux.based.system_vars[a]
@@ -1234,21 +1458,25 @@ class ljinux:
                     term.write(f"{colors.magenta_t}Based{colors.endc}: Invalid option")
 
             def pexec(inpt):  # Python exec
+                launch_process("pexec")
                 try:
+                    # term.write(f"Data: |{inpt}|")
                     exec(inpt)  # Vulnerability.exe
+                except KeyboardInterrupt:
+                    term.write("^C")
+                    if (  # Restore dir
+                        ljinux.based.olddir is not None
+                    ) and ljinux.based.olddir != getcwd():
+                        chdir(ljinux.based.olddir)
                 except Exception as err:
-                    term.write(
-                        "Traceback (most recent call last):\n\t"
-                        + str(type(err))[8:-2]
-                        + ": "
-                        + str(err)
-                    )
+                    ljinux.based.process_failure(err)
                     del err
                 del inpt
+                end_process()
                 gc.collect()
 
             def fpexec(inpt):  # Python script exec
-                fpargs = list()
+                fpargs = []
                 inpt = inpt.split(" ")
                 offs = 0
                 if inpt[0] == "fpexec":
@@ -1263,25 +1491,29 @@ class ljinux:
                     ljinux.based.user_vars["return"] = "1"
                     return
 
+                launch_process(ljinux.api.betterpath(inpt[offs]))
                 try:
                     a = open(ljinux.api.betterpath(inpt[offs])).read()
                     gc.collect()
                     if not ("t" in fpargs or "l" in fpargs):
                         exec(a)
                     elif "i" in fpargs:
-                        exec(a, dict(), dict())
+                        exec(a, {}, {})
                     elif "l" in fpargs:
                         exec(a, locals())
                     del a
+                except KeyboardInterrupt:
+                    term.hold_stdout = False
+                    term.write("^C")
+                    if (  # Restore dir
+                        ljinux.based.olddir is not None
+                    ) and ljinux.based.olddir != getcwd():
+                        chdir(ljinux.based.olddir)
                 except Exception as err:
-                    term.write(
-                        "Traceback (most recent call last):\n\t"
-                        + str(type(err))[8:-2]
-                        + ": "
-                        + str(err)
-                    )
+                    ljinux.based.process_failure(err)
                     del err
                 gc.collect()
+                end_process()
                 del offs, fpargs
 
             def terminal(inpt):  # Manage active terminal
@@ -1292,15 +1524,15 @@ class ljinux:
                     if opts[0] == "get":
                         term.write(globals()["console_active"])
                     elif opts[0] == "activate":
-                        if len(opts) > 1 and opts[1] in consoles:
-                            term.console = consoles[opts[1]]
-                            globals()["console_active"] = opts[1]
+                        if len(opts) > 1 and opts[1] in pv[0]["consoles"]:
+                            term.console = pv[0]["consoles"][opts[1]]
+                            pv[0]["console_active"] = opts[1]
                         else:
                             term.write("Console not found.")
                     elif opts[0] == "list":
-                        for i in consoles.keys():
+                        for i in pv[0]["consoles"].keys():
                             term.nwrite(i)
-                            if i == globals()["console_active"]:
+                            if i == pv[0]["console_active"]:
                                 term.write(" [ACTIVE]")
                             else:
                                 term.write()
@@ -1315,8 +1547,8 @@ class ljinux:
             p_and = "&&" in inpt
             p_to = "|" in inpt
 
-            comlist = list()
-            silencelist = list()
+            comlist = []
+            silencelist = []
             comindex = -1
 
             if p_and and p_to:  # TODO
@@ -1437,9 +1669,10 @@ class ljinux:
 
         def shell(led=True, nalias=False):
             # The interactive main shell
-            # no longer accepts commands here
 
-            global Exit, Exit_code
+            launch_process("based", resume=True)  # Preserve shell data.
+            stored_pid = get_pid()
+            term.hold_stdout = False
 
             if not term.enabled:
                 ljinux.io.ledset(4)  # waiting for serial
@@ -1461,15 +1694,21 @@ class ljinux:
                     "echo": "common",
                     "idle": 20,
                 }
-                ljinux.based.trigger_dict_bck = term.trigger_dict
+
+            if "trigger_dict_bck" not in pv[get_pid()]:
+                vr("trigger_dict_bck", dict(term.trigger_dict))
+                # the dict() is needed to actually copy.
+                pvd[get_pid()]["preserve"] = True
 
             command_input = None
-            if not Exit:
-                if term.trigger_dict != ljinux.based.trigger_dict_bck:
-                    term.trigger_dict = ljinux.based.trigger_dict_bck
+            if not pv[0]["Exit"]:
+                if term.trigger_dict != vr("trigger_dict_bck"):
+                    term.trigger_dict = vr("trigger_dict_bck")
                     # This can trigger for different prefix
 
-                while ((command_input == None) or (command_input == "\n")) and not Exit:
+                while ((command_input == None) or (command_input == "\n")) and not pv[
+                    0
+                ]["Exit"]:
                     term.trigger_dict["prefix"] = (
                         colors.white_t
                         + "["
@@ -1491,7 +1730,7 @@ class ljinux:
                     )
 
                     command_input = None
-                    while (command_input in [None, ""]) and not Exit:
+                    while (command_input in [None, ""]) and not pv[0]["Exit"]:
                         term.program()
                         if term.buf[0] is 0:  # enter
                             ljinux.history.nav[0] = 0
@@ -1515,13 +1754,21 @@ class ljinux:
                                 term.console.disconnect()
                             elif term._active == False:  # Can be None
                                 # We want to disconnect from a passive console.
+                                term.write(
+                                    "You can safely disconnect from the console."
+                                )
+                                while term.detect_size() != False:
+                                    try:
+                                        time.sleep(0.1)
+                                    except KeyboardInterrupt:
+                                        pass
                                 ljinux.based.command.exec(
                                     "/LjinuxRoot/bin/_waitforconnection.lja"
                                 )
                                 term.clear_line()
                             else:
-                                Exit = True
-                                Exit_code = 0
+                                pv[0]["Exit"] = True
+                                pv[0]["Exit_code"] = 0
                             ljinux.io.ledset(1)  # idle
                             break
                         elif term.buf[0] is 3:  # tab key
@@ -1671,7 +1918,7 @@ class ljinux:
                                 "/LjinuxRoot/bin/_waitforconnection.lja"
                             )
                             term.clear_line()
-                if not Exit:
+                if not pv[0]["Exit"]:
                     res = ""
                     if led:
                         ljinux.io.ledset(3)  # act
@@ -1691,7 +1938,6 @@ class ljinux:
                         p_write = ">" in command_input
 
                         # Remove > pipe from line, TODO
-                        pass
 
                         # Fetch list of commands
                         comlist, silencelist = ljinux.based.parse_pipes(command_input)
@@ -1706,18 +1952,24 @@ class ljinux:
                             try:
                                 ljinux.based.run(currentcmd)
                             except KeyboardInterrupt:
-                                ljinux.based.error(21)
+                                """
+                                DO NOT REMOVE.
+
+                                Without this, it will be caught in a
+                                higher-up-the-stack `except KeyboardInterrupt`.
+                                """
+                                term.write("^C")
                             except Exception as Err:
-                                ljinux.based.error(20, Err)
-                            except:
-                                ljinux.based.error(22)
+                                term.flush_writes()
+                                ljinux.based.error(20, format_exception(Err))
+                                while get_pid() != stored_pid:
+                                    end_process()
                             if silencecmd:
                                 ljinux.based.silent = False
                             del currentcmd, silencecmd
                         del comlist, silencelist  # abandon command_input
 
                         # Write stdout to file, TODO
-                        pass
 
                         del p_write
                         gc.collect()
@@ -1726,4 +1978,6 @@ class ljinux:
                         ljinux.io.ledset(1)  # idle
                     gc.collect()
                     gc.collect()
+                    end_process()
+                    del stored_pid
                     return res

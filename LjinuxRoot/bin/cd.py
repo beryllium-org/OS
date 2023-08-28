@@ -1,18 +1,17 @@
-capdir = getcwd()
+rename_process("cd")
+vr("capdir", getcwd())
 try:
-    dirr = ljinux.api.getvar("argj").split()[1]
-    if dirr != "-":
-        chdir(ljinux.api.betterpath(dirr))
-        if capdir != getcwd():
-            ljinux.based.user_vars["prevdir"] = capdir
+    vr("dirr", ljinux.api.getvar("argj").split()[1])
+    if vr("dirr") != "-":
+        chdir(ljinux.api.betterpath(vr("dirr")))
+        if vr("capdir") != getcwd():
+            ljinux.based.user_vars["prevdir"] = vr("capdir")
     else:
         chdir(ljinux.based.user_vars["prevdir"])
     ljinux.based.olddir = getcwd()
-    del dirr
 except OSError:
     term.write(
         "Error: '" + ljinux.api.getvar("argj").split()[1] + "' Directory does not exist"
     )
 except IndexError:
     pass
-del capdir

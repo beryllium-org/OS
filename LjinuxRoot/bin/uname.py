@@ -1,25 +1,37 @@
 try:
     if ljinux.based.user_vars["argj"].split()[1] == "-a":
-        tt = time.localtime()
-        dat = [
-            ljinux.based.system_vars["BOARD"],
-            ljinux.based.system_vars["VERSION"],
-            tt.tm_year,
-            tt.tm_mday,
-            tt.tm_mon,
-            tt.tm_hour,
-            tt.tm_min,
-            tt.tm_sec,
-        ]
+        vr("tt", time.localtime())
+        vr(
+            "dat",
+            [
+                ljinux.based.system_vars["BOARD"],
+                ljinux.based.system_vars["VERSION"],
+                vr("tt").tm_year,
+                vr("tt").tm_mday,
+                vr("tt").tm_mon,
+                vr("tt").tm_hour,
+                vr("tt").tm_min,
+                vr("tt").tm_sec,
+            ],
+        )
 
-        for i in range(3, 8):
-            dat[i] = f"0{dat[i]}" if len(str(dat[i])) < 2 else dat[i]
-        del i
+        for pv[get_pid()]["i"] in range(3, 8):
+            pv[get_pid()]["dat"][vr("i")] = str(vr("dat")[vr("i")])
+            if len(vr("dat")[vr("i")]) == 1:
+                pv[get_pid()]["dat"][vr("i")] = "0" + vr("dat")[vr("i")]
 
         term.write(
-            f"Ljinux {dat[0]} {dat[1]} {dat[3]}/{dat[4]}/{dat[2]} {dat[5]}:{dat[6]}:{dat[7]} circuitpython Ljinux"
+            "Ljinux {} {} {}/{}/{} {}:{}:{} circuitpython Ljinux".format(
+                vr("dat")[0],
+                vr("dat")[1],
+                vr("dat")[3],
+                vr("dat")[4],
+                vr("dat")[2],
+                vr("dat")[5],
+                vr("dat")[6],
+                vr("dat")[7],
+            )
         )
-        del tt, dat
 except IndexError:
     term.write("Ljinux")
-ljinux.based.user_vars["return"] = "0"
+ljinux.api.setvar("return", "0")

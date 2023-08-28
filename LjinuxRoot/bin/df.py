@@ -1,11 +1,13 @@
+rename_process("df")
 from os import statvfs
 
-dfr = statvfs("/")  # board
-dfl = statvfs("/LjinuxRoot")  # LjinuxRoot
-dfd = dfr == dfl  # is ljinuxRoot on board?
+vr("dfr", statvfs("/"))  # board
+vr("dfl", statvfs("/LjinuxRoot"))  # LjinuxRoot
 del statvfs
 
-opts = ljinux.api.xarg()
+vr("dfd", (pv[get_pid()]["dfr"] == pv[get_pid()]["dfl"]))  # is ljinuxroot on board?
+
+vr("opts", ljinux.api.xarg())
 
 
 def human_readable(whatever):
@@ -19,60 +21,75 @@ def human_readable(whatever):
         return f"{int(whatever/1073741824)}G"
 
 
-if dfd:
+if vr("dfd"):
     # get values in bytes
-    free = dfr[1] * dfr[3]
-    total = dfr[1] * dfr[2]
-    used = total - free
+    vr("free", vr("dfr")[1] * vr("dfr")[3])
+    vr("total", vr("dfr")[1] * vr("dfr")[2])
+    vr("used", vr("total") - vr("free"))
 
-    bs = 2
-    bs_sps = " " * bs
+    vr("bs", 2)
+    vr("bs_sps", " " * vr("bs"))
 
-    vfree = (human_readable(free) if "h" in opts["o"] else str(free)) + bs_sps
-    vtotal = (human_readable(total) if "h" in opts["o"] else str(total)) + bs_sps
-    vused = (human_readable(used) if "h" in opts["o"] else str(used)) + bs_sps
-    vperc = str(int(used * 100 / total)) + "%"
+    vr(
+        "vfree",
+        (human_readable(vr("free")) if "h" in vr("opts")["o"] else str(vr("free")))
+        + vr("bs_sps"),
+    )
+    vr(
+        "vtotal",
+        (human_readable(vr("total")) if "h" in vr("opts")["o"] else str(vr("total")))
+        + vr("bs_sps"),
+    )
+    vr(
+        "vused",
+        (human_readable(vr("used")) if "h" in vr("opts")["o"] else str(vr("used")))
+        + vr("bs_sps"),
+    )
+    vr("vperc", (str(int(vr("used") * 100 / vr("total"))) + "%"))
 
-    tl = len(vtotal[:-bs])
-    ul = len(vused[:-bs])
-    fl = len(vfree[:-bs])
-    pl = len(vperc[:-bs])
+    vr("tl", len(vr("vtotal")[: -vr("bs")]))
+    vr("ul", len(vr("vused")[: -vr("bs")]))
+    vr("fl", len(vr("vfree")[: -vr("bs")]))
+    vr("pl", len(vr("vperc")[: -vr("bs")]))
 
-    sps = [bs_sps] * 4
-    del bs_sps
+    vr("sps", [vr("bs_sps")] * 4)
 
-    if tl < 4:
-        vtotal += " " * (4 - tl)
+    if vr("tl") < 4:
+        pv[get_pid()]["vtotal"] += " " * (4 - vr("tl"))
     else:
-        sps[0] += (tl - 4) * " "
-    del tl
+        pv[get_pid()]["sps"][0] += (vr("tl") - 4) * " "
 
-    if ul < 4:
-        vused += " " * (4 - ul)
+    if vr("ul") < 4:
+        pv[get_pid()]["vused"] += " " * (4 - vr("ul"))
     else:
-        sps[1] += (ul - 4) * " "
-    del ul
+        pv[get_pid()]["sps"][1] += (vr("ul") - 4) * " "
 
-    if fl < 5:
-        vfree += " " * (5 - fl)
+    if vr("fl") < 5:
+        pv[get_pid()]["vfree"] += " " * (5 - vr("fl"))
     else:
-        sps[2] += (fl - 5) * " "
-    del fl
+        pv[get_pid()]["sps"][2] += (vr("fl") - 5) * " "
 
-    if pl < 4:
-        vperc += " " * (4 - pl)
+    if vr("pl") < 4:
+        pv[get_pid()]["vperc"] += " " * (4 - vr("pl"))
     else:
-        sps[3] += (pl - 4) * " "
-    del pl, free, total, used, bs
+        pv[get_pid()]["sps"][3] += (vr("pl") - 4) * " "
 
     term.write(
-        f"Filesystem      Size{sps[0]}Used{sps[1]}Avail{sps[2]}Use%{sps[3]}Mounted on\n"
-        + f"/LjinuxRoot     {vtotal}{vused}{vfree}{vperc}/"
+        "Filesystem      Size{}Used{}Avail{}Use%{}Mounted on\n".format(
+            vr("sps")[0],
+            vr("sps")[1],
+            vr("sps")[2],
+            vr("sps")[3],
+        )
+        + "/LjinuxRoot     {}{}{}{}/".format(
+            vr("vtotal"),
+            vr("vused"),
+            vr("vfree"),
+            vr("vperc"),
+        )
     )
-
-    del vfree, vtotal, vused, vperc, sps
 else:
     term.write("Not implemented")
 
 ljinux.api.setvar("return", "0")
-del dfr, dfl, dfd, human_readable, opts
+del human_readable

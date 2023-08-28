@@ -1,19 +1,21 @@
-ljinux.based.user_vars["return"] = "0"
-args = ljinux.based.user_vars["argj"].split()[1:]
-argl = len(args)
+ljinux.api.setvar("return", "0")
+vr("args", ljinux.based.user_vars["argj"].split()[1:])
+vr("argl", len(vr("args")))
 
-device_n = (
-    ljinux.modules["network"].hw_name
-    if (
-        "network" in ljinux.modules
-        and ljinux.modules["network"].interface_type == "wifi"
-    )
-    else None
+vr(
+    "device_n",
+    (
+        ljinux.modules["network"].hw_name
+        if (
+            "network" in ljinux.modules
+            and ljinux.modules["network"].interface_type == "wifi"
+        )
+        else None
+    ),
 )
 
-if argl is 0:
+if vr("argl") is 0:
     # interactive interface
-    term_old = term.trigger_dict
     term.trigger_dict = {
         "ctrlD": 1,
         "enter": 0,
@@ -25,7 +27,7 @@ if argl is 0:
     }
 
     term.buf[1] = ""
-    networks = dict()
+    vr("networks", {})
 
     # main loop
     while True:
@@ -43,22 +45,26 @@ if argl is 0:
             term.focus = 0
             break
         elif term.buf[0] == 0:
-            data = term.buf[1].split()
+            vr("data", term.buf[1].split())
             term.buf[1] = ""
             term.focus = 0
-            datal = len(data)
-            if datal > 0:
-                if data[0] == "exit":
+            vr("datal", len(vr("data")))
+            if vr("datal") > 0:
+                if vr("data")[0] == "exit":
                     term.write()
                     break
-                elif datal > 1 and data[0] == "device" and data[1] == "list":
-                    ljinux.based.user_vars["return"] = "0"
+                elif (
+                    vr("datal") > 1
+                    and vr("data")[0] == "device"
+                    and vr("data")[1] == "list"
+                ):
+                    ljinux.api.setvar("return", "0")
                     term.write("\n" + 26 * " " + "devices")
                     term.write(60 * "-")
                     term.write("Name" + " " * 5 + "Mac address" + " " * 6 + "Power")
                     term.write(60 * "-")
-                    if device_n is not None:
-                        info = ljinux.modules["network"].get_ipconf()
+                    if vr("device_n") is not None:
+                        vr("info", ljinux.modules["network"].get_ipconf())
                         term.write(
                             device_n
                             + " " * 5
@@ -66,305 +72,349 @@ if argl is 0:
                             + " " * 3
                             + info["power"]
                         )
-                        del info
                 elif (
-                    data[0] == "station"
-                    and datal > 2
-                    and device_n is not None
-                    and device_n == data[1]
+                    vr("data")[0] == "station"
+                    and vr("datal") > 2
+                    and vr("device_n") is not None
+                    and vr("device_n") == vr("data")[1]
                 ):
-                    if data[2] == "scan":
+                    if vr("data")[2] == "scan":
                         dmtex(f"Wifi: Scanning")
-                        networks = ljinux.modules["network"].scan()
-                        ljinux.based.user_vars["return"] = "0"
-                    elif data[2] == "get-networks":
-                        ljinux.based.user_vars["return"] = "0"
-                        namesl = []  # net names list
-                        secl = []  # net security list
-                        ranl = []  # net range list
-                        maxn = lent = 0  # max len name and no of items
+                        vr("networks", ljinux.modules["network"].scan())
+                        ljinux.api.setvar("return", "0")
+                    elif vr("data")[2] == "get-networks":
+                        ljinux.api.setvar("return", "0")
+                        vr("namesl", [])  # net names list
+                        vr("secl", [])  # net security list
+                        vr("ranl", [])  # net range list
+                        vr("maxn", 0)  # max no of items
+                        vr("lent", 0)  # max len name
 
                         term.write("\n" + 21 * " " + "Available networks")
                         term.write(60 * "-")
 
-                        for i in networks:
-                            namesl.append(i)
-                            maxn = max(len(i), maxn)
-                            secl.append(networks[i][0])
+                        for pv[get_pid()]["i"] in vr("networks"):
+                            vra("namesl", vr("i"))
+                            vr("maxn", max(len(vr("i")), vr("maxn")))
+                            vra("secl", vr("networks")[vr("i")][0])
 
                             # signal range
-                            if networks[i][1] > -30:
-                                ranl.append("****")
-                            elif networks[i][1] > -50:
-                                ranl.append("***")
-                            elif networks[i][1] > -70:
-                                ranl.append("**")
-                            elif networks[i][1] > -80:
-                                ranl.append("*")
-                            else:
-                                ranl.append("bad")
-                            lent += 1
+                            vra("ranl", str(vr("networks")[vr("i")][1]) + " dBi")
+                            vrp("lent")
 
                         term.write(
-                            "Name" + (maxn - 3) * " " + "Security" + 5 * " " + "Signal"
+                            "Name"
+                            + (vr("maxn") - 3) * " "
+                            + "Security"
+                            + 5 * " "
+                            + "Signal"
                         )
-                        for i in range(0, lent):
+                        for pv[get_pid()]["i"] in range(0, vr("lent")):
                             term.write(
-                                namesl[i]
-                                + " " * (maxn - len(namesl[i]) + 1)
-                                + secl[i]
-                                + " " * (13 - len(secl[i]))
-                                + ranl[i]
+                                vr("namesl")[vr("i")]
+                                + " " * (vr("maxn") - len(vr("namesl")[vr("i")]) + 1)
+                                + vr("secl")[vr("i")]
+                                + " " * (13 - len(vr("secl")[vr("i")]))
+                                + vr("ranl")[vr("i")]
                             )
-                        del namesl, ranl, secl, maxn, lent
                     elif datal > 3 and data[2] == "connect":
                         dmtex(f"Wifi: Scanning")
-                        networks = ljinux.modules["network"].scan()
-                        if data[3] in networks:
-                            res = 1
-                            if networks[data[3]][0] != "OPEN":
-                                ljinux.io.ledset(1)
-                                passwd = cptoml.fetch(data[3], subtable="IWD")
-                                if passwd is not None:
+                        vr("networks", ljinux.modules["network"].scan())
+                        if vr("data")[3] in networks:
+                            vr("res", 1)
+                            ljinux.io.ledset(1)
+                            if vr("networks")[vr("data")[3]][0] != "OPEN":
+                                vr(
+                                    "passwd",
+                                    cptoml.fetch(vr("data")[3], subtable="IWD"),
+                                )
+                                if vr("passwd") is not None:
                                     try:
-                                        passwd = input(
-                                            f"\nEnter password for {data[3]}: "
+                                        vr(
+                                            "passwd",
+                                            input(
+                                                "\nEnter password for {}: ".format(
+                                                    vr("data")[3]
+                                                )
+                                            ),
                                         )
                                     except KeyboardInterrupt:
                                         pass
                                 ljinux.io.ledset(3)
 
-                                if passwd is not None:
+                                if vr("passwd") is not None:
                                     ljinux.modules["network"].disconnect()
-                                    dmtex(f'IWD: Connecting to: "{data[3]}"')
+                                    dmtex(
+                                        'IWD: Connecting to: "{}"'.format(vr("data")[3])
+                                    )
                                     res = ljinux.modules["network"].connect(
-                                        data[3], passwd
+                                        vr("data")[3], vr("passwd")
                                     )
                                     if (
-                                        (not res)
-                                        and passwd is not None
+                                        (not vr("res"))
+                                        and vr("passwd") is not None
                                         and (
-                                            data[3] not in cptoml.keys("IWD")
-                                            or cptoml.fetch(data[3], subtable="IWD")
-                                            != passwd
+                                            vr("data")[3] not in cptoml.keys("IWD")
+                                            or cptoml.fetch(
+                                                vr("data")[3], subtable="IWD"
+                                            )
+                                            != vr("passwd")
                                         )
                                     ):
                                         # Store this network
-                                        cptoml.put(data[3], passwd, subtable="IWD")
+                                        cptoml.put(
+                                            vr("data")[3], vr("passwd"), subtable="IWD"
+                                        )
                                         term.write(
                                             "\nConnection stored in `&/settings.toml`."
                                         )
-                                del passwd
                             else:
-                                dmtex(f'IWD: Connecting to: "{data[3]}"')
-                                res = ljinux.modules["network"].connect(data[3])
+                                dmtex('IWD: Connecting to: "{}"'.format(vr("data")[3]))
+                                vr(
+                                    "res",
+                                    ljinux.modules["network"].connect(vr("data")[3]),
+                                )
                             if not res:
                                 dmtex("IWD: Connected to network successfully.")
                                 term.write("\nConnected successfully.")
                             else:
                                 dmtex("IWD: Connection to network failed.")
                                 term.write("\nConnection failed.")
-                            ljinux.based.user_vars["return"] = str(res)
-                            del res
+                            ljinux.api.setvar("return", str(vr("res")))
                         else:
                             term.write("\nNetwork not found")
-                    elif datal > 3 and data[2] == "ap_mode":
+                    elif vr("datal") > 3 and vr("data")[2] == "ap_mode":
                         if hasattr(ljinux.modules["network"], "connect_ap"):
-                            passwd = None
+                            vr("passwd", None)
                             try:
-                                passwd = input(
-                                    f"\nEnter password for AP {data[3]}, or press CTRL+C: "
+                                vr(
+                                    "passwd",
+                                    input(
+                                        "\nEnter password for AP {}, or press CTRL+C: ".format(
+                                            vr("data")[3]
+                                        )
+                                    ),
                                 )
                             except KeyboardInterrupt:
                                 pass
-                            res = ljinux.modules["network"].connect_ap(data[3], passwd)
-                            if not res:
+                            vr(
+                                "res",
+                                ljinux.modules["network"].connect_ap(
+                                    vr("data")[3], vr("passwd")
+                                ),
+                            )
+                            if not vr("res"):
                                 dmtex("IWD: AP started successfully.")
                                 term.write("\nIWD: AP started successfully.")
                             else:
                                 dmtex("IWD: AP creation failed.")
                                 term.write("\nIWD: AP creation failed.")
-                            ljinux.based.user_vars["return"] = str(res)
-                            del passwd, res
+                            ljinux.api.setvar("return", str(vr("res")))
                         else:
                             dmtex("IWD: This interface does not support AP.")
                             term.write("\nIWD: This interface does not support AP.")
 
-                    elif datal > 2 and data[2] == "disconnect":
+                    elif vr("datal") > 2 and vr("data")[2] == "disconnect":
                         ljinux.modules["network"].disconnect()
                         dmtex("Wifi: Disconnected.")
-                        ljinux.based.user_vars["return"] = "0"
+                        ljinux.api.setvar("return", "0")
                     else:
                         term.write()
                         ljinux.based.error(1)
-                        ljinux.based.user_vars["return"] = "1"
+                        ljinux.api.setvar("return", "1")
                 else:
                     term.write()
                     ljinux.based.error(1)
-                    ljinux.based.user_vars["return"] = "1"
-            del data, datal
+                    ljinux.api.setvar("return", "1")
         term.buf[1] = ""
         term.write()
-    term.trigger_dict = term_old
-    del term_old, networks
 else:
-    passwd = None
-    inc = 1
-    if args[0] == "--passphrase":
-        if args[1].startswith('"'):
+    vr("passwd", None)
+    vr("inc", 1)
+    if vr("args")[0] == "--passphrase":
+        if vr("args")[1].startswith('"'):
             while True:
-                if args[inc].endswith('"'):
+                if vr("args")[vr("inc")].endswith('"'):
                     break
-                elif inc < argl:
-                    inc += 1
+                elif vr("inc") < vr("argl"):
+                    vrp("inc")
                 else:
                     ljinux.based.error(1)
-                    inc = -1
-            if inc is not -1:
-                passwd = args[1] + " "
-                for i in range(2, inc + 1):
-                    passwd += args[i] + " "
-                passwd = passwd[1:-2]
+                    vrm("inc")
+            if vr("inc") is not -1:
+                vr("passwd", vr("args")[1] + " ")
+                for pv[get_pid()]["i"] in range(2, vr("inc") + 1):
+                    vrp("passwd", vr("args")[vr("i")] + " ")
+                vr("passwd", vr("passwd")[1:-2])
         else:
-            passwd = args[1]
+            vr("passwd", vr("args")[1])
     else:
-        inc = None
-    if inc is not None:
-        inc += 1
-        args = args[inc:]
-        argl -= inc
-    del inc
+        vr("inc", None)
+    if vr("inc") is not None:
+        vrp("inc")
+        vr("args", vr("args")[vr("inc") :])
+        vrm("argl", vr("inc"))
 
-    if argl > 2 and args[0] == "station" and args[1] == device_n:
-        if argl > 3 and args[2] == "connect":
-            networks = ljinux.modules["network"].scan()
-            if args[3] in networks:
-                res = 1
-                if networks[args[3]][0] != "OPEN":
-                    tpd = cptoml.fetch(args[3], subtable="IWD")
-                    if passwd is not None:
+    if (
+        vr("argl") > 2
+        and vr("args")[0] == "station"
+        and vr("args")[1] == vr("device_n")
+    ):
+        if vr("argl") > 3 and vr("args")[2] == "connect":
+            vr("networks", ljinux.modules["network"].scan())
+            if vr("args")[3] in vr("networks"):
+                vr("res", 1)
+                if vr("networks")[vr("args")[3]][0] != "OPEN":
+                    vr("tpd", cptoml.fetch(vr("args")[3], subtable="IWD"))
+                    if vr("passwd") is not None:
                         ljinux.modules["network"].disconnect()
-                        dmtex(f'IWD: Connecting to: "{args[3]}"')
-                        res = ljinux.modules["network"].connect(args[3], passwd)
-                    elif tpd is not None:
+                        dmtex('IWD: Connecting to: "{}"'.format(vr("args")[3]))
+                        vr(
+                            "res",
+                            ljinux.modules["network"].connect(
+                                vr("args")[3], vr("passwd")
+                            ),
+                        )
+                    elif vr("tpd") is not None:
                         ljinux.modules["network"].disconnect()
-                        dmtex(f'IWD: Connecting to: "{args[3]}" with stored password.')
-                        res = ljinux.modules["network"].connect(args[3], tpd)
+                        dmtex(
+                            'IWD: Connecting to: "{}" with stored password.'.format(
+                                vr("args")[3]
+                            )
+                        )
+                        vr(
+                            "res",
+                            ljinux.modules["network"].connect(vr("args")[3], vr("tpd")),
+                        )
                     else:
                         term.write("Error: No password specified")
-                    del tpd
                 else:
                     ljinux.modules["network"].disconnect()
-                    dmtex(f'IWD: Connecting to: "{args[3]}"')
-                    res = ljinux.modules["network"].connect(args[3])
-                if res is not 0:
+                    dmtex('IWD: Connecting to: "{}"'.format(vr("args")[3]))
+                    vr("res", ljinux.modules["network"].connect(vr("args")[3]))
+                if vr("res") is not 0:
                     term.write("Connection failed.")
                     dmtex("IWD: Connection to network failed.")
                 else:
                     dmtex("IWD: Connected to network successfully.")
                     if (
-                        args[3] not in cptoml.keys("IWD")
-                        or cptoml.fetch(args[3], subtable="IWD") != passwd
-                    ) and passwd is not None:
+                        vr("args")[3] not in cptoml.keys("IWD")
+                        or cptoml.fetch(vr("args")[3], subtable="IWD") != vr("passwd")
+                    ) and vr("passwd") is not None:
                         # Store this network
-                        cptoml.put(args[3], passwd, subtable="IWD")
-                ljinux.based.user_vars["return"] = str(res)
-                del res
+                        cptoml.put(vr("args")[3], vr("passwd"), subtable="IWD")
+                ljinux.api.setvar("return", str(vr("res")))
             else:
                 term.write("Network not found")
-                ljinux.based.user_vars["return"] = "1"
-            del networks
-        elif args[2] == "ap_mode" and argl > 3:
+                ljinux.api.setvar("return", "1")
+        elif vr("args")[2] == "ap_mode" and vr("argl") > 3:
             if hasattr(ljinux.modules["network"], "connect_ap"):
-                res = ljinux.modules["network"].connect_ap(args[3], passwd)
-                if not res:
+                vr(
+                    "res",
+                    ljinux.modules["network"].connect_ap(vr("args")[3], vr("passwd")),
+                )
+                if not vr("res"):
                     dmtex("IWD: AP started successfully.")
                 else:
                     dmtex("IWD: AP creation failed.")
-                ljinux.based.user_vars["return"] = str(res)
-                del res
+                ljinux.api.setvar("return", str(vr("res")))
             else:
                 dmtex("IWD: This interface does not support AP.")
-        elif args[2] == "auto":
+        elif vr("args")[2] == "auto":
             if not ljinux.modules["network"].connected:
                 # We don't need to run on an already connected interface
-                stored_networks = cptoml.keys("IWD")
-                if len(stored_networks):
-                    scanned_networks = ljinux.modules["network"].scan()
-                    best = None  # The best network to connect to
-                    best_alt = None  # An alternative, just in case.
-                    best_index = None  # Rating
-                    best_alt_index = None  # Rating for alt
-                    for i in scanned_networks:
-                        if i in stored_networks:
-                            if best is None:  # We have no alternative
-                                best = i
-                                best_index = stored_networks.index(i)
+                vr("stored_networks", cptoml.keys("IWD"))
+                if len(vr("stored_networks")):
+                    vr("scanned_networks", ljinux.modules["network"].scan())
+                    vr("best", None)  # The best network to connect to
+                    vr("best_alt", None)  # An alternative, just in case.
+                    vr("best_index", None)  # Rating
+                    vr("best_alt_index", None)  # Rating for alt
+                    for pv[get_pid()]["i"] in vr("scanned_networks"):
+                        if vr("i") in vr("stored_networks"):
+                            if vr("best") is None:  # We have no alternative
+                                vr("best", vr("i"))
+                                vr("best_index", vr("stored_networks").index(vr("i")))
                             else:  # We already have a network we can use
-                                cind = stored_networks.index(
-                                    i
+                                vr(
+                                    "cind", stored_networks.index(vr("i"))
                                 )  # To test if it's better
-                                if best_index > cind:
+                                if vr("best_index") > vr("cind"):
                                     # It's a better network
-                                    best_alt = best
-                                    best_alt_index = best_index
-                                    best = i
-                                    best_index = cind
-                                elif best_alt is None or best_alt_index > cind:
-                                    best_alt = i
-                                    best_alt_index = cind
-                                del cind
-                    del best_index, best_alt_index, stored_networks, scanned_networks
-                    if best is not None:  # We can connect
-                        res = ljinux.modules["network"].connect(
-                            best, cptoml.fetch(best, subtable="IWD")
+                                    vr("best_alt", vr("best"))
+                                    vr("best_alt_index", vr("best_index"))
+                                    vr("best", vr("i"))
+                                    vr("best_index", vr("cind"))
+                                elif vr("best_alt") is None or vr(
+                                    "best_alt_index"
+                                ) > vr("cind"):
+                                    vr("best_alt", vr("i"))
+                                    vr("best_alt_index", vr("cind"))
+                    if vr("best") is not None:  # We can connect
+                        vr(
+                            "res",
+                            ljinux.modules["network"].connect(
+                                vr("best"), cptoml.fetch(vr("best"), subtable="IWD")
+                            ),
                         )
-                        if not res:
+                        if not vr("res"):
                             dmtex(
-                                f"IWD-AUTO: Connected to network {best} successfully."
+                                "IWD-AUTO: Connected to network {} successfully.".format(
+                                    vr("best")
+                                )
                             )
                         else:
-                            dmtex(f"IWD-AUTO: Connection to network {best} failed.")
-                            if best_alt is not None:
-                                res = ljinux.modules["network"].connect(
-                                    best_alt, cptoml.fetch(best_alt, subtable="IWD")
+                            dmtex(
+                                "IWD-AUTO: Connection to network {} failed.".format(
+                                    vr("best")
                                 )
-                                if not res:
+                            )
+                            if vr("best_alt") is not None:
+                                vr(
+                                    "res",
+                                    ljinux.modules["network"].connect(
+                                        vr("best_alt"),
+                                        cptoml.fetch(vr("best_alt"), subtable="IWD"),
+                                    ),
+                                )
+                                if not vr("res"):
                                     dmtex(
-                                        f"IWD-AUTO: Connected to network {best_alt} successfully."
+                                        "IWD-AUTO: Connected to network {} successfully.".format(
+                                            vr("best_alt")
+                                        )
                                     )
                                 else:
                                     dmtex(
-                                        f"IWD-AUTO: Connection to network {best_alt} failed."
+                                        "IWD-AUTO: Connection to network {} failed.".format(
+                                            vr("best_alt")
+                                        )
                                     )
                             else:
                                 dmtex(
                                     f"IWD-AUTO: No available alternative networks. ABORT."
                                 )
-                                best = None
-                        del res
+                                vr("best", None)
                     # Workaround after failure.
                     if (
-                        best is None
+                        vr("best") is None
                     ):  # We have to create a hotspot based on toml settings.
-                        apssid = cptoml.fetch("SSID", subtable="IWD-AP")
-                        appasswd = cptoml.fetch("PASSWD", subtable="IWD-AP")
-                        if apssid is not None:
-                            res = ljinux.modules["network"].connect_ap(apssid, appasswd)
-                            if not res:
+                        vr("apssid", cptoml.fetch("SSID", subtable="IWD-AP"))
+                        vr("appasswd", cptoml.fetch("PASSWD", subtable="IWD-AP"))
+                        if vr("apssid") is not None:
+                            vr(
+                                "res",
+                                ljinux.modules["network"].connect_ap(
+                                    vr("apssid"), vr("appasswd")
+                                ),
+                            )
+                            if not vr("res"):
                                 dmtex("IWD-AUTO: AP started successfully.")
                             else:
                                 dmtex("IWD-AUTO: AP creation failed.")
-                            del res
-                        del apssid, appasswd
-                    del best, best_alt
-        elif args[2] == "disconnect":
+        elif vr("args")[2] == "disconnect":
             ljinux.modules["network"].disconnect()
-            ljinux.based.user_vars["return"] = "0"
+            ljinux.api.setvar("return", "0")
         else:
             ljinux.based.error(1)
     else:
         ljinux.based.error(1)
-
-    del passwd
-del args, argl, device_n
