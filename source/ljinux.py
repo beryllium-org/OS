@@ -313,7 +313,7 @@ def dmtex(texx=None, end="\n", timing=True, force=False):
         if "\n" == pv[0]["oend"]:
             pv[0]["dmesg"].append(strr)
         elif (len(pv[0]["oend"].replace("\n", "")) > 0) and (
-            "\n" in vr[0]["oend"]
+            "\n" in pv[0]["oend"]
         ):  # there is hanging text in old oend
             pv[0]["dmesg"][-1] += pv[0]["oend"].replace("\n", "")
             pv[0]["dmesg"].append(strr)
