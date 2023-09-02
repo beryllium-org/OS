@@ -1152,7 +1152,7 @@ class ljinux:
             launch_process("autorun")
             ljinux.io.ledset(3)  # act
 
-            ljinux.based.system_vars["VERSION"] = vr("Version", pid=0)
+            ljinux.based.system_vars["VERSION"] = pv[0]["Version"]
 
             term.write(
                 "\nWelcome to Ljinux wannabe kernel {}!\n\n".format(
@@ -1189,48 +1189,31 @@ class ljinux:
                 return 1  # Abandon with EMERG
 
             ljinux.io.ledset(1)  # idle
-            systemprints(
-                2,
-                "Running Init Script",
-            )
-            systemprints(
-                2,
-                "Attempting to open /LjinuxRoot/boot/Init.lja..",
-            )
+
             vr("Exit_code", 0, 0)
+            ljinux.io.ledset(3)  # act
+            systemprints(2, "Boot Services")
+            try:
+                ljinux.based.run("runparts /boot/boot.d")
+                systemprints(1, "Boot Services")
+            except:
+                systemprints(3, "Boot Services")
+            systemprints(2, "Init script")
             try:
                 ljinux.io.ledset(3)  # act
                 ljinux.based.command.exec("/LjinuxRoot/boot/Init.lja")
-                systemprints(1, "Running init script")
+                systemprints(1, "Init script")
             except OSError:
-                systemprints(3, "Init script not found")
+                systemprints(3, "Init script")
+            systemprints(2, "History load")
             ljinux.history.load(ljinux.based.user_vars["history-file"])
             try:
                 ljinux.history.sz = int(ljinux.based.user_vars["history-size"])
             except:
                 pass
-            systemprints(1, "History loaded")
-            if ljinux.based.system_vars["INIT"] == "normal":
-                systemprints(1, "Init complete")
-            elif ljinux.based.system_vars["INIT"] == "loop":
-                vr("Exit", True, 0)
-                vr("Exit_code", 245, 0)
-                term.write(
-                    f"{colors.magenta_t}Based{colors.endc}: Complete. Restarting"
-                )
-            elif ljinux.based.system_vars["INIT"] == "oneshot":
-                term.write(
-                    f"{colors.magenta_t}Based{colors.endc}: Init complete. Halting"
-                )
-                ljinux.based.run("halt")
-            else:
-                term.write(
-                    f"{colors.magenta_t}Based{colors.endc}: INIT specified incorrectly!"
-                )
-                ljinux.based.run("halt")
-
+            systemprints(1, "History load")
             ljinux.io.ledset(1)  # idle
-            while not vr("Exit", pid=0):
+            while not pv[0]["Exit"]:
                 try:
                     try:
                         ljinux.based.shell()
