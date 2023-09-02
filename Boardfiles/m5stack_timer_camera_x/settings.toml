@@ -1,6 +1,7 @@
 CIRCUITPY_PYSTACK_SIZE = 12288
 
 [LJINUX]
+setup = true
 serial_console = true
 usb_access = false
 ledtype = "generic"
