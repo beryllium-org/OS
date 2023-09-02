@@ -5,6 +5,8 @@ for pv[get_pid()]["i"] in vr("opts")["w"]:
         ljinux.based.error(17)
         ljinux.api.setvar("return", "1")
         break
-    for pv[get_pid()]["j"] in listdir(ljinux.api.betterpath(vr("i"))):
+    vr("drl", listdir(ljinux.api.betterpath(vr("i"))))
+    pv[get_pid()]["drl"].sort()
+    for pv[get_pid()]["j"] in vr("drl"):
         if vr("j").endswith(".py"):
-            ljinux.based.command.fpexec(vr("j"))
+            ljinux.based.command.fpexec(vr("i") + "/" + vr("j"))
