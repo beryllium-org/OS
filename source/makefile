@@ -1,7 +1,7 @@
 SHELL = bash
 
 all: help
-install: kernel rootfs extra
+install: kernel rootfs extra boot
 
 kernel: prep comp
 kernel_debug: prep debug_comp
@@ -32,7 +32,7 @@ modules:
 	@git submodule update --init --recursive ..
 	@echo "Submodules ready"
 rootfs:
-	@echo -e "\nUpdating the board's rootfs:\n"
+	@echo -e "\nUpdating the board's rootfs:"
 	@sync
 	@python3 ../scripts/copy_rootfs.py
 prepperms:
@@ -68,7 +68,15 @@ ccon:
 	@python3 ../scripts/ccon.py
 	@echo -e "\nDone, now try running ccon\n"
 extra:
+	@echo -e "\nLoading extras:"
 	@python3 ../scripts/make_extras.py
 	@sync
 clean:
 	@rm -r ./build_*
+boot:
+	@echo -e "\nSetup /boot:"
+	@python3 ../scripts/make_boot.py
+	@sync
+releases:
+	@echo "Creating releases archives.."
+	@../scripts/make_releases.sh
