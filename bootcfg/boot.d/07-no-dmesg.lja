@@ -1,0 +1,2 @@
+# Clear the dmesg log on low-end boards
+_ndmesg

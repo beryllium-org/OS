@@ -8,7 +8,7 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
     vr("exists", 2)
     vr("weltxt", "[ Welcome to nano.  For basic help, type Ctrl+G. ]")
 
-    vr("versionn", "1.8.0")
+    vr("versionn", "1.8.1")
 
     try:
         vr("filee", ljinux.based.user_vars["argj"].split()[1])
@@ -198,32 +198,40 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
             if term.buf[0] is 9:  # kill
                 term.focus = 0
                 vr("q", False)
-            elif term.buf[0] is 1 and not vr("savee"):  # save
-                term.buf[1] = ""
-                term.focus = 0
-                term.move(x=vr("sizee")[0] - 2)
-                vr("spsz", (vr("sizee")[1] - 21) * " ")
-                term.write(
-                    "{}Save modified buffer?{}{}".format(
-                        colors.inverse, vr("spsz"), colors.uninverse
+            elif term.buf[0] is 1:  # save
+                if not vr("savee"):
+                    term.buf[1] = ""
+                    term.focus = 0
+                    term.move(x=vr("sizee")[0] - 2)
+                    vr("spsz", (vr("sizee")[1] - 21) * " ")
+                    term.write(
+                        "{}Save modified buffer?{}{}".format(
+                            colors.inverse, vr("spsz"), colors.uninverse
+                        )
                     )
-                )
-                term.clear_line()
-                term.write(f"{colors.inverse} Y{colors.uninverse} Yes")
-                term.clear_line()
-                term.nwrite(
-                    "{} N{} No        {}{}^C{} Cancel".format(
-                        colors.inverse,
-                        colors.uninverse,
-                        vr("toolsplit"),
-                        colors.inverse,
-                        colors.uninverse,
+                    term.clear_line()
+                    term.write(f"{colors.inverse} Y{colors.uninverse} Yes")
+                    term.clear_line()
+                    term.nwrite(
+                        "{} N{} No        {}{}^C{} Cancel".format(
+                            colors.inverse,
+                            colors.uninverse,
+                            vr("toolsplit"),
+                            colors.inverse,
+                            colors.uninverse,
+                        )
                     )
-                )
-                term.move(x=vr("sizee")[0] - 2, y=23)
-                term.nwrite(colors.inverse)
-                vrd("spsz")
-                vrp("savee")
+                    term.move(x=vr("sizee")[0] - 2, y=23)
+                    term.nwrite(colors.inverse)
+                    vrd("spsz")
+                    vrp("savee")
+                else:
+                    term.nwrite(
+                        " " * term.focus
+                        + "\010" * len(term.buf[1])
+                        + " " * len(term.buf[1])
+                        + "\010" * len(term.buf[1])
+                    )
 
             elif term.buf[0] is 8 and not vr("savee"):  # down
                 term.focus = 0
@@ -396,7 +404,8 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
                         pv[get_pid()]["dataa"][vr("cl")] = term.buf[1]
                     else:
                         term.nwrite(
-                            "\010" * len(term.buf[1])
+                            " " * term.focus
+                            + "\010" * len(term.buf[1])
                             + " " * len(term.buf[1])
                             + "\010" * len(term.buf[1])
                         )

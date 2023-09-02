@@ -103,6 +103,6 @@ if path.exists(f"../Boardfiles/{board}/extras"):
                 print("Use folders instead")
                 errexit()
         else:
-            errexit()
+            pass
 
 system("sync")
