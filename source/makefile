@@ -76,7 +76,6 @@ clean:
 boot:
 	@echo -e "\nSetup /boot:"
 	@python3 ../scripts/make_boot.py
-	@sync
 releases:
 	@echo "Creating releases archives.."
 	@../scripts/make_releases.sh
