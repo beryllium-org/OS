@@ -1,34 +1,3 @@
-# Detect early serial connections and make logging immediately available
-_earlyconnection
-
-# Add /lib to path
-pexec from sys import path as syspath
-pexec syspath.append("/LjinuxRoot/lib")
-pexec del syspath
-pexec systemprints(1, "System path updated")
-
-# Connect to a network on boot (example uses wifi driver)
-#modprobe driver_wifi as network
-#pexec systemprints(2, "Connecting wifi")
-#iwctl station wifi auto # Configure connections in &/settings.toml
-#pexec systemprints(1, "Connecting wifi")
-#pexec systemprints(2, "Sync time via ntp")
-#timesync
-#pexec systemprints(1, "Sync time via ntp")
-
-# Uncomment this to activate telnet serial
-# Depends on network being up
-#pexec systemprints(2, "Activate telnet")
-#telnet setup -q # quiet
-#terminal activate ttyTELNET0
-#pexec systemprints(1, "Activate telnet")
-
-# This will advance the date if it's before than build time
-advance_build_date
-
-# Clear the dmesg log on low-end boards
-#_ndmesg
-
 # Clear boot buffer
 # clear
 

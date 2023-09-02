@@ -10,3 +10,5 @@ for pv[get_pid()]["i"] in vr("opts")["w"]:
     for pv[get_pid()]["j"] in vr("drl"):
         if vr("j").endswith(".py"):
             ljinux.based.command.fpexec(vr("i") + "/" + vr("j"))
+        elif vr("j").endswith(".lja"):
+            ljinux.based.command.exec(vr("i") + "/" + vr("j"))

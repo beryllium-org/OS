@@ -1,3 +1,4 @@
+# Detect early serial connections and make logging immediately available
 rename_process("earlyconnection")
 vr("found", False)
 for pv[get_pid()]["i"] in pv[0]["consoles"].keys():

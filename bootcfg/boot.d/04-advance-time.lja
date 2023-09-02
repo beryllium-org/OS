@@ -1,0 +1,2 @@
+# Advance system time to build time, if the clock is behind
+advance_build_date
