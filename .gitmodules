@@ -25,3 +25,6 @@
 [submodule "other/cptoml"]
 	path = other/cptoml
 	url = https://github.com/bill88t/cptoml
+[submodule "other/CircuitPython_FTP_Server"]
+	path = other/CircuitPython_FTP_Server
+	url = https://github.com/bill88t/CircuitPython_FTP_Server
