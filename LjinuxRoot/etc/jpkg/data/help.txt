@@ -1,4 +1,4 @@
-Ljinux package manager version 0.
+Ljinux package manager version 1.
 
 Usage:
     jpkg install package_file.jpkg
