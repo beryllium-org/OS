@@ -5,35 +5,13 @@
  
 Official repository: [https://github.com/bill88t/ljinux]
 
-Index table:
-1. Basic commands       : line
-2. Scripting            : line
-3. Errors               : line
-4. Api functions        : line
-5. jCurses              : line
-6. Led activity         : line
-7. BetterPath           : line
-8. GPIO Usage           : line
-9. Network driver usage : line
-
       /---------------|
 ----<| Basic commands |
       \---------------|
 
+help [COMMAND]
 
-alias [COMMAND=data]
-
-Runs data, whenever command is typed
-
-
-bell
-
-Ring the bell on the current terminal
-
-
-cat [file]
-
-Catenates the contents of file [file]
+Outputs a basic list of commands to serial out
 
 
 cd [DIR]...
@@ -42,87 +20,12 @@ Changes to specified directory
 Please refer to the betterpath section, on more info on how does the ljinux filesystem appear.
 
 
-clear
-
-Clear the current terminal
-
-
-date [set]...
-
-View the time, or set it
-Valid format "date set dd mm yyyy hr mm ss"
-
-
-detect
-
-Fetch the term.detect_size() for context updating
-
-
-devmode [-q]
-
-Enables usb access and other development features.
-This prohibits write access to the built in filesystem.
-The notice can be skipped by passing -q.
-This can be reverted by setting `usb_access = false` under
-section [LJINUX] in the board's `/settings.toml`.
-
-
-df [-h]
-
-Report all attached file system's space usage.
-
-
-disconnect
-
-Immediately disconnect the current terminal, if it can be disconnected.
-
-
-dmesg
-
-Prints out the current dmesg log.
-
-
 echo [DATA]...
 
-Print some variables or text.
+Print some variables or text
 
 
-ed [FILE]
-
-A line-oriented text editor.
-
-
-exit [CODE]
-
-Exits ljinux with an exit code, default = 0
-If ran over a remote connection, disconnects instead.
-
-
-false
-
-Returns false.
-
-
-free [-b/-k/-m/-g]
-
-Display memory usage.
-
-
-
-
----
-help [COMMAND]
-
-Outputs a basic list of commands to serial out
-
-
-
-
-
-
-
-
-var [DATA]... (DEPRECATED, SOON TO BE REPLACED)
+var [DATA]...
 
 Create a new variable. syntax: var a = "ok"
 Numbers do not need brackets.
@@ -168,6 +71,24 @@ pwd
 Outputs the current directory
 
 
+display [OPERATION] [OPERATION DATA]
+
+Displays something on the i2c display
+Returns object id, do not lose it
+Budget didnt allow porting wayland, so i made farland
+operations:
+
+text
+dot
+line
+rectangle
+square
+circle
+rhombus
+move
+delete
+
+
 exec [FILE]
 
 Loads an .lja file and executes it's commands
@@ -176,22 +97,34 @@ Loads an .lja file and executes it's commands
 pexec [-n] [python commands]
 
 Runs python commands
+-n suppresses the ciruitpy text
 
 
-fpexec [file]
+fpexec [-n] [file]
 
-Runs a python file in a new process.
+Same as pexec but uses a file instead
 
 
-sleep [TIME]
+wait [TIME]
 
 [TIME] in seconds
 
 
+exit [CODE]
+
+Exit the current process with an exit code, default = 0
 
 
+date [set]...
+
+View the time, or set it
+Valid format "date set dd mm yyyy hr mm ss"
 
 
+su
+
+Disable security, asks for password
+Password can be found in /etc/passwd :)
 
 
 neofetch
@@ -204,7 +137,21 @@ history [save/load/clear]
 Displays the history
 
 
+njinx
 
+An integrated webserver
+Please configure /etc/njinx/njinx.conf beforehand
+
+
+whois [name]
+
+Finds and returns the ip of the given domain.
+
+
+devmode
+
+Enables usb access and other development features
+This prohibits write access to the built in filesystem
 
 
 reboot [mode]
@@ -213,17 +160,22 @@ Reboots the microcontroller
 Optionally you can pass a reboot [mode] (safemode, uf2, bootloader)
 
 
+dmesg
+
+Prints out the dmesg log
 
 
+cat [file]
+
+Prints the contents of file [file]
 
 
-
-head [-n] [file]
+head [n] [file]
 
 Print the first [-n number] lines of file [file].
 
 
-tail [-n] [file]
+tail [n] [file]
 
 Print the last [-n number] lines of file [file].
 
@@ -248,44 +200,38 @@ detect
 Fetch the term.detect_size() for context updating
 
 
+waitforserial
+
+Waits for a serial connection. Should absolutely be used into Init.lja if you're gonna use jcurses.
+
+
 less [file]
 
 opposite for more, except we don't have more..
-
-
-reload
-
-Exit and immediately reload ljinux
-
-
-
-
 
       /----------|
 ----<| Scripting |
       \----------|
       
-Based script files need to have the .lja file extension. All internal or external commands
-can be used in scripts.
+Based script files need to have the .lja file extension. All internal or external commands can be used in scripts.
 To have a script appear as a command, put it in /LjinuxRoot/bin/ or in the /bin of the sdcard.
+To create a comment, simply write COMMENT in the beginning of the line.
 
 To execute python code, you are advised to use pexec & fpexec.
 The scope is the same as the one of ljinux and you can call & alter ljinux data freely.
-This however is very unsafe (as in, you may touch foreign variables), and you are instead advised
-to use the given variable container storage.
 
-When fpexec is called, the code is given an empty container storage under `pv[get_pid()]`.
-You can manipulate it either directly or with the `vr` functions. More info in the Container Storage
-section of the manual.
+To access argj from based scripts containing pexec, the best way is to use ljinux.based.user_vars["argj"].split()
 
-To access shell input you can use `ljinux.api.xarg()` or `ljinux.based.user_vars["argj"].split()`.
-You can find more info regarding xarg under it's api documentation.
+      /---------------|
+----<| Repo & Mirrors |
+      \---------------|
 
+The source & releases of Ljinux are primarily being made available to Github at: https://github.com/bill88t/ljinux
+However it is also mirrored to my self-hosted Gitea instance at: https://git.port1.cf/bill88t/ljinux
 
       /-------|
 ----<| Errors |
       \-------|
-
 
 The different errors used by the based shell.
 CODE:
@@ -309,15 +255,13 @@ CODE:
       The network interface is not functional
 
 6 : Display not attached
-      The display is not connected / registered.
+      The display is not connected correctly
 
-7 : Filesystem unwritable, board in developer mode
-      This error shows up when a write to the internal storage occures while developer mode
-      is enabled.
+7 : Filesystem unwritable, pi in developer mode
+      This error shows up when a write to the internal storage occures while developer mode is enabled.
       By CircuitPython design, when the internal storage is being made available from usb,
-      it is unwritable to ljinux.
-      To disable developer mode, set `usb_access = false` under section [LJINUX] in the board's
-      `/settings.toml`.
+      it is unwritable to the os. 
+      To disable developer mode, delete the file "devm" from the root of LJINUX, and run the command "reboot"
 
 8 : Missing files
       This error occurs when files needed for the command to run are missing.
@@ -335,31 +279,7 @@ CODE:
       The variable name specified is already in use, and can't be modified in this way.
     
 13 : Terminal too small, minimum size: size:
-      The current terminal size is too small, resize the terminal to a size bigger than
-      the one specified.
-
-14 : Is a file
-      What was passed, is a file, when it shouldn't.
-
-15 : Is a directory
-      What was passed, is a directory, when it shouldn't.
-
-16 : Directory not empty
-      The directory should have been empty, but wasn't.
-
-17 : Not a directory
-      What was passed, is not a directory, when it should.
-
-18 : Not a file
-      What was passed, is not a file, when it should.
-
-19 : Not a device
-      What was passed, is not a device, when it should.
-
-20 : Unhandled exception
-      Under fpexec execution, an exception was raised that was not caught by any code from within
-      the fpexec code, and it was instead caught by ljinux.
-
+      The current terminal size is too small, resize the terminal to a size bigger than the one specified.
 
       /--------------|
 ----<| Api Functions |
@@ -440,17 +360,8 @@ Based, by default, creates the "term" jcurses object.
 
 Useful functions:
 
-    - .write(strr=str, end="\n")
-     The default write function for ljinux.
-     Always prints to the active terminal only.
-
-    - .nwrite(strr=str)
-     Same as `.write`, but does not print "\n" at the end.
-     It saves byte size when there are 25 septilion `end=""`'s.
-     Always prints to the active terminal only.
-
     - .detect_size()
-     Detects the size of the terminal & returns it as [rows, collumns]
+    Detects the size of the terminal & returns it as [rows, collumns]
     
     - .detect_pos()
     Detects the current cursor position & returns it as [row, collumn]
@@ -514,9 +425,9 @@ It work by mapping:
 And treating all subsequent paths by that rule.
 It additionally maps "~" to the user's home directory, and "-" to the previous directory.
 
-      /-----------| [                                    ]
-----<| GPIO Usage | [ DEPRECATED, SOON TO BE REPLACED!!! ]
-      \-----------| [                                    ]
+      /-----------|
+----<| GPIO Usage |
+      \-----------|
 
 From within the based shell you can use the unused GPIO pins as variables.
 Example:
@@ -542,29 +453,28 @@ Example 3:
       \---------------------|
       
 To use the built-in circuitpython module "wifi" as your network connection:
+  - Ensure you have run "make wifi" from the host computer.
+     If you haven't, run "devmode" from within ljinux, to enable usb access,
+     and perform the module installation. Then delete the file "devm" from
+     the board's root, and reboot ljinux.
   - Run "modprobe driver_wifi as network" to load the ljinux wifi driver.
      You can optionally add it to /boot/Init.lja, to load it on boot.
   - Use iwctl to configure the wifi connection.
      For info on how to use iwctl, please refer to
      [https://wiki.archlinux.org/title/iwd]
-  - You connections will automatically be stored into &/settings.toml.
-     You can automatically reconnect on reboot by running `iwctl station wifi auto`.
-
        
 To use a w5500 ethernet module:
   - Ensure you have run "make w5500" from the host computer.
      If you haven't, run "devmode" from within ljinux, to enable usb access,
-     and perform the module installation. Then disable developer mode (as stated above)
-     and reboot ljinux.
+     and perform the module installation. Then delete the file "devm" from
+     the board's root, and reboot ljinux.
   - Run "modprobe driver_w5500 as network" to load the ljinux wifi driver.
      You can optionally add it to /boot/Init.lja, to load it on boot.
   - Use eth to configure the network interface.
      For more information please refer to the manpage by running "man eth".
-     This is not implemented. Good luck.
 
       /-----------------------------|
 ----<| Contributions to the project |
       \-----------------------------|
 
-To commit to the project, make sure you have pre-commit installed (package name: python-pre-commit)
-and you have run `pre-commit install` inside of the repo folder.
+To commit to the project, make sure you have pre-commit installed and you have run `pre-commit install`.
