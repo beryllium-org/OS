@@ -119,10 +119,10 @@ class telnet_console:  # The actual class you need to use
         """
         while len(self._tx_buf) > 32:  # Bulk
             try:
-                self._conn.send(self._tx_buf[:32])
+                self._conn.send(memoryview(self._tx_buf)[:32])
             except BrokenPipeError:
                 self.disconnect()
-            self._tx_buf = self._tx_buf[32:]
+            self._tx_buf = memoryview(self._tx_buf)[32:]
         if len(self._tx_buf):  # regular
             try:
                 self._conn.send(self._tx_buf)
@@ -165,7 +165,7 @@ class telnet_console:  # The actual class you need to use
                 while self.connected:  # Will get interrupted by except
                     size = self._conn.recv_into(self._rx_buf, self._maxbuf)
                     if size:
-                        self._ps_buf += self._rx_buf[:size]
+                        self._ps_buf += memoryview(self._rx_buf)[:size]
                     del size
             except OSError:
                 pass
@@ -211,7 +211,7 @@ class telnet_console:  # The actual class you need to use
             else:
                 self._rr(block=count is None)
                 count = len(self._ps_buf)
-            res = bytes(self._ps_buf[:count])
+            res = bytes(memoryview(self._ps_buf)[:count])
             self._ps_buf = self._ps_buf[count:]
             return res
         else:
