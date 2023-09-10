@@ -4,14 +4,43 @@
  \======================================/
  
 Official repository: [https://github.com/bill88t/ljinux]
+This manual is up to date with commit c32f62abbec80d3e40050905011ef9907eda5b2e @ 10/sep/2023.
+Anything passed that point is not covered by this manual.
+
+      /------------|
+----<| Index table |
+      \------------|
+
+0.  Index table          : line 10
+1.  Basic commands       : line 27
+2.  Scripting            : line 337
+3.  Errors               : line 358
+4.  Api functions        : line 436
+5.  jCurses              : line 504
+6.  Led activity         : line 559
+7.  BetterPath           : line 573
+8.  GPIO Usage           : line 593
+9.  Network driver usage : line 617
+10. Isolated processes   : line 643
+11. Contributions        : line 702
 
       /---------------|
 ----<| Basic commands |
       \---------------|
 
-help [COMMAND]
+alias [COMMAND=data]
 
-Outputs a basic list of commands to serial out
+Runs data, whenever command is typed
+
+
+bell
+
+Ring the bell on the current terminal
+
+
+cat [file]
+
+Catenates the contents of file [file]
 
 
 cd [DIR]...
@@ -20,99 +49,9 @@ Changes to specified directory
 Please refer to the betterpath section, on more info on how does the ljinux filesystem appear.
 
 
-echo [DATA]...
+clear
 
-Print some variables or text
-
-
-var [DATA]...
-
-Create a new variable. syntax: var a = "ok"
-Numbers do not need brackets.
-The command itself is optional (a = "is also valid")
-GPIO pins can be allocated like: a = GP9
-and used by setting them to either 0 or 1: a = 1
-
-
-unset [Variable]
-
-Deletes a Variable.
-Can also be used on GPIO variables.
-The GPIO will be deinit and free'ed.
-
-
-uname [-a]
-
-Print system information
-
-
-mkdir [DIR]...
-
-Make a new directory
-
-
-rmdir [DIR]...
-
-Delete a directory
-
-
-rm [FILE]...
-
-Delete a file
-
-
-ls [OPTIONS]... [DIR]...
-
-Outputs the directory listing
-
-
-pwd
-
-Outputs the current directory
-
-
-display [OPERATION] [OPERATION DATA]
-
-Displays something on the i2c display
-Returns object id, do not lose it
-Budget didnt allow porting wayland, so i made farland
-operations:
-
-text
-dot
-line
-rectangle
-square
-circle
-rhombus
-move
-delete
-
-
-exec [FILE]
-
-Loads an .lja file and executes it's commands
-
-
-pexec [-n] [python commands]
-
-Runs python commands
--n suppresses the ciruitpy text
-
-
-fpexec [-n] [file]
-
-Same as pexec but uses a file instead
-
-
-wait [TIME]
-
-[TIME] in seconds
-
-
-exit [CODE]
-
-Exit the current process with an exit code, default = 0
+Clear the current terminal
 
 
 date [set]...
@@ -121,113 +60,300 @@ View the time, or set it
 Valid format "date set dd mm yyyy hr mm ss"
 
 
-su
-
-Disable security, asks for password
-Password can be found in /etc/passwd :)
-
-
-neofetch
-
-View some system info
-
-
-history [save/load/clear]
-
-Displays the history
-
-
-njinx
-
-An integrated webserver
-Please configure /etc/njinx/njinx.conf beforehand
-
-
-whois [name]
-
-Finds and returns the ip of the given domain.
-
-
-devmode
-
-Enables usb access and other development features
-This prohibits write access to the built in filesystem
-
-
-reboot [mode]
-
-Reboots the microcontroller
-Optionally you can pass a reboot [mode] (safemode, uf2, bootloader)
-
-
-dmesg
-
-Prints out the dmesg log
-
-
-cat [file]
-
-Prints the contents of file [file]
-
-
-head [n] [file]
-
-Print the first [-n number] lines of file [file].
-
-
-tail [n] [file]
-
-Print the last [-n number] lines of file [file].
-
-
-sensors
-
-Prints the current system sensors data
-
-
-pinout
-
-Prints the current board's pinout map
-
-
-man [COMMAND]
-
-Print the manual for the given [COMMAND]
-
-
 detect
 
 Fetch the term.detect_size() for context updating
 
 
-waitforserial
+devmode [-q]
 
-Waits for a serial connection. Should absolutely be used into Init.lja if you're gonna use jcurses.
+Enables usb access and other development features.
+This prohibits write access to the built in filesystem.
+The notice can be skipped by passing -q.
+This can be reverted by setting `usb_access = false` under
+section [LJINUX] in the board's `/settings.toml`.
 
 
-less [file]
+df [-h]
 
-opposite for more, except we don't have more..
+Report all attached file system's space usage.
+
+
+disconnect
+
+Immediately disconnect the current terminal, if it can be disconnected.
+
+
+dmesg
+
+Prints out the current dmesg log.
+
+
+echo [DATA]...
+
+Print some variables or text.
+
+
+ed [FILE]
+
+A line-oriented text editor.
+
+
+exec [FILE]
+
+false
+
+Returns false.
+
+
+exit [CODE]
+
+Exits ljinux with an exit code, default = 0
+If ran over a remote connection, disconnects instead.
+
+
+fpexec [file]
+
+Runs a python file in a new process.
+
+
+free [-b/-k/-m/-g]
+
+Display memory usage.
+
+
+halt
+
+Sync all filesystems, and halt the system.
+
+
+head [-n int] [FILE]
+
+Output the first part of files.
+By default displays the first 10 lines of the FILE.
+
+
+help [COMMAND]
+
+Displays all currently discovered commands.
+
+
+history [save/load/clear]
+
+Displays the command history.
+
+
+hostname [VALUE]
+
+Displays the hostname if no VALUE is passed, else sets it
+to that VALUE.
+
+
+jpkg [install/uninstall/list] [PACKAGE(S)]
+
+The built-in ljinux package manager.
+For more information run `jpkg --help`, `man jpkg` or
+view section JPKG.
+
+
+jz [-q/-d/--decompress] [JZ ARCHIVE] [TARGET DIRECTORY]
+
+Decompress a .jz archive to the TARGET DIRECTORY.
+Extracts to '.' if not specified.
+
+
+ledset [int / int int int]
+
+Set the led to the given value(s).
+
+
+less [FILE]
+
+Opposite of more, a simple file viewer.
+
+
+ls [OPTIONS]... [DIR]...
+
+Outputs the directory listing.
+
+
+man [COMMAND]
+
+Display the manual for the given [COMMAND] with `less`.
+
+
+mkdir [DIR]...
+
+Make a new directory
+
+
+modprobe [MODULE as MODULE_TYPE]
+
+Load a kernel MODULE with it's type specified by MODULE_TYPE.
+
+
+nano [FILE]
+
+A text editor similar to GNU/nano.
+
+
+neofetch
+
+A simple system info viewer.
+Much less bloated than it's linux counterpart.
+
+
+pexec [-n] [python commands]
+
+Runs python commands in the current process.
+
+
+pinout
+
+Displays the current board's pinout map.
+
+
+pwd
+
+Print the current working directory.
+
+
+python
+
+Opens a virtual python REPL.
+To pass commands instead of actually opening the REPL, use pexec instead.
+To pass files to run instead of actually opening the REPL, use fpexec instead.
+
+
+random
+
+Returns a random number. Displays it if based is not silenced.
+
+
+reboot [MODE]
+
+Reboots ljinux and the board.
+Optionally, you can pass a reboot MODE from: [safemode, uf2, bootloader]
+
+
+reload
+
+Reloads ljinux fully.
+
+
+rm [FILE(S)]...
+
+Delete FILE(S).
+Recursive deletes not yet supported.
+
+
+rmdir [DIR]...
+
+Delete an empty directory.
+
+
+runparts [FOLDER]
+
+Run all the .py files in a folder by alphabetic order.
+Used by init.
+
+
+sensors
+
+Print the current system sensors and their current values.
+
+
+sleep [TIME]
+
+Sleep TIME, in seconds.
+
+
+sync
+
+Sync all currently attached filesystems.
+
+
+tail [-n int] [FILE]
+
+Opposite of head.
+Output the last part of files.
+By default displays the last 10 lines of the FILE.
+
+
+title [TEXT]
+
+Sets the terminal title to the TEXT.
+
+top
+
+Display the current process stack, along with useful info.
+
+
+touch [FILE]
+
+Create a new FILE.
+
+
+true
+
+Returns true.
+
+
+unalias [ALIAS]
+
+Removes ALIAS.
+
+
+uname [-a]
+
+Print system information
+
+
+Loads an .lja file and executes it's commands
+
+
+unset [Variable]
+
+Deletes a Variable.
+Can also be used on GPIO variables.
+The GPIO will be deinitialized.
+
+
+var [DATA]... (!!!DEPRECATED, SOON TO BE REPLACED!!!)
+
+Create a new variable. syntax: var a = "ok"
+Numbers do not need brackets.
+The command itself is optional (a = "is also valid")
+GPIO pins can be allocated like: a = GP9
+and used by setting them to either 0 or 1: a = 1
+
+
+watch [-s] [-n SECONDS] [COMMAND]
+
+Run a COMMAND every n SECONDS (default 2 seconds).
+Hide the titlebar text with `-s`.
+
 
       /----------|
 ----<| Scripting |
       \----------|
       
-Based script files need to have the .lja file extension. All internal or external commands can be used in scripts.
+Based script files need to have the .lja file extension. All internal or external commands
+can be used in scripts.
 To have a script appear as a command, put it in /LjinuxRoot/bin/ or in the /bin of the sdcard.
-To create a comment, simply write COMMENT in the beginning of the line.
 
 To execute python code, you are advised to use pexec & fpexec.
 The scope is the same as the one of ljinux and you can call & alter ljinux data freely.
+This however is very unsafe (as in, you may touch foreign variables), and you are instead advised
+to use the given variable container storage.
 
-To access argj from based scripts containing pexec, the best way is to use ljinux.based.user_vars["argj"].split()
+When fpexec is called, the code is given an empty container storage under `pv[get_pid()]`.
+You can manipulate it either directly or with the `vr` functions. More info in the Container Storage
+section of the manual.
 
-      /---------------|
-----<| Repo & Mirrors |
-      \---------------|
+To access shell input you can use `ljinux.api.xarg()` or `ljinux.based.user_vars["argj"].split()`.
+You can find more info regarding xarg under it's api documentation.
 
-The source & releases of Ljinux are primarily being made available to Github at: https://github.com/bill88t/ljinux
-However it is also mirrored to my self-hosted Gitea instance at: https://git.port1.cf/bill88t/ljinux
 
       /-------|
 ----<| Errors |
@@ -255,13 +381,15 @@ CODE:
       The network interface is not functional
 
 6 : Display not attached
-      The display is not connected correctly
+      The display is not connected / registered.
 
-7 : Filesystem unwritable, pi in developer mode
-      This error shows up when a write to the internal storage occures while developer mode is enabled.
+7 : Filesystem unwritable, board in developer mode
+      This error shows up when a write to the internal storage occures while developer mode
+      is enabled.
       By CircuitPython design, when the internal storage is being made available from usb,
-      it is unwritable to the os. 
-      To disable developer mode, delete the file "devm" from the root of LJINUX, and run the command "reboot"
+      it is unwritable to ljinux.
+      To disable developer mode, set `usb_access = false` under section [LJINUX] in the board's
+      `/settings.toml`.
 
 8 : Missing files
       This error occurs when files needed for the command to run are missing.
@@ -279,7 +407,31 @@ CODE:
       The variable name specified is already in use, and can't be modified in this way.
     
 13 : Terminal too small, minimum size: size:
-      The current terminal size is too small, resize the terminal to a size bigger than the one specified.
+      The current terminal size is too small, resize the terminal to a size bigger than
+      the one specified.
+
+14 : Is a file
+      What was passed, is a file, when it shouldn't.
+
+15 : Is a directory
+      What was passed, is a directory, when it shouldn't.
+
+16 : Directory not empty
+      The directory should have been empty, but wasn't.
+
+17 : Not a directory
+      What was passed, is not a directory, when it should.
+
+18 : Not a file
+      What was passed, is not a file, when it should.
+
+19 : Not a device
+      What was passed, is not a device, when it should.
+
+20 : Unhandled exception
+      Under fpexec execution, an exception was raised that was not caught by any code from within
+      the fpexec code, and it was instead caught by ljinux.
+
 
       /--------------|
 ----<| Api Functions |
@@ -348,6 +500,7 @@ Available from:
             specified if found
             Otherwise, it returns the input
 
+
       /--------|
 ----<| jCurses |
       \--------|
@@ -360,8 +513,17 @@ Based, by default, creates the "term" jcurses object.
 
 Useful functions:
 
+    - .write(strr=str, end="\n")
+     The default write function for ljinux.
+     Always prints to the active terminal only.
+
+    - .nwrite(strr=str)
+     Same as `.write`, but does not print "\n" at the end.
+     It saves byte size when there are 25 septilion `end=""`'s.
+     Always prints to the active terminal only.
+
     - .detect_size()
-    Detects the size of the terminal & returns it as [rows, collumns]
+     Detects the size of the terminal & returns it as [rows, collumns]
     
     - .detect_pos()
     Detects the current cursor position & returns it as [row, collumn]
@@ -393,6 +555,7 @@ jCurses does not depend onto ljinux.
 
 More documentation on jcurses will be added later.
 
+
       /-------------|
 ----<| Led activity |
       \-------------|
@@ -405,6 +568,7 @@ Glow more when special characters are being inputted,
 Red when an error occurs,
 Yellow on activity and
 Blue when waiting.
+
 
       /-----------|
 ----<| BetterPath |
@@ -425,9 +589,10 @@ It work by mapping:
 And treating all subsequent paths by that rule.
 It additionally maps "~" to the user's home directory, and "-" to the previous directory.
 
-      /-----------|
-----<| GPIO Usage |
-      \-----------|
+
+      /-----------| [                                    ]
+----<| GPIO Usage | [ DEPRECATED, SOON TO BE REPLACED!!! ]
+      \-----------| [                                    ]
 
 From within the based shell you can use the unused GPIO pins as variables.
 Example:
@@ -448,33 +613,97 @@ Example 3:
     b = a
     echo b
 
+
       /---------------------|
 ----<| Network driver usage |
       \---------------------|
       
 To use the built-in circuitpython module "wifi" as your network connection:
-  - Ensure you have run "make wifi" from the host computer.
-     If you haven't, run "devmode" from within ljinux, to enable usb access,
-     and perform the module installation. Then delete the file "devm" from
-     the board's root, and reboot ljinux.
   - Run "modprobe driver_wifi as network" to load the ljinux wifi driver.
      You can optionally add it to /boot/Init.lja, to load it on boot.
   - Use iwctl to configure the wifi connection.
      For info on how to use iwctl, please refer to
      [https://wiki.archlinux.org/title/iwd]
+  - You connections will automatically be stored into &/settings.toml.
+     You can automatically reconnect on reboot by running `iwctl station wifi auto`.
+
        
 To use a w5500 ethernet module:
   - Ensure you have run "make w5500" from the host computer.
      If you haven't, run "devmode" from within ljinux, to enable usb access,
-     and perform the module installation. Then delete the file "devm" from
-     the board's root, and reboot ljinux.
+     and perform the module installation. Then disable developer mode (as stated above)
+     and reboot ljinux.
   - Run "modprobe driver_w5500 as network" to load the ljinux wifi driver.
      You can optionally add it to /boot/Init.lja, to load it on boot.
   - Use eth to configure the network interface.
      For more information please refer to the manpage by running "man eth".
+     This is not implemented. Good luck.
+
+
+      /-------------------|
+----<| Isolated processes |
+      \-------------------|
+
+During ljinux execution every variable created persists across processes.
+And every process can access any other process's stuff. Securitey!
+Having a parser that effectively blocks touching other processes would be
+too much of an overhead and impractical.
+
+Still, it's possible there are variable nameshakes and forgotten variables.
+(If you use variable "i", your parent process could also be using it, and you could
+break some loop, causing a `while True`)
+(If you do not delete your variable before the program exit, it WILL REMAIN!)
+
+For this I made a container storage for processes.
+Whenever fpexec is run, the code inside gets a pid.
+You can read that value with `get_pid()`.
+Every process also gets a dict in `pv`.
+This dict will be automatically deleted after the process is exited.
+
+You can directly access from python it as `pv[get_pid()]`.
+
+To set a (new) variable directly from python,
+run `pv[get_pid()]["new_variable_name"] = whatever_value`.
+
+However that is long and ugly. There are functions for managing container varibles.
+To set a variable:
+`vr("variable_name", value)`
+
+To get the value:
+`vr("variable_name")`
+
+To add a value to a variable:
+`vrp("variable_name", value)`
+`vrp("variable_name")` # += 1 to the variable.
+
+To subtract a value from a variable:
+`vrm("variable_name", value)`
+`vrm("variable_name")` # -= 1 to the variable.
+
+To append a value to a variable:
+`vra("variable_name", value)`
+
+To delete a variable:
+`vrd("variable_name")`
+
+Still if you want to iterate with for, you have to do this:
+```py
+for pv[get_pid()]["i"] in vr("some_list"):
+      vr("data", vr("i") * potatoes)
+```
+
+You can use read-only properties of the variables just fine with `vr`.
+`vr("socket").accept()`
+
+But if you need to write to it, you need to access it directly.
+`pv[get_pid()]["list"].pop(2)`
+
 
       /-----------------------------|
 ----<| Contributions to the project |
       \-----------------------------|
 
-To commit to the project, make sure you have pre-commit installed and you have run `pre-commit install`.
+To commit to the project, make sure you have pre-commit installed.
+On Arch Linux the packaged is named "python-pre-commit".
+And then you have run `pre-commit install` inside of the repo.
+Then upon committing changes, they will be immediately formatted.
