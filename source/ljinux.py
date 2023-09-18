@@ -466,6 +466,7 @@ dmtex("Load complete")
 
 class ljinux:
     modules = {}
+    devices = {}
 
     def deinit_consoles() -> None:
         for i in vr("consoles", pid=0).keys():
