@@ -1,7 +1,7 @@
 rename_process("line_wrap")
 vr("l", pv[get_parent_pid()]["lines"])
 vr("lines", [], pid=get_parent_pid())
-vr("sizee", term.detect_size())
+vr("sizee", term.detect_size(3))
 for pv[get_pid()]["i"] in vr("l"):
     vr("rem", vr("i"))
     if vr("rem") != "":

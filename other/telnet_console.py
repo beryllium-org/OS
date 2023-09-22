@@ -117,17 +117,15 @@ class telnet_console:  # The actual class you need to use
         The internal transmit function.
         Clears the tx bytearray.
         """
-        while len(self._tx_buf) > 32:  # Bulk
+        sent = 0
+        while sent != len(self._tx_buf):  # Bulk
             try:
-                self._conn.send(memoryview(self._tx_buf)[:32])
+                sent += self._conn.send(memoryview(self._tx_buf)[sent:])
+            except OSError:  # EAGAIN for some reason.
+                pass
             except BrokenPipeError:
                 self.disconnect()
-            self._tx_buf = memoryview(self._tx_buf)[32:]
-        if len(self._tx_buf):  # regular
-            try:
-                self._conn.send(self._tx_buf)
-            except BrokenPipeError:
-                self.disconnect()
+                break
         self._tx_buf = bytearray()
 
     def disconnect(self) -> None:
