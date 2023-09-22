@@ -4,3 +4,4 @@ source/build_*
 *.pyc
 *.xml
 *.iml
+.directory

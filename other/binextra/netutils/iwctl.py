@@ -337,7 +337,7 @@ else:
                                 vr("best_index", vr("stored_networks").index(vr("i")))
                             else:  # We already have a network we can use
                                 vr(
-                                    "cind", stored_networks.index(vr("i"))
+                                    "cind", vr("stored_networks").index(vr("i"))
                                 )  # To test if it's better
                                 if vr("best_index") > vr("cind"):
                                     # It's a better network

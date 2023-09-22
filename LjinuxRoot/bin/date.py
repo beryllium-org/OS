@@ -24,7 +24,7 @@ try:
     else:
         raise IndexError
 except IndexError:
-    pv[get_pid()]["tt"] = time.localtime()
+    vr("tt", time.localtime())
     vr(
         "dat",
         [

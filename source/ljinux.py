@@ -224,7 +224,7 @@ try:
     import busio
     from microcontroller import cpu
     from storage import remount, VfsFat, mount, getmount
-    from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove, sync
+    from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove, sync, stat
     from math import trunc
     import time
 
@@ -466,6 +466,7 @@ dmtex("Load complete")
 
 class ljinux:
     modules = {}
+    devices = {}
 
     def deinit_consoles() -> None:
         for i in vr("consoles", pid=0).keys():
@@ -693,31 +694,21 @@ class ljinux:
             """
             res = 2
 
-            bckdir = getcwd()
             while dirr.endswith("/") and (dirr != "/"):
                 dirr = dirr[:-1]
-            if rdir is None:
-                if "/" in dirr and dirr not in ["/", "&/"]:
-                    rdir = dirr[: dirr.rfind("/")]
-                    if not len(rdir):
-                        rdir = "/"
-                    dirr = dirr[dirr.rfind("/") + 1 :]
-                    cddd = ljinux.api.betterpath(rdir)
-                else:
-                    cddd = bckdir
-            else:
-                cddd = ljinux.api.betterpath(rdir)
-            dirr = ljinux.api.betterpath(dirr)
-            chdir(cddd)  # We assume ref dir exists
+            olddir = getcwd()
+            if rdir is not None:
+                chdir(ljinux.api.betterpath(rdir))
+            del rdir
             try:
-                chdir(dirr)
-                chdir(bckdir)
-                res = 1  # It's a dir
-            except OSError:  # we are still in cddd
-                if dirr in listdir():
+                if stat(ljinux.api.betterpath(dirr))[0] == 32768:
                     res = 0
-            chdir(bckdir)
-            del cddd, rdir, dirr, bckdir
+                else:
+                    res = 1
+            except OSError:
+                pass
+            chdir(olddir)
+            del olddir
             return res
 
         def betterpath(back=None):
