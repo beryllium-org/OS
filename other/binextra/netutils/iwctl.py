@@ -117,10 +117,10 @@ if vr("argl") is 0:
                                 + " " * (13 - len(vr("secl")[vr("i")]))
                                 + vr("ranl")[vr("i")]
                             )
-                    elif datal > 3 and data[2] == "connect":
+                    elif vr("datal") > 3 and vr("data")[2] == "connect":
                         dmtex(f"Wifi: Scanning")
                         vr("networks", ljinux.modules["network"].scan())
-                        if vr("data")[3] in networks:
+                        if vr("data")[3] in vr("networks"):
                             vr("res", 1)
                             ljinux.io.ledset(1)
                             if vr("networks")[vr("data")[3]][0] != "OPEN":
@@ -128,7 +128,7 @@ if vr("argl") is 0:
                                     "passwd",
                                     cptoml.fetch(vr("data")[3], subtable="IWD"),
                                 )
-                                if vr("passwd") is not None:
+                                if vr("passwd") is None:
                                     try:
                                         vr(
                                             "passwd",
