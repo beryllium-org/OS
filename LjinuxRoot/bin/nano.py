@@ -8,7 +8,7 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
     vr("exists", 2)
     vr("weltxt", "[ Welcome to nano.  For basic help, type Ctrl+G. ]")
 
-    vr("versionn", "1.8.1")
+    vr("versionn", "1.8.2")
 
     try:
         vr("filee", ljinux.based.user_vars["argj"].split()[1])
@@ -19,12 +19,12 @@ if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
         vr("exists", ljinux.api.isdir(vr("filee")))
 
     if vr("exists") == 1:  # it is dir
-        vr("filee", None)
-        vr("exists", 2)
         vr(
             "weltxt",
             "[ {} is a directory ]".format(vr("filee")[vr("filee").rfind("/") + 1 :]),
         )
+        vr("filee", None)
+        vr("exists", 2)
 
     vr("dataa", [""])
     vr("lc", 0)  # line count
