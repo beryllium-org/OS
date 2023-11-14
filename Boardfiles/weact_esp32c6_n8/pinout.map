@@ -1,0 +1,32 @@
+                                                                           ,------------.
+                                                                           |-, .-, .--- |
+                                                                           ||`-' `-' || |
+                                                             [   3V3  ] |o =  ESPRESSIF = o| [  GND   ]
+                                                             [   RST  ] |o = ESP32-C6   = o| [ GPIO16 |   U0TXD    ]
+[ SDIO | FSPIHD  | ADC1_CH4 | LP_UART_RXD  | LP_GPIO4 | MTMS | GPIO04 ] |o =    WROOM-1 = o| [ GPIO17 |   U0RXD    ]
+[ SDIO | FSPIWP  | ADC1_CH5 | LP_UART_TXD  | LP_GPIO5 | MTDI | GPIO05 ] |o =            = o| [ GPIO15 |    JTAG    ]
+       [ FSPICLK | ADC1_CH6 |  LP_I2C_SDA  | LP_GPIO6 | MTCK | GPIO06 ] |o =            = o| [ GPIO23 | SDIO_DATA3 ]
+       [  FSPID  |          |  LP_I2C_SCL  | LP_GPIO7 | MTDO | GPIO07 ] |o =            = o| [ GPIO22 | SDIO_DATA2 ]
+[   XTAL_32K_P   | ADC1_CH0 | LP_UART_DTRN | LP_GPIO0 |      | GPIO00 ] |o = P1N8       = o| [ GPIO21 | SDIO_DATA1 ]
+[   XTAL_32K_N   | ADC1_CH1 | LP_UART_DSRN | LP_GPIO1 |      | GPIO01 ] |o  ||||||||||||  o| [ GPIO20 | SDIO_DATA0 ]
+[    RGB LED     |   ROM    |     BOOT     |          |      | GPIO08 ] |o\         PWR   o| [ GPIO19 |  SDIO_CLK  ]
+                                                             [ GPIO10 ] |o `> RGB         o| [ GPIO18 |  SDIO_CMD  ]
+                                                             [ GPIO11 ] |o     ,----.     o| [ GPIO09 |    BOOT    ]
+[      |  FSPIQ  | ADC1_CH2 | LP_UART_RTSN | LP_GPIO2 |      | GPIO02 ] |o     |R  G|     o| [  GND   ]
+                 [ ADC1_CH3 | LP_UART_CTSN | LP_GPIO3 |      | GPIO03 ] |o     | B  |     o| [ GPIO13 |   USB_D+   ]
+                                                             [    5V  ] |o     '----'     o| [ GPIO12 |   USB_D-   ]
+                                                             [   GND  ] |o  =[ ]=  =[ ]=  o| [  GND   ]
+                                                                        |o  RESET  BOOT   o|
+                                                                        |   USB     UART   |
+                                                                        |  ,---.    ,---.  |
+                                                                        `__|   |____|   |__'
+                                                                           '   '    `   '
+
+
+WeAct ESP32-C6N8
+
+SoC                : ESP32-C6
+RAM                : 512KB
+Storage            : QIO (8MB)
+Wi-fi              : True
+Bluetooth          : True
