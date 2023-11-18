@@ -23,7 +23,7 @@ Table of Contents
 
 ## Prerequisites and optional hardware
 
-Runs on circuitpython <code>8.1.X</code> and <code>8.2.X</code>.<br />
+Runs on circuitpython <code>8.1.X</code>, <code>8.2.X</code> and <code>9.0.0-alpha-X</code>.<br />
 At the moment the supported boards are:<br />
 
  - Raspberry Pi Pico<br />
@@ -40,6 +40,7 @@ At the moment the supported boards are:<br />
  - DFRobot Beetle ESP32-C3<br />
  - M5Stack Timer Camera X<br />
  - WeAct ESP32-C6<br />
+ - Firebeetle 2 ESP32-S3<br />
 
 But it can probably run on many more.<br />
 <br />
