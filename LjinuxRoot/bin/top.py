@@ -52,11 +52,24 @@ term.write(
     )
 )
 
+vr("ramt", gc.mem_alloc() + gc.mem_free())
+
+try:
+    import espidf
+
+    vr("idftotal", espidf.heap_caps_get_total_size())
+    if vr("idftotal") > vr("ramt"):
+        vr("ramt", vr("idftotal"))
+    vrd("idftotal")
+    del espidf
+except ImportError:
+    pass
+
 term.write(
     "KiB Mem: {} total, {} free, {} used, {} buff/cache\n".format(
-        round((gc.mem_alloc() + gc.mem_free()) / 1024, 1),
+        round(vr("ramt") / 1024, 1),
         round(gc.mem_free() / 1024, 1),
-        round(gc.mem_alloc() / 1024, 1),
+        round((vr("ramt") - gc.mem_free()) / 1024, 1),
         0.0,
     )
 )

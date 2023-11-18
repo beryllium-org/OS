@@ -2,15 +2,13 @@ rename_process("neofetch")
 
 vr("ramt", gc.mem_alloc() + gc.mem_free())
 
-vr("ramidf", 0)
-
 try:
     import espidf
 
-    vr("total", espidf.heap_caps_get_total_size())
-    vrp("ramidf", vr("total") - espidf.heap_caps_get_free_size())
-    if vr("total") > vr("ramt"):
-        vr("ramt", vr("total"))
+    vr("idftotal", espidf.heap_caps_get_total_size())
+    if vr("idftotal") > vr("ramt"):
+        vr("ramt", vr("idftotal"))
+    vrd("idftotal")
     del espidf
 except ImportError:
     pass
