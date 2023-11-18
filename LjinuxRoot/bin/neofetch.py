@@ -1,5 +1,20 @@
 rename_process("neofetch")
 
+vr("ramt", gc.mem_alloc() + gc.mem_free())
+
+vr("ramidf", 0)
+
+try:
+    import espidf
+
+    vr("total", espidf.heap_caps_get_total_size())
+    vrp("ramidf", vr("total") - espidf.heap_caps_get_free_size())
+    if vr("total") > vr("ramt"):
+        vr("ramt", vr("total"))
+    del espidf
+except ImportError:
+    pass
+
 gc.collect()
 gc.collect()
 gc.collect()
@@ -8,8 +23,8 @@ gc.collect()
 vr(
     "raml",
     "{}KiB / {}KiB".format(
-        trunc((gc.mem_alloc() + gc.mem_free() - gc.mem_free()) / 1024),
-        int((gc.mem_alloc() + gc.mem_free()) / 1024),
+        trunc((vr("ramt") - gc.mem_free()) / 1024),
+        int(vr("ramt") / 1024),
     ),
 )
 
@@ -103,21 +118,6 @@ vr(
         "{}System Memory{}: {}".format(colors.red_t, colors.endc, vr("raml")),
     ],
 )
-
-try:
-    import espidf
-
-    vr("total", espidf.heap_caps_get_total_size())
-    vr("used", vr("total") - espidf.heap_caps_get_free_size())
-    vr(
-        "erram",
-        "{}KiB".format(trunc((vr("used")) / 1024)),
-    )
-    vrp("tex", ["\033[31mESPIDF Memory{}: {}".format(colors.endc, vr("erram"))])
-
-    del espidf
-except ImportError:
-    pass
 
 vrp(
     "tex",
