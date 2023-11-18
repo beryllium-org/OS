@@ -110,7 +110,6 @@ vr(
         "{}Resolution:{} {}x{}".format(
             colors.red_t, colors.endc, vr("size")[1], vr("size")[0]
         ),
-        f"{colors.red_t}WM{colors.endc}: Farland",
         "{}Terminal{}: {}".format(colors.red_t, colors.endc, pv[0]["console_active"]),
         "{}CPU{}: {}".format(colors.red_t, colors.endc, vr("cpul")),
         "{}System Memory{}: {}".format(colors.red_t, colors.endc, vr("raml")),
