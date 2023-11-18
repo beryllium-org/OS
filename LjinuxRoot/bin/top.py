@@ -54,7 +54,7 @@ term.write(
 
 term.write(
     "KiB Mem: {} total, {} free, {} used, {} buff/cache\n".format(
-        round(pv[0]["usable_ram"] / 1024, 1),
+        round((gc.mem_alloc() + gc.mem_free()) / 1024, 1),
         round(gc.mem_free() / 1024, 1),
         round(gc.mem_alloc() / 1024, 1),
         0.0,

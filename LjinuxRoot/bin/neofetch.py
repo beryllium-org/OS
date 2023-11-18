@@ -8,8 +8,8 @@ gc.collect()
 vr(
     "raml",
     "{}KiB / {}KiB".format(
-        trunc((pv[0]["usable_ram"] - gc.mem_free()) / 1024),
-        int(pv[0]["usable_ram"] / 1024),
+        trunc((gc.mem_alloc() + gc.mem_free() - gc.mem_free()) / 1024),
+        int((gc.mem_alloc() + gc.mem_free()) / 1024),
     ),
 )
 
@@ -111,7 +111,7 @@ try:
     vr("used", vr("total") - espidf.heap_caps_get_free_size())
     vr(
         "erram",
-        "{}KiB / {}KiB".format(trunc((vr("used")) / 1024), trunc((vr("total")) / 1024)),
+        "{}KiB".format(trunc((vr("used")) / 1024)),
     )
     vrp("tex", ["\033[31mESPIDF Memory{}: {}".format(colors.endc, vr("erram"))])
 

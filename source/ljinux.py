@@ -214,7 +214,6 @@ try:
     import gc
 
     gc.enable()
-    vr("usable_ram", gc.mem_alloc() + gc.mem_free())
 
     import board
     import digitalio
@@ -429,7 +428,7 @@ del ldd, defaultoptions
 gc.collect()
 gc.collect()
 
-dmtex(f"Board memory: " + str(vr("usable_ram")) + " bytes")
+dmtex(f"Board memory: " + str(gc.mem_alloc() + gc.mem_free()) + " bytes")
 dmtex(f"Memory free: " + str(gc.mem_free()) + " bytes")
 dmtex("Basic checks done")
 
