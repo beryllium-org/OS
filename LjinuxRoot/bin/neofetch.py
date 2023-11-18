@@ -1,5 +1,18 @@
 rename_process("neofetch")
 
+vr("ramt", gc.mem_alloc() + gc.mem_free())
+
+try:
+    import espidf
+
+    vr("idftotal", espidf.heap_caps_get_total_size())
+    if vr("idftotal") > vr("ramt"):
+        vr("ramt", vr("idftotal"))
+    vrd("idftotal")
+    del espidf
+except ImportError:
+    pass
+
 gc.collect()
 gc.collect()
 gc.collect()
@@ -8,8 +21,8 @@ gc.collect()
 vr(
     "raml",
     "{}KiB / {}KiB".format(
-        trunc((pv[0]["usable_ram"] - gc.mem_free()) / 1024),
-        int(pv[0]["usable_ram"] / 1024),
+        trunc((vr("ramt") - gc.mem_free()) / 1024),
+        int(vr("ramt") / 1024),
     ),
 )
 
@@ -97,27 +110,11 @@ vr(
         "{}Resolution:{} {}x{}".format(
             colors.red_t, colors.endc, vr("size")[1], vr("size")[0]
         ),
-        f"{colors.red_t}WM{colors.endc}: Farland",
         "{}Terminal{}: {}".format(colors.red_t, colors.endc, pv[0]["console_active"]),
         "{}CPU{}: {}".format(colors.red_t, colors.endc, vr("cpul")),
         "{}System Memory{}: {}".format(colors.red_t, colors.endc, vr("raml")),
     ],
 )
-
-try:
-    import espidf
-
-    vr("total", espidf.heap_caps_get_total_size())
-    vr("used", vr("total") - espidf.heap_caps_get_free_size())
-    vr(
-        "erram",
-        "{}KiB / {}KiB".format(trunc((vr("used")) / 1024), trunc((vr("total")) / 1024)),
-    )
-    vrp("tex", ["\033[31mESPIDF Memory{}: {}".format(colors.endc, vr("erram"))])
-
-    del espidf
-except ImportError:
-    pass
 
 vrp(
     "tex",
