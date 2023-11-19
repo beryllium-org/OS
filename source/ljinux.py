@@ -1668,15 +1668,15 @@ class ljinux:
                     "idle": 20,
                 }
 
-            if "trigger_dict_bck" not in pv[get_pid()]:
-                vr("trigger_dict_bck", dict(term.trigger_dict))
-                # the dict() is needed to actually copy.
+            if "trigger_dict_bck" not in pv[get_pid()].keys():
+                vr("trigger_dict_bck", term.trigger_dict.copy())
+                # the dict() needs to be copied, not referenced.
                 pvd[get_pid()]["preserve"] = True
 
             command_input = None
             if not pv[0]["Exit"]:
                 if term.trigger_dict != vr("trigger_dict_bck"):
-                    term.trigger_dict = vr("trigger_dict_bck")
+                    term.trigger_dict = vr("trigger_dict_bck").copy()
                     # This can trigger for different prefix
 
                 while ((command_input == None) or (command_input == "\n")) and not pv[

@@ -1,5 +1,4 @@
-with open("/LjinuxRoot/etc/hostname", "r") as hs:
-    lines = hs.readlines()
-    ljinux.based.system_vars["HOSTNAME"] = lines[0][:-1]
-    del lines
-del hs
+rename_process("hostname-reload")
+with ljinux.api.fopen("/etc/hostname", "r") as pv[get_pid()]["hs"]:
+    vr("lines", vr("hs").readlines())
+    ljinux.based.system_vars["HOSTNAME"] = vr("lines")[0][:-1]

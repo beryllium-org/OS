@@ -1,0 +1,9 @@
+Usage: hostname [OPTION...] [NAME]
+Show or set the system's host name.
+
+  -h, --help                 give this help list
+  -V, --version              print program version
+
+To set a hostname, pass along the new hostname.
+Example:
+  hostname testing_board
