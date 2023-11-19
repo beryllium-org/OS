@@ -4,7 +4,7 @@ vr("opts", ljinux.api.xarg())
 if "help" in vr("opts")["o"] or "h" in vr("opts")["o"]:
     ljinux.based.run("cat /usr/share/help/hostname.txt")
 elif "version" in vr("opts")["o"] or "V" in vr("opts")["o"]:
-    term.write("0.0.2")
+    term.write("LNL Hostname 0.0.2")
 elif len(vr("opts")["w"]) > 0:
     ljinux.based.system_vars["HOSTNAME"] = vr("opts")["w"][0]
     with ljinux.api.fopen("/etc/hostname", "w") as pv[get_pid()]["hs"]:
