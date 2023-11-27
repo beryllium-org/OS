@@ -31,8 +31,7 @@ def pid_alloc(pr_name, owner, resume) -> int:
     pv[pid_seq] = {}
     pvd[pid_seq] = {}
     pvd[pid_seq]["name"] = pr_name
-    pvd[pid_seq]["preserve"] = resume
-    # If you asked to resume, you sure want a resumable task.
+    pvd[pid_seq]["preserve"] = resume  # resumable task.
     pvd[pid_seq]["owner"] = owner
     pvd[pid_seq]["status"] = 0  # 0 Active, 1 Sleep, 2 Zombie.
     pvn[pr_name] = pid_seq
@@ -171,7 +170,7 @@ def launch_process(pr_name, owner="Nobody", resume=False):
     del tmppid
 
 
-def rename_process(pr_name):
+def rename_process(pr_name) -> None:
     # Rename current process to target name.
     if pr_name != pvd[get_pid()]["name"]:
         pr_name_og = pr_name
@@ -291,7 +290,9 @@ except ImportError:
     exit(0)
 
 
-def dmtex(texx=None, end="\n", timing=True, force=False):
+def dmtex(
+    texx: str = None, end: str = "\n", timing: bool = True, force: bool = False
+) -> None:
     # Persistent offset, Print "end=" preserver
 
     # current time since ljinux start rounded to 5 digits
@@ -443,7 +444,7 @@ except ImportError:
 dmtex("Imports complete")
 
 
-def systemprints(mod, tx1, tx2=None):
+def systemprints(mod: int, tx1: str, tx2: str = None) -> None:
     dmtex(colors.white_t + "[ " + colors.endc, timing=False, end="")
 
     mods = {
@@ -476,7 +477,7 @@ class ljinux:
                 time.sleep(1.2)  # Time needed for a proper disconnection
 
     class api:
-        def remove_ansi(text):
+        def remove_ansi(text: str) -> str:
             result = ""
             i = 0
             while i < len(text):
@@ -490,7 +491,7 @@ class ljinux:
             del i, text
             return result
 
-        def getvar(var):
+        def getvar(var: str):
             """
             Get a ljinux user variable without mem leaks
             """
@@ -500,25 +501,24 @@ class ljinux:
                 return ljinux.based.system_vars[var]
             del var
 
-        def setvar(var, data=None, system=False):
+        def setvar(var: str, data=None, system: bool = False) -> None:
             """
             Set a ljinux user variable without mem leaks
             No handbreak installed.
             data=None deletes
             """
-            if not system:
-                if var in ljinux.based.user_vars.keys():
-                    del ljinux.based.user_vars[var]
-                if data is not None:
-                    ljinux.based.user_vars.update({var: data})
-            else:
+            if system:
                 if var in ljinux.based.system_vars.keys():
                     del ljinux.based.system_vars[var]
                 if data is not None:
                     ljinux.based.system_vars.update({var: data})
-            del var, data, system
+            else:
+                if var in ljinux.based.user_vars.keys():
+                    del ljinux.based.user_vars[var]
+                if data is not None:
+                    ljinux.based.user_vars.update({var: data})
 
-        def xarg(rinpt=None, fn=False):
+        def xarg(rinpt: str = None, fn: bool = False) -> dict:
             """
             Proper argument parsing for ljinux.
             Send your input stream to here and you will receive a dict in return
@@ -541,7 +541,6 @@ class ljinux:
                 rinpt = ljinux.based.user_vars["argj"]
 
             inpt = rinpt.split(" ")
-            del rinpt
 
             options = {}
             words = []
@@ -553,7 +552,6 @@ class ljinux:
             entry = None  # keyword
 
             r = 0 if fn else 1
-            del fn
 
             for i in range(r, len(inpt)):
                 if inpt[i].startswith("$"):  # variable
@@ -635,8 +633,6 @@ class ljinux:
                 # not gonna bother if s is True
                 options.update({entry: None})
 
-            del n, entry, s, temp_s
-
             argd = {
                 "w": words,
                 "hw": hidwords,
@@ -645,7 +641,6 @@ class ljinux:
 
             if r is 1:  # add the filename
                 argd.update({"n": inpt[0]})
-            del options, words, hidwords, inpt, r
             return argd
 
         class fopen(object):
@@ -686,7 +681,7 @@ class ljinux:
                     pass
                 del self.fn, self.mod
 
-        def isdir(dirr, rdir=None):
+        def isdir(dirr: str, rdir: str = None) -> int:
             """
             Checks if given item is file (returns 0) or directory (returns 1).
             Returns 2 if it doesn't exist.
@@ -698,7 +693,6 @@ class ljinux:
             olddir = getcwd()
             if rdir is not None:
                 chdir(ljinux.api.betterpath(rdir))
-            del rdir
             try:
                 if stat(ljinux.api.betterpath(dirr))[0] == 32768:
                     res = 0
@@ -707,10 +701,9 @@ class ljinux:
             except OSError:
                 pass
             chdir(olddir)
-            del olddir
             return res
 
-        def betterpath(back=None):
+        def betterpath(back: str = None) -> str:
             """
             Ljinux standard api path translation.
             Removes the need to account for /LjinuxRoot
@@ -786,7 +779,7 @@ class ljinux:
         nav = [0, 0, ""]
         sz = 50
 
-        def load(filen):
+        def load(filen: str) -> None:
             ljinux.history.historyy = []
             try:
                 with ljinux.api.fopen(filen, "r") as historyfile:
@@ -804,7 +797,7 @@ class ljinux:
                     ljinux.based.error(4, filen)
                 ljinux.io.ledset(1)  # idle
 
-        def appen(itemm):  # add to history, but don't save to file
+        def appen(itemm: str) -> None:  # add to history, but don't save to file
             if (
                 len(ljinux.history.historyy) > 0 and itemm != ljinux.history.gett(1)
             ) or len(ljinux.history.historyy) is 0:
@@ -817,14 +810,13 @@ class ljinux:
                         -(ljinux.history.sz - 1) :
                     ] + [itemm]
 
-        def shift(itemm):
+        def shift(itemm: str) -> None:
             ljinux.history.historyy.reverse()
             ljinux.history.historyy.pop()
             ljinux.history.historyy.reverse()
             ljinux.history.historyy.append(itemm)
-            del itemm
 
-        def save(filen):
+        def save(filen: str) -> None:
             try:
                 with ljinux.api.fopen(filen, "w") as historyfile:
                     if historyfile is None:
@@ -834,7 +826,7 @@ class ljinux:
             except (OSError, RuntimeError):
                 ljinux.based.error(7, filen)
 
-        def clear(filen):
+        def clear(filen: str) -> None:
             try:
                 # deletes all history, from ram and storage
                 a = ljinux.api.fopen(filen, "r")
@@ -848,13 +840,15 @@ class ljinux:
             except (OSError, RuntimeError):
                 ljinux.based.error(4, filen)
 
-        def gett(whichh):  # get a specific history item, from loaded history
+        def gett(
+            whichh: str,
+        ) -> str:  # get a specific history item, from loaded history
             obj = len(ljinux.history.historyy) - whichh
             if obj < 0:
                 raise IndexError
             return str(ljinux.history.historyy[obj])
 
-        def getall():  # get the whole history, numbered, line by line
+        def getall() -> None:  # write the whole history, numbered, line by line
             for index, item in enumerate(ljinux.history.historyy):
                 term.write(f"{index + 1}: {item}")
                 del index, item
@@ -904,7 +898,7 @@ class ljinux:
             ledg.value = defstate
             ledb.value = defstate
 
-        def ledset(state):
+        def ledset(state: int) -> None:
             """
             Set the led to a state.
             state can be int with one of the predifined states,
@@ -927,10 +921,8 @@ class ljinux:
                         if ljinux.io.defstate
                         else (not cl[1], not cl[0], not cl[2])
                     )
-                    del cl
 
                 ljinux.io.getled = state
-                del state
             elif isinstance(state, tuple):
                 # a custom color
                 if ljinux.io.ledtype.startswith("generic"):
@@ -938,11 +930,9 @@ class ljinux:
                     if sum(state) is 0:
                         inv = not inv
                     ljinux.io.led.value = inv
-                    del inv
                 elif ljinux.io.ledtype.startswith("neopixel"):
                     swapped_state = (state[1], state[0], state[2])
                     neopixel_write(ljinux.io.led, bytearray(swapped_state))
-                    del swapped_state
                 elif ljinux.io.ledtype.startswith("rgb"):
                     ljinux.io.led.value, ljinux.io.ledg.value, ljinux.io.ledb.value = (
                         (state[0], state[1], state[2])
@@ -951,13 +941,10 @@ class ljinux:
                     )
 
                 ljinux.io.getled = state
-                del state
             else:
-                del state
                 raise TypeError("Invalid led state value")
 
-        def get_static_file(filename, m="rb"):
-            "Static file generator"
+        def get_static_file(filename: str, m: str = "rb"):
             try:
                 with open(filename, m) as f:
                     b = None
@@ -967,7 +954,7 @@ class ljinux:
             except OSError:
                 yield f"Error: File '{filename}' Not Found"
 
-        def start_sdcard():
+        def start_sdcard() -> None:
             root_SCLK = cptoml.fetch("root_SCLK", "LJINUX")
             root_SCSn = cptoml.fetch("root_SCSn", "LJINUX")
             root_MISO = cptoml.fetch("root_MISO", "LJINUX")
@@ -987,20 +974,15 @@ class ljinux:
                 dmtex("TF card bus ready")
                 try:
                     sdcard = adafruit_sdcard.SDCard(spi, cs)
-                    del spi
-                    del cs
                     vfs = VfsFat(sdcard)
                     dmtex("TF card mount attempted")
                     mount(vfs, "/LjinuxRoot")
-                    del sdcard, vfs
                     vr("sdcard_fs", True, 0)
                 except NameError:
                     dmtex("adafruit_sdcard library not present, aborting.")
-                    del root_SCLK, root_SCSn, root_MISO, root_MOSI
             else:
                 vr("sdcard_fs", False, 0)
                 dmtex("No pins for TF card, skipping setup")
-                del root_SCLK, root_SCSn, root_MISO, root_MOSI
 
         sys_getters = {
             "sdcard": lambda: str(vr("sdcard_fs", pid0)),
@@ -1045,7 +1027,7 @@ class ljinux:
         }
         del uname
 
-        def get_internal():
+        def get_internal() -> list:
             intlist = dir(ljinux.based.command)
             intlist.remove("__module__")
             intlist.remove("__qualname__")
@@ -1054,10 +1036,9 @@ class ljinux:
             for item in intlist:
                 if item.startswith("_"):
                     intlist.remove(item)
-                del item
             return intlist
 
-        def get_bins():
+        def get_bins() -> list:
             try:
                 return [
                     dirr[:-4]
@@ -1118,12 +1099,9 @@ class ljinux:
                 + f"Process Owner: {ownd}\n"
                 + "\nError Details:"
             )
-            del namee, pid, ownd
             erl = format_exception(err)
             for i in erl:
                 term.write(i)
-                del i
-            del erl
             term.write(
                 "Please take note of the above information and report it"
                 + " to your system administrator for further assistance.\n"
@@ -1134,11 +1112,10 @@ class ljinux:
                 ljinux.based.olddir is not None
             ) and ljinux.based.olddir != getcwd():
                 chdir(ljinux.based.olddir)
-            del err
             gc.collect()
             gc.collect()
 
-        def autorun():
+        def autorun() -> int:
             launch_process("autorun")
             ljinux.io.ledset(3)  # act
 
@@ -1215,7 +1192,7 @@ class ljinux:
             return pv[0]["Exit_code"]
 
         class command:
-            def exec(inpt):
+            def exec(inpt: str) -> None:
                 vr("inpt", inpt.split(" "))
 
                 if vr("inpt")[0] == "exec":
@@ -1225,7 +1202,6 @@ class ljinux:
                         for linee in filee:
                             linee = linee.strip()
                             ljinux.based.run(linee)
-                            del linee
                     if (
                         ljinux.based.olddir is not None
                     ) and ljinux.based.olddir != getcwd():
@@ -1233,8 +1209,7 @@ class ljinux:
                 except OSError:
                     ljinux.based.error(4, vr("inpt")[0])
 
-            def help(inpt):
-                del inpt
+            def help(inpt: str) -> None:
                 term.write(
                     f"LNL {colors.magenta_t}based{colors.endc}\nThese shell commands are defined internally or are in PATH.\nType 'help' to see this list.\n{colors.green_t}"
                 )
@@ -1247,8 +1222,6 @@ class ljinux:
                         l.append(i)
                         if len(i) > lenn:
                             lenn = len(i)
-                    del i
-                del lt
                 lenn += 2
                 l.sort()
 
@@ -1256,13 +1229,9 @@ class ljinux:
                     term.write(tool, end=(" " * lenn).replace(" ", "", len(tool)))
                     if index % 4 == 3:
                         term.write()
-                    del index, tool
                 term.write(colors.endc)
 
-                del l
-                del lenn
-
-            def var(inpt):  # variables setter / editor
+            def var(inpt: str):  # variables setter / editor
                 valid = True
                 inpt = inpt.split(" ")
                 if inpt[0] == "var":  # check if the var is passed and trim it
@@ -1285,7 +1254,6 @@ class ljinux:
                         or inpt[2] in vr("gpio_alloc", pid=0)
                     ):
                         valid = False
-                        del chh
                     if valid:  # if the basic checks are done we can procceed to work
                         new_var = ""
                         if inpt[2].startswith('"'):
@@ -1296,7 +1264,6 @@ class ljinux:
                                 new_var += str(inpt[2])[1:] + " "
                                 for i in range(3, countt - 1):
                                     new_var += inpt[i] + " "
-                                    del i
                                 new_var += str(inpt[countt - 1])[:-1]
                             else:
                                 ljinux.based.error(1)
@@ -1326,7 +1293,6 @@ class ljinux:
                                     pin_alloc.add(gpp)
                                 else:
                                     ljinux.based.error(12)
-                            del gpp
                             valid = False  # skip the next stuff
 
                         elif inpt[0] in vr("gpio_alloc", pid=0):
@@ -1384,9 +1350,9 @@ class ljinux:
                 except IndexError:
                     ljinux.based.error(1)
 
-            def unset(inpt):  # del variables
+            def unset(inpt: str) -> None:  # del variables
                 inpt = inpt.split(" ")
-                try:
+                if len(inpt):
                     a = inpt[0]
                     if (
                         a == ljinux.api.adv_input(a, str)
@@ -1411,8 +1377,7 @@ class ljinux:
                             del ljinux.based.user_vars[a]
                         else:
                             raise IndexError
-                    del a
-                except IndexError:
+                else:
                     ljinux.based.error(1)
 
             def history(inpt):  # history frontend
@@ -1433,8 +1398,7 @@ class ljinux:
             def pexec(inpt):  # Python exec
                 launch_process("pexec")
                 try:
-                    # term.write(f"Data: |{inpt}|")
-                    exec(inpt)  # Vulnerability.exe
+                    exec(inpt)
                 except KeyboardInterrupt:
                     term.write("^C")
                     if (  # Restore dir
@@ -1454,7 +1418,6 @@ class ljinux:
                 offs = 0
                 if inpt[0] == "fpexec":
                     offs += 1
-
                 try:
                     while inpt[offs].startswith("-"):
                         fpargs += list(inpt[offs][1:])
@@ -1466,15 +1429,18 @@ class ljinux:
 
                 launch_process(ljinux.api.betterpath(inpt[offs]))
                 try:
-                    a = open(ljinux.api.betterpath(inpt[offs])).read()
-                    gc.collect()
-                    if not ("t" in fpargs or "l" in fpargs):
-                        exec(a)
-                    elif "i" in fpargs:
-                        exec(a, {}, {})
-                    elif "l" in fpargs:
-                        exec(a, locals())
-                    del a
+                    with ljinux.api.fopen(inpt[offs]) as f:
+                        if f is None:
+                            raise OSError
+                        prog_data = f.read()
+                        gc.collect()
+                        if not ("t" in fpargs or "l" in fpargs):
+                            exec(prog_data)
+                        elif "i" in fpargs:
+                            exec(prog_data, {}, {})
+                        elif "l" in fpargs:
+                            exec(prog_data, locals())
+                        del prog_data
                 except KeyboardInterrupt:
                     term.hold_stdout = False
                     term.write("^C")
@@ -1489,7 +1455,7 @@ class ljinux:
                 end_process()
                 del offs, fpargs
 
-            def terminal(inpt):  # Manage active terminal
+            def terminal(inpt: str) -> None:  # Manage active terminal
                 opts = inpt.split(" ")
                 if "--help" in opts or "-h" in opts or (not len(opts)) or opts[0] == "":
                     term.write("Usage: terminal [get/list/activate] [ttyXXXX]")
@@ -1513,9 +1479,8 @@ class ljinux:
                         term.write(
                             "Unknown option specified, try running `terminal --help`"
                         )
-                del opts
 
-        def parse_pipes(inpt):
+        def parse_pipes(inpt: str):
             # This is a pipe
             p_and = "&&" in inpt
             p_to = "|" in inpt
@@ -1553,10 +1518,9 @@ class ljinux:
                 silencelist.append(False)
                 comlist.append(inpt)
 
-            del p_and, p_to, comindex, inpt
             return comlist, silencelist
 
-        def run(executable, argv=None):
+        def run(executable, argv=None) -> None:
             # runs any single command
 
             ledmine = False  # ownership of led
@@ -1640,7 +1604,7 @@ class ljinux:
             del inbins, inints, executable, argv, ledmine, oldled
             gc.collect()
 
-        def shell(led=True, nalias=False):
+        def shell(led: bool = True, nalias: bool = False) -> int:
             # The interactive main shell
 
             launch_process("based", resume=True)  # Preserve shell data.
@@ -1668,16 +1632,24 @@ class ljinux:
                     "idle": 20,
                 }
 
-            if "trigger_dict_bck" not in pv[get_pid()].keys():
+            if "trigger_dict_bck" not in pv[get_pid()].keys():  # First run
+                # Backup jcurses key config in case apps modify it.
                 vr("trigger_dict_bck", term.trigger_dict.copy())
-                # the dict() needs to be copied, not referenced.
-                pvd[get_pid()]["preserve"] = True
+                pvd[get_pid()]["preserve"] = True  # Do not wipe process storage
+
+            if (
+                "based_hist" in pv[get_pid()].keys()
+                and vr("based_hist_sz") != ljinux.history.historyy
+            ):
+                ljinux.history.sz = vr("based_hist_sz")
+                ljinux.history.historyy = vr("based_hist").copy()
+            ljinux.history.nav = [0, 0, ""]
 
             command_input = None
             if not pv[0]["Exit"]:
                 if term.trigger_dict != vr("trigger_dict_bck"):
+                    # Restore jcurses key config
                     term.trigger_dict = vr("trigger_dict_bck").copy()
-                    # This can trigger for different prefix
 
                 while ((command_input == None) or (command_input == "\n")) and not pv[
                     0
@@ -1701,7 +1673,9 @@ class ljinux:
                         + "> "
                         + colors.endc
                     )
-
+                    if term.trigger_dict != vr("trigger_dict_bck"):
+                        # Update backup
+                        vr("trigger_dict_bck", term.trigger_dict.copy())
                     command_input = None
                     while (command_input in [None, ""]) and not pv[0]["Exit"]:
                         term.program()
@@ -1906,6 +1880,10 @@ class ljinux:
                                 command_input = command_input[1:]
                         else:
                             ljinux.history.appen(command_input.strip())
+
+                        # Backup history
+                        vr("based_hist", ljinux.history.historyy.copy())
+                        vr("based_hist_sz", ljinux.history.sz)
 
                         # Output to file
                         p_write = ">" in command_input
