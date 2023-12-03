@@ -289,6 +289,18 @@ except ImportError:
     print("FATAL: FAILED TO INIT JCURSES")
     exit(0)
 
+global crun
+try:
+    from builtins import compile
+
+    def crun(code: str) -> None:
+        exec(compile(code, "", "exec"))
+
+except ImportError:
+
+    def crun(code: str) -> None:
+        exec(code)
+
 
 def dmtex(
     texx: str = None, end: str = "\n", timing: bool = True, force: bool = False
@@ -1398,7 +1410,7 @@ class ljinux:
             def pexec(inpt):  # Python exec
                 launch_process("pexec")
                 try:
-                    exec(inpt)
+                    crun(inpt)
                 except KeyboardInterrupt:
                     term.write("^C")
                     if (  # Restore dir
@@ -1435,7 +1447,7 @@ class ljinux:
                         prog_data = f.read()
                         gc.collect()
                         if not ("t" in fpargs or "l" in fpargs):
-                            exec(prog_data)
+                            crun(prog_data)
                         elif "i" in fpargs:
                             exec(prog_data, {}, {})
                         elif "l" in fpargs:
