@@ -27,9 +27,9 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected:
                     while not term.is_interrupted():
                         ljinux.io.ledset(3)
                         vrp("done")
-                        vr("a", float(ljinux.modules["network"].ping(vr("domain"))))
+                        vr("a", ljinux.modules["network"].ping(vr("domain")))
                         if vr("a") is not None:
-                            vra("timetab", vr("a"))
+                            vra("timetab", float(vr("a")))
                             vrp("good")
                             term.write(
                                 "PING from {}: icmp_seq={} time={} ms".format(
