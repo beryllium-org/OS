@@ -3,7 +3,6 @@ import wifi
 from socketpool import SocketPool
 from ssl import create_default_context
 from adafruit_requests import Session
-from gc import collect
 
 
 class driver_wifi:
@@ -31,10 +30,10 @@ class driver_wifi:
             self._session = Session(self._pool, create_default_context())
 
     @property
-    def connected(self):
+    def connected(self) -> bool:
         return wifi.radio.connected or wifi.radio.ap_active
 
-    def connect(self, ssid, passwd=None, retries=3):
+    def connect(self, ssid, passwd=None, retries=3) -> bool:
         """
         Connect to a wifi access point
         """
@@ -55,39 +54,40 @@ class driver_wifi:
                 fails += 1
         if fails is retries:
             self.disconnect()
-            return 1
-        del fails, ssid, passwd
+            return False
         self._pool = SocketPool(wifi.radio)
         self._session = Session(self._pool, create_default_context())
-        return 0
+        return True
 
-    def connect_ap(self, ssid, passwd=None):
+    def connect_ap(self, ssid, passwd=None) -> bool:
         """
         Create an AP.
         """
 
         self.disconnect()
-        if passwd is not None:
-            wifi.radio.start_ap(ssid=ssid, password=passwd)
-        else:
-            wifi.radio.start_ap(ssid=ssid)
-        del ssid, passwd
+        try:
+            if passwd is not None:
+                wifi.radio.start_ap(ssid=ssid, password=passwd)
+            else:
+                wifi.radio.start_ap(ssid=ssid)
+        except:
+            return False
         self._pool = SocketPool(wifi.radio)
         self._session = Session(self._pool, create_default_context())
-        return 0
+        return True
 
-    def hostname(self, name=None):
+    def hostname(self, name=None) -> str:
         if name is not None:
             wifi.radio.hostname = name
         return wifi.radio.hostname
 
-    def ping(self, host):
+    def ping(self, host=str):
         """
         ICMP Ping
         """
         return wifi.radio.ping(self.resolve(host))
 
-    def get(self, host):
+    def get(self, host: str):
         """
         HTTP Get
         """
@@ -99,7 +99,7 @@ class driver_wifi:
         else:
             return None
 
-    def resolve(self, host):
+    def resolve(self, host: str):
         """
         Resolve ip string, to something usable
         No domain resolves just yet
@@ -113,12 +113,12 @@ class driver_wifi:
         except OSError:
             raise ConnectionError
 
-    def scan(self):
+    def scan(self) -> dict:
         """
         scan and store all nearby networks
         """
         if wifi.radio.enabled:
-            net = dict()
+            net = {}
             for network in wifi.radio.start_scanning_networks():
                 sec = None
                 if len(network.authmode) is 3:
@@ -133,7 +133,7 @@ class driver_wifi:
 
         return list()
 
-    def get_ipconf(self):
+    def get_ipconf(self) -> dict:
         """
         A getter for all of the wifi data
         iwconfig will need this
@@ -176,10 +176,10 @@ class driver_wifi:
 
         return data
 
-    def reset(self):
+    def reset(self) -> None:
         self.disconnect()
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         """
         Disconnect from the wifi
         """
@@ -196,8 +196,6 @@ class driver_wifi:
         from time import sleep
 
         sleep(0.5)
-        del sleep
-        collect()
 
         try:
             wifi.radio.enabled = True
@@ -208,7 +206,7 @@ class driver_wifi:
         self._pool = None
         self._session = None
 
-    def start(self):
+    def start(self) -> None:
         """
         Power on the wifi
         """
@@ -218,7 +216,7 @@ class driver_wifi:
             pass
         self.disconnect()
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Stop all wifi transactions
         Disconnect
@@ -230,7 +228,7 @@ class driver_wifi:
         except:
             pass
 
-    def timeset(self, tz=3):
+    def timeset(self, tz=None) -> bool:
         """
         Fetch network time and set it into the current rtc object
         set timezone by passing a tz
@@ -239,24 +237,39 @@ class driver_wifi:
         from rtc import RTC
         from time import struct_time
 
-        self._tz = tz
+        if tz is None:
+            if self.connected:
+                try:
+                    utc_offset = self.get("https://worldtimeapi.org/api/ip").json()[
+                        "utc_offset"
+                    ]
+                    negative = utc_offset[0] != "+"
+                    tz = int(utc_offset[1:3])
+                    if negative:
+                        tz = -tz
+                    self.resetsock()
+                except:
+                    return False
+            else:
+                return False
+
+        if tz != self._tz:
+            self._tz = tz
 
         if self.connected:
             if self._ntp is None:
-                self._ntp = NTP(self._pool, tz_offset=tz)
-            else:
-                pass
+                try:
+                    self._ntp = NTP(self._pool, tz_offset=self._tz)
+                except:
+                    return False
             RTC().datetime = self._ntp.datetime
-        del NTP, RTC, struct_time
-        collect()
-        collect()
+            return True
+        return False
 
-    def resetsock(self):
+    def resetsock(self) -> None:
         del self._session
-        collect()
-        collect()
         self._session = Session(self._pool, create_default_context())
 
-    def enter(self, args=None):
+    def enter(self, args=None) -> int:
         print("This driver holds no executable")
         return 0

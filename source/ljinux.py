@@ -20,11 +20,10 @@ class Unset:  # None 2.0
 
 # Backend functions
 def pid_alloc(pr_name, owner, resume) -> int:
-    # Allocate a pid and variable storage for that process
+    # Allocate a pid and variable storage for that process.
     global pid_seq, pid_act
     if resume and pr_name in pvn:
         res = pvn[pr_name]
-        del resume, pr_name
         return res
     # Fall through otherwise
     pid_seq += 1
@@ -35,7 +34,6 @@ def pid_alloc(pr_name, owner, resume) -> int:
     pvd[pid_seq]["owner"] = owner
     pvd[pid_seq]["status"] = 0  # 0 Active, 1 Sleep, 2 Zombie.
     pvn[pr_name] = pid_seq
-    del resume, pr_name, owner
     return pid_seq
 
 
@@ -51,7 +49,6 @@ def pid_free(pid) -> bool:
             pvd[pid]["sleep"] = 1
     else:
         res = False
-    del pid
     return res
 
 
@@ -96,7 +93,6 @@ def vr(varn, dat=Unset, pid=None):
     else:
         # print(f"SET [{pid}][{varn}] = {dat}")
         pv[pid][varn] = dat
-    del varn, dat, pid
     return res
 
 
@@ -111,7 +107,6 @@ def vra(varn, dat, pid=None) -> None:
         pid = get_pid()
     # print(f"APPEND [{pid}][{varn}] + {dat}")
     pv[pid][varn].append(dat)
-    del varn, dat, pid
 
 
 def vrp(varn, dat=1, pid=None) -> None:
@@ -125,7 +120,6 @@ def vrp(varn, dat=1, pid=None) -> None:
         pid = get_pid()
     # print(f"ADD [{pid}][{varn}] + {dat}")
     pv[pid][varn] += dat
-    del varn, dat, pid
 
 
 def vrm(varn, dat=1, pid=None) -> None:
@@ -139,7 +133,6 @@ def vrm(varn, dat=1, pid=None) -> None:
         pid = get_pid()
     # print(f"SUB [{pid}][{varn}] - {dat}")
     pv[pid][varn] -= dat
-    del varn, dat, pid
 
 
 def vrd(varn, pid=None) -> None:
@@ -152,7 +145,6 @@ def vrd(varn, pid=None) -> None:
         pid = get_pid()
     # print(f"DEL [{pid}][{variable_name}]")
     del pv[pid][varn]
-    del varn, pid
 
 
 def launch_process(pr_name, owner="Nobody", resume=False):
@@ -163,11 +155,9 @@ def launch_process(pr_name, owner="Nobody", resume=False):
         while pr_name in pvn:
             pr_name = pr_name_og + str(pr_name_inc)
             pr_name_inc += 1
-        del pr_name_inc, pr_name_og
     tmppid = pid_alloc(pr_name, owner=owner, resume=resume)
     pid_activate(tmppid)
     # print("Launched process:", pr_name, tmppid)
-    del tmppid
 
 
 def rename_process(pr_name) -> None:
@@ -178,7 +168,6 @@ def rename_process(pr_name) -> None:
         while pr_name in pvn:
             pr_name = pr_name_og + str(pr_name_inc)
             pr_name_inc += 1
-        del pr_name_og, pr_name_inc
         pvn.pop(pvd[get_pid()]["name"])
         pvn[pr_name] = get_pid()
         pvd[get_pid()]["name"] = pr_name
@@ -321,11 +310,18 @@ def dmtex(
             pv[0]["dmesg"][-1] += pv[0]["oend"] + strr
         pv[0]["oend"] = end  # oend for next
 
-    del ct, strr
-
 
 # From now on use dmtex
 dmtex("Dmesg ready")
+
+use_compiler = False
+try:
+    compile("help()", "", "exec")
+
+    use_compiler = True
+    dmtex("Kernel compiler enabled")
+except NameError:
+    dmtex("Kernel compiler disabled")
 
 try:
     from neopixel_write import neopixel_write
@@ -488,7 +484,6 @@ class ljinux:
                 else:
                     result += text[i]
                     i += 1
-            del i, text
             return result
 
         def getvar(var: str):
@@ -499,7 +494,6 @@ class ljinux:
                 return ljinux.based.user_vars[var]
             elif var in ljinux.based.system_vars.keys():
                 return ljinux.based.system_vars[var]
-            del var
 
         def setvar(var: str, data=None, system: bool = False) -> None:
             """
@@ -666,7 +660,6 @@ class ljinux:
                     self.file = open(ljinux.api.betterpath(self.fn), self.mod)
                     if rm and not pv[0]["sdcard_fs"]:
                         remount("/", True)
-                    del rm
                 except RuntimeError:
                     return None
                 return self.file
@@ -714,7 +707,6 @@ class ljinux:
                 hd = "/LjinuxRoot/home/" + ljinux.based.system_vars["USER"].lower()
             else:
                 hd = "/"
-            del userr
             if back is None:
                 a = getcwd()
                 if a.startswith(hd):
@@ -727,7 +719,6 @@ class ljinux:
                     res = a[11:]
                 else:
                     res = "&" + a
-                del a
             else:  # resolve path back to normal
                 if back in ["&/", "&"]:  # board root
                     res = "/"
@@ -746,7 +737,6 @@ class ljinux:
                         res += back[1:]
                 else:
                     res = back
-            del back, hd
             return res
 
         def adv_input(whatever, _type=str):
@@ -787,8 +777,6 @@ class ljinux:
                         ljinux.io.ledset(3)  # act
                         ljinux.history.historyy.append(line.strip())
                         ljinux.io.ledset(1)  # idle
-                        del line
-
             except OSError:
                 try:
                     with ljinux.api.fopen(filen, "w") as historyfile:
@@ -831,7 +819,6 @@ class ljinux:
                 # deletes all history, from ram and storage
                 a = ljinux.api.fopen(filen, "r")
                 a.close()
-                del a
                 with ljinux.api.fopen(filen, "w") as historyfile:
                     if historyfile is None:
                         raise RuntimeError
@@ -851,7 +838,6 @@ class ljinux:
         def getall() -> None:  # write the whole history, numbered, line by line
             for index, item in enumerate(ljinux.history.historyy):
                 term.write(f"{index + 1}: {item}")
-                del index, item
 
     class io:
         # Activity led
@@ -1081,7 +1067,6 @@ class ljinux:
             }
             term.write(f"{prefix}: {errs[wh]}")
             ljinux.io.ledset(1)
-            del errs, f, prefix
 
         def process_failure(err) -> None:
             # Report a process failure properly. Pass an exception.
@@ -1236,7 +1221,6 @@ class ljinux:
                 inpt = inpt.split(" ")
                 if inpt[0] == "var":  # check if the var is passed and trim it
                     temp = inpt
-                    del inpt
                     inpt = []
                     for i in range(len(temp) - 1):
                         inpt.append(temp[i + 1])
@@ -1397,8 +1381,19 @@ class ljinux:
 
             def pexec(inpt):  # Python exec
                 launch_process("pexec")
+                prog = None
+                if use_compiler:
+                    # term.nwrite("Compiling..")
+                    prog = compile(inpt, "pexec", "exec")
+                    # term.nwrite("\010" * 11)
+                    # term.nwrite(" " * 11)
+                    # term.nwrite("\010" * 11)
+                else:
+                    prog = inpt
+                del inpt
+                gc.collect()
                 try:
-                    exec(inpt)
+                    exec(prog)
                 except KeyboardInterrupt:
                     term.write("^C")
                     if (  # Restore dir
@@ -1407,10 +1402,7 @@ class ljinux:
                         chdir(ljinux.based.olddir)
                 except Exception as err:
                     ljinux.based.process_failure(err)
-                    del err
-                del inpt
                 end_process()
-                gc.collect()
 
             def fpexec(inpt):  # Python script exec
                 fpargs = []
@@ -1424,7 +1416,7 @@ class ljinux:
                         offs += 1
                 except IndexError:
                     ljinux.based.error(9)
-                    ljinux.based.user_vars["return"] = "1"
+                    ljinux.api.setvar("return", "1")
                     return
 
                 launch_process(ljinux.api.betterpath(inpt[offs]))
@@ -1433,14 +1425,23 @@ class ljinux:
                         if f is None:
                             raise OSError
                         prog_data = f.read()
+                        prog = None
+                        if use_compiler:
+                            # term.nwrite("Compiling..")
+                            prog = compile(prog_data, "fpexec", "exec")
+                            # term.nwrite("\010" * 11)
+                            # term.nwrite(" " * 11)
+                            # term.nwrite("\010" * 11)
+                        else:
+                            prog = prog_data
+                        del prog_data
                         gc.collect()
                         if not ("t" in fpargs or "l" in fpargs):
-                            exec(prog_data)
+                            exec(prog)
                         elif "i" in fpargs:
-                            exec(prog_data, {}, {})
+                            exec(prog, {}, {})
                         elif "l" in fpargs:
-                            exec(prog_data, locals())
-                        del prog_data
+                            exec(prog, locals())
                 except KeyboardInterrupt:
                     term.hold_stdout = False
                     term.write("^C")
@@ -1450,10 +1451,8 @@ class ljinux:
                         chdir(ljinux.based.olddir)
                 except Exception as err:
                     ljinux.based.process_failure(err)
-                    del err
                 gc.collect()
                 end_process()
-                del offs, fpargs
 
             def terminal(inpt: str) -> None:  # Manage active terminal
                 opts = inpt.split(" ")
@@ -1601,7 +1600,6 @@ class ljinux:
             else:
                 ljinux.io.ledset(oldled)
 
-            del inbins, inints, executable, argv, ledmine, oldled
             gc.collect()
 
         def shell(led: bool = True, nalias: bool = False) -> int:
@@ -1732,8 +1730,6 @@ class ljinux:
                                             slicedd[lent - 1]
                                         ):  # only on the arg we are in
                                             candidates.append(i)
-                                        del i
-                                    del files
                                 else:  # suggesting bins
                                     bins = ljinux.based.get_bins()
                                     ints = ljinux.based.get_internal()
@@ -1741,9 +1737,6 @@ class ljinux:
                                         for j in i:
                                             if j.startswith(tofind):
                                                 candidates.append(j)
-                                            del j
-                                        del i
-                                    del bins, ints
                                 if len(candidates) > 1:
                                     term.write()
                                     minn = 100
@@ -1751,7 +1744,6 @@ class ljinux:
                                         if not i.startswith("_"):  # discard those
                                             minn = min(minn, len(i))
                                             term.nwrite("\t" + i)
-                                        del i
                                     letters_match = 0
                                     isMatch = True
                                     while isMatch:
@@ -1771,11 +1763,8 @@ class ljinux:
                                                 except IndexError:
                                                     isMatch = False
                                                     break
-                                                del j
-                                            del i
                                             if not isMatch:
                                                 break
-                                    del minn, isMatch
                                     if letters_match > 0:
                                         term.clear_line()
                                         if lent > 1:
@@ -1786,7 +1775,6 @@ class ljinux:
                                         else:
                                             term.buf[1] = candidates[0][:letters_match]
                                     term.focus = 0
-                                    del letters_match
                                 elif len(candidates) == 1:
                                     term.clear_line()
                                     if lent > 1:
@@ -1798,7 +1786,6 @@ class ljinux:
                                     term.focus = 0
                                 else:
                                     term.clear_line()
-                                del candidates, lent, tofind, slicedd
                                 ljinux.io.ledset(1)  # idle
                             else:
                                 term.clear_line()
@@ -1811,7 +1798,6 @@ class ljinux:
                                     ljinux.history.nav[2] = term.buf[1]
                                     ljinux.history.nav[1] = term.focus
                                 term.buf[1] = neww
-                                del neww
                                 ljinux.history.nav[0] += 1
                                 term.focus = 0
                             except IndexError:
@@ -1859,7 +1845,6 @@ class ljinux:
                                 term.buf[0] = ""
                                 term.focus = 0
                                 ljinux.history.nav[0] = 0
-                            del store
                         elif term.buf[0] is 20:  # console disconnected
                             ljinux.based.command.exec(
                                 "/LjinuxRoot/bin/_waitforconnection.lja"
@@ -1917,12 +1902,9 @@ class ljinux:
                                     end_process()
                             if silencecmd:
                                 ljinux.based.silent = False
-                            del currentcmd, silencecmd
-                        del comlist, silencelist  # abandon command_input
 
                         # Write stdout to file, TODO
 
-                        del p_write
                         gc.collect()
                         gc.collect()
                     if led:
@@ -1930,5 +1912,4 @@ class ljinux:
                     gc.collect()
                     gc.collect()
                     end_process()
-                    del stored_pid
                     return res

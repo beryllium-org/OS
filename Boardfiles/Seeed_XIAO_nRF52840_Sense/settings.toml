@@ -4,6 +4,7 @@ CIRCUITPY_PYSTACK_SIZE = 6144
 setup = true
 serial_console = true
 usb_access = false
+usb_hid = false
 leden = -1
 ledtype = "rgb_invert"
 led = -1
