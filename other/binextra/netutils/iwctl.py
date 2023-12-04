@@ -1,6 +1,70 @@
 ljinux.api.setvar("return", "0")
 vr("args", ljinux.based.user_vars["argj"].split()[1:])
 vr("argl", len(vr("args")))
+vr("pr", False)
+
+vr(
+    "wifi_connect_msg",
+    """if not vr("res"):
+    dmtex("IWD: Connected to network successfully.")
+    if vr("pr"):
+        term.write("\\nConnected successfully.")
+else:
+    dmtex("IWD: Connection to network failed.")
+    if vr("pr"):
+        term.write("\\nConnection failed.")
+ljinux.api.setvar("return", str(int(not vr("res"))))
+""",
+)
+try:
+    vr("wifi_connect_msg", compile(vr("wifi_connect_msg"), "driver_wifi", "exec"))
+except NameError:
+    pass
+
+vr(
+    "wifi_best",
+    """vr(
+    "res",
+    ljinux.modules["network"].connect(
+        vr("best"), cptoml.fetch(vr("best"), subtable="IWD")
+    ),
+)
+if vr("res"):
+    dmtex(
+        "IWD: Connected to network {} successfully.".format(
+            vr("best")
+        )
+    )
+else:
+    dmtex(
+        "IWD: Connection to network {} failed.".format(
+            vr("best")
+        )
+    )
+""",
+)
+try:
+    vr("wifi_best", compile(vr("wifi_best"), "driver_wifi", "exec"))
+except NameError:
+    pass
+
+vr(
+    "wifi_ap_msg",
+    """if vr("res"):
+    dmtex("IWD: AP started successfully.")
+    if vr("pr"):
+        term.write("\\nIWD: AP started successfully.")
+else:
+    dmtex("IWD: AP creation failed.")
+    if vr("pr"):
+        term.write("\\nIWD: AP creation failed.")
+""",
+)
+try:
+    vr("wifi_ap_msg", compile(vr("wifi_ap_msg"), "driver_wifi", "exec"))
+except NameError:
+    pass
+
 
 vr(
     "device_n",
@@ -16,8 +80,10 @@ vr(
 
 if vr("argl") is 0:
     # interactive interface
+    vr("pr", True)
     term.trigger_dict = {
         "ctrlD": 1,
+        "ctrlC": 2,
         "enter": 0,
         "overflow": 0,
         "rest": "stack",
@@ -44,6 +110,9 @@ if vr("argl") is 0:
             term.buf[1] = ""
             term.focus = 0
             break
+        elif term.buf[0] == 2:
+            term.buf[1] = ""
+            term.focus = 0
         elif term.buf[0] == 0:
             vr("data", term.buf[1].split())
             term.buf[1] = ""
@@ -147,11 +216,14 @@ if vr("argl") is 0:
                                     dmtex(
                                         'IWD: Connecting to: "{}"'.format(vr("data")[3])
                                     )
-                                    res = ljinux.modules["network"].connect(
-                                        vr("data")[3], vr("passwd")
+                                    vr(
+                                        "res",
+                                        ljinux.modules["network"].connect(
+                                            vr("data")[3], vr("passwd")
+                                        ),
                                     )
                                     if (
-                                        (not vr("res"))
+                                        (vr("res"))
                                         and vr("passwd") is not None
                                         and (
                                             vr("data")[3] not in cptoml.keys("IWD")
@@ -174,13 +246,7 @@ if vr("argl") is 0:
                                     "res",
                                     ljinux.modules["network"].connect(vr("data")[3]),
                                 )
-                            if not res:
-                                dmtex("IWD: Connected to network successfully.")
-                                term.write("\nConnected successfully.")
-                            else:
-                                dmtex("IWD: Connection to network failed.")
-                                term.write("\nConnection failed.")
-                            ljinux.api.setvar("return", str(vr("res")))
+                            exec(vr("wifi_connect_msg"))
                         else:
                             term.write("\nNetwork not found")
                     elif vr("datal") > 3 and vr("data")[2] == "ap_mode":
@@ -203,13 +269,8 @@ if vr("argl") is 0:
                                     vr("data")[3], vr("passwd")
                                 ),
                             )
-                            if not vr("res"):
-                                dmtex("IWD: AP started successfully.")
-                                term.write("\nIWD: AP started successfully.")
-                            else:
-                                dmtex("IWD: AP creation failed.")
-                                term.write("\nIWD: AP creation failed.")
-                            ljinux.api.setvar("return", str(vr("res")))
+                            exec(vr("wifi_ap_msg"))
+                            ljinux.api.setvar("return", str(int(not vr("res"))))
                         else:
                             dmtex("IWD: This interface does not support AP.")
                             term.write("\nIWD: This interface does not support AP.")
@@ -263,7 +324,7 @@ else:
         if vr("argl") > 3 and vr("args")[2] == "connect":
             vr("networks", ljinux.modules["network"].scan())
             if vr("args")[3] in vr("networks"):
-                vr("res", 1)
+                vr("res", False)
                 if vr("networks")[vr("args")[3]][0] != "OPEN":
                     vr("tpd", cptoml.fetch(vr("args")[3], subtable="IWD"))
                     if vr("passwd") is not None:
@@ -292,18 +353,17 @@ else:
                     ljinux.modules["network"].disconnect()
                     dmtex('IWD: Connecting to: "{}"'.format(vr("args")[3]))
                     vr("res", ljinux.modules["network"].connect(vr("args")[3]))
-                if vr("res") is not 0:
-                    term.write("Connection failed.")
-                    dmtex("IWD: Connection to network failed.")
-                else:
-                    dmtex("IWD: Connected to network successfully.")
-                    if (
+                exec(vr("wifi_connect_msg"))
+                if (
+                    vr("res")
+                    and (
                         vr("args")[3] not in cptoml.keys("IWD")
                         or cptoml.fetch(vr("args")[3], subtable="IWD") != vr("passwd")
-                    ) and vr("passwd") is not None:
-                        # Store this network
-                        cptoml.put(vr("args")[3], vr("passwd"), subtable="IWD")
-                ljinux.api.setvar("return", str(vr("res")))
+                    )
+                ) and vr("passwd") is not None:
+                    # Store this network
+                    cptoml.put(vr("args")[3], vr("passwd"), subtable="IWD")
+                ljinux.api.setvar("return", str(int(not vr("res"))))
             else:
                 term.write("Network not found")
                 ljinux.api.setvar("return", "1")
@@ -313,11 +373,8 @@ else:
                     "res",
                     ljinux.modules["network"].connect_ap(vr("args")[3], vr("passwd")),
                 )
-                if not vr("res"):
-                    dmtex("IWD: AP started successfully.")
-                else:
-                    dmtex("IWD: AP creation failed.")
-                ljinux.api.setvar("return", str(vr("res")))
+                exec(vr("wifi_ap_msg"))
+                ljinux.api.setvar("return", str(int(not vr("res"))))
             else:
                 dmtex("IWD: This interface does not support AP.")
         elif vr("args")[2] == "auto":
@@ -351,50 +408,14 @@ else:
                                     vr("best_alt", vr("i"))
                                     vr("best_alt_index", vr("cind"))
                     if vr("best") is not None:  # We can connect
-                        vr(
-                            "res",
-                            ljinux.modules["network"].connect(
-                                vr("best"), cptoml.fetch(vr("best"), subtable="IWD")
-                            ),
-                        )
+                        exec(vr("wifi_best"))
                         if not vr("res"):
-                            dmtex(
-                                "IWD-AUTO: Connected to network {} successfully.".format(
-                                    vr("best")
-                                )
-                            )
-                        else:
-                            dmtex(
-                                "IWD-AUTO: Connection to network {} failed.".format(
-                                    vr("best")
-                                )
-                            )
                             if vr("best_alt") is not None:
-                                vr(
-                                    "res",
-                                    ljinux.modules["network"].connect(
-                                        vr("best_alt"),
-                                        cptoml.fetch(vr("best_alt"), subtable="IWD"),
-                                    ),
-                                )
-                                if not vr("res"):
-                                    dmtex(
-                                        "IWD-AUTO: Connected to network {} successfully.".format(
-                                            vr("best_alt")
-                                        )
-                                    )
-                                else:
-                                    dmtex(
-                                        "IWD-AUTO: Connection to network {} failed.".format(
-                                            vr("best_alt")
-                                        )
-                                    )
+                                vr("best", vr("best_alt"))
+                                exec(vr("wifi_best"))
                             else:
-                                dmtex(
-                                    f"IWD-AUTO: No available alternative networks. ABORT."
-                                )
+                                dmtex(f"IWD: No available alternative networks. ABORT.")
                                 vr("best", None)
-                    # Workaround after failure.
                     if (
                         vr("best") is None
                     ):  # We have to create a hotspot based on toml settings.
@@ -407,10 +428,7 @@ else:
                                     vr("apssid"), vr("appasswd")
                                 ),
                             )
-                            if not vr("res"):
-                                dmtex("IWD-AUTO: AP started successfully.")
-                            else:
-                                dmtex("IWD-AUTO: AP creation failed.")
+                            exec(vr("wifi_ap_msg"))
         elif vr("args")[2] == "disconnect":
             ljinux.modules["network"].disconnect()
             ljinux.api.setvar("return", "0")
