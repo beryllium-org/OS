@@ -316,11 +316,11 @@ dmtex("Dmesg ready")
 
 use_compiler = False
 try:
-    from builtins import compile
+    compile("help()", "", "exec")
 
     use_compiler = True
     dmtex("Kernel compiler enabled")
-except ImportError:
+except NameError:
     dmtex("Kernel compiler disabled")
 
 try:
