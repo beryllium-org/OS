@@ -22,9 +22,19 @@ if lj_mount.label != desired_label:
     remount("/", True)
 print("N", end="")
 
+try:
+    import usb_hid
+
+    if not fetch("usb_hid", "LJINUX"):
+        usb_hid.disable()
+        stash += "Disabled HID.\n"
+except ImportError:
+    pass
+print("U", end="")
+
 if not devm:
     try:
         disable_usb_drive()
     except RuntimeError:
         pass
-print("UX pre-boot core\n" + "-" * 16 + "\nOutput:\n" + stash)
+print("X pre-boot core\n" + "-" * 16 + "\nOutput:\n" + stash)

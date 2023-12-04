@@ -5,6 +5,7 @@ leden = -1
 setup = true
 serial_console = true
 usb_access = false
+usb_hid = false
 ledtype = "neopixel"
 led = -1
 DEBUG = false
