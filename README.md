@@ -24,7 +24,7 @@ Table of Contents
 ## Prerequisites and optional hardware
 
 Runs on circuitpython <code>8.1.X</code>, <code>8.2.X</code> and <code>9.0.0-alpha-X</code>.<br />
-At the moment the supported boards are:<br />
+Currently the supported boards are:<br />
 
  - Raspberry Pi Pico<br />
  - Waveshare RP2040-Zero<br />
