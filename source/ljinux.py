@@ -1381,19 +1381,9 @@ class ljinux:
 
             def pexec(inpt):  # Python exec
                 launch_process("pexec")
-                prog = None
-                if use_compiler:
-                    # term.nwrite("Compiling..")
-                    prog = compile(inpt, "pexec", "exec")
-                    # term.nwrite("\010" * 11)
-                    # term.nwrite(" " * 11)
-                    # term.nwrite("\010" * 11)
-                else:
-                    prog = inpt
-                del inpt
                 gc.collect()
                 try:
-                    exec(prog)
+                    exec(inpt)
                 except KeyboardInterrupt:
                     term.write("^C")
                     if (  # Restore dir
