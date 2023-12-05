@@ -27,7 +27,6 @@ Runs on circuitpython <code>8.1.X</code>, <code>8.2.X</code> and <code>9.0.0-alp
 At the moment the supported boards are:<br />
 
  - Raspberry Pi Pico<br />
- - Raspberry Pi Pico W<br />
  - Waveshare RP2040-Zero<br />
  - Adafruit KB2040<br />
  - Waveshare ESP32-S2-Pico<br />
@@ -41,6 +40,9 @@ At the moment the supported boards are:<br />
  - M5Stack Timer Camera X<br />
  - WeAct ESP32-C6<br />
  - Firebeetle 2 ESP32-S3<br />
+
+The boards usable but unstable are:<br />
+ - Raspberry Pi Pico W<br />
 
 But it can probably run on many more.<br />
 <br />
