@@ -764,6 +764,39 @@ class ljinux:
                 res = whatever
             return _type(res)
 
+        def dfr(filen: str) -> None:
+            """
+            Direct file run.
+
+            To be used as a child process of sorts, in order
+            to store bulky code in seperate files.
+
+            Scope doesn't change.
+            """
+            prog_data = None
+            with ljinux.api.fopen(filen) as f:
+                if f is None:
+                    raise OSError
+                prog_data = f.read()
+            del filen
+            gc.collect()
+            try:
+                prog = None
+                if use_compiler:
+                    prog = compile(prog_data, "dfr", "exec")
+                else:
+                    prog = prog_data
+                del prog_data
+                exec(prog)
+                del prog
+                gc.collect()
+            except KeyboardInterrupt:
+                term.hold_stdout = False
+                term.write("^C")
+            except Exception as err:
+                ljinux.based.process_failure(err)
+            gc.collect()
+
     class history:
         historyy = []
         nav = [0, 0, ""]
@@ -1383,11 +1416,7 @@ class ljinux:
                 launch_process("pexec")
                 prog = None
                 if use_compiler:
-                    # term.nwrite("Compiling..")
                     prog = compile(inpt, "pexec", "exec")
-                    # term.nwrite("\010" * 11)
-                    # term.nwrite(" " * 11)
-                    # term.nwrite("\010" * 11)
                 else:
                     prog = inpt
                 del inpt
@@ -1419,29 +1448,33 @@ class ljinux:
                     ljinux.api.setvar("return", "1")
                     return
 
+                prog_data = None
+                with ljinux.api.fopen(inpt[offs]) as f:
+                    if f is None:
+                        raise OSError
+                    prog_data = f.read()
+                del inpt
+
                 launch_process(ljinux.api.betterpath(inpt[offs]))
                 try:
-                    with ljinux.api.fopen(inpt[offs]) as f:
-                        if f is None:
-                            raise OSError
-                        prog_data = f.read()
-                        prog = None
-                        if use_compiler:
-                            # term.nwrite("Compiling..")
-                            prog = compile(prog_data, "fpexec", "exec")
-                            # term.nwrite("\010" * 11)
-                            # term.nwrite(" " * 11)
-                            # term.nwrite("\010" * 11)
-                        else:
-                            prog = prog_data
-                        del prog_data
+                    prog = None
+                    if use_compiler:
+                        prog = compile(prog_data, "fpexec", "exec")
+                    else:
+                        prog = prog_data
+                    del prog_data
+                    if not ("t" in fpargs or "l" in fpargs):
+                        del fpargs
                         gc.collect()
-                        if not ("t" in fpargs or "l" in fpargs):
-                            exec(prog)
-                        elif "i" in fpargs:
-                            exec(prog, {}, {})
-                        elif "l" in fpargs:
-                            exec(prog, locals())
+                        exec(prog)
+                    elif "i" in fpargs:
+                        del fpargs
+                        gc.collect()
+                        exec(prog, {}, {})
+                    elif "l" in fpargs:
+                        del fpargs
+                        gc.collect()
+                        exec(prog, locals())
                 except KeyboardInterrupt:
                     term.hold_stdout = False
                     term.write("^C")
