@@ -730,6 +730,8 @@ class ljinux:
                     res = a[11:]
                 else:
                     res = "&" + a
+                if " " in res:
+                    res = res.replace(" ", "\\ ")
             else:  # resolve path back to normal
                 if back in ["&/", "&"]:  # board root
                     res = "/"
