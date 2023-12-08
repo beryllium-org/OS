@@ -542,6 +542,7 @@ class ljinux:
 
             n = False  # in keyword
             s = False  # in string
+            mw = False  # multi\ word\ string
             temp_s = None  # temporary string
             entry = None  # keyword
 
@@ -565,19 +566,32 @@ class ljinux:
                         words.append(temp_s)
                         s = False
                         inpt[i] = inpt[i][inpt[i].find('"') + 1 :]
-                elif (not s) and inpt[i].startswith('"$'):
+                elif (not s) and (not mw) and inpt[i].startswith('"$'):
                     if inpt[i].endswith('"'):
                         inpt[i] = ljinux.api.adv_input(inpt[i][2:-1])
                     else:
                         temp_s = ljinux.api.adv_input(inpt[i][2:])
                         s = True
                         continue
+                elif mw or ((not s) and inpt[i].endswith("\\") and len(inpt[i]) > 1):
+                    if not mw:
+                        mw = True
+                        temp_s = [inpt[i][:-1]]
+                        continue
+                    elif inpt[i].endswith("\\") and len(inpt[i]) > 1:
+                        temp_s.append(temp[i][:-1])
+                        continue
+                    else:
+                        words.append(" ".join(temp_s + [inpt[i]]))
+                        temp_s = None
+                        mw = False
+                        continue
                 if not n:
                     if (not s) and inpt[i].startswith("-"):
-                        if inpt[i].startswith("--"):
-                            entry = inpt[i][2:]
-                        else:
-                            entry = inpt[i][1:]
+                        if not len(inpt[i]) - 1:
+                            words.append(inpt[i])
+                            continue
+                        entry = inpt[i][1 + (int(inpt[i].startswith("--"))) :]
                         n = True
                     elif (not s) and inpt[i].startswith('"'):
                         if not inpt[i].endswith('"'):
@@ -614,10 +628,7 @@ class ljinux:
                             temp_s += " " + inpt[i]
                     elif inpt[i].startswith("-"):
                         options.update({entry: None})  # no option for the previous one
-                        if inpt[i].startswith("--"):
-                            entry = inpt[i][2:]
-                        else:
-                            entry = inpt[i][1:]
+                        entry = inpt[i][1 + (int(inpt[i].startswith("--"))) :]
                         # leaving n = True
                     else:
                         options.update({entry: inpt[i]})
@@ -628,7 +639,7 @@ class ljinux:
                 options.update({entry: None})
 
             argd = {
-                "w": words,
+                "w": words if words != [""] else [],
                 "hw": hidwords,
                 "o": options,
             }
@@ -1453,9 +1464,10 @@ class ljinux:
                     if f is None:
                         raise OSError
                     prog_data = f.read()
-                del inpt
 
                 launch_process(ljinux.api.betterpath(inpt[offs]))
+                del inpt
+
                 try:
                     prog = None
                     if use_compiler:
