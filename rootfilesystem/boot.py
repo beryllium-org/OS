@@ -15,7 +15,7 @@ print("J", end="")
 lj_mount = getmount("/")
 print("I", end="")
 
-desired_label = "ljinux"
+desired_label = "LJINUX"
 if lj_mount.label != desired_label:
     remount("/", False)
     lj_mount.label = desired_label
