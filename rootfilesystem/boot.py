@@ -19,6 +19,7 @@ desired_label = "LJINUX"
 if lj_mount.label != desired_label:
     remount("/", False)
     lj_mount.label = desired_label
+    stash += "Reset filesystem label.\n"
     remount("/", True)
 print("N", end="")
 
