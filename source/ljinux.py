@@ -1824,7 +1824,8 @@ class ljinux:
                                     term.clear_line()
                                     if lent > 1:
                                         term.buf[1] = " ".join(
-                                            slicedd[:-1] + [candidates[0]]
+                                            slicedd[:-1]
+                                            + [candidates[0].replace(" ", "\\ ")]
                                         )
                                     else:
                                         term.buf[1] = candidates[0]
