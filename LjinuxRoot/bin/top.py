@@ -16,7 +16,8 @@ if len(vr("tms")) < 2:
 vr("tstr", (vr("tmh") + vr("tmm") + vr("tms")))
 
 # Uptime
-vr("time", int(pv[0]["uptimee"] + time.monotonic()))
+vr("timef", pv[0]["uptimee"] + time.monotonic())
+vr("time", int(vr("timef")))
 vr("hr", vr("time") // 3600)
 vrm("time", vr("hr") * 3600)
 vr("min", vr("time") // 60)
@@ -36,9 +37,7 @@ if len(vr("time")) < 2:
 vr("ustr", (vr("hr") + vr("min") + vr("time")))
 
 term.write(
-    "top - {} up {}, 1 users, load average: 1,00, 1,00, 1,00".format(
-        vr("tstr"), vr("ustr")
-    )
+    "top - {} up {}, exactly {} seconds".format(vr("tstr"), vr("ustr"), vr("timef"))
 )
 clear_process_storage()
 
