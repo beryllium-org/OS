@@ -316,7 +316,7 @@ dmtex("Dmesg ready")
 
 use_compiler = False
 try:
-    compile("help()", "", "exec")
+    compile("", "", "exec")
 
     use_compiler = True
     dmtex("Kernel compiler enabled")
@@ -787,20 +787,16 @@ class ljinux:
 
             Scope doesn't change.
             """
-            prog_data = None
+            prog = None
             with ljinux.api.fopen(filen) as f:
                 if f is None:
                     raise OSError
-                prog_data = f.read()
+                prog = f.read()
             del filen
             gc.collect()
             try:
-                prog = None
                 if use_compiler:
                     prog = compile(prog_data, "dfr", "exec")
-                else:
-                    prog = prog_data
-                del prog_data
                 exec(prog)
                 del prog
                 gc.collect()
@@ -1428,15 +1424,11 @@ class ljinux:
 
             def pexec(inpt):  # Python exec
                 launch_process("pexec")
-                prog = None
                 if use_compiler:
-                    prog = compile(inpt, "pexec", "exec")
-                else:
-                    prog = inpt
-                del inpt
+                    inpt = compile(inpt, "pexec", "exec")
                 gc.collect()
                 try:
-                    exec(prog)
+                    exec(inpt)
                 except KeyboardInterrupt:
                     term.write("^C")
                     if (  # Restore dir
@@ -1462,22 +1454,18 @@ class ljinux:
                     ljinux.api.setvar("return", "1")
                     return
 
-                prog_data = None
+                prog = None
                 with ljinux.api.fopen(inpt[offs]) as f:
                     if f is None:
                         raise OSError
-                    prog_data = f.read()
+                    prog = f.read()
 
                 launch_process(ljinux.api.betterpath(inpt[offs]))
                 del inpt
 
                 try:
-                    prog = None
                     if use_compiler:
-                        prog = compile(prog_data, "fpexec", "exec")
-                    else:
-                        prog = prog_data
-                    del prog_data
+                        prog = compile(prog, "fpexec", "exec")
                     if not ("t" in fpargs or "l" in fpargs):
                         del fpargs
                         gc.collect()
