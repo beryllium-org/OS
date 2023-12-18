@@ -16,7 +16,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected:
                 vr("filee").write(ljinux.modules["network"].get(vr("args")[1]).content)
             else:
                 ljinux.based.error(7)
-        ljinux.modules["network"].resetsock()
+        ljinux.modules["network"].reset_session()
     else:
         ljinux.based.error(9)
 else:

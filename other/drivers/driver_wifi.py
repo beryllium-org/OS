@@ -247,7 +247,7 @@ class driver_wifi:
                     tz = int(utc_offset[1:3])
                     if negative:
                         tz = -tz
-                    self.resetsock()
+                    self.reset_session()
                 except:
                     return False
             else:
@@ -266,7 +266,7 @@ class driver_wifi:
             return True
         return False
 
-    def resetsock(self) -> None:
+    def reset_session(self) -> None:
         del self._session
         self._session = Session(self._pool, create_default_context())
 
