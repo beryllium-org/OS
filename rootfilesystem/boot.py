@@ -1,11 +1,11 @@
+print("Early boot log:\n")
+
 from storage import getmount, remount, disable_usb_drive
 from supervisor import runtime, status_bar
 from cptoml import fetch
 
 runtime.autoreload = False
 status_bar.console = False
-
-stash = ""
 
 lj_mount = getmount("/")
 
@@ -15,42 +15,42 @@ if desired_label != None:
     if lj_mount.label != desired_label:
         remount("/", False)
         lj_mount.label = desired_label
-        stash += "Reset filesystem label.\n\n"
+        print("Reset filesystem label.\n")
         remount("/", True)
 
 if fetch("usb_msc_available", "LJINUX"):
-    stash += "This board supports USB filesystem enumeration.\n"
+    print("This board supports USB filesystem enumeration.")
     if fetch("usb_msc_enabled", "LJINUX"):
-        stash += "USB filesystem is enabled.\nLjinux will access root Read-Only!\n\n"
+        print("The USB filesystem is enabled.\nLjinux will access root Read-Only!\n")
     else:
         disable_usb_drive()
-        stash += (
-            "USB filesystem is disabled.\nLjinux will operate in root Read-Write.\n\n"
-        )
+        print("The USB filesystem is disabled.\nLjinux will operate normally.\n")
 else:
-    stash += "This board does not support USB filesystem enumeration.\n\n"
+    print("This board does not support USB filesystem enumeration.\n")
 
 
 if fetch("usb_hid_available", "LJINUX"):
     import usb_hid
 
-    stash += "This board supports HID enumeration.\n"
+    print("This board supports HID enumeration.")
 
     if fetch("usb_hid_enabled", "LJINUX"):
-        stash += "HID Enabled.\n\n"
+        print("HID Enabled.\n")
     else:
         usb_hid.disable()
-        stash += "Disabled HID.\n\n"
+        print("HID Disabled.\n")
+else:
+    print("This board does not support HID enumeration.\n")
 
 if fetch("usb_midi_available", "LJINUX"):
     import usb_midi
 
-    stash += "This board supports MIDI enumeration.\n"
+    print("This board supports MIDI enumeration.")
 
     if fetch("usb_midi_enabled", "LJINUX"):
-        stash += "HID Enabled.\n\n"
+        print("MIDI Enabled.")
         usb_midi.enable()
     else:
-        stash += "Disabled HID.\n\n"
-
-print("Early boot log:\n" + stash)
+        print("MIDI Disabled.")
+else:
+    print("This board does not support MIDI enumeration.")

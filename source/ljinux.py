@@ -343,6 +343,7 @@ defaultoptions = {  # default configuration, in line with the manual (default va
     "usb_msc_enabled": (False, bool, False),
     "usb_hid_enabled": (False, bool, False),
     "usb_midi_enabled": (False, bool, False),
+    "fs_label": ("LJINUX", str, False),
     "DEBUG": (False, bool, False),
     "root_SCLK": (-1, int, True),
     "root_SCSn": (-1, int, True),

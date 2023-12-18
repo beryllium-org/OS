@@ -3,6 +3,8 @@ CIRCUITPY_PYSTACK_SIZE = 4608
 [LJINUX]
 setup = true
 
+fs_label = "LJINUX"
+
 serial_console_enabled = true
 usb_msc_available = false
 usb_hid_available = false
