@@ -1,4 +1,6 @@
-if cptoml.fetch("usb_access", "LJINUX"):
+if cptoml.fetch("usb_msc_available", "LJINUX") and cptoml.fetch(
+    "usb_msc_enabled", "LJINUX"
+):
     term.write(
         f"""{colors.red_t}\nWarning:{colors.endc} Developer mode has been enabled!
 While it is enabled, Ljinux will only be able to

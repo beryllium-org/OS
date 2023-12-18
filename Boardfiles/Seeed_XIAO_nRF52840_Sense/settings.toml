@@ -2,13 +2,24 @@ CIRCUITPY_PYSTACK_SIZE = 6144
 
 [LJINUX]
 setup = true
-serial_console = true
-usb_access = false
-usb_hid = false
+
+serial_console_enabled = true
+usb_msc_available = true
+usb_hid_available = true
+usb_midi_available = true
+wifi_available = false
+ble_available = false
+blc_available = false
+usb_msc_enabled = false
+usb_hid_enabled = false
+usb_midi_enabled = false
+
 leden = -1
 ledtype = "rgb_invert"
 led = -1
+
 DEBUG = false
+
 root_SCLK = -1
 root_SCSn = -1
 root_MOSI = -1
