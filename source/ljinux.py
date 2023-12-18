@@ -786,12 +786,12 @@ class ljinux:
                 res = whatever
             return _type(res)
 
-        def dfr(filen: str) -> None:
+        def subscript(filen: str) -> None:
             """
-            Direct file run.
+            Run a file directly in an existing process.
 
             To be used as a child process of sorts, in order
-            to store bulky code in seperate files.
+            to further segment big files.
 
             Scope doesn't change.
             """
@@ -804,7 +804,7 @@ class ljinux:
             gc.collect()
             try:
                 if use_compiler:
-                    prog = compile(prog_data, "dfr", "exec")
+                    prog = compile(prog_data, "subscript", "exec")
                 exec(prog)
                 del prog
                 gc.collect()
