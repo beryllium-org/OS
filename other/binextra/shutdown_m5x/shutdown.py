@@ -4,6 +4,7 @@ ljinux.deinit_consoles()
 vr("a", digitalio.DigitalInOut(board.BAT_HOLD))
 pv[get_pid()]["a"].switch_to_output()
 pv[get_pid()]["a"].value = 0
+print("You can safely disconnect the board from power")
 while True:
     try:
         try:
