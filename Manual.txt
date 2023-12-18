@@ -3,8 +3,8 @@
 \-----| bill88t |------------------------/
  \======================================/
  
-Official repository: [https://github.com/bill88t/ljinux]
-This manual is up to date with commit c32f62abbec80d3e40050905011ef9907eda5b2e @ 10/sep/2023.
+Official repository: https://github.com/bill88t/ljinux
+This manual is up to date with commit 8e69f164374e6111a215bb7c81000c14cd25ac48 @ 18/dec/2023.
 Anything passed that point is not covered by this manual.
 
       /------------|
@@ -70,7 +70,7 @@ devmode [-q]
 Enables usb access and other development features.
 This prohibits write access to the built in filesystem.
 The notice can be skipped by passing -q.
-This can be reverted by setting `usb_access = false` under
+This can be reverted by setting `usb_msc_enabled = false` under
 section [LJINUX] in the board's `/settings.toml`.
 
 
@@ -388,7 +388,7 @@ CODE:
       is enabled.
       By CircuitPython design, when the internal storage is being made available from usb,
       it is unwritable to ljinux.
-      To disable developer mode, set `usb_access = false` under section [LJINUX] in the board's
+      To disable developer mode, set `usb_msc_enabled = false` under section [LJINUX] in the board's
       `/settings.toml`.
 
 8 : Missing files
