@@ -804,7 +804,7 @@ class ljinux:
             gc.collect()
             try:
                 if use_compiler:
-                    prog = compile(prog_data, "subscript", "exec")
+                    prog = compile(prog, "subscript", "exec")
                 exec(prog)
                 del prog
                 gc.collect()
