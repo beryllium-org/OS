@@ -1,3 +1,4 @@
+rename_process("iwctl")
 ljinux.api.setvar("return", "0")
 vr("args", ljinux.based.user_vars["argj"].split()[1:])
 vr("argl", len(vr("args")))
@@ -79,6 +80,6 @@ vr(
 )
 
 if vr("argl") is 0:
-    ljinux.api.subscript("/bin/iwctl_interactive.py")
+    ljinux.api.subscript("/bin/iwctl/interactive.py")
 else:
-    ljinux.api.subscript("/bin/iwctl_headless.py")
+    ljinux.api.subscript("/bin/iwctl/headless.py")
