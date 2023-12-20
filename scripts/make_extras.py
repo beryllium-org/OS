@@ -1,7 +1,7 @@
 from os import system, mkdir, listdir, path, getcwd
 from sys import argv
 from sys import path as spath
-from shutil import copy
+from shutil import copytree
 
 spath.append("../scripts/CircuitMPY/")
 spath.append("../other/cptoml/")
@@ -95,10 +95,11 @@ if path.exists(f"../Boardfiles/{board}/extras"):
         elif i.endswith(".bin"):
             print("[-/-] Copying extras: binextra/" + i[:-4])
             if path.isdir("../other/binextra/" + i[:-4]):
-                source_p = f"../other/binextra/{i[:-4]}/"
-                target_p = boardpath + "/LjinuxRoot/bin/"
-                for j in listdir(source_p):
-                    copy(source_p + j, target_p + j)
+                copytree(
+                    f"../other/binextra/{i[:-4]}/",
+                    boardpath + "/LjinuxRoot/bin/",
+                    dirs_exist_ok=True,
+                )
             else:
                 print("Use folders instead")
                 errexit()
