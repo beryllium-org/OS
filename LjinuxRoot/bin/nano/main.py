@@ -5,7 +5,7 @@ ljinux.io.ledset(1)  # we don't want to pretend activity
 vr("sizee", term.detect_size(3))
 if vr("sizee") != False and (vr("sizee")[0] > 14 and vr("sizee")[1] > 105):
     gc.collect()
-    ljinux.api.subscript("/bin/nano_init.py")
+    ljinux.api.subscript("/bin/nano/init.py")
     while vr("q"):
         try:
             if not vr("savee"):
