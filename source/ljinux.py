@@ -685,7 +685,7 @@ class ljinux:
                     del fname
                     if rm and not pv[0]["sdcard_fs"]:
                         remount("/", True)
-                except RuntimeError:
+                except (RuntimeError, OSError):
                     return None
                 return self.file
 
