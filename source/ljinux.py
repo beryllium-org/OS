@@ -472,6 +472,7 @@ dmtex("Load complete")
 class ljinux:
     modules = {}
     devices = {}
+    code_cache = {}
 
     def deinit_consoles() -> None:
         for i in vr("consoles", pid=0).keys():
@@ -673,11 +674,15 @@ class ljinux:
                 # print(f"DEBUG FOPEN: {self.fn}:{self.mod}")
                 try:
                     rm = False  # remount
+                    fname = ljinux.api.betterpath(self.fn)
                     if "w" in self.mod or "a" in self.mod:
+                        if fname in ljinux.code_cache:
+                            ljinux.code_cache.pop(fname)
                         rm = True
                     if rm and not pv[0]["sdcard_fs"]:
                         remount("/", False)
-                    self.file = open(ljinux.api.betterpath(self.fn), self.mod)
+                    self.file = open(fname, self.mod)
+                    del fname
                     if rm and not pv[0]["sdcard_fs"]:
                         remount("/", True)
                 except RuntimeError:
@@ -1463,17 +1468,28 @@ class ljinux:
                     return
 
                 prog = None
-                with ljinux.api.fopen(inpt[offs]) as f:
-                    if f is None:
-                        raise OSError
-                    prog = f.read()
-
-                launch_process(ljinux.api.betterpath(inpt[offs]))
+                fname = ljinux.api.betterpath(inpt[offs])
+                if use_compiler and fname not in ljinux.code_cache:
+                    with ljinux.api.fopen(inpt[offs]) as f:
+                        if f is None:
+                            raise OSError
+                        prog = f.read()
                 del inpt
+                launch_process(fname)
 
                 try:
                     if use_compiler:
-                        prog = compile(prog, "fpexec", "exec")
+                        if fname not in ljinux.code_cache:
+                            prog = compile(prog, "fpexec", "exec")
+                            if gc.mem_free() > 200_000:
+                                # Only cache when we have ample ram.
+                                ljinux.code_cache[fname] = prog
+                            elif len(ljinux.code_cache):
+                                # We should clear the cache.
+                                ljinux.code_cache.clear()
+                        else:
+                            prog = ljinux.code_cache[fname]
+                    del fname
                     if not ("t" in fpargs or "l" in fpargs):
                         del fpargs
                         gc.collect()
