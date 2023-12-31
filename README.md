@@ -26,23 +26,21 @@ Table of Contents
 Runs on circuitpython <code>8.1.X</code>, <code>8.2.X</code> and <code>9.0.0-alpha-X</code>.<br />
 Currently the supported boards are:<br />
 
- - Raspberry Pi Pico<br />
- - Waveshare RP2040-Zero<br />
- - Adafruit KB2040<br />
- - Waveshare ESP32-S2-Pico<br />
  - Adafruit Feather ESP32-S2<br />
  - Adafruit Feather ESP32-S3 TFT<br />
+ - Adafruit KB2040<br />
+ - DFRobot Beetle ESP32-C3<br />
+ - Firebeetle 2 ESP32-S3<br />
+ - M5Stack Timer Camera X<br />
  - Pimoroni Pico Lipo (16mb)<br />
  - Pimoroni Pico Lipo (4mb)<br />
- - Wemos Lolin S2 Mini<br />
- - Seeed XIAO nRF52840 (Sense)<br />
- - DFRobot Beetle ESP32-C3<br />
- - M5Stack Timer Camera X<br />
- - WeAct ESP32-C6<br />
- - Firebeetle 2 ESP32-S3<br />
-
-The boards usable but unstable are:<br />
+ - Raspberry Pi Pico<br />
  - Raspberry Pi Pico W<br />
+ - Seeed XIAO nRF52840 (Sense)<br />
+ - Waveshare RP2040-Zero<br />
+ - Waveshare ESP32-S2-Pico<br />
+ - Wemos Lolin S2 Mini<br />
+ - WeAct ESP32-C6<br />
 
 But it can probably run on many more.<br />
 <br />
