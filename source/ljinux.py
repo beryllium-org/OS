@@ -1756,12 +1756,14 @@ class ljinux:
                             if hasattr(term.console, "disconnect"):
                                 # We are running on a remote shell
                                 term.write("Bye")
+                                ljinux.based.run("runparts /etc/hooks/disconnect.d/")
                                 term.console.disconnect()
                             elif term._active == False:  # Can be None
                                 # We want to disconnect from a passive console.
                                 term.write(
                                     "You can safely disconnect from the console."
                                 )
+                                ljinux.based.run("runparts /etc/hooks/disconnect.d/")
                                 while term.detect_size() != False:
                                     try:
                                         time.sleep(0.1)
@@ -1907,6 +1909,7 @@ class ljinux:
                                 term.focus = 0
                                 ljinux.history.nav[0] = 0
                         elif term.buf[0] is 20:  # console disconnected
+                            ljinux.based.run("runparts /etc/hooks/disconnect.d/")
                             ljinux.based.command.exec(
                                 "/LjinuxRoot/bin/_waitforconnection.lja"
                             )
