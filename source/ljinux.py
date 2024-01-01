@@ -820,6 +820,24 @@ class ljinux:
                 ljinux.based.process_failure(err)
             gc.collect()
 
+        def console_connected() -> bool:
+            for i in pv[0]["consoles"].keys():
+                if hasattr(pv[0]["consoles"][i], "connected"):
+                    if pv[0]["consoles"][i].connected:
+                        term.console = pv[0]["consoles"][i]
+                        vr("console_active", i, pid=0)
+                        return True
+                else:
+                    # Fallback to detect_size for console detection.
+                    term.console = pv[0]["consoles"][i]
+                    tmpd = term.detect_size()
+                    if tmpd != False:
+                        vr("console_active", i, pid=0)
+                        term.console.reset_input_buffer()
+                        return True
+                    del tmpd
+            return False
+
     class history:
         historyy = []
         nav = [0, 0, ""]
@@ -1756,19 +1774,23 @@ class ljinux:
                             if hasattr(term.console, "disconnect"):
                                 # We are running on a remote shell
                                 term.write("Bye")
-                                ljinux.based.run("runparts /etc/hooks/disconnect.d/")
                                 term.console.disconnect()
+                                ljinux.based.run("runparts /etc/hooks/disconnect.d/")
                             elif term._active == False:  # Can be None
                                 # We want to disconnect from a passive console.
                                 term.write(
                                     "You can safely disconnect from the console."
                                 )
-                                ljinux.based.run("runparts /etc/hooks/disconnect.d/")
                                 while term.detect_size() != False:
                                     try:
                                         time.sleep(0.1)
                                     except KeyboardInterrupt:
                                         pass
+                                time.sleep(0.5)
+                                if not ljinux.api.console_connected():
+                                    ljinux.based.run(
+                                        "runparts /etc/hooks/disconnect.d/"
+                                    )
                                 ljinux.based.command.exec(
                                     "/LjinuxRoot/bin/_waitforconnection.lja"
                                 )
@@ -1909,7 +1931,9 @@ class ljinux:
                                 term.focus = 0
                                 ljinux.history.nav[0] = 0
                         elif term.buf[0] is 20:  # console disconnected
-                            ljinux.based.run("runparts /etc/hooks/disconnect.d/")
+                            time.sleep(0.5)
+                            if not ljinux.api.console_connected():
+                                ljinux.based.run("runparts /etc/hooks/disconnect.d/")
                             ljinux.based.command.exec(
                                 "/LjinuxRoot/bin/_waitforconnection.lja"
                             )
