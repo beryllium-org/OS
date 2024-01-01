@@ -92,12 +92,12 @@ if path.exists(f"../Boardfiles/{board}/extras"):
                     errexit()
             else:
                 errexit()
-        elif i.endswith(".bin"):
-            print("[-/-] Copying extras: binextra/" + i[:-4])
-            if path.isdir("../other/binextra/" + i[:-4]):
+        elif i.endswith(".ex"):
+            print("[-/-] Copying extras: extra/" + i[:-3])
+            if path.isdir("../extra/" + i[:-3]):
                 copytree(
-                    f"../other/binextra/{i[:-4]}/",
-                    boardpath + "/LjinuxRoot/bin/",
+                    f"../extra/{i[:-3]}/",
+                    boardpath + "/LjinuxRoot/",
                     dirs_exist_ok=True,
                 )
             else:

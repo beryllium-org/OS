@@ -1,0 +1,4 @@
+pixel_format = "JPEG"
+frame_size = "QXGA"
+jpeg_quality = 8
+denoise = 6
