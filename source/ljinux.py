@@ -842,24 +842,26 @@ class ljinux:
         historyy = []
         nav = [0, 0, ""]
         sz = 50
+        modified = False
 
         def load(filen: str) -> None:
             ljinux.history.historyy = []
-            try:
-                with ljinux.api.fopen(filen, "r") as historyfile:
+            with ljinux.api.fopen(filen, "r") as historyfile:
+                if historyfile is not None:
                     for line in historyfile:
                         ljinux.io.ledset(3)  # act
                         ljinux.history.historyy.append(line.strip())
                         ljinux.io.ledset(1)  # idle
-            except OSError:
-                try:
-                    with ljinux.api.fopen(filen, "w") as historyfile:
-                        pass
-                except RuntimeError:
-                    ljinux.based.error(4, filen)
-                ljinux.io.ledset(1)  # idle
+                else:
+                    try:
+                        with ljinux.api.fopen(filen, "w") as historyfile:
+                            pass
+                    except RuntimeError:
+                        ljinux.based.error(4, filen)
+            ljinux.io.ledset(1)  # idle
 
         def appen(itemm: str) -> None:  # add to history, but don't save to file
+            ljinux.history.modified = True
             if (
                 len(ljinux.history.historyy) > 0 and itemm != ljinux.history.gett(1)
             ) or len(ljinux.history.historyy) is 0:
@@ -879,6 +881,8 @@ class ljinux:
             ljinux.history.historyy.append(itemm)
 
         def save(filen: str) -> None:
+            if not ljinux.history.modified:
+                return
             try:
                 with ljinux.api.fopen(filen, "w") as historyfile:
                     if historyfile is None:
