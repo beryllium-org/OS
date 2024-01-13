@@ -97,7 +97,7 @@ if path.exists(f"../Boardfiles/{board}/extras"):
             if path.isdir("../extra/" + i[:-3]):
                 copytree(
                     f"../extra/{i[:-3]}/",
-                    boardpath + "/LjinuxRoot/",
+                    boardpath + "/",
                     dirs_exist_ok=True,
                 )
             else:
