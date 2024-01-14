@@ -919,18 +919,7 @@ class ljinux:
 
     class io:
         # Activity led
-        ledcases = {
-            0: bytearray([0, 0, 0]),  # off
-            1: bytearray([3, 0, 0]),  # Alternative idle, to indicate input
-            2: bytearray([2, 0, 0]),  # Idle
-            3: bytearray([7, 7, 0]),  # Activity
-            4: bytearray([0, 0, 5]),  # Waiting
-            5: bytearray([0, 50, 0]),  # Error
-            6: bytearray([255, 255, 255]),  # Your eyes are gone
-            7: bytearray([0, 0, 7]),  # Alternative waiting
-        }
-
-        getled = 0
+        led_setup = False
 
         led = digitalio.DigitalInOut(vr("boardLED", pid=0))
         leden = None
@@ -940,73 +929,26 @@ class ljinux:
             leden.value = 1
         ledg = None
         ledb = None
-        defstate = True
-        ledtype = cptoml.fetch("ledtype", "LJINUX")
+        ledtype = "led_" + cptoml.fetch("ledtype", "LJINUX")
 
-        led.direction = digitalio.Direction.OUTPUT
-        if ledtype.startswith("rgb"):
+        if ledtype.startswith("led_rgb"):
             ledg = digitalio.DigitalInOut(board.LED_GREEN)
-            ledg.direction = digitalio.Direction.OUTPUT
             ledb = digitalio.DigitalInOut(board.LED_BLUE)
-            ledb.direction = digitalio.Direction.OUTPUT
 
-        if ledtype.endswith("_invert"):
-            defstate = False
-
-        if ledtype.startswith("generic"):
-            led.value = defstate
-        elif ledtype.startswith("neopixel"):
-            neopixel_write(led, ledcases[2])
-        elif ledtype.startswith("rgb"):
-            led.value = defstate
-            ledg.value = defstate
-            ledb.value = defstate
-
-        def ledset(state: int) -> None:
+        def ledset(state) -> None:
             """
             Set the led to a state.
             state can be int with one of the predifined states,
             or a tuple like (10, 40, 255) for a custom color
             """
+            if not ljinux.io.led_setup:
+                return
+            ljinux.modules[ljinux.io.ledtype].value = state
 
-            if isinstance(state, int):
-                ## use preconfigured led states
-                if ljinux.io.ledtype.startswith("generic"):
-                    if state in [0, 3, 4, 5]:  # close tha led
-                        ljinux.io.led.value = not ljinux.io.defstate
-                    else:
-                        ljinux.io.led.value = ljinux.io.defstate
-                elif ljinux.io.ledtype.startswith("neopixel"):
-                    neopixel_write(ljinux.io.led, ljinux.io.ledcases[state])
-                elif ljinux.io.ledtype.startswith("rgb"):
-                    cl = ljinux.io.ledcases[state]
-                    ljinux.io.led.value, ljinux.io.ledg.value, ljinux.io.ledb.value = (
-                        (cl[1], cl[0], cl[2])
-                        if ljinux.io.defstate
-                        else (not cl[1], not cl[0], not cl[2])
-                    )
-
-                ljinux.io.getled = state
-            elif isinstance(state, tuple):
-                # a custom color
-                if ljinux.io.ledtype.startswith("generic"):
-                    inv = ljinux.io.defstate
-                    if sum(state) is 0:
-                        inv = not inv
-                    ljinux.io.led.value = inv
-                elif ljinux.io.ledtype.startswith("neopixel"):
-                    swapped_state = (state[1], state[0], state[2])
-                    neopixel_write(ljinux.io.led, bytearray(swapped_state))
-                elif ljinux.io.ledtype.startswith("rgb"):
-                    ljinux.io.led.value, ljinux.io.ledg.value, ljinux.io.ledb.value = (
-                        (state[0], state[1], state[2])
-                        if ljinux.io.defstate
-                        else (not state[0], not state[1], not state[2])
-                    )
-
-                ljinux.io.getled = state
-            else:
-                raise TypeError("Invalid led state value")
+        def getled():
+            if not ljinux.io.led_setup:
+                return None
+            return ljinux.modules[ljinux.io.ledtype].value
 
         def get_static_file(filename: str, m: str = "rb"):
             try:
@@ -1611,7 +1553,7 @@ class ljinux:
                 ljinux.io.ledset(3)
                 ledmine = True
             else:
-                oldled = ljinux.io.getled
+                oldled = ljinux.io.getled()
                 ljinux.io.ledset(3)
 
             if isinstance(argv, list):

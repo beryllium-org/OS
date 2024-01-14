@@ -1,7 +1,8 @@
+00-no-dmesg.lja
 01-early-connection.py
 02-path.py
-03-wifi.py
-04-advance-time.lja
-05-telnet.lja
-06-reload-hostname.py
-07-no-dmesg.lja
+03-LEDs.py
+04-wifi.py
+06-advance-time.lja
+50-telnet.lja
+05-reload-hostname.py

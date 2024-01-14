@@ -84,7 +84,7 @@ if path.exists(f"../Boardfiles/{board}/extras"):
             elif path.isfile(f"../Boardfiles/{board}/extras/{i}"):
                 try:
                     circuitmpy.compile_mpy(
-                        f"../other/drivers/{i[:-7]}.py",
+                        f"../drivers/{i[:-7]}.py",
                         f"{boardpath}/lib/drivers/{i[:-7]}.mpy",
                         optim=optimis,
                     )
