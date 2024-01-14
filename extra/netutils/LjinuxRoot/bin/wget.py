@@ -1,7 +1,7 @@
 rename_process("wget")
 vr("args", ljinux.based.user_vars["argj"].split())
 vr("argc", len(vr("args")))
-if "network" in ljinux.modules and ljinux.modules["network"].connected:
+if "network" in ljinux.devices and ljinux.devices["network"][0].connected:
     if vr("argc") > 1:
         vr(
             "nam",
@@ -13,10 +13,12 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected:
         )
         with ljinux.api.fopen(vr("nam"), "wb") as pv[get_pid()]["filee"]:
             if vr("filee") is not None:
-                vr("filee").write(ljinux.modules["network"].get(vr("args")[1]).content)
+                vr("filee").write(
+                    ljinux.devices["network"][0].get(vr("args")[1]).content
+                )
             else:
                 ljinux.based.error(7)
-        ljinux.modules["network"].reset_session()
+        ljinux.devices["network"][0].reset_session()
     else:
         ljinux.based.error(9)
 else:

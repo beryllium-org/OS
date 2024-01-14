@@ -51,7 +51,7 @@ while True:
                 term.write("Name" + " " * 5 + "Mac address" + " " * 6 + "Power")
                 term.write(60 * "-")
                 if vr("device_n") is not None:
-                    vr("info", ljinux.modules["network"].get_ipconf())
+                    vr("info", ljinux.devices["network"][0].get_ipconf())
                     term.write(
                         device_n
                         + " " * 5
@@ -67,7 +67,7 @@ while True:
             ):
                 if vr("data")[2] == "scan":
                     dmtex(f"Wifi: Scanning")
-                    vr("networks", ljinux.modules["network"].scan())
+                    vr("networks", ljinux.devices["network"][0].scan())
                     ljinux.api.setvar("return", "0")
                 elif vr("data")[2] == "get-networks":
                     ljinux.api.setvar("return", "0")
@@ -106,7 +106,7 @@ while True:
                         )
                 elif vr("datal") > 3 and vr("data")[2] == "connect":
                     dmtex(f"Wifi: Scanning")
-                    vr("networks", ljinux.modules["network"].scan())
+                    vr("networks", ljinux.devices["network"][0].scan())
                     if vr("data")[3] in vr("networks"):
                         vr("res", 1)
                         ljinux.io.ledset(1)
@@ -130,11 +130,11 @@ while True:
                             ljinux.io.ledset(3)
 
                             if vr("passwd") is not None:
-                                ljinux.modules["network"].disconnect()
+                                ljinux.devices["network"][0].disconnect()
                                 dmtex('IWD: Connecting to: "{}"'.format(vr("data")[3]))
                                 vr(
                                     "res",
-                                    ljinux.modules["network"].connect(
+                                    ljinux.devices["network"][0].connect(
                                         vr("data")[3], vr("passwd")
                                     ),
                                 )
@@ -158,13 +158,13 @@ while True:
                             dmtex('IWD: Connecting to: "{}"'.format(vr("data")[3]))
                             vr(
                                 "res",
-                                ljinux.modules["network"].connect(vr("data")[3]),
+                                ljinux.devices["network"][0].connect(vr("data")[3]),
                             )
                         exec(vr("wifi_connect_msg"))
                     else:
                         term.write("\nNetwork not found")
                 elif vr("datal") > 3 and vr("data")[2] == "ap_mode":
-                    if hasattr(ljinux.modules["network"], "connect_ap"):
+                    if hasattr(ljinux.devices["network"][0], "connect_ap"):
                         vr("passwd", None)
                         try:
                             vr(
@@ -179,7 +179,7 @@ while True:
                             pass
                         vr(
                             "res",
-                            ljinux.modules["network"].connect_ap(
+                            ljinux.devices["network"][0].connect_ap(
                                 vr("data")[3], vr("passwd")
                             ),
                         )
@@ -190,7 +190,7 @@ while True:
                         term.write("\nIWD: This interface does not support AP.")
 
                 elif vr("datal") > 2 and vr("data")[2] == "disconnect":
-                    ljinux.modules["network"].disconnect()
+                    ljinux.devices["network"][0].disconnect()
                     dmtex("Wifi: Disconnected.")
                     ljinux.api.setvar("return", "0")
                 else:

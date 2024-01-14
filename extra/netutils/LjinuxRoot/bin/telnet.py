@@ -5,16 +5,16 @@ if "help" in vr("opts")["o"] or "h" in vr("opts")["o"] or not len(vr("li")):
     term.write("USAGE: telnet [setup/deinit]")
 elif len(vr("li")) and vr("li")[0] == "setup":
     systemprints(2, "Setup telnet")
-    if "network" in ljinux.modules and ljinux.modules["network"].connected:
+    if "network" in ljinux.devices and ljinux.devices["network"][0].connected:
         if "ttyTELNET0" not in pv[0]["consoles"]:
             from telnet_console import telnet_console
 
             pv[0]["consoles"]["ttyTELNET0"] = telnet_console(
-                ljinux.modules["network"]._pool.socket(
-                    ljinux.modules["network"]._pool.AF_INET,
-                    ljinux.modules["network"]._pool.SOCK_STREAM,
+                ljinux.devices["network"][0]._pool.socket(
+                    ljinux.devices["network"][0]._pool.AF_INET,
+                    ljinux.devices["network"][0]._pool.SOCK_STREAM,
                 ),
-                str(ljinux.modules["network"].get_ipconf()["ip"]),
+                str(ljinux.devices["network"][0].get_ipconf()["ip"]),
             )
             if "q" not in vr("opts")["o"]:
                 term.write(
@@ -22,7 +22,7 @@ elif len(vr("li")) and vr("li")[0] == "setup":
                     + "You may switch to it by running:\n\n"
                     + "terminal activate ttyTELNET0\n\n"
                     + "You can connect to the telnet server on:\n\n"
-                    + str(ljinux.modules["network"].get_ipconf()["ip"])
+                    + str(ljinux.devices["network"][0].get_ipconf()["ip"])
                 )
             systemprints(1, "Setup telnet")
         else:

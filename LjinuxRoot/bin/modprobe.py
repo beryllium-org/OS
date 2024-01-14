@@ -9,31 +9,29 @@ if vr("argl") is not 0:
             vr("ass", vr("args")[2])
     except IndexError:
         pass
-    vr("loadstr", "from drivers.{} import {}".format(vr("module"), vr("module")))
-    vr("dmtextt", 'Modprobe: Loading module "{}"'.format(vr("module")))
 
-    if vr("ass") is not None:
-        vr("module", vr("ass"))
-        vrp("loadstr", " as " + vr("module"))
-        vrp("dmtextt", " as " + vr("module"))
+    if vr("module") not in ljinux.devices:
+        vr("loadstr", "from drivers.{} import {}".format(vr("module"), vr("module")))
+        vr("dmtextt", 'Modprobe: Loading module "{}"'.format(vr("module")))
 
-    dmtex(vr("dmtextt"))
-    try:
+        if vr("ass") is not None:
+            vr("module", vr("ass"))
+            vrp("loadstr", " as " + vr("module"))
+            vrp("dmtextt", " as " + vr("module"))
+
+        dmtex(vr("dmtextt"))
         exec(vr("loadstr"))
-        if vr("module") not in ljinux.modules:
-            vr(
-                "execstr",
-                (
-                    'ljinux.modules.update({"'
-                    + vr("module")
-                    + '": '
-                    + vr("module")
-                    + "()})"
-                ),
-            )
-            exec(vr("execstr"))
-        else:
-            ljinux.based.error()
+    elif vr("ass") is not None:
+        vr("module", vr("ass"))
+    try:
+        if vr("module") not in ljinux.devices:
+            ljinux.devices[vr("module")] = []
+        vr("dmtextt", 'Modprobe: Inserting device "{}"'.format(vr("module")))
+        vr(
+            "execstr",
+            ('ljinux.devices["' + vr("module") + '"].append(' + vr("module") + "())"),
+        )
+        exec(vr("execstr"))
     except ImportError:
         ljinux.based.error()
 else:

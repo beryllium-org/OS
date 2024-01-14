@@ -1,7 +1,7 @@
 rename_process("ping")
 vr("args", ljinux.based.user_vars["argj"].split()[1:])
 vr("argl", len(vr("args")))
-if "network" in ljinux.modules and ljinux.modules["network"].connected:
+if "network" in ljinux.devices and ljinux.devices["network"][0].connected:
     if vr("argl") > 0:
         ljinux.api.setvar("return", "0")
         vr("domain", vr("args")[0])
@@ -17,7 +17,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected:
         if ljinux.api.getvar("return") == "0":
             vr("resolved", vr("domain"))
             try:
-                vr("resolved", ljinux.modules["network"].resolve(vr("domain")))
+                vr("resolved", ljinux.devices["network"][0].resolve(vr("domain")))
                 term.write("PING {} ({}) data.".format(vr("domain"), vr("resolved")))
                 vr("done", 0)
                 vr("good", 0)
@@ -27,7 +27,7 @@ if "network" in ljinux.modules and ljinux.modules["network"].connected:
                     while not term.is_interrupted():
                         ljinux.io.ledset(3)
                         vrp("done")
-                        vr("a", ljinux.modules["network"].ping(vr("domain")))
+                        vr("a", ljinux.devices["network"][0].ping(vr("domain")))
                         if vr("a") is not None:
                             vra("timetab", float(vr("a")))
                             vrp("good")

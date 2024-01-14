@@ -470,7 +470,6 @@ dmtex("Load complete")
 
 
 class ljinux:
-    modules = {}
     devices = {}
     code_cache = {}
 
@@ -943,12 +942,12 @@ class ljinux:
             """
             if not ljinux.io.led_setup:
                 return
-            ljinux.modules[ljinux.io.ledtype].value = state
+            ljinux.devices[ljinux.io.ledtype][0].value = state
 
         def getled():
             if not ljinux.io.led_setup:
                 return None
-            return ljinux.modules[ljinux.io.ledtype].value
+            return ljinux.devices[ljinux.io.ledtype][0].value
 
         def get_static_file(filename: str, m: str = "rb"):
             try:
@@ -1585,8 +1584,6 @@ class ljinux:
 
             if (executable == "") or executable.isspace() or executable.startswith("#"):
                 pass
-            elif executable in ljinux.modules:  # kernel module
-                ljinux.based.modules[executable](argv)
             elif inbins:  # external commands
                 bckargj = (
                     ""

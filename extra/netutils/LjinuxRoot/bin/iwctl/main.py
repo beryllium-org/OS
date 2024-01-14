@@ -26,7 +26,7 @@ vr(
     "wifi_best",
     """vr(
     "res",
-    ljinux.modules["network"].connect(
+    ljinux.devices["network"][0].connect(
         vr("best"), cptoml.fetch(vr("best"), subtable="IWD")
     ),
 )
@@ -70,10 +70,10 @@ except NameError:
 vr(
     "device_n",
     (
-        ljinux.modules["network"].hw_name
+        ljinux.devices["network"][0].hw_name
         if (
-            "network" in ljinux.modules
-            and ljinux.modules["network"].interface_type == "wifi"
+            "network" in ljinux.devices
+            and ljinux.devices["network"][0].interface_type == "wifi"
         )
         else None
     ),
