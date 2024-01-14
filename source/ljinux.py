@@ -1,17 +1,17 @@
 # ------------------------------------- #
 #                Ljinux                 #
 #                                       #
-#     Written on a Raspberry Pi 400     #
-#  What is this? - A smoothie, you say? #
+#         Written on a aarch64          #
+#    Trap card NIHIHIHAAA ACTIVATED!    #
 # ------------------------------------- #
 
 # Process stuffs
-pv = {}  # Process variables
-pvn = {}  # Process names
+pv = {}  # Process variable container storage
+pvn = {}  # Process names list
 pvd = {}  # Process control data
-pid_seq = -1
+pid_seq = -1  # PID sequence number. No need for advanced logic here.
 pid_act = []  # Active process list
-# It would be a tree, but we only operate on one thread, so list.
+# It's a stack effectively, since we are operating on one thread.
 
 
 class Unset:  # None 2.0
