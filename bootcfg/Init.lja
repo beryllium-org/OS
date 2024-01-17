@@ -4,7 +4,6 @@
 # Final system configuration
 cd /home/board
 USER = "board"
-fpexec /LjinuxRoot/etc/hostname-reload.py
 SECURITY = "on"
 
 # Wait for connection
