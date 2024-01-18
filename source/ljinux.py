@@ -765,6 +765,49 @@ class ljinux:
                     res = back
             return res
 
+        def basepath(path=".") -> str:
+            old = getcwd()
+            true_root = (
+                (path[0] == "&")
+                or (old == "/" and path == ".")
+                or (old == "/LjinuxRoot" and path == "..")
+            )
+            path = ljinux.api.betterpath(path)
+            res = ""
+            try:
+                chdir(path)
+                res = getcwd()
+                chdir(old)
+            except:
+                pass
+            if not true_root:
+                if res.startswith("/LjinuxRoot"):
+                    res = res[11:]
+                    if not res:
+                        res = "/"
+            else:
+                res = "&" + res
+            return res
+
+        def listdir(path=".") -> list:
+            path = ljinux.api.basepath(path)
+            res = []
+            if path:
+                path = ljinux.api.betterpath(path)
+                tmp = listdir(path)
+                for i in tmp:
+                    typ = ljinux.api.isdir(path + "/" + i)
+                    if typ == 1:
+                        typ = "d"
+                    elif typ == 0:
+                        typ = "f"
+                    else:
+                        typ = "b"
+                    res.append([i, typ, [0, 0, 0], "root", "root"])
+            else:
+                raise OSError("Could not traverse directory.")
+            return res
+
         def adv_input(whatever, _type=str):
             """
             Universal variable request
