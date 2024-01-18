@@ -15,18 +15,18 @@ if desired_label != None:
     if lj_mount.label != desired_label:
         remount("/", False)
         lj_mount.label = desired_label
-        print("Reset filesystem label.\n")
+        print("Reset filesystem label.")
         remount("/", True)
 
 if fetch("usb_msc_available", "LJINUX"):
     print("This board supports USB filesystem enumeration.")
     if fetch("usb_msc_enabled", "LJINUX"):
-        print("The USB filesystem is enabled.\nLjinux will access root Read-Only!\n")
+        print("The USB filesystem is enabled.\nLjinux will access root Read-Only!")
     else:
         disable_usb_drive()
-        print("The USB filesystem is disabled.\nLjinux will operate normally.\n")
+        print("The USB filesystem is disabled.\nLjinux will operate normally.")
 else:
-    print("This board does not support USB filesystem enumeration.\n")
+    print("This board does not support USB filesystem enumeration.")
 
 
 if fetch("usb_hid_available", "LJINUX"):
@@ -35,12 +35,12 @@ if fetch("usb_hid_available", "LJINUX"):
     print("This board supports HID enumeration.")
 
     if fetch("usb_hid_enabled", "LJINUX"):
-        print("HID Enabled.\n")
+        print("HID Enabled.")
     else:
         usb_hid.disable()
-        print("HID Disabled.\n")
+        print("HID Disabled.")
 else:
-    print("This board does not support HID enumeration.\n")
+    print("This board does not support HID enumeration.")
 
 if fetch("usb_midi_available", "LJINUX"):
     import usb_midi
