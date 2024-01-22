@@ -15,5 +15,5 @@ elif len(vr("opts")["w"]) > 0:
 else:
     term.write(ljinux.api.getvar("HOSTNAME"))
 
-if "network" in ljinux.modules:
-    ljinux.modules["network"].hostname(ljinux.api.getvar("HOSTNAME"))
+if "network" in ljinux.devices:
+    ljinux.devices["network"][0].hostname(ljinux.api.getvar("HOSTNAME"))
