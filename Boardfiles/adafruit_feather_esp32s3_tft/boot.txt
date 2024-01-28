@@ -1,7 +1,7 @@
 01-early-connection.py
 02-path.py
 03-LEDs.py
-04-wifi.py
+04-reload-hostname.py
+05-wifi.py
 06-advance-time.lja
 50-telnet.lja
-05-reload-hostname.py
