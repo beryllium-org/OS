@@ -22,7 +22,7 @@ class driver_wifi:
         self.error = False
         self.hw_name = "wifi"
         self.interface_type = "wifi"
-        self.mode = "station"
+        self.mode = "hotspot" if wifi.radio.ap_active else "station"
 
         if wifi.radio.connected or wifi.radio.ap_active:
             # We need to inherit connection
@@ -31,7 +31,22 @@ class driver_wifi:
 
     @property
     def connected(self) -> bool:
-        return wifi.radio.connected or wifi.radio.ap_active
+        return wifi.radio.connected
+
+    @property
+    def ap_connected(self) -> bool:
+        return wifi.radio.ap_active
+
+    def _mode(self) -> str:
+        if wifi.radio.ap_active:
+            if wifi.radio.connected:
+                return "both"
+            else:
+                return "hotspot"
+        elif wifi.radio.connected:
+            return "station"
+        else:
+            return "disconnected"
 
     def connect(self, ssid, passwd=None, retries=3) -> bool:
         """
@@ -42,6 +57,7 @@ class driver_wifi:
             retries = 1
         fails = 0
         while fails is not retries:
+            self.disconnect_ap()
             self.disconnect()
 
             try:
@@ -57,6 +73,7 @@ class driver_wifi:
             return False
         self._pool = SocketPool(wifi.radio)
         self._session = Session(self._pool, create_default_context())
+        self.mode = self._mode()
         return True
 
     def connect_ap(self, ssid, passwd=None) -> bool:
@@ -64,7 +81,7 @@ class driver_wifi:
         Create an AP.
         """
 
-        self.disconnect()
+        self.disconnect_ap()
         try:
             if passwd is not None:
                 wifi.radio.start_ap(ssid=ssid, password=passwd)
@@ -74,6 +91,7 @@ class driver_wifi:
             return False
         self._pool = SocketPool(wifi.radio)
         self._session = Session(self._pool, create_default_context())
+        self.mode = self._mode()
         return True
 
     def hostname(self, name=None) -> str:
@@ -178,16 +196,19 @@ class driver_wifi:
 
     def reset(self) -> None:
         self.disconnect()
+        self.disconnect_ap()
 
     def disconnect(self) -> None:
         """
         Disconnect from the wifi
         """
-        if wifi.radio.ap_active:
-            wifi.radio.stop_ap()
-        if wifi.radio.connected:
+        while wifi.radio.connected:
             wifi.radio.stop_station()
-            wifi.radio.stop_scanning_networks()
+        wifi.radio.stop_scanning_networks()
+
+        if wifi.radio.ap_active:
+            return
+
         try:
             wifi.radio.enabled = False
         except:
@@ -205,6 +226,37 @@ class driver_wifi:
         del self._pool, self._session
         self._pool = None
         self._session = None
+        self.mode = self._mode()
+
+    def disconnect_ap(self) -> None:
+        """
+        Disconnect from the wifi ap
+        """
+        while wifi.radio.ap_active:
+            wifi.radio.stop_ap()
+        wifi.radio.stop_scanning_networks()
+
+        if wifi.radio.connected:
+            return
+
+        try:
+            wifi.radio.enabled = False
+        except:
+            pass
+
+        from time import sleep
+
+        sleep(0.5)
+
+        try:
+            wifi.radio.enabled = True
+        except:
+            pass
+
+        del self._pool, self._session
+        self._pool = None
+        self._session = None
+        self.mode = self._mode()
 
     def start(self) -> None:
         """
@@ -215,6 +267,7 @@ class driver_wifi:
         except:
             pass
         self.disconnect()
+        self.disconnect_ap()
 
     def stop(self) -> None:
         """
@@ -223,6 +276,7 @@ class driver_wifi:
         Power it off
         """
         self.disconnect()
+        self.disconnect_ap()
         try:
             wifi.radio.enabled = False
         except:
