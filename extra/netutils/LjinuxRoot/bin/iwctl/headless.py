@@ -33,6 +33,7 @@ if vr("argl") > 2 and vr("args")[0] == "station" and vr("args")[1] == vr("device
                 vr("tpd", cptoml.fetch(vr("args")[3], subtable="IWD"))
                 if vr("passwd") is not None:
                     ljinux.devices["network"][0].disconnect()
+                    ljinux.devices["network"][0].disconnect_ap()
                     dmtex('IWD: Connecting to: "{}"'.format(vr("args")[3]))
                     vr(
                         "res",
@@ -42,6 +43,7 @@ if vr("argl") > 2 and vr("args")[0] == "station" and vr("args")[1] == vr("device
                     )
                 elif vr("tpd") is not None:
                     ljinux.devices["network"][0].disconnect()
+                    ljinux.devices["network"][0].disconnect_ap()
                     dmtex(
                         'IWD: Connecting to: "{}" with stored password.'.format(
                             vr("args")[3]
@@ -55,6 +57,7 @@ if vr("argl") > 2 and vr("args")[0] == "station" and vr("args")[1] == vr("device
                     term.write("Error: No password specified")
             else:
                 ljinux.devices["network"][0].disconnect()
+                ljinux.devices["network"][0].disconnect_ap()
                 dmtex('IWD: Connecting to: "{}"'.format(vr("args")[3]))
                 vr("res", ljinux.devices["network"][0].connect(vr("args")[3]))
             exec(vr("wifi_connect_msg"))
@@ -135,6 +138,7 @@ if vr("argl") > 2 and vr("args")[0] == "station" and vr("args")[1] == vr("device
                         exec(vr("wifi_ap_msg"))
     elif vr("args")[2] == "disconnect":
         ljinux.devices["network"][0].disconnect()
+        ljinux.devices["network"][0].disconnect_ap()
         ljinux.api.setvar("return", "0")
     else:
         ljinux.based.error(1)

@@ -131,6 +131,7 @@ while True:
 
                             if vr("passwd") is not None:
                                 ljinux.devices["network"][0].disconnect()
+                                ljinux.devices["network"][0].disconnect_ap()
                                 dmtex('IWD: Connecting to: "{}"'.format(vr("data")[3]))
                                 vr(
                                     "res",
@@ -191,6 +192,7 @@ while True:
 
                 elif vr("datal") > 2 and vr("data")[2] == "disconnect":
                     ljinux.devices["network"][0].disconnect()
+                    ljinux.devices["network"][0].disconnect_ap()
                     dmtex("Wifi: Disconnected.")
                     ljinux.api.setvar("return", "0")
                 else:
