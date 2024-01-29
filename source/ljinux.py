@@ -796,7 +796,9 @@ class ljinux:
                 path = ljinux.api.betterpath(path)
                 if path == "/LjinuxRoot/dev":  # Device enumeration done here.
                     devs = list(ljinux.devices.keys())
+                    terms = list(pv[0]["consoles"].keys())
                     devs.sort()
+                    terms.sort()
                     for i in devs:
                         for j in range(len(ljinux.devices[i])):
                             res.append(
@@ -810,6 +812,18 @@ class ljinux:
                                     "root",
                                 ]
                             )
+                    for i in terms:
+                        res.append(
+                            [
+                                i,
+                                "c",
+                                [7, 7, 7],
+                                0,
+                                time.localtime(),
+                                "root",
+                                "root",
+                            ]
+                        )
                 else:
                     tmp = listdir(path)
                     tmp.sort()
