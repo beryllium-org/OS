@@ -794,16 +794,50 @@ class ljinux:
             res = []
             if path:
                 path = ljinux.api.betterpath(path)
-                tmp = listdir(path)
-                for i in tmp:
-                    typ = ljinux.api.isdir(path + "/" + i)
-                    if typ == 1:
-                        typ = "d"
-                    elif typ == 0:
-                        typ = "f"
-                    else:
-                        typ = "b"
-                    res.append([i, typ, [0, 0, 0], "root", "root"])
+                if path == "/LjinuxRoot/dev":  # Device enumeration done here.
+                    devs = list(ljinux.devices.keys())
+                    devs.sort()
+                    for i in devs:
+                        for j in range(len(ljinux.devices[i])):
+                            res.append(
+                                [
+                                    i + str(j),
+                                    "c",
+                                    [7, 7, 7],
+                                    0,
+                                    time.localtime(),
+                                    "root",
+                                    "root",
+                                ]
+                            )
+                else:
+                    tmp = listdir(path)
+                    tmp.sort()
+                    tmpath = path if path.startswith("/LjinuxRoot") else ("&" + path)
+                    for i in tmp:
+                        typ = ljinux.api.isdir(tmpath + "/" + i)
+                        if typ == 1:
+                            typ = "d"
+                        elif typ == 0:
+                            typ = "f"
+                        else:
+                            typ = "?"
+                        stati = stat(path + "/" + i)
+                        res.append(
+                            [
+                                i,
+                                typ,
+                                [7, 7, 7],
+                                stati[6],
+                                time.localtime(
+                                    stati[9]
+                                    + ljinux.based.system_vars["TIMEZONE_OFFSET"] * 3600
+                                ),
+                                "root",
+                                "root",
+                            ]
+                        )
+                        del stati
             else:
                 raise OSError("Could not traverse directory.")
             return res
@@ -1072,6 +1106,7 @@ class ljinux:
             "IMPLEMENTATION": ".".join(map(str, list(implementation.version))),
             "IMPLEMENTATION_RAW": uname()[3][: uname()[3].find(" on ")],
             "IMPLEMENTATION_DATE": uname()[3][uname()[3].rfind(" ") + 1 :],
+            "TIMEZONE_OFFSET": 0,
         }
         del uname
 
