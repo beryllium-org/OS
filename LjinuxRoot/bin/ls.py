@@ -15,14 +15,7 @@ try:
     if "l" in vr("co"):
         vr("sps", "\n")
 
-    if "a" in vr("co"):
-        term.write(colors.okcyan + "." + colors.endc, end=vr("sps"))
-        if not (vr("path") == "/" or (vr("path") == "./" and getcwd() == "/")):
-            term.write(colors.okcyan + ".." + colors.endc, end=vr("sps"))
-    vrd("path")
-
     vr("cnt", len(vr("ls")))
-
     if "a" not in vr("co"):
         vr("ls2", [])
         for pv[get_pid()]["i"] in range(vr("cnt")):
@@ -35,7 +28,7 @@ try:
         vr("cnt", len(vr("ls")))
 
     if "l" in vr("co"):
-        term.write("total " + str(vr("cnt")))
+        term.write("total " + str(vr("cnt") + (2 if "a" in vr("co") else 0)))
         vr(
             "pmap",
             {
@@ -66,6 +59,12 @@ try:
                 12: "Dec",
             },
         )
+
+    if "a" in vr("co"):
+        term.write(colors.okcyan + "." + colors.endc, end=vr("sps"))
+        if not (vr("path") == "/" or (vr("path") == "./" and getcwd() == "/")):
+            term.write(colors.okcyan + ".." + colors.endc, end=vr("sps"))
+    vrd("path")
 
     for pv[get_pid()]["i"] in range(vr("cnt")):
         vr("col", "")
