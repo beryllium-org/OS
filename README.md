@@ -13,7 +13,7 @@ We also work with [Github Discussions](https://github.com/bill88t/ljinux/discuss
 
 Table of Contents
 =================
-* [Prerequisites](#prerequisites-and-optional-hardware)
+* [Prerequisites](#prerequisites-and-hardware-support)
 * [Installation / updating](#installation--updating)
 * [Packages](#packages)
 * [Connection](#connection)
@@ -21,31 +21,38 @@ Table of Contents
 * [Manual](#a-complete-ljinux-manual-is-available)
 * [Useful resources](#useful-resources-that-helped-with-the-development-of-this-project)
 
-## Prerequisites and optional hardware
+## Prerequisites and hardware support
 
-Runs on circuitpython <code>8.1.X</code>, <code>8.2.X</code> and <code>9.0.0-alpha-X</code>.<br />
+Runs on circuitpython <code>8.1.X</code> or later, including up to <code>9.0.0-beta-0</code>.<br />
+Most of the os, will function just fine on earlier versions, even <code>6.x</code>, but many functions will be broken.<br />
 Currently the supported boards are:<br />
 
+Espressif:<br />
  - Adafruit Feather ESP32-S2<br />
  - Adafruit Feather ESP32-S3 TFT<br />
  - Adafruit KB2040<br />
  - DFRobot Beetle ESP32-C3<br />
  - Firebeetle 2 ESP32-S3<br />
  - M5Stack Timer Camera X<br />
+ - Wemos Lolin S2 Mini<br />
+ - WeAct ESP32-C6<br />
+ - Waveshare ESP32-S2-Pico<br />
+
+Raspberry Pi:<br />
  - Pimoroni Pico Lipo (16mb)<br />
  - Pimoroni Pico Lipo (4mb)<br />
  - Raspberry Pi Pico<br />
  - Raspberry Pi Pico W<br />
- - Seeed XIAO nRF52840 (Sense)<br />
  - Waveshare RP2040-Zero<br />
- - Waveshare ESP32-S2-Pico<br />
- - Wemos Lolin S2 Mini<br />
- - WeAct ESP32-C6<br />
 
+Nordic:<br />
+ - Seeed XIAO nRF52840 (Sense)<br />
+
+<br />
 But it can probably run on many more.<br />
 <br />
 The currently stable supported MCUs are: <code>ESP32</code>, <code>ESP32-S2</code>, <code>ESP32-S3</code>, <code>ESP32-C3</code>, <code>ESP32-C6</code>, <code>RP2040</code>, <code>nRF52840</code>.<br />
-The currently unsupported CircuitPython-compatible MCU families / CircuitPython platforms are: <code>SAMD21</code>, <code>SAMD51</code>, <code>litex</code>, <code>mimxrt10xx</code>, <code>efr32</code>, <code>stm</code>, <code>unix</code>.<br />
+The currently unsupported CircuitPython-compatible MCU families / CircuitPython platforms are: <code>SAMD21</code>, <code>SAMD51</code>, <code>litex</code>, <code>mimxrt10xx</code>, <code>efr32</code>, <code>stm</code>.<br />
 The MCU's that are currently unsupported are so because I either can't get my hands on a decent board with them or they don't have enough ram for ljinux.<br />
 <br />
 The only real limiting factor should be ram, as about 70k (usable under circuitpython) are needed.<br />
@@ -53,18 +60,19 @@ The only real limiting factor should be ram, as about 70k (usable under circuitp
 
 ## Installation / Updating
 
-Note: Installation using scripts, from windows is unsupported.<br />
-If you are windows user, this project **really** isn't for you.<br />
-Don't even try from wsl.<br />
+Do note, installation using scripts, from windows is unsupported. Use a release <code>.zip</code> instead.<br />
+Though, if you are windows user, this project **really** isn't for you.<br />
+Don't even try from wsl. The scripts rely on mount points. They will just not detect any boards.<br />
 
 1) Install a supported CircuitPython version onto the board.<br />
     Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
 2) Download the latest ljinux release for your board and extract it onto it.<br />
-    Or even better, if you wish to use the latest and greatest, clone this repository and from within the "source" folder, run <code>make install</code> with your board mounted.<br />
+    <b>Or even better</b>, if you wish to use the latest and greatest, clone this repository and from within the "source" folder, run <code>make install</code> with your board mounted.<br />
     DO NOT run with <code>-j</code>!!!<br />
     This command will automatically update the system files if they already exist.<br />
-    To only update the wanna-be kernel run <code>make</code> instead.<br />
-    If you plan on loading the files remotely (via web/ble workflow), run <code>make \*your board.board_id\* install</code> instead (DO NOT run with <code>-j</code>).<br />
+    To only update the core files, run <code>make kernel</code> instead.<br />
+    If you only want to update the board extras, like drivers, run <code>make extras</code> instead.<br />
+    If you plan on loading the files remotely (via web/ble workflow), run <code>make \*your board.board_id\* install</code> instead.<br />
     The files for you to copy will be created inside <code>source/build_\*your board.board_id\*</code>.<br />
 3) *(Optional)* Copy over the packages you wish to install with jpkg, or install drivers with make.<br />
     More info regarding packages in [Packages](#packages)
