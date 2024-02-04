@@ -30,7 +30,6 @@ Currently the supported boards are:<br />
 Espressif:<br />
  - Adafruit Feather ESP32-S2<br />
  - Adafruit Feather ESP32-S3 TFT<br />
- - Adafruit KB2040<br />
  - DFRobot Beetle ESP32-C3<br />
  - Firebeetle 2 ESP32-S3<br />
  - M5Stack Timer Camera X<br />
@@ -39,6 +38,7 @@ Espressif:<br />
  - Waveshare ESP32-S2-Pico<br />
 
 Raspberry Pi:<br />
+ - Adafruit KB2040<br />
  - Pimoroni Pico Lipo (16mb)<br />
  - Pimoroni Pico Lipo (4mb)<br />
  - Raspberry Pi Pico<br />
