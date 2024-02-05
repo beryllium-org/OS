@@ -1,6 +1,3 @@
-# Clear boot buffer
-# clear
-
 # Final system configuration
 cd /home/board
 USER = "board"
@@ -17,6 +14,9 @@ pexec systemprints(1, "Dmesg flushed")
 # Stop dmesg from flooding tty
 pexec systemprints(1, "Suppress dmesg flooding")
 pexec term.dmtex_suppress = True
+
+# Clear boot buffer (optional)
+# clear
 
 # Checks
 _rebootprompt
