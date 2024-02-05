@@ -1,6 +1,6 @@
 rename_process("preload")
 vr("opts", ljinux.api.xarg())
-if "help" in vr("opts")["o"] or "-h" in vr("opts")["o"]:
+if "help" in vr("opts")["o"] or "h" in vr("opts")["o"]:
     term.write("Usage: preload [filename..]\n\n")
 else:
     if use_compiler:
