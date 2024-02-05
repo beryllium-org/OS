@@ -5,7 +5,10 @@ if "help" in vr("opts")["o"] or "h" in vr("opts")["o"] or not len(vr("li")):
     term.write("USAGE: telnet [setup/deinit]")
 elif len(vr("li")) and vr("li")[0] == "setup":
     systemprints(2, "Setup telnet")
-    if "network" in ljinux.devices and ljinux.devices["network"][0].connected:
+    if "network" in ljinux.devices and (
+        ljinux.devices["network"][0].connected
+        or ljinux.devices["network"][0].ap_connected
+    ):
         if "ttyTELNET0" not in pv[0]["consoles"]:
             from telnet_console import telnet_console
 
