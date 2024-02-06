@@ -10,3 +10,4 @@ while True:
     ljinux.io.ledset(4)
     time.sleep(0.2)
 time.sleep(0.2)  # Delay for the terminal to get used to it.
+term.clear_line()

@@ -1805,35 +1805,11 @@ class ljinux:
                             ljinux.io.ledset(1)  # idle
                         elif term.buf[0] is 2:
                             ljinux.io.ledset(2)  # keyact
-                            term.write("^D")
-                            if hasattr(term.console, "disconnect"):
-                                # We are running on a remote shell
-                                term.write("Bye")
-                                term.console.disconnect()
-                                ljinux.based.run("runparts /etc/hooks/disconnect.d/")
-                            elif term._active == False:  # Can be None
-                                # We want to disconnect from a passive console.
-                                term.write(
-                                    "You can safely disconnect from the console."
-                                )
-                                while term.detect_size() != False:
-                                    try:
-                                        time.sleep(0.1)
-                                    except KeyboardInterrupt:
-                                        pass
-                                time.sleep(0.5)
-                                if not ljinux.api.console_connected():
-                                    ljinux.based.run(
-                                        "runparts /etc/hooks/disconnect.d/"
-                                    )
-                                ljinux.based.command.exec(
-                                    "/LjinuxRoot/bin/_waitforconnection.lja"
-                                )
-                                term.clear_line()
-                            else:
-                                pv[0]["Exit"] = True
-                                pv[0]["Exit_code"] = 0
-                            ljinux.io.ledset(1)  # idle
+                            try:
+                                term.write("^D")
+                            except:
+                                pass
+                            ljinux.based.command.fpexec("/LjinuxRoot/bin/exit.py")
                             break
                         elif term.buf[0] is 3:  # tab key
                             if len(term.buf[1]):
@@ -1936,13 +1912,12 @@ class ljinux:
                                 term.focus = 0
                                 ljinux.history.nav[0] = 0
                         elif term.buf[0] is 20:  # console disconnected
-                            time.sleep(0.5)
                             if not ljinux.api.console_connected():
                                 ljinux.based.run("runparts /etc/hooks/disconnect.d/")
                             ljinux.based.command.exec(
                                 "/LjinuxRoot/bin/_waitforconnection.lja"
                             )
-                            term.clear_line()
+
                 if not pv[0]["Exit"]:
                     res = ""
                     if led:

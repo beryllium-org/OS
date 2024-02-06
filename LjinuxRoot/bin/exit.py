@@ -1,11 +1,24 @@
 rename_process("exit")
-term.write("Bye")
 if hasattr(term.console, "disconnect"):
-    # We are running on a remote shell
+    # Console can kick
+    term.write("Bye")
     term.console.disconnect()
+    ljinux.based.run("runparts /etc/hooks/disconnect.d/")
 else:
-    vr("Exit", True, pid=0)
-    try:
-        vr("Exit_code", int(ljinux.based.user_vars["argj"].split()[1]), pid=0)
-    except IndexError:
-        pass
+    # Console can't kick
+
+    if hasattr(term.console, "connected"):
+        if term.console.connected:
+            term.write("You can safely disconnect from the console.")
+        while term.console.connected:
+            time.sleep(0.1)
+            ljinux.based.run("runparts /etc/hooks/disconnect.d/")
+    else:
+        term.write("You can safely disconnect from the console.")
+        while term.detect_size() != False:
+            try:
+                time.sleep(2)
+            except KeyboardInterrupt:
+                pass
+            ljinux.based.run("runparts /etc/hooks/disconnect.d/")
+ljinux.based.command.exec("/LjinuxRoot/bin/_waitforconnection.lja")
