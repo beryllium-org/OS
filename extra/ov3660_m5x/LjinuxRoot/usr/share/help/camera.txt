@@ -1,0 +1,11 @@
+Usage: camera [OPTION...]
+Configure and capture camera data.
+
+  -h, --help          give this help list
+  -i, --init          initialize the camera
+  -d, --deinit        deinitialize the camera
+  -c, --capture       capture a photo, and save it to a file
+  -m, --mode          use an alternative mode
+
+Default settings are configured in "/etc/camera.d/config.toml".
+The different modes are in "/etc/camera.d/presets/".

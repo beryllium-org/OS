@@ -800,10 +800,13 @@ class ljinux:
                     devs.sort()
                     terms.sort()
                     for i in devs:
+                        name = i
+                        if name[-1].isdigit():
+                            name += "_"
                         for j in range(len(ljinux.devices[i])):
                             res.append(
                                 [
-                                    i + str(j),
+                                    name + str(j),
                                     "c",
                                     [7, 7, 7],
                                     0,
