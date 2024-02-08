@@ -1,4 +1,4 @@
-rename_process("m5x-camera")
+rename_process("camera")
 import espcamera
 
 vr("opts", ljinux.api.xarg())
@@ -11,6 +11,7 @@ vr(
 if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
     ljinux.api.setvar("return", "1")
     if vr("dev") not in ljinux.devices:
+        vr("conft", ljinux.api.betterpath("/etc/camera.d/config.toml"))
         if "mode" in vr("opts")["o"] or "m" in vr("opts")["o"]:
             if "mode" in vr("opts")["o"]:
                 vr("mode", vr("opts")["o"]["mode"])
@@ -21,7 +22,7 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
                 "mode",
                 cptoml.fetch(
                     "default_preset",
-                    toml=ljinux.api.betterpath("/etc/camera.d/config.toml"),
+                    toml=vr("conft"),
                 ),
             )
         vr("pr", ljinux.api.betterpath("/etc/camera.d/presets/" + vr("mode") + ".toml"))
@@ -48,18 +49,93 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
                 toml=ljinux.api.betterpath(vr("pr")),
             ),
         )
+        vr(
+            "data_pins",
+            cptoml.fetch(
+                "data_pins",
+                toml=vr("conft"),
+            ),
+        )
+        vr(
+            "pixel_clock_pin",
+            cptoml.fetch(
+                "pixel_clock_pin",
+                toml=vr("conft"),
+            ),
+        )
+        vr(
+            "vsync_pin",
+            cptoml.fetch(
+                "vsync_pin",
+                toml=vr("conft"),
+            ),
+        )
+        vr(
+            "href_pin",
+            cptoml.fetch(
+                "href_pin",
+                toml=vr("conft"),
+            ),
+        )
+        vr(
+            "i2c",
+            cptoml.fetch(
+                "i2c",
+                toml=vr("conft"),
+            ),
+        )
+        vr(
+            "external_clock_pin",
+            cptoml.fetch(
+                "external_clock_pin",
+                toml=vr("conft"),
+            ),
+        )
+        vr(
+            "external_clock_frequency",
+            cptoml.fetch(
+                "external_clock_frequency",
+                toml=vr("conft"),
+            ),
+        )
+        vr(
+            "powerdown_pin",
+            cptoml.fetch(
+                "powerdown_pin",
+                toml=vr("conft"),
+            ),
+        )
+        vr(
+            "reset_pin",
+            cptoml.fetch(
+                "reset_pin",
+                toml=vr("conft"),
+            ),
+        )
         ljinux.devices[vr("dev")] = []
         ljinux.devices[vr("dev")].append(
             espcamera.Camera(
-                data_pins=board.D,
-                pixel_clock_pin=board.PCLK,
-                vsync_pin=board.VSYNC,
-                href_pin=board.HREF,
-                i2c=board.SSCB_I2C(),
-                external_clock_pin=board.XCLK,
-                external_clock_frequency=20_000_000,
-                powerdown_pin=None,
-                reset_pin=board.RESET,
+                data_pins=ljinux.devices["gpiochip"][0].pin(
+                    vr("data_pins"), force=True
+                ),
+                pixel_clock_pin=ljinux.devices["gpiochip"][0].pin(
+                    vr("pixel_clock_pin"), force=True
+                ),
+                vsync_pin=ljinux.devices["gpiochip"][0].pin(
+                    vr("vsync_pin"), force=True
+                ),
+                href_pin=ljinux.devices["gpiochip"][0].pin(vr("href_pin"), force=True),
+                i2c=ljinux.devices["gpiochip"][0].pin(vr("i2c"), force=True)(),
+                external_clock_pin=ljinux.devices["gpiochip"][0].pin(
+                    vr("external_clock_pin"), force=True
+                ),
+                external_clock_frequency=vr("external_clock_frequency"),
+                powerdown_pin=ljinux.devices["gpiochip"][0].pin(
+                    vr("powerdown_pin"), force=True
+                ),
+                reset_pin=ljinux.devices["gpiochip"][0].pin(
+                    vr("reset_pin"), force=True
+                ),
                 pixel_format=vr("px"),
                 frame_size=vr("fr"),
                 jpeg_quality=vr("qual"),
@@ -100,7 +176,14 @@ if "capture" in vr("opts")["o"] or "c" in vr("opts")["o"]:
         )
         ljinux.devices[vr("dev")][0].quality = vr("ql")
         vr("tt", time.localtime())
-        vr("pic_name", "M5X-")
+        vr(
+            "branding",
+            cptoml.fetch(
+                "branding",
+                toml=ljinux.api.betterpath("/etc/camera.d/config.toml"),
+            ),
+        )
+        vr("pic_name", vr("branding") + "-")
         if vr("tt").tm_mday < 10:
             vrp("pic_name", "0")
         vrp("pic_name", str(vr("tt").tm_mday) + "-")

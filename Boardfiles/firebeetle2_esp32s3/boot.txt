@@ -1,3 +1,4 @@
+00-gpio.py
 01-early-connection.py
 02-path.py
 03-LEDs.py

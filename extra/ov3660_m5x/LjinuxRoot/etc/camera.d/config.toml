@@ -1,2 +1,13 @@
-default_preset="high"
-device="ov3660"
+default_preset = "high"
+device = "ov3660"
+branding = "M5X"
+
+data_pins = "D"
+pixel_clock_pin = "PCLK"
+vsync_pin = "VSYNC"
+href_pin = "HREF"
+i2c = "SSCB_I2C"
+external_clock_pin = "XCLK"
+external_clock_frequency = 20000000
+powerdown_pin = "none"
+reset_pin = "RESET"

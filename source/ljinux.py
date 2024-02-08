@@ -203,9 +203,6 @@ try:
 
     gc.enable()
 
-    import board
-    import digitalio
-
     from sys import implementation, platform, modules, exit
 
     import busio
@@ -248,9 +245,7 @@ except ImportError:
 print("[    0.00000] Core modules loaded")
 pv[0]["dmesg"].append("[    0.00000] Core modules loaded")
 
-# Pin allocation tables
-vr("pin_alloc", set())
-vr("gpio_alloc", {})
+vr("digitalio_store", {})
 
 # Exit code holder, has to be global for everyone to be able to see it.
 vr("Exit", False)
@@ -330,35 +325,21 @@ except ImportError:
 
 # Board specific configurations
 defaultoptions = {  # default configuration, in line with the manual (default value, type, allocates pin bool)
-    "led": (-1, int, True),
-    "ledtype": ("generic", str, False),
-    "leden": (-1, int, True),
-    "serial_console_enabled": (True, bool, False),
-    "usb_msc_available": (False, bool, False),
-    "usb_hid_available": (False, bool, False),
-    "usb_midi_available": (False, bool, False),
-    "wifi_available": (False, bool, False),
-    "ble_available": (False, bool, False),
-    "blc_available": (False, bool, False),
-    "usb_msc_enabled": (False, bool, False),
-    "usb_hid_enabled": (False, bool, False),
-    "usb_midi_enabled": (False, bool, False),
-    "fs_label": ("LJINUX", str, False),
-    "DEBUG": (False, bool, False),
-    "root_SCLK": (-1, int, True),
-    "root_SCSn": (-1, int, True),
-    "root_MISO": (-1, int, True),
-    "root_MOSI": (-1, int, True),
+    "led": ("LED", str),
+    "ledtype": ("generic", str),
+    "serial_console_enabled": (True, bool),
+    "usb_msc_available": (False, bool),
+    "usb_hid_available": (False, bool),
+    "usb_midi_available": (False, bool),
+    "wifi_available": (False, bool),
+    "ble_available": (False, bool),
+    "blc_available": (False, bool),
+    "usb_msc_enabled": (False, bool),
+    "usb_hid_enabled": (False, bool),
+    "usb_midi_enabled": (False, bool),
+    "fs_label": ("LJINUX", str),
+    "DEBUG": (False, bool),
 }
-
-# pintab
-try:
-    from pintab import pintab
-except:
-    dmtex(
-        f"{colors.error}ERROR:{colors.endc} Board pintab cannot be loaded!\n\nCannot continue."
-    )
-    exit(1)
 
 # General options
 dmtex("Options loaded:")
@@ -394,43 +375,9 @@ for optt in list(defaultoptions.keys()):
             term.hold_stdout = True  # set it to buffered by default
             term.flush_writes()
             exit(0)
-    if defaultoptions[optt][2]:
-        if optt_dt in pv[0]["pin_alloc"]:
-            dmtex("PIN ALLOCATED, EXITING")
-            exit(0)
-        elif optt_dt == -1:
-            pass
-        else:
-            pv[0]["pin_alloc"].add(optt_dt)
     del optt, optt_dt
 
-dmtex("Total pin alloc: ", end="")
-for pin in pv[0]["pin_alloc"]:
-    dmtex(str(pin), timing=False, end=" ")
-dmtex("", timing=False)
-
-ldd = cptoml.fetch("led", "LJINUX")
-vr("boardLED", None)
-vr("boardLEDen", None)
-if ldd == -1:
-    ct = cptoml.fetch("ledtype", "LJINUX")
-    if ct.startswith("generic"):
-        vr("boardLED", board.LED)
-    elif ct.startswith("neopixel"):
-        vr("boardLED", board.NEOPIXEL)
-        cen = cptoml.fetch("leden", "LJINUX")
-        if cen == -1:
-            if "NEOPIXEL_POWER" in dir(board):
-                vr("boardLEDen", board.NEOPIXEL_POWER)
-        else:
-            vr("boardLEDen", pintab[cen])
-        del cen
-    elif ct.startswith("rgb"):
-        vr("boardLED", board.LED_RED)
-    del ct
-else:
-    vr("boardLED", pintab[ldd])
-del ldd, defaultoptions
+del defaultoptions
 gc.collect()
 gc.collect()
 
@@ -462,7 +409,7 @@ def systemprints(mod: int, tx1: str, tx2: str = None) -> None:
     mods[mod]()
     dmtex(colors.white_t + " ] " + colors.endc + tx1, timing=False)
     if tx2 is not None:
-        dmtex("           -> " if mod is 3 else "       -> ", timing=False, end="")
+        dmtex("    -> ", timing=False, end="")
         dmtex(tx2, timing=False)
 
 
@@ -558,9 +505,66 @@ class ljinux:
             r = 0 if fn else 1
 
             for i in range(r, len(inpt)):
-                if inpt[i].startswith("$"):  # variable
+                if inpt[i][0] == "$":  # variable
                     if not s:
                         inpt[i] = ljinux.api.adv_input(inpt[i][1:])
+                    elif inpt[i].endswith('"'):
+                        temp_s += ljinux.api.adv_input(inpt[i][:-1])
+                        words.append(temp_s)
+                        s = False
+                    elif '"' not in inpt[i]:
+                        temp_s += " " + ljinux.api.adv_input(inpt[i][1:])
+                        continue
+                    else:
+                        temp_s += " " + ljinux.api.adv_input(
+                            inpt[i][1 : inpt[i].find('"')]
+                        )
+                        words.append(temp_s)
+                        s = False
+                        inpt[i] = inpt[i][inpt[i].find('"') + 1 :]
+                elif inpt[i].startswith("gp#") and (
+                    inpt[i][3:] in ljinux.devices["gpiochip"][0].pins
+                ):
+                    if not s:
+                        pin_name = inpt[i][3:]
+                        if pin_name not in pv[0]["digitalio_store"]:
+                            if ljinux.devices["gpiochip"][0].is_free(pin_name):
+                                tmp_gpio = ljinux.devices["gpiochip"][0].input(pin_name)
+                                inpt[i] = str(tmp_gpio.value)
+                                tmp_gpio.deinit()
+                            else:
+                                term.write("Could not allocate GPIO " + pin_name)
+                        else:
+                            inpt[i] = str(pv[0]["digitalio_store"][pin_name].value)
+                    elif inpt[i].endswith('"'):
+                        temp_s += ljinux.api.adv_input(inpt[i][:-1])
+                        words.append(temp_s)
+                        s = False
+                    elif '"' not in inpt[i]:
+                        temp_s += " " + ljinux.api.adv_input(inpt[i][1:])
+                        continue
+                    else:
+                        temp_s += " " + ljinux.api.adv_input(
+                            inpt[i][1 : inpt[i].find('"')]
+                        )
+                        words.append(temp_s)
+                        s = False
+                        inpt[i] = inpt[i][inpt[i].find('"') + 1 :]
+                elif inpt[i].startswith("adc#") and (
+                    inpt[i][4:] in ljinux.devices["gpiochip"][0].pins
+                ):
+                    if not s:
+                        pin_name = inpt[i][4:]
+                        if pin_name not in pv[0]["digitalio_store"]:
+                            if ljinux.devices["gpiochip"][0].is_free(pin_name):
+                                tmp_gpio = ljinux.devices["gpiochip"][0].adc(pin_name)
+                                inpt[i] = str(tmp_gpio.value)
+                                tmp_gpio.deinit()
+                            else:
+                                term.write("Could not allocate GPIO " + pin_name)
+                        else:
+                            # Can read digitalio, ignore
+                            inpt[i] = str(pv[0]["digitalio_store"][pin_name].value)
                     elif inpt[i].endswith('"'):
                         temp_s += ljinux.api.adv_input(inpt[i][:-1])
                         words.append(temp_s)
@@ -1013,20 +1017,7 @@ class ljinux:
     class io:
         # Activity led
         led_setup = False
-
-        led = digitalio.DigitalInOut(vr("boardLED", pid=0))
-        leden = None
-        if vr("boardLEDen", pid=0) is not None:
-            leden = digitalio.DigitalInOut(vr("boardLEDen", pid=0))
-            leden.switch_to_output()
-            leden.value = 1
-        ledg = None
-        ledb = None
-        ledtype = "led_" + cptoml.fetch("ledtype", "LJINUX")
-
-        if ledtype.startswith("led_rgb"):
-            ledg = digitalio.DigitalInOut(board.LED_GREEN)
-            ledb = digitalio.DigitalInOut(board.LED_BLUE)
+        ledtype = None
 
         def ledset(state) -> None:
             """
@@ -1053,38 +1044,8 @@ class ljinux:
             except OSError:
                 yield f"Error: File '{filename}' Not Found"
 
-        def start_sdcard() -> None:
-            root_SCLK = cptoml.fetch("root_SCLK", "LJINUX")
-            root_SCSn = cptoml.fetch("root_SCSn", "LJINUX")
-            root_MISO = cptoml.fetch("root_MISO", "LJINUX")
-            root_MOSI = cptoml.fetch("root_MOSI", "LJINUX")
-            if (
-                root_SCLK != -1
-                and root_SCSn != -1
-                and root_MISO != -1
-                and root_MOSI != -1
-            ):
-                spi = busio.SPI(
-                    pintab[root_SCLK],
-                    MOSI=pintab[root_MOSI],
-                    MISO=pintab[root_MISO],
-                )
-                cs = digitalio.DigitalInOut(pintab[root_SCSn])
-                dmtex("TF card bus ready")
-                try:
-                    sdcard = adafruit_sdcard.SDCard(spi, cs)
-                    vfs = VfsFat(sdcard)
-                    dmtex("TF card mount attempted")
-                    mount(vfs, "/LjinuxRoot")
-                    vr("sdcard_fs", True, 0)
-                except NameError:
-                    dmtex("adafruit_sdcard library not present, aborting.")
-            else:
-                vr("sdcard_fs", False, 0)
-                dmtex("No pins for TF card, skipping setup")
-
         sys_getters = {
-            "sdcard": lambda: str(vr("sdcard_fs", pid0)),
+            "sdcard": lambda: str(vr("sdcard_fs", pid=0)),
             "uptime": lambda: str("%.5f" % (vr("uptimee", pid=0) + time.monotonic())),
             "temperature": lambda: str("%.2f" % cpu.temperature),
             "memory": lambda: str(gc.mem_free()),
@@ -1109,6 +1070,7 @@ class ljinux:
         }
 
         from os import uname
+        from board import board_id
 
         system_vars = {
             "OS": "Ljinux",
@@ -1119,13 +1081,13 @@ class ljinux:
             "HOSTNAME": "ljinux",
             "TERM": "xterm-256color",
             "LANG": "en_GB.UTF-8",
-            "BOARD": board.board_id,
+            "BOARD": board_id,
             "IMPLEMENTATION": ".".join(map(str, list(implementation.version))),
             "IMPLEMENTATION_RAW": uname()[3][: uname()[3].find(" on ")],
             "IMPLEMENTATION_DATE": uname()[3][uname()[3].rfind(" ") + 1 :],
             "TIMEZONE_OFFSET": 0,
         }
-        del uname
+        del uname, board_id
 
         def get_internal() -> list:
             intlist = dir(ljinux.based.command)
@@ -1227,19 +1189,6 @@ class ljinux:
                 end="",
             )
 
-            try:
-                systemprints(2, "Mount /LjinuxRoot")
-                ljinux.io.start_sdcard()
-                systemprints(1, "Mount /LjinuxRoot")
-            except OSError:
-                systemprints(
-                    3,
-                    "Mount /LjinuxRoot",
-                    "Error: TF card not available, assuming built in fs",
-                )
-                del modules["adafruit_sdcard"]
-                dmtex("Unloaded TFcard libraries")
-
             # Validate root exists
             try:
                 chdir("/LjinuxRoot")
@@ -1340,19 +1289,24 @@ class ljinux:
                         inpt.append(temp[i + 1])
                 try:
                     # basic checks, if any of this fails, quit
-                    for chh in inpt[0]:
-                        if not (chh.islower() or chh.isupper() or chh == "-"):
-                            valid = False
-                            break
+                    if not inpt[0].startswith("gp#") and (
+                        inpt[0][3:] in ljinux.devices["gpiochip"][0].pins
+                    ):
+                        for chh in inpt[0]:
+                            if not (chh.islower() or chh.isupper() or chh == "-"):
+                                valid = False
+                                term.write("Invalid parameters")
+                                break
                     if inpt[1] != "=" or not (
                         inpt[2].startswith('"')
                         or inpt[2].isdigit()
                         or inpt[2].startswith("/")
-                        or inpt[2].startswith("GP")
-                        or inpt[2] in vr("gpio_alloc", pid=0)
+                        or inpt[2].startswith("gp#")
+                        or inpt[2].startswith("adc#")
+                        or inpt[2] in vr("digitalio_store", pid=0)
                     ):
                         valid = False
-                    if valid:  # if the basic checks are done we can procceed to work
+                    if valid:
                         new_var = ""
                         if inpt[2].startswith('"'):
                             countt = len(inpt)
@@ -1366,51 +1320,20 @@ class ljinux:
                             else:
                                 ljinux.based.error(1)
                                 valid = False
-                        elif inpt[2].startswith("GP"):  # gpio allocation
-                            if len(inpt[2]) > 2 and len(inpt[2]) <= 4:
-                                gpp = int(inpt[2][2:])
-                            else:
-                                ljinux.based.error(2)
-                                return "1"
-                            if gpp in pin_alloc:
-                                dmtex("PIN ALLOCATED, ABORT", force=True)
-                                return "1"
-                            else:
-                                if ljinux.api.adv_input(inpt[0], str) == inpt[0]:
-                                    pv[0]["gpio_alloc"].update(
-                                        {
-                                            inpt[0]: [
-                                                digitalio.DigitalInOut(pintab[gpp]),
-                                                gpp,
-                                            ]
-                                        }
-                                    )
-                                    pv[0]["gpio_alloc"][inpt[0]][0].switch_to_input(
-                                        pull=digitalio.Pull.DOWN
-                                    )
-                                    pin_alloc.add(gpp)
-                                else:
-                                    ljinux.based.error(12)
-                            valid = False  # skip the next stuff
-
-                        elif inpt[0] in vr("gpio_alloc", pid=0):
-                            if inpt[2].isdigit():
-                                if (
-                                    pv[0]["gpio_alloc"][inpt[0]][0].direction
-                                    != digitalio.Direction.OUTPUT
-                                ):
-                                    pv[0]["gpio_alloc"][inpt[0]][
-                                        0
-                                    ].direction = digitalio.Direction.OUTPUT
-                                pv[0]["gpio_alloc"][inpt[0]][0].value = int(inpt[2])
-                                valid = False  # skip the next stuff
-                        elif inpt[2] in pv[0]["gpio_alloc"]:
-                            pass  # yes we really have to pass
+                        elif inpt[2].startswith("gp#"):  # gpio read
+                            pin_name = inpt[2][3:]
+                            if ljinux.devices["gpiochip"][0].is_free(pin_name):
+                                tmp_gpio = ljinux.devices["gpiochip"][0].input(pin_name)
+                                new_var += str(tmp_gpio.value)
+                                tmp_gpio.deinit()
+                        elif inpt[2].startswith("adc#"):  # gpio read
+                            pin_name = inpt[2][4:]
+                            if ljinux.devices["gpiochip"][0].is_free(pin_name):
+                                tmp_gpio = ljinux.devices["gpiochip"][0].adc(pin_name)
+                                new_var += str(tmp_gpio.value)
+                                tmp_gpio.deinit()
                         else:
                             new_var += str(inpt[2])
-                    else:
-                        ljinux.based.error(1)
-                        valid = False
                     if valid:  # now do the actual set
                         if inpt[0] in ljinux.based.system_vars:
                             if not (ljinux.based.system_vars["SECURITY"] == "on"):
@@ -1421,30 +1344,27 @@ class ljinux:
                                     + "Cannot edit system variables, security is enabled."
                                     + colors.endc
                                 )
+                        elif inpt[0].startswith("gp#"):
+                            pin_name = inpt[0][3:]
+                            if pin_name not in pv[0]["digitalio_store"]:
+                                if ljinux.devices["gpiochip"][0].is_free(pin_name):
+                                    pv[0]["digitalio_store"][pin_name] = ljinux.devices[
+                                        "gpiochip"
+                                    ][0].output(pin_name)
+                                else:
+                                    term.write("GPIO " + pin_name + " not available")
+                                    new_var = "a"
+                                if new_var.isdigit():
+                                    pv[0]["digitalio_store"][pin_name].value = int(
+                                        new_var
+                                    )
+                                else:
+                                    term.write("Value not an interger")
                         elif (
                             inpt[0] == ljinux.api.adv_input(inpt[0], str)
                             or inpt[0] in ljinux.based.user_vars
                         ):
-                            if (
-                                inpt[2] in pv[0]["gpio_alloc"]
-                            ):  # if setting value is gpio
-                                if (
-                                    pv[0]["gpio_alloc"][inpt[2]][0].direction
-                                    != digitalio.Direction.INPUT
-                                ):
-                                    pv[0]["gpio_alloc"][inpt[2]][
-                                        0
-                                    ].direction = digitalio.Direction.INPUT
-                                    pv[0]["gpio_alloc"][inpt[2]][0].switch_to_input(
-                                        pull=digitalio.Pull.DOWN
-                                    )
-                                ljinux.based.user_vars[inpt[0]] = str(
-                                    int(pv[0]["gpio_alloc"][inpt[2]][0].value)
-                                )
-                            else:
-                                ljinux.based.user_vars[inpt[0]] = new_var
-                        else:
-                            ljinux.based.error(12)
+                            ljinux.based.user_vars[inpt[0]] = new_var
                 except IndexError:
                     ljinux.based.error(1)
 
@@ -1452,16 +1372,16 @@ class ljinux:
                 inpt = inpt.split(" ")
                 if len(inpt):
                     a = inpt[0]
-                    if (
-                        a == ljinux.api.adv_input(a, str)
-                        and a not in pv[0]["gpio_alloc"]
+                    if a == ljinux.api.adv_input(a, str) and (
+                        a.startswith("gp#") and (a[3:] not in pv[0]["digitalio_store"])
                     ):
                         ljinux.based.error(2)
                     else:
-                        if a in vr("gpio_alloc", pid=0):
-                            pv[0]["gpio_alloc"][a][0].deinit()
-                            pin_alloc.remove(pv[0]["gpio_alloc"][a][1])
-                            del pv[0]["gpio_alloc"][a]
+                        if a.startswith("gp#") and (
+                            a[3:] in vr("digitalio_store", pid=0)
+                        ):
+                            pv[0]["digitalio_store"][a[3:]].deinit()
+                            del pv[0]["digitalio_store"][a[3:]]
                         elif a in ljinux.based.system_vars:
                             if not (ljinux.based.system_vars["SECURITY"] == "on"):
                                 del ljinux.based.system_vars[a]

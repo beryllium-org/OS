@@ -16,13 +16,7 @@ usb_msc_enabled = false
 usb_hid_enabled = false
 usb_midi_enabled = false
 
-leden = -1
 ledtype = "rgb_invert"
-led = -1
+led = "none"
 
 DEBUG = false
-
-root_SCLK = -1
-root_SCSn = -1
-root_MOSI = -1
-root_MISO = -1

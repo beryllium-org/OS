@@ -76,12 +76,6 @@ if not skiptm:
     system(f"cp ../Boardfiles/{board}/settings.toml {boardpath}/settings.toml")
 else:
     print(" - Skipped updating toml as setup variable already True")
-try:
-    circuitmpy.compile_mpy(
-        f"../Boardfiles/{board}/pintab.py", f"{boardpath}/lib/pintab.mpy", optim=optimis
-    )
-except OSError:
-    errexit()
 
 print("[5/6] Compiling jz")
 try:

@@ -1,3 +1,4 @@
+00-gpio.py
 00-no-dmesg.lja
 01-early-connection.py
 02-path.py
