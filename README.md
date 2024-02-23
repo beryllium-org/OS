@@ -48,11 +48,14 @@ Raspberry Pi:<br />
 Nordic:<br />
  - Seeed XIAO nRF52840 (Sense)<br />
 
+SAMD:<br />
+ - Seeed Wio Terminal<br />
+
 <br />
 But it can probably run on many more.<br />
 <br />
-The currently stable supported MCUs are: <code>ESP32</code>, <code>ESP32-S2</code>, <code>ESP32-S3</code>, <code>ESP32-C3</code>, <code>ESP32-C6</code>, <code>RP2040</code>, <code>nRF52840</code>.<br />
-The currently unsupported CircuitPython-compatible MCU families / CircuitPython platforms are: <code>SAMD21</code>, <code>SAMD51</code>, <code>litex</code>, <code>mimxrt10xx</code>, <code>efr32</code>, <code>stm</code>.<br />
+The currently stable supported MCUs are: <code>ESP32</code>, <code>ESP32-S2</code>, <code>ESP32-S3</code>, <code>ESP32-C3</code>, <code>ESP32-C6</code>, <code>RP2040</code>, <code>nRF52840</code>, <code>SAMD51</code>.<br />
+The currently unsupported CircuitPython-compatible MCU families / CircuitPython platforms are: <code>SAMD21</code>, <code>litex</code>, <code>mimxrt10xx</code>, <code>efr32</code>, <code>stm</code>.<br />
 The MCU's that are currently unsupported are so because I either can't get my hands on a decent board with them or they don't have enough ram for ljinux.<br />
 <br />
 The only real limiting factor should be ram, as about 70k (usable under circuitpython) are needed.<br />
