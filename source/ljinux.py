@@ -383,17 +383,6 @@ gc.collect()
 
 dmtex(f"Board memory: " + str(gc.mem_alloc() + gc.mem_free()) + " bytes")
 dmtex(f"Memory free: " + str(gc.mem_free()) + " bytes")
-dmtex("Basic checks done")
-
-# sd card
-try:
-    import adafruit_sdcard
-
-    dmtex("TFcard libraries loaded")
-except ImportError:
-    dmtex(colors.error + "Notice: " + colors.endc + "TFcard libraries loading failed")
-
-dmtex("Imports complete")
 
 
 def systemprints(mod: int, tx1: str, tx2: str = None) -> None:
