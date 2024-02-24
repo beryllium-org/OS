@@ -1,15 +1,15 @@
 print("Early boot log:\n")
 
-from storage import getmount, remount, disable_usb_drive
+from storage import getmount, remount, disable_usb_drive, remount
 from supervisor import runtime, status_bar
-from cptoml import fetch
+import cptoml
 
 runtime.autoreload = False
 status_bar.console = False
 
 lj_mount = getmount("/")
 
-desired_label = fetch("fs_label", "LJINUX")
+desired_label = cptoml.fetch("fs_label", "LJINUX")
 if desired_label != None:
     desired_label = desired_label.upper()
     if lj_mount.label != desired_label:
@@ -18,23 +18,30 @@ if desired_label != None:
         print("Reset filesystem label.")
         remount("/", True)
 
-if fetch("usb_msc_available", "LJINUX"):
+if cptoml.fetch("usb_msc_available", "LJINUX"):
     print("This board supports USB filesystem enumeration.")
-    if fetch("usb_msc_enabled", "LJINUX"):
+    if cptoml.fetch("usb_msc_enabled", "LJINUX"):
         print("The USB filesystem is enabled.\nLjinux will access root Read-Only!")
     else:
-        disable_usb_drive()
-        print("The USB filesystem is disabled.\nLjinux will operate normally.")
+        if cptoml.fetch("usb_msc_onetime", "LJINUX"):
+            remount("/", False)
+            cptoml.put("usb_msc_onetime", False, "LJINUX")
+            remount("/", True)
+            print("The USB filesystem is enabled this once.")
+            print("Ljinux will access root Read-Only!")
+        else:
+            disable_usb_drive()
+            print("The USB filesystem is disabled.\nLjinux will operate normally.")
 else:
     print("This board does not support USB filesystem enumeration.")
 
 
-if fetch("usb_hid_available", "LJINUX"):
+if cptoml.fetch("usb_hid_available", "LJINUX"):
     import usb_hid
 
     print("This board supports HID enumeration.")
 
-    if fetch("usb_hid_enabled", "LJINUX"):
+    if cptoml.fetch("usb_hid_enabled", "LJINUX"):
         print("HID Enabled.")
     else:
         usb_hid.disable()
@@ -42,12 +49,12 @@ if fetch("usb_hid_available", "LJINUX"):
 else:
     print("This board does not support HID enumeration.")
 
-if fetch("usb_midi_available", "LJINUX"):
+if cptoml.fetch("usb_midi_available", "LJINUX"):
     import usb_midi
 
     print("This board supports MIDI enumeration.")
 
-    if fetch("usb_midi_enabled", "LJINUX"):
+    if cptoml.fetch("usb_midi_enabled", "LJINUX"):
         print("MIDI Enabled.")
         usb_midi.enable()
     else:

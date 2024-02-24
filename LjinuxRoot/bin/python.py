@@ -23,7 +23,7 @@ term.write(
     + ljinux.based.system_vars["VERSION"]
     + "\n"
     + "Board: "
-    + board.board_id
+    + ljinux.based.system_vars["BOARD"]
     + "\n"
     + 'Type "help", "copyright", "credits" or "license" for more information.'
 )
