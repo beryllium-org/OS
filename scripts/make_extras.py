@@ -1,4 +1,4 @@
-from os import system, mkdir, listdir, path, getcwd
+from os import system, mkdir, listdir, path, getcwd, environ
 from sys import argv
 from sys import path as spath
 from shutil import copytree
@@ -22,6 +22,8 @@ try:
 except IndexError:
     pass
 
+if "FSNAME" not in environ:
+    environ["FSNAME"] = "LJINUX"
 [boardpath, board, version] = circuitmpy.detect_board()
 
 if boardpath == None:

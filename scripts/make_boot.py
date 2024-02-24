@@ -1,9 +1,11 @@
-from os import system, mkdir, listdir
+from os import system, mkdir, listdir, environ
 from sys import path as spath
 
 spath.append("../scripts/CircuitMPY/")
 import circuitmpy
 
+if "FSNAME" not in environ:
+    environ["FSNAME"] = "LJINUX"
 [boardpath, board, version] = circuitmpy.detect_board()
 
 if boardpath == "":
