@@ -1,1 +1,1 @@
-fpexec /bin/jpkg.py
+fpexec /bin/jpkg/main.py
