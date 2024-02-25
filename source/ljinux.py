@@ -195,6 +195,7 @@ vr("access_log", [])
 vr("consoles", {})
 vr("console_active", None)
 vr("ndmesg", False)  # disable dmesg for ram
+vr("root", "/LjinuxRoot")
 # run _ndmesg from the shell to properly trigger it
 
 # Core board libs
@@ -721,7 +722,7 @@ class ljinux:
             res = ""
             userr = ljinux.based.system_vars["USER"].lower()
             if userr != "root":
-                hd = "/LjinuxRoot/home/" + ljinux.based.system_vars["USER"].lower()
+                hd = pv[0]["root"] + "/home/" + ljinux.based.system_vars["USER"].lower()
             else:
                 hd = "/"
             if back is None:
@@ -730,9 +731,9 @@ class ljinux:
                     res = "~" + a[len(hd) :]
                 elif a == "/":
                     res = "&/"
-                elif a == "/LjinuxRoot":
+                elif a == pv[0]["root"]:
                     res = "/"
-                elif a.startswith("/LjinuxRoot"):
+                elif a.startswith(pv[0]["root"]):
                     res = a[11:]
                 else:
                     res = "&" + a
@@ -743,11 +744,11 @@ class ljinux:
                     res = "/"
                 elif back.startswith("&/"):
                     res = back[1:]
-                elif back.startswith("/LjinuxRoot"):
+                elif back.startswith(pv[0]["root"]):
                     res = back  # already good
                 elif back[0] == "/":
                     # This is for absolute paths
-                    res = "/LjinuxRoot"
+                    res = pv[0]["root"]
                     if back != "/":
                         res += back
                 elif back[0] == "~":
@@ -763,7 +764,7 @@ class ljinux:
             true_root = (
                 (path[0] == "&")
                 or (old == "/" and path == ".")
-                or (old == "/LjinuxRoot" and path == "..")
+                or (old == pv[0]["root"] and path == "..")
             )
             path = ljinux.api.betterpath(path)
             res = ""
@@ -774,7 +775,7 @@ class ljinux:
             except:
                 pass
             if not true_root:
-                if res.startswith("/LjinuxRoot"):
+                if res.startswith(pv[0]["root"]):
                     res = res[11:]
                     if not res:
                         res = "/"
@@ -787,7 +788,7 @@ class ljinux:
             res = []
             if path:
                 path = ljinux.api.betterpath(path)
-                if path == "/LjinuxRoot/dev":  # Device enumeration done here.
+                if path == pv[0]["root"] + "/dev":  # Device enumeration done here.
                     devs = list(ljinux.devices.keys())
                     terms = list(pv[0]["consoles"].keys())
                     devs.sort()
@@ -823,7 +824,7 @@ class ljinux:
                 else:
                     tmp = listdir(path)
                     tmp.sort()
-                    tmpath = path if path.startswith("/LjinuxRoot") else ("&" + path)
+                    tmpath = path if path.startswith(pv[0]["root"]) else ("&" + path)
                     for i in tmp:
                         typ = ljinux.api.isdir(tmpath + "/" + i)
                         if typ == 1:
@@ -1093,7 +1094,7 @@ class ljinux:
             try:
                 return [
                     dirr[:-4]
-                    for dirr in listdir("/LjinuxRoot/bin")
+                    for dirr in listdir(pv[0]["root"] + "/bin")
                     if dirr.endswith(".lja") and not dirr.startswith(".")
                 ]
             except OSError:  # Yea no root, we cope
@@ -1180,7 +1181,7 @@ class ljinux:
 
             # Validate root exists
             try:
-                chdir("/LjinuxRoot")
+                chdir(pv[0]["root"])
                 chdir("/")
             except:
                 systemprints(
@@ -1205,7 +1206,7 @@ class ljinux:
             systemprints(2, "Init script")
             try:
                 ljinux.io.ledset(3)  # act
-                ljinux.based.command.exec("/LjinuxRoot/boot/Init.lja")
+                ljinux.based.command.exec(pv[0]["root"] + "/boot/Init.lja")
                 systemprints(1, "Init script")
             except OSError:
                 systemprints(3, "Init script")
@@ -1597,7 +1598,9 @@ class ljinux:
                 ljinux.api.setvar(
                     "argj", executable + ("" if argv is None else (" " + argv))
                 )
-                ljinux.based.command.exec("/LjinuxRoot/bin/" + executable + ".lja ")
+                ljinux.based.command.exec(
+                    pv[0]["root"] + "/bin/" + executable + ".lja "
+                )
                 ljinux.api.setvar("argj", bckargj)
                 del bckargj
             elif inints:  # internal commands
@@ -1721,7 +1724,7 @@ class ljinux:
                                 term.write("^D")
                             except:
                                 pass
-                            ljinux.based.command.fpexec("/LjinuxRoot/bin/exit.py")
+                            ljinux.based.command.fpexec(pv[0]["root"] + "/bin/exit.py")
                             break
                         elif term.buf[0] is 3:  # tab key
                             if len(term.buf[1]):
@@ -1827,7 +1830,7 @@ class ljinux:
                             if not ljinux.api.console_connected():
                                 ljinux.based.run("runparts /etc/hooks/disconnect.d/")
                             ljinux.based.command.exec(
-                                "/LjinuxRoot/bin/_waitforconnection.lja"
+                                pv[0]["root"] + "/bin/_waitforconnection.lja"
                             )
 
                 if not pv[0]["Exit"]:
