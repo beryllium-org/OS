@@ -2,9 +2,9 @@
 /-Ljinux standalone documentation sheet--\
 \-----| bill88t |------------------------/
  \======================================/
- 
+
 Official repository: https://github.com/bill88t/ljinux
-This manual is up to date with commit 8e69f164374e6111a215bb7c81000c14cd25ac48 @ 18/dec/2023.
+This manual is up to date with commit  @ /feb/2024.
 Anything passed that point is not covered by this manual.
 
       /------------|
@@ -12,17 +12,17 @@ Anything passed that point is not covered by this manual.
       \------------|
 
 0.  Index table          : line 10
-1.  Basic commands       : line 27
-2.  Scripting            : line 337
-3.  Errors               : line 358
-4.  Api functions        : line 436
-5.  jCurses              : line 504
-6.  Led activity         : line 559
-7.  BetterPath           : line 573
-8.  GPIO Usage           : line 593
-9.  Network driver usage : line 617
-10. Isolated processes   : line 643
-11. Contributions        : line 702
+1.  Basic commands       : line 0
+2.  Scripting            : line 0
+3.  Errors               : line 0
+4.  Api functions        : line 0
+5.  jCurses              : line 0
+6.  Led activity         : line 0
+7.  BetterPath           : line 0
+8.  GPIO Usage           : line 0
+9.  Network driver usage : line 0
+10. Isolated processes   : line 0
+11. Contributions        : line 0
 
       /---------------|
 ----<| Basic commands |
@@ -65,12 +65,14 @@ detect
 Fetch the term.detect_size() for context updating
 
 
-devmode [-q]
+devmode [OPTIONS]
 
 Enables usb access and other development features.
-This prohibits write access to the built in filesystem.
+This temporarily prohibits write access to the built in filesystem.
 The notice can be skipped by passing -q.
-This can be reverted by setting `usb_msc_enabled = false` under
+This change for one boot.
+To make this permenant, which is highly not recommended, pass -p.
+To revert the change, set `usb_msc_enabled = false` under
 section [LJINUX] in the board's `/settings.toml`.
 
 
@@ -405,7 +407,7 @@ CODE:
 
 12 : Error, variable already used:
       The variable name specified is already in use, and can't be modified in this way.
-    
+
 13 : Terminal too small, minimum size: size:
       The current terminal size is too small, resize the terminal to a size bigger than
       the one specified.
@@ -440,20 +442,20 @@ CODE:
 Ljinux api functions.
 Available from:
       ljinux.api.[function](parameters)
-      
+
       setvar(var, data=None, system=False)
         Variable setter / deleter.
         Sets variable var, in ljinux.based.user_vars.
         The var name has to be an str.
         When the data is None, deletes the variable.
         The system option, when True, uses ljinux.based.system_vars instead.
-        
+
       getvar(var)
         Variable getter.
         Returns variable var, from ljinux.based.user_vars or ljinux.based.system_vars.
         The var name has to be an str.
         In case it doesn't exist, returns None.
-        
+
       xarg(rinpt=None, fn=False)
         Argument parser.
         When no input stream specified, rely on ljinux.based.user_vars["argj"].
@@ -465,28 +467,28 @@ Available from:
           "o" for all the options, with their respective values.
                Example: "ls -a /bin", {"a": "/bin"} is gonna be in "o"
           "n" if False is passed to fn, contains the filename
-        
+
       fopen(object)
         Meant to be used with "with".
         Opens files with the path automatically parsed by betterpath.
         Also remounts the filesystem when in write or append mode automatically.
         Example:
           with ljinux.api.fopen("/bin/nano.py", "w")
-      
+
       isdir(dirr, rdir=None)
         Checks if given item is file (returns 0) or directory (returns 1).
         Returns 2 if it doesn't exist.
-        
+
         rdir specifies reference directory.
         When None, automatically use . as reference.
-      
+
       betterpath(back=None)
         Automatically rewrite paths to match virtual filesystem.
         /LjinuxRoot/bin/nano.py -> /bin/nano.py
         /boot_out.txt -> &/boot_out.txt
         / -> &
         ~ automatically parsed
-        
+
         When None, return current directory.
 
       adv_input(whatever, _type)
@@ -524,27 +526,27 @@ Useful functions:
 
     - .detect_size()
      Detects the size of the terminal & returns it as [rows, collumns]
-    
+
     - .detect_pos()
     Detects the current cursor position & returns it as [row, collumn]
-    
+
     - .ctx_reg(name)
     Registers the current cursor position as a bookmark with the name specified.
-    
+
     - .move(ctx=None, x=None, y=None)
     Moves the cursor to a specified x (row), y (collumn), or a bookmark.
     You can specify both a bookmark & and x, y coordinate.
     In that case, the x, y will be used as an offset.
-    
+
     - .clear()
     Clears the screen & goes to top.
-    
+
     - .clear_line()
     Clears the current line.
-    
+
     - .line(char)
     Draws a line with the given char.
-    
+
     - .map()
     Testing function, prints chars inputted.
 
@@ -606,7 +608,7 @@ To deinit the pin, simply unset the variable like:
 Example 2:
 
     unset a
-    
+
 To read a GPIO's value, it has to be already set into a variable (Example 1) and used like:
 Example 3:
 
@@ -617,7 +619,7 @@ Example 3:
       /---------------------|
 ----<| Network driver usage |
       \---------------------|
-      
+
 To use the built-in circuitpython module "wifi" as your network connection:
   - Run "modprobe driver_wifi as network" to load the ljinux wifi driver.
      You can optionally add it to /boot/Init.lja, to load it on boot.
@@ -627,7 +629,7 @@ To use the built-in circuitpython module "wifi" as your network connection:
   - You connections will automatically be stored into &/settings.toml.
      You can automatically reconnect on reboot by running `iwctl station wifi auto`.
 
-       
+
 To use a w5500 ethernet module:
   - Ensure you have run "make w5500" from the host computer.
      If you haven't, run "devmode" from within ljinux, to enable usb access,

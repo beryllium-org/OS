@@ -82,7 +82,7 @@ Don't even try from wsl. The scripts rely on mount points. They will just not de
 4) Eject & powercycle the board<br />
     When it's plugged back in, you can connect to it via serial.<br />
     (You can use putty to connect to the board on Windows, Tio or GNU/Screen on Linux or MacOS)<br />
-<b>IMPORTANT NOTE: To make the board appear again as a usb drive on the host, run the ljinux command </b><code>devmode</code><br />
+<b>IMPORTANT NOTE: To make the board appear again as a usb drive on the host, run the ljinux command </b><code>devmode</code>. More info regarding the devmode command, available in the manual.<br />
 
 ## Packages
 Some of ljinux's features are not bundled with this install.<br />
