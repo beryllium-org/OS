@@ -95,7 +95,7 @@ vr(
         ),
         "{}Uptime{}: {}".format(colors.yellow_t, colors.endc, vr("ustr")),
         f"{colors.yellow_t}Packages{colors.endc}: "
-        + str(len(listdir("/" + pv[0]["root"] + "/etc/jpkg/Installed")))
+        + str(len(listdir(pv[0]["root"] + "/etc/jpkg/Installed")))
         + " (jpkg)",
         "{}Resolution:{} {}x{}".format(
             colors.yellow_t, colors.endc, vr("size")[1], vr("size")[0]

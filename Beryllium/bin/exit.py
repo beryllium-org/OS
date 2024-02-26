@@ -21,4 +21,4 @@ else:
             except KeyboardInterrupt:
                 pass
             be.based.run("runparts /etc/hooks/disconnect.d/")
-be.based.command.exec("/" + pv[0]["root"] + "/bin/_waitforconnection.lja")
+be.based.command.exec(pv[0]["root"] + "/bin/_waitforconnection.lja")

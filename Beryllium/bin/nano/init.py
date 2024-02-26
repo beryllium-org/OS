@@ -2,7 +2,7 @@ vr("filee", None)
 vr("exists", 2)
 vr("weltxt", "[ Welcome to nano.  For basic help, type Ctrl+G. ]")
 
-vr("versionn", "1.9.0")
+vr("versionn", "1.9.1")
 
 try:
     vr("filee", be.based.user_vars["argj"].split()[1])
@@ -34,7 +34,7 @@ if vr("exists") is 0:  # is file
         vrd("ll")
         # vrd("i")
 
-    be.based.command.fpexec("/" + pv[0]["root"] + "/bin/stringproccessing/line_wrap.py")
+    be.based.command.fpexec(pv[0]["root"] + "/bin/stringproccessing/line_wrap.py")
     vr("dataa", vr("lines"))
     vr("lc", len(vr("dataa")))
     vrd("lines")
@@ -175,3 +175,4 @@ if len(vr("dataa")) > 1:
     vrd("ltd")
 term.hold_stdout = False
 term.flush_writes()
+vr("ok", True)

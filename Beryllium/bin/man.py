@@ -1,5 +1,5 @@
 rename_process("man")
-vr("manls", listdir("/" + pv[0]["root"] + "/usr/share/man"))
+vr("manls", listdir(pv[0]["root"] + "/usr/share/man"))
 vr("manpages", set())
 for pv[get_pid()]["manpage"] in vr("manls"):
     if vr("manpage").endswith(".man"):
@@ -12,7 +12,7 @@ if len(vr("opts")["w"]) is 1:
     if vr("page_dayo") in vr("manpages"):
         be.based.run(
             "less",
-            ["/" + pv[0]["root"] + "/usr/share/man/{}.man".format(vr("page_dayo"))],
+            [pv[0]["root"] + "/usr/share/man/{}.man".format(vr("page_dayo"))],
         )
     else:
         term.write(

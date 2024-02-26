@@ -12,9 +12,7 @@ try:
                 else pv[get_pid()]["i"],
             )
         vrd("lines_tmp")
-        be.based.command.fpexec(
-            "/" + pv[0]["root"] + "/bin/stringproccessing/line_wrap.py"
-        )
+        be.based.command.fpexec(pv[0]["root"] + "/bin/stringproccessing/line_wrap.py")
         # Now our lines has been formatted
 
         if not len(vr("lines")):

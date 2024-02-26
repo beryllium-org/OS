@@ -77,9 +77,9 @@ term.write(
         vr("sps")[2],
         vr("sps")[3],
     )
-    + "/"
     + pv[0]["root"]
-    + "     {}{}{}{}/".format(
+    + " " * (len(pv[0]["root"]) - 4)
+    + "{}{}{}{}/".format(
         vr("vtotal"),
         vr("vused"),
         vr("vfree"),
