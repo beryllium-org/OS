@@ -1,9 +1,9 @@
-# Porting ljinux
+# Porting beryllium
 
 These instructions are seperated into 3 big steps:
 
-1) Verify your board will actually be able to run ljinux.<br />
-    gc.mem_free() should be at least 100000 for ljinux to be able to function.<br />
+1) Verify your board will actually be able to run beryllium.<br />
+    gc.mem_free() should be at least 100000 for beryllium to be able to function.<br />
     Only wifi and usb workflows supported.<br />
     <br />
 2) From within "Boardfiles", copy and modify a similar board's folder.<br />
@@ -26,5 +26,5 @@ These instructions are seperated into 3 big steps:
     Files in extras that have their name end with .other will pull from other/ a file or a folder.<br />
     To include a folder deeper in other/, use dots in place of slashes, for example, to include other/Adafruit_CircuitPython_HTTPServer/, create a file named "Adafruit_CircuitPython_HTTPServer.adafruit_httpserver.other".<br />
     <br />
-3) Test your changes by loading ljinux onto the board.
+3) Test your changes by loading beryllium onto the board.
     "make install" will update the config.

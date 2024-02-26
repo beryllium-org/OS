@@ -1,17 +1,17 @@
 rename_process("camera")
 import espcamera
 
-vr("opts", ljinux.api.xarg())
+vr("opts", be.api.xarg())
 
 vr(
     "dev",
-    cptoml.fetch("device", toml=ljinux.api.betterpath("/etc/camera.d/config.toml")),
+    cptoml.fetch("device", toml=be.api.betterpath("/etc/camera.d/config.toml")),
 )
 
 if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
-    ljinux.api.setvar("return", "1")
-    if vr("dev") not in ljinux.devices:
-        vr("conft", ljinux.api.betterpath("/etc/camera.d/config.toml"))
+    be.api.setvar("return", "1")
+    if vr("dev") not in be.devices:
+        vr("conft", be.api.betterpath("/etc/camera.d/config.toml"))
         if "mode" in vr("opts")["o"] or "m" in vr("opts")["o"]:
             if "mode" in vr("opts")["o"]:
                 vr("mode", vr("opts")["o"]["mode"])
@@ -25,12 +25,12 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
                     toml=vr("conft"),
                 ),
             )
-        vr("pr", ljinux.api.betterpath("/etc/camera.d/presets/" + vr("mode") + ".toml"))
+        vr("pr", be.api.betterpath("/etc/camera.d/presets/" + vr("mode") + ".toml"))
         exec(
             'vr("px", espcamera.PixelFormat.'
             + cptoml.fetch(
                 "pixel_format",
-                toml=ljinux.api.betterpath(vr("pr")),
+                toml=be.api.betterpath(vr("pr")),
             )
             + ")"
         )
@@ -38,7 +38,7 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
             'vr("fr", espcamera.FrameSize.'
             + cptoml.fetch(
                 "frame_size",
-                toml=ljinux.api.betterpath(vr("pr")),
+                toml=be.api.betterpath(vr("pr")),
             )
             + ")"
         )
@@ -46,7 +46,7 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
             "qual",
             cptoml.fetch(
                 "jpeg_quality",
-                toml=ljinux.api.betterpath(vr("pr")),
+                toml=be.api.betterpath(vr("pr")),
             ),
         )
         vr(
@@ -112,30 +112,24 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
                 toml=vr("conft"),
             ),
         )
-        ljinux.devices[vr("dev")] = []
-        ljinux.devices[vr("dev")].append(
+        be.devices[vr("dev")] = []
+        be.devices[vr("dev")].append(
             espcamera.Camera(
-                data_pins=ljinux.devices["gpiochip"][0].pin(
-                    vr("data_pins"), force=True
-                ),
-                pixel_clock_pin=ljinux.devices["gpiochip"][0].pin(
+                data_pins=be.devices["gpiochip"][0].pin(vr("data_pins"), force=True),
+                pixel_clock_pin=be.devices["gpiochip"][0].pin(
                     vr("pixel_clock_pin"), force=True
                 ),
-                vsync_pin=ljinux.devices["gpiochip"][0].pin(
-                    vr("vsync_pin"), force=True
-                ),
-                href_pin=ljinux.devices["gpiochip"][0].pin(vr("href_pin"), force=True),
-                i2c=ljinux.devices["gpiochip"][0].pin(vr("i2c"), force=True)(),
-                external_clock_pin=ljinux.devices["gpiochip"][0].pin(
+                vsync_pin=be.devices["gpiochip"][0].pin(vr("vsync_pin"), force=True),
+                href_pin=be.devices["gpiochip"][0].pin(vr("href_pin"), force=True),
+                i2c=be.devices["gpiochip"][0].pin(vr("i2c"), force=True)(),
+                external_clock_pin=be.devices["gpiochip"][0].pin(
                     vr("external_clock_pin"), force=True
                 ),
                 external_clock_frequency=vr("external_clock_frequency"),
-                powerdown_pin=ljinux.devices["gpiochip"][0].pin(
+                powerdown_pin=be.devices["gpiochip"][0].pin(
                     vr("powerdown_pin"), force=True
                 ),
-                reset_pin=ljinux.devices["gpiochip"][0].pin(
-                    vr("reset_pin"), force=True
-                ),
+                reset_pin=be.devices["gpiochip"][0].pin(vr("reset_pin"), force=True),
                 pixel_format=vr("px"),
                 frame_size=vr("fr"),
                 jpeg_quality=vr("qual"),
@@ -144,43 +138,41 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
             )
         )
         term.write('Initializing camera on mode "' + vr("mode") + '"')
-        ljinux.devices[vr("dev")][0].vflip = True
-        ljinux.devices[vr("dev")][0].denoise = cptoml.fetch(
+        be.devices[vr("dev")][0].vflip = True
+        be.devices[vr("dev")][0].denoise = cptoml.fetch(
             "denoise",
-            toml=ljinux.api.betterpath(vr("pr")),
+            toml=be.api.betterpath(vr("pr")),
         )
-        ljinux.devices[vr("dev")][0].awb_gain = True
+        be.devices[vr("dev")][0].awb_gain = True
         sleep(0.5)
-        ljinux.devices[vr("dev")][0].take()
+        be.devices[vr("dev")][0].take()
         term.write("Initialized!")
-        ljinux.api.setvar("return", "0")
+        be.api.setvar("return", "0")
     else:
         term.write("Camera already initialized.")
 
 if "capture" in vr("opts")["o"] or "c" in vr("opts")["o"]:
-    ljinux.api.setvar("return", "1")
-    if vr("dev") not in ljinux.devices:
+    be.api.setvar("return", "1")
+    if vr("dev") not in be.devices:
         term.write("Camera not initialized.")
     else:
-        vr("photo_data", ljinux.devices[vr("dev")][0].take(0.4))
-        vr("ql", ljinux.devices[vr("dev")][0].quality)
+        vr("photo_data", be.devices[vr("dev")][0].take(0.4))
+        vr("ql", be.devices[vr("dev")][0].quality)
         while not isinstance(vr("photo_data"), memoryview):
-            if ljinux.devices[vr("dev")][0].quality < 20:
-                ljinux.devices[vr("dev")][0].quality += 1
-            vr("photo_data", ljinux.devices[vr("dev")][0].take(0.4))
+            if be.devices[vr("dev")][0].quality < 20:
+                be.devices[vr("dev")][0].quality += 1
+            vr("photo_data", be.devices[vr("dev")][0].take(0.4))
         term.write(
-            'Snapped! Quality={}\nSaving to "'.format(
-                ljinux.devices[vr("dev")][0].quality
-            ),
+            'Snapped! Quality={}\nSaving to "'.format(be.devices[vr("dev")][0].quality),
             end="",
         )
-        ljinux.devices[vr("dev")][0].quality = vr("ql")
+        be.devices[vr("dev")][0].quality = vr("ql")
         vr("tt", time.localtime())
         vr(
             "branding",
             cptoml.fetch(
                 "branding",
-                toml=ljinux.api.betterpath("/etc/camera.d/config.toml"),
+                toml=be.api.betterpath("/etc/camera.d/config.toml"),
             ),
         )
         vr("pic_name", vr("branding") + "-")
@@ -201,23 +193,23 @@ if "capture" in vr("opts")["o"] or "c" in vr("opts")["o"]:
         vrp("pic_name", str(vr("tt").tm_sec) + ".jpeg")
         term.write(vr("pic_name") + '"...')
         if "dry-run" not in vr("opts")["o"]:
-            with ljinux.api.fopen(vr("pic_name"), "wb") as pv[get_pid()]["f"]:
+            with be.api.fopen(vr("pic_name"), "wb") as pv[get_pid()]["f"]:
                 vr("f").write(vr("photo_data"))
         term.write("Saved!")
-        ljinux.api.setvar("return", "0")
+        be.api.setvar("return", "0")
 
 if "deinit" in vr("opts")["o"] or "d" in vr("opts")["o"]:
-    ljinux.api.setvar("return", "1")
-    if vr("dev") not in ljinux.devices:
+    be.api.setvar("return", "1")
+    if vr("dev") not in be.devices:
         term.write("Camera not initialized!")
     else:
-        ljinux.devices[vr("dev")][0].deinit()
-        ljinux.devices[vr("dev")].pop()
-        if not len(ljinux.devices[vr("dev")]):
-            del ljinux.devices[vr("dev")], espcamera
+        be.devices[vr("dev")][0].deinit()
+        be.devices[vr("dev")].pop()
+        if not len(be.devices[vr("dev")]):
+            del be.devices[vr("dev")], espcamera
         term.write("Camera deinitialized successfully.")
-        ljinux.api.setvar("return", "0")
+        be.api.setvar("return", "0")
 
 if not len(vr("opts")["o"]) or "h" in vr("opts")["o"] or "help" in vr("opts")["o"]:
-    ljinux.based.run("cat /usr/share/help/camera.txt")
-    ljinux.api.setvar("return", "0")
+    be.based.run("cat /usr/share/help/camera.txt")
+    be.api.setvar("return", "0")

@@ -1,0 +1,3 @@
+# change directory
+fpexec /bin/cd.py
+fpexec /bin/betitle.py

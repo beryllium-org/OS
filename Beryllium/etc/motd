@@ -1,0 +1,13 @@
+Welcome to Beryllium OS.
+
+The programs included with the beryllium os system are free software.
+A manual is included within the default directory, and the exact LICENCE
+is provided within the source repo: https://github.com/bill88t/ljinux
+
+Beryllium OS comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+
+For information on how to use beryllium os, run "man beryllium".
+To exit GNU/Screen, press Ctrl + A then K and y.
+To exit Tio, press Ctrl + T then q.
+

@@ -17,12 +17,12 @@ vr("networks", {})
 while True:
     term.clear_line()
     term.focus = 0
-    ljinux.io.ledset(1)
+    be.io.ledset(1)
     try:
         term.program()
     except KeyboardInterrupt:
         continue
-    ljinux.io.ledset(3)
+    be.io.ledset(3)
     if term.buf[0] == 1:
         term.write("^D")
         term.buf[1] = ""
@@ -45,13 +45,13 @@ while True:
                 and vr("data")[0] == "device"
                 and vr("data")[1] == "list"
             ):
-                ljinux.api.setvar("return", "0")
+                be.api.setvar("return", "0")
                 term.write("\n" + 26 * " " + "devices")
                 term.write(60 * "-")
                 term.write("Name" + " " * 5 + "Mac address" + " " * 6 + "Power")
                 term.write(60 * "-")
                 if vr("device_n") is not None:
-                    vr("info", ljinux.devices["network"][0].get_ipconf())
+                    vr("info", be.devices["network"][0].get_ipconf())
                     term.write(
                         device_n
                         + " " * 5
@@ -67,10 +67,10 @@ while True:
             ):
                 if vr("data")[2] == "scan":
                     dmtex(f"Wifi: Scanning")
-                    vr("networks", ljinux.devices["network"][0].scan())
-                    ljinux.api.setvar("return", "0")
+                    vr("networks", be.devices["network"][0].scan())
+                    be.api.setvar("return", "0")
                 elif vr("data")[2] == "get-networks":
-                    ljinux.api.setvar("return", "0")
+                    be.api.setvar("return", "0")
                     vr("namesl", [])  # net names list
                     vr("secl", [])  # net security list
                     vr("ranl", [])  # net range list
@@ -106,10 +106,10 @@ while True:
                         )
                 elif vr("datal") > 3 and vr("data")[2] == "connect":
                     dmtex(f"Wifi: Scanning")
-                    vr("networks", ljinux.devices["network"][0].scan())
+                    vr("networks", be.devices["network"][0].scan())
                     if vr("data")[3] in vr("networks"):
                         vr("res", 1)
-                        ljinux.io.ledset(1)
+                        be.io.ledset(1)
                         if vr("networks")[vr("data")[3]][0] != "OPEN":
                             vr(
                                 "passwd",
@@ -127,15 +127,15 @@ while True:
                                     )
                                 except KeyboardInterrupt:
                                     pass
-                            ljinux.io.ledset(3)
+                            be.io.ledset(3)
 
                             if vr("passwd") is not None:
-                                ljinux.devices["network"][0].disconnect()
-                                ljinux.devices["network"][0].disconnect_ap()
+                                be.devices["network"][0].disconnect()
+                                be.devices["network"][0].disconnect_ap()
                                 dmtex('IWD: Connecting to: "{}"'.format(vr("data")[3]))
                                 vr(
                                     "res",
-                                    ljinux.devices["network"][0].connect(
+                                    be.devices["network"][0].connect(
                                         vr("data")[3], vr("passwd")
                                     ),
                                 )
@@ -159,13 +159,13 @@ while True:
                             dmtex('IWD: Connecting to: "{}"'.format(vr("data")[3]))
                             vr(
                                 "res",
-                                ljinux.devices["network"][0].connect(vr("data")[3]),
+                                be.devices["network"][0].connect(vr("data")[3]),
                             )
                         exec(vr("wifi_connect_msg"))
                     else:
                         term.write("\nNetwork not found")
                 elif vr("datal") > 3 and vr("data")[2] == "ap_mode":
-                    if hasattr(ljinux.devices["network"][0], "connect_ap"):
+                    if hasattr(be.devices["network"][0], "connect_ap"):
                         vr("passwd", None)
                         try:
                             vr(
@@ -180,28 +180,28 @@ while True:
                             pass
                         vr(
                             "res",
-                            ljinux.devices["network"][0].connect_ap(
+                            be.devices["network"][0].connect_ap(
                                 vr("data")[3], vr("passwd")
                             ),
                         )
                         exec(vr("wifi_ap_msg"))
-                        ljinux.api.setvar("return", str(int(not vr("res"))))
+                        be.api.setvar("return", str(int(not vr("res"))))
                     else:
                         dmtex("IWD: This interface does not support AP.")
                         term.write("\nIWD: This interface does not support AP.")
 
                 elif vr("datal") > 2 and vr("data")[2] == "disconnect":
-                    ljinux.devices["network"][0].disconnect()
-                    ljinux.devices["network"][0].disconnect_ap()
+                    be.devices["network"][0].disconnect()
+                    be.devices["network"][0].disconnect_ap()
                     dmtex("Wifi: Disconnected.")
-                    ljinux.api.setvar("return", "0")
+                    be.api.setvar("return", "0")
                 else:
                     term.write()
-                    ljinux.based.error(1)
-                    ljinux.api.setvar("return", "1")
+                    be.based.error(1)
+                    be.api.setvar("return", "1")
             else:
                 term.write()
-                ljinux.based.error(1)
-                ljinux.api.setvar("return", "1")
+                be.based.error(1)
+                be.api.setvar("return", "1")
     term.buf[1] = ""
     term.write()

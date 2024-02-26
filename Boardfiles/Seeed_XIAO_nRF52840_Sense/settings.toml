@@ -1,9 +1,9 @@
 CIRCUITPY_PYSTACK_SIZE = 6144
 
-[LJINUX]
+[BERYLLIUM]
 setup = true
 
-fs_label = "LJINUX"
+fs_label = "BERYLLIUM"
 
 serial_console_enabled = true
 usb_msc_available = true

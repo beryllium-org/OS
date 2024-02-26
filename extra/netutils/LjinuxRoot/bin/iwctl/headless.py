@@ -8,7 +8,7 @@ if vr("args")[0] == "--passphrase":
             elif vr("inc") < vr("argl"):
                 vrp("inc")
             else:
-                ljinux.based.error(1)
+                be.based.error(1)
                 vrm("inc")
         if vr("inc") is not -1:
             vr("passwd", vr("args")[1] + " ")
@@ -26,24 +26,22 @@ if vr("inc") is not None:
 
 if vr("argl") > 2 and vr("args")[0] == "station" and vr("args")[1] == vr("device_n"):
     if vr("argl") > 3 and vr("args")[2] == "connect":
-        vr("networks", ljinux.devices["network"][0].scan())
+        vr("networks", be.devices["network"][0].scan())
         if vr("args")[3] in vr("networks"):
             vr("res", False)
             if vr("networks")[vr("args")[3]][0] != "OPEN":
                 vr("tpd", cptoml.fetch(vr("args")[3], subtable="IWD"))
                 if vr("passwd") is not None:
-                    ljinux.devices["network"][0].disconnect()
-                    ljinux.devices["network"][0].disconnect_ap()
+                    be.devices["network"][0].disconnect()
+                    be.devices["network"][0].disconnect_ap()
                     dmtex('IWD: Connecting to: "{}"'.format(vr("args")[3]))
                     vr(
                         "res",
-                        ljinux.devices["network"][0].connect(
-                            vr("args")[3], vr("passwd")
-                        ),
+                        be.devices["network"][0].connect(vr("args")[3], vr("passwd")),
                     )
                 elif vr("tpd") is not None:
-                    ljinux.devices["network"][0].disconnect()
-                    ljinux.devices["network"][0].disconnect_ap()
+                    be.devices["network"][0].disconnect()
+                    be.devices["network"][0].disconnect_ap()
                     dmtex(
                         'IWD: Connecting to: "{}" with stored password.'.format(
                             vr("args")[3]
@@ -51,15 +49,15 @@ if vr("argl") > 2 and vr("args")[0] == "station" and vr("args")[1] == vr("device
                     )
                     vr(
                         "res",
-                        ljinux.devices["network"][0].connect(vr("args")[3], vr("tpd")),
+                        be.devices["network"][0].connect(vr("args")[3], vr("tpd")),
                     )
                 else:
                     term.write("Error: No password specified")
             else:
-                ljinux.devices["network"][0].disconnect()
-                ljinux.devices["network"][0].disconnect_ap()
+                be.devices["network"][0].disconnect()
+                be.devices["network"][0].disconnect_ap()
                 dmtex('IWD: Connecting to: "{}"'.format(vr("args")[3]))
-                vr("res", ljinux.devices["network"][0].connect(vr("args")[3]))
+                vr("res", be.devices["network"][0].connect(vr("args")[3]))
             exec(vr("wifi_connect_msg"))
             if (
                 vr("res")
@@ -70,26 +68,26 @@ if vr("argl") > 2 and vr("args")[0] == "station" and vr("args")[1] == vr("device
             ) and vr("passwd") is not None:
                 # Store this network
                 cptoml.put(vr("args")[3], vr("passwd"), subtable="IWD")
-            ljinux.api.setvar("return", str(int(not vr("res"))))
+            be.api.setvar("return", str(int(not vr("res"))))
         else:
             term.write("Network not found")
-            ljinux.api.setvar("return", "1")
+            be.api.setvar("return", "1")
     elif vr("args")[2] == "ap_mode" and vr("argl") > 3:
-        if hasattr(ljinux.devices["network"][0], "connect_ap"):
+        if hasattr(be.devices["network"][0], "connect_ap"):
             vr(
                 "res",
-                ljinux.devices["network"][0].connect_ap(vr("args")[3], vr("passwd")),
+                be.devices["network"][0].connect_ap(vr("args")[3], vr("passwd")),
             )
             exec(vr("wifi_ap_msg"))
-            ljinux.api.setvar("return", str(int(not vr("res"))))
+            be.api.setvar("return", str(int(not vr("res"))))
         else:
             dmtex("IWD: This interface does not support AP.")
     elif vr("args")[2] == "auto":
-        if not ljinux.devices["network"][0].connected:
+        if not be.devices["network"][0].connected:
             # We don't need to run on an already connected interface
             vr("stored_networks", cptoml.keys("IWD"))
             if len(vr("stored_networks")):
-                vr("scanned_networks", ljinux.devices["network"][0].scan())
+                vr("scanned_networks", be.devices["network"][0].scan())
                 vr("best", None)  # The best network to connect to
                 vr("best_alt", None)  # An alternative, just in case.
                 vr("best_index", None)  # Rating
@@ -131,16 +129,16 @@ if vr("argl") > 2 and vr("args")[0] == "station" and vr("args")[1] == vr("device
                     if vr("apssid") is not None:
                         vr(
                             "res",
-                            ljinux.devices["network"][0].connect_ap(
+                            be.devices["network"][0].connect_ap(
                                 vr("apssid"), vr("appasswd")
                             ),
                         )
                         exec(vr("wifi_ap_msg"))
     elif vr("args")[2] == "disconnect":
-        ljinux.devices["network"][0].disconnect()
-        ljinux.devices["network"][0].disconnect_ap()
-        ljinux.api.setvar("return", "0")
+        be.devices["network"][0].disconnect()
+        be.devices["network"][0].disconnect_ap()
+        be.api.setvar("return", "0")
     else:
-        ljinux.based.error(1)
+        be.based.error(1)
 else:
-    ljinux.based.error(1)
+    be.based.error(1)

@@ -1,9 +1,9 @@
 rename_process("ping")
-vr("args", ljinux.based.user_vars["argj"].split()[1:])
+vr("args", be.based.user_vars["argj"].split()[1:])
 vr("argl", len(vr("args")))
-if "network" in ljinux.devices and ljinux.devices["network"][0].connected:
+if "network" in be.devices and be.devices["network"][0].connected:
     if vr("argl") > 0:
-        ljinux.api.setvar("return", "0")
+        be.api.setvar("return", "0")
         vr("domain", vr("args")[0])
         if vr("argl") > 1 and vr("args")[1].startswith("n="):
             try:
@@ -11,13 +11,13 @@ if "network" in ljinux.devices and ljinux.devices["network"][0].connected:
                 if vr("n") < 1:
                     raise IndexError
             except:
-                ljinux.based.error(1)
-                ljinux.api.setvar("return", "1")
+                be.based.error(1)
+                be.api.setvar("return", "1")
 
-        if ljinux.api.getvar("return") == "0":
+        if be.api.getvar("return") == "0":
             vr("resolved", vr("domain"))
             try:
-                vr("resolved", ljinux.devices["network"][0].resolve(vr("domain")))
+                vr("resolved", be.devices["network"][0].resolve(vr("domain")))
                 term.write("PING {} ({}) data.".format(vr("domain"), vr("resolved")))
                 vr("done", 0)
                 vr("good", 0)
@@ -25,9 +25,9 @@ if "network" in ljinux.devices and ljinux.devices["network"][0].connected:
                 vr("timetab", [])
                 try:
                     while not term.is_interrupted():
-                        ljinux.io.ledset(3)
+                        be.io.ledset(3)
                         vrp("done")
-                        vr("a", ljinux.devices["network"][0].ping(vr("domain")))
+                        vr("a", be.devices["network"][0].ping(vr("domain")))
                         if vr("a") is not None:
                             vra("timetab", float(vr("a")))
                             vrp("good")
@@ -40,7 +40,7 @@ if "network" in ljinux.devices and ljinux.devices["network"][0].connected:
                             )
                         else:
                             vrp("bads")
-                        ljinux.io.ledset(2)
+                        be.io.ledset(2)
                         sleep(0.9)
                         if "n" in pv[get_pid()].keys() and vr("n") is vr("done"):
                             break
@@ -83,8 +83,8 @@ if "network" in ljinux.devices and ljinux.devices["network"][0].connected:
             except ConnectionError:
                 term.write("Domain could not be resolved.")
     else:
-        ljinux.based.error(1)
-        ljinux.api.setvar("return", "1")
+        be.based.error(1)
+        be.api.setvar("return", "1")
 else:
-    ljinux.based.error(5)
-    ljinux.api.setvar("return", "1")
+    be.based.error(5)
+    be.api.setvar("return", "1")

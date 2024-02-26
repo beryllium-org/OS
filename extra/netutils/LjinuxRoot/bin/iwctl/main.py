@@ -1,6 +1,6 @@
 rename_process("iwctl")
-ljinux.api.setvar("return", "0")
-vr("args", ljinux.based.user_vars["argj"].split()[1:])
+be.api.setvar("return", "0")
+vr("args", be.based.user_vars["argj"].split()[1:])
 vr("argl", len(vr("args")))
 vr("pr", False)
 
@@ -14,7 +14,7 @@ else:
     dmtex("IWD: Connection to network failed.")
     if vr("pr"):
         term.write("\\nConnection failed.")
-ljinux.api.setvar("return", str(int(not vr("res"))))
+be.api.setvar("return", str(int(not vr("res"))))
 """,
 )
 try:
@@ -26,7 +26,7 @@ vr(
     "wifi_best",
     """vr(
     "res",
-    ljinux.devices["network"][0].connect(
+    be.devices["network"][0].connect(
         vr("best"), cptoml.fetch(vr("best"), subtable="IWD")
     ),
 )
@@ -70,16 +70,16 @@ except NameError:
 vr(
     "device_n",
     (
-        ljinux.devices["network"][0].hw_name
+        be.devices["network"][0].hw_name
         if (
-            "network" in ljinux.devices
-            and ljinux.devices["network"][0].interface_type == "wifi"
+            "network" in be.devices
+            and be.devices["network"][0].interface_type == "wifi"
         )
         else None
     ),
 )
 
 if vr("argl") is 0:
-    ljinux.api.subscript("/bin/iwctl/interactive.py")
+    be.api.subscript("/bin/iwctl/interactive.py")
 else:
-    ljinux.api.subscript("/bin/iwctl/headless.py")
+    be.api.subscript("/bin/iwctl/headless.py")

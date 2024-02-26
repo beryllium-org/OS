@@ -1,3 +1,0 @@
-# change directory
-fpexec /bin/cd.py
-fpexec /bin/ljinuxtitle.py

@@ -23,5 +23,5 @@ _rebootprompt
 _devmodeprompt
 
 # Setup terminal
-fpexec /bin/ljinuxtitle.py
+fpexec /bin/betitle.py
 exec .basedrc

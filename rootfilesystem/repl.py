@@ -9,4 +9,4 @@ try:
 except ImportError:
     pass
 
-print("\x1b[2J\x1b[3J\x1b[HWelcome to the ljinux REPL environment!")
+print("\x1b[2J\x1b[3J\x1b[HWelcome to the Beryllium REPL environment!")

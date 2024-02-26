@@ -1,5 +1,6 @@
-# Ljinux
-A "linux" written in python, for CircuitPython powered microcontrollers.  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a><br />
+# Beryllium OS
+A unix-like operating system for CircuitPython microcontrollers.  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a><br />
+(Formerly known as ljinux)<br />
 ![neofetch](https://github.com/bill88t/ljinux/blob/main/other/screenshots/boot.gif)<br />
 <b>Important notes:</b><br />
 This project is still <b>in it's early developement</b>!<br />
@@ -18,12 +19,12 @@ Table of Contents
 * [Packages](#packages)
 * [Connection](#connection)
 * [Directory structure](#directory-structure)
-* [Manual](#a-complete-ljinux-manual-is-available)
+* [Manual](#a-complete-beryllium-manual-is-available)
 * [Useful resources](#useful-resources-that-helped-with-the-development-of-this-project)
 
 ## Prerequisites and hardware support
 
-Runs on circuitpython <code>8.1.X</code> or later, including up to <code>9.0.0-beta-0</code>.<br />
+Runs on CircuitPython <code>8.1.X</code> or later, including up to <code>9.0.0-beta-0</code>.<br />
 Most of the os, will function just fine on earlier versions, even <code>6.x</code>, but many functions will be broken.<br />
 Currently the supported boards are:<br />
 
@@ -56,7 +57,7 @@ But it can probably run on many more.<br />
 <br />
 The currently stable supported MCUs are: <code>ESP32</code>, <code>ESP32-S2</code>, <code>ESP32-S3</code>, <code>ESP32-C3</code>, <code>ESP32-C6</code>, <code>RP2040</code>, <code>nRF52840</code>, <code>SAMD51</code>.<br />
 The currently unsupported CircuitPython-compatible MCU families / CircuitPython platforms are: <code>SAMD21</code>, <code>litex</code>, <code>mimxrt10xx</code>, <code>efr32</code>, <code>stm</code>.<br />
-The MCU's that are currently unsupported are so because I either can't get my hands on a decent board with them or they don't have enough ram for ljinux.<br />
+The MCU's that are currently unsupported are so because I either can't get my hands on a decent board with them or they don't have enough ram for it.<br />
 <br />
 The only real limiting factor should be ram, as about 70k (usable under circuitpython) are needed.<br />
 <i>(If you have gotten it running on an unsupported board, feel free to pr)</i><br />
@@ -69,7 +70,7 @@ Don't even try from wsl. The scripts rely on mount points. They will just not de
 
 1) Install a supported CircuitPython version onto the board.<br />
     Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
-2) Download the latest ljinux release for your board and extract it onto it.<br />
+2) Download the latest Beryllium OS release for your board and extract it onto it.<br />
     <b>Or even better</b>, if you wish to use the latest and greatest, clone this repository and from within the "source" folder, run <code>make install</code> with your board mounted.<br />
     DO NOT run with <code>-j</code>!!!<br />
     This command will automatically update the system files if they already exist.<br />
@@ -82,18 +83,16 @@ Don't even try from wsl. The scripts rely on mount points. They will just not de
 4) Eject & powercycle the board<br />
     When it's plugged back in, you can connect to it via serial.<br />
     (You can use putty to connect to the board on Windows, Tio or GNU/Screen on Linux or MacOS)<br />
-<b>IMPORTANT NOTE: To make the board appear again as a usb drive on the host, run the ljinux command </b><code>devmode</code>. More info regarding the devmode command, available in the manual.<br />
+<b>IMPORTANT NOTE: To make the board appear again as a usb drive on the host, run the Beryllium command </b><code>devmode</code>. More info regarding the devmode command, available in the manual.<br />
 
 ## Packages
-Some of ljinux's features are not bundled with this install.<br />
+Some of beryllium's features are not bundled with this install.<br />
 You will have to install them seperately through the jpkg package manager.<br />
 <br />
-You can find ljinux packages in the [jpkg github topic](https://github.com/topics/jpkg).<br />
+You can find beryllium packages in the [jpkg github topic](https://github.com/topics/jpkg).<br />
 <br />
 <b>Recommended packages:</b><br />
 <br />
-Farland, the ljinux display manager: https://github.com/bill88t/ljinux-farland <br />
-SSD1306 display support: https://github.com/bill88t/ljinux-ssd1306 <br />
 RubberDucky script support: https://github.com/bill88t/ljinux-ducky <br />
 Hashutils, md5 / sha commands: https://github.com/bill88t/ljinux-hashutils <br />
 
@@ -112,15 +111,15 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 ## Directory structure
 
 <ul>
-<li><code>LjinuxRoot</code>, the root filesystem for ljinux. It should be copied as is to the board.</li>
+<li><code>Beryllium</code>, the root filesystem for beryllium os. It should be copied as is to the board. Packages will be strapped over it.</li>
 <li><code>rootfilesystem</code>, the files needed in the root of the board. These should also be copied as is.</li>
 <li><code>scripts</code>, the files needed for compilation, and installation to a board. They should not be copied over,</li>
-<li><code>source</code>, the source files for ljinux and co. They should be compiled into .mpy files and put in /lib of the board.</li>
-<li><code>packages</code>, ljinux featured packages and preinstalled software, coming soon.</li>
+<li><code>source</code>, the source files for this project and co. They should be compiled into .mpy files and put in /lib of the board.</li>
+<li><code>packages</code>, beryllium featured packages and preinstalled software, coming soon.</li>
 <li><code>other</code>, miscellaneous files</li>
 </ul>
 
-## A complete Ljinux manual is available
+## A complete Beryllium manual is available
 
  https://github.com/bill88t/ljinux/blob/main/Manual.txt<br />
  <br />

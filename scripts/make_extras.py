@@ -23,7 +23,7 @@ except IndexError:
     pass
 
 if "FSNAME" not in environ:
-    environ["FSNAME"] = "LJINUX"
+    environ["FSNAME"] = "BERYLLIUM"
 [boardpath, board, version] = circuitmpy.detect_board()
 
 if boardpath == None:

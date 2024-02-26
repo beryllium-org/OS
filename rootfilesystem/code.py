@@ -17,16 +17,16 @@ exit_l = {
 jrub = lambda text: print(f"jrub> {text}")
 
 try:
-    from ljinux import ljinux
+    from be import be
 
-    jrub("Ljinux init complete")
+    jrub("Beryllium init complete")
 except ImportError:
-    jrub("Ljinux binary not found, cannot continue..")
+    jrub("Beryllium binary not found, cannot continue..")
     exit_l[1]()
 
-oss = ljinux()
+oss = be()
 
-jrub("Running Ljinux autorun..")
+jrub("Running Beryllium autorun..")
 
 try:
     Exit_code = oss.based.autorun()
@@ -37,7 +37,7 @@ except EOFError:
 except Exception as err:
     from traceback import print_exception
 
-    print(f"\n\nLjinux crashed with:\n")
+    print(f"\n\nBeryllium crashed with:\n")
     print_exception(err)
     print()
     del err
@@ -51,16 +51,6 @@ jrub("History flushed")
 sync()
 jrub("Synced all volumes")
 oss.io.ledset(1)
-
-try:
-    oss.io.ledset(0)
-    from storage import umount
-
-    umount("/LjinuxRoot")
-    jrub("Unmounted /LjinuxRoot")
-    oss.io.ledset(1)
-except OSError:
-    jrub("Could not unmount /LjinuxRoot")
 
 jrub("Reached target: Quit")
 oss.io.ledset(0)

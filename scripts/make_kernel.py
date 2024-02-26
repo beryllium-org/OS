@@ -22,7 +22,7 @@ except IndexError:
     pass
 
 if "FSNAME" not in environ:
-    environ["FSNAME"] = "LJINUX"
+    environ["FSNAME"] = "BERYLLIUM"
 [boardpath, board, version] = circuitmpy.detect_board()
 
 if boardpath == None:
@@ -70,7 +70,7 @@ for filee in listdir("../rootfilesystem/"):
 print("[4/6] Copying board configuration files")
 skiptm = False
 try:
-    if fetch("setup", "LJINUX", toml=f"{boardpath}/settings.toml"):
+    if fetch("setup", "BERYLLIUM", toml=f"{boardpath}/settings.toml"):
         skiptm = True
 except:
     pass
