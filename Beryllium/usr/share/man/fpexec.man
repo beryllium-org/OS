@@ -7,7 +7,8 @@ SYNOPSIS
 DESCRIPTION
     Runs the python SCRIPT.
 
-    It runs under the same scope as ljinux, so yes, be careful.
+    It runs under the same scope as the kernel, so yes, be careful.
     And make sure to delete any variables created before leaving.
-    
+    Refer to the manual, on info on how to safely use variables.
+
     See also exec, pexec

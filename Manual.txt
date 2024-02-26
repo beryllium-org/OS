@@ -1,9 +1,9 @@
- /======================================\
-/-Ljinux standalone documentation sheet--\
-\-----| bill88t |------------------------/
- \======================================/
+ /============================================\
+/-Beryllium OS standalone documentation sheet--\
+\-----| bill88t |------------------------------/
+ \============================================/
 
-Official repository: https://github.com/bill88t/ljinux
+Official repository: https://github.com/beryllium-org/OS
 This manual is up to date with commit  @ /feb/2024.
 Anything passed that point is not covered by this manual.
 
@@ -46,7 +46,7 @@ Catenates the contents of file [file]
 cd [DIR]...
 
 Changes to specified directory
-Please refer to the betterpath section, on more info on how does the ljinux filesystem appear.
+Please refer to the betterpath section, on more info on how does the board filesystem appear.
 
 
 clear
@@ -73,7 +73,7 @@ The notice can be skipped by passing -q.
 This change for one boot.
 To make this permenant, which is highly not recommended, pass -p.
 To revert the change, set `usb_msc_enabled = false` under
-section [LJINUX] in the board's `/settings.toml`.
+section [BERYLLIUM] in the board's `/settings.toml`.
 
 
 df [-h]
@@ -110,8 +110,8 @@ Returns false.
 
 exit [CODE]
 
-Exits ljinux with an exit code, default = 0
-If ran over a remote connection, disconnects instead.
+Attempts to disconnect the shell.
+If the shell cannot be disconnected, ask the user to disconnect instead.
 
 
 fpexec [file]
@@ -153,7 +153,7 @@ to that VALUE.
 
 jpkg [install/uninstall/list] [PACKAGE(S)]
 
-The built-in ljinux package manager.
+The built-in Beryllium os package manager.
 For more information run `jpkg --help`, `man jpkg` or
 view section JPKG.
 
@@ -234,13 +234,13 @@ Returns a random number. Displays it if based is not silenced.
 
 reboot [MODE]
 
-Reboots ljinux and the board.
+Reboots the board.
 Optionally, you can pass a reboot MODE from: [safemode, uf2, bootloader]
 
 
 reload
 
-Reloads ljinux fully.
+Reloads the os fully.
 
 
 rm [FILE(S)]...
@@ -339,13 +339,14 @@ Hide the titlebar text with `-s`.
       /----------|
 ----<| Scripting |
       \----------|
-      
+
 Based script files need to have the .lja file extension. All internal or external commands
-can be used in scripts.
-To have a script appear as a command, put it in /LjinuxRoot/bin/ or in the /bin of the sdcard.
+can be used in scripts, along with kernel api functions.
+To have a script appear as a command, put it in /{pv[0]["root"]}/bin/
+(where pv[0]["root"] is the root filesystem name).
 
 To execute python code, you are advised to use pexec & fpexec.
-The scope is the same as the one of ljinux and you can call & alter ljinux data freely.
+The scope is the same as the one of the kernel and you can call & alter kernel data freely.
 This however is very unsafe (as in, you may touch foreign variables), and you are instead advised
 to use the given variable container storage.
 
@@ -353,7 +354,7 @@ When fpexec is called, the code is given an empty container storage under `pv[ge
 You can manipulate it either directly or with the `vr` functions. More info in the Container Storage
 section of the manual.
 
-To access shell input you can use `ljinux.api.xarg()` or `ljinux.based.user_vars["argj"].split()`.
+To access shell input you can use `be.api.xarg()` or `be.based.user_vars["argj"].split()`.
 You can find more info regarding xarg under it's api documentation.
 
 
@@ -363,7 +364,7 @@ You can find more info regarding xarg under it's api documentation.
 
 The different errors used by the based shell.
 CODE:
-      ljinux.based.error([number])
+      be.based.error([number])
       where [number] is one of the error below
 
 1 : Syntax Error
@@ -389,8 +390,10 @@ CODE:
       This error shows up when a write to the internal storage occures while developer mode
       is enabled.
       By CircuitPython design, when the internal storage is being made available from usb,
-      it is unwritable to ljinux.
-      To disable developer mode, set `usb_msc_enabled = false` under section [LJINUX] in the board's
+      it is unwritable to the beryllium os.
+      By default, developer mode lasts for one reboot, however when used with "-p" it's enabled
+      permanently.
+      To revert that, set `usb_msc_enabled = false` under section [BERYLLIUM] in the board's
       `/settings.toml`.
 
 8 : Missing files
@@ -432,33 +435,33 @@ CODE:
 
 20 : Unhandled exception
       Under fpexec execution, an exception was raised that was not caught by any code from within
-      the fpexec code, and it was instead caught by ljinux.
+      the fpexec code, and it was instead caught by the kernel.
 
 
       /--------------|
 ----<| Api Functions |
       \--------------|
 
-Ljinux api functions.
+Beryllium OS api functions.
 Available from:
-      ljinux.api.[function](parameters)
+      be.api.[function](parameters)
 
       setvar(var, data=None, system=False)
         Variable setter / deleter.
-        Sets variable var, in ljinux.based.user_vars.
+        Sets variable var, in be.based.user_vars.
         The var name has to be an str.
         When the data is None, deletes the variable.
-        The system option, when True, uses ljinux.based.system_vars instead.
+        The system option, when True, uses be.based.system_vars instead.
 
       getvar(var)
         Variable getter.
-        Returns variable var, from ljinux.based.user_vars or ljinux.based.system_vars.
+        Returns variable var, from be.based.user_vars or be.based.system_vars.
         The var name has to be an str.
         In case it doesn't exist, returns None.
 
       xarg(rinpt=None, fn=False)
         Argument parser.
-        When no input stream specified, rely on ljinux.based.user_vars["argj"].
+        When no input stream specified, rely on be.based.user_vars["argj"].
         Returns a dict with the following stuff:
           "w" for the words that don't belong to a specific option.
                Example: "ls /bin", "/bin" is gonna be returned in "w"
@@ -473,7 +476,7 @@ Available from:
         Opens files with the path automatically parsed by betterpath.
         Also remounts the filesystem when in write or append mode automatically.
         Example:
-          with ljinux.api.fopen("/bin/nano.py", "w")
+          with be.api.fopen("/bin/nano.py", "w")
 
       isdir(dirr, rdir=None)
         Checks if given item is file (returns 0) or directory (returns 1).
@@ -484,7 +487,8 @@ Available from:
 
       betterpath(back=None)
         Automatically rewrite paths to match virtual filesystem.
-        /LjinuxRoot/bin/nano.py -> /bin/nano.py
+        Assuming root (pv[0]["root"]) is set to "/Beryllium"
+        /Beryllium/bin/nano.py -> /bin/nano.py
         /boot_out.txt -> &/boot_out.txt
         / -> &
         ~ automatically parsed
@@ -507,16 +511,16 @@ Available from:
 ----<| jCurses |
       \--------|
 
-jCurses are the ljinux version of nCurses.
+jCurses are the beryllium version of nCurses.
 The library is preinstalled in "/lib".
 
-Each program should use it's own jcurses object.
+Each program should (but it's not necessary) use it's own jcurses object.
 Based, by default, creates the "term" jcurses object.
 
 Useful functions:
 
     - .write(strr=str, end="\n")
-     The default write function for ljinux.
+     The default write function.
      Always prints to the active terminal only.
 
     - .nwrite(strr=str)
@@ -553,16 +557,14 @@ Useful functions:
     - .rem_gib()
     Empty stdin for ansi code usage. The data is not discarded.
 
-jCurses does not depend onto ljinux.
-
-More documentation on jcurses will be added later.
+jCurses does not depend onto Beryllium OS.
 
 
       /-------------|
 ----<| Led activity |
       \-------------|
 
-Ljinux supports both generic led's as well as neopixels for it's activity led.
+Beryllium OS supports both generic led's as well as neopixels for it's activity led.
 
 Generic leds stay on when idle, and off on command activity.
 Neopixels stay green when idle,
@@ -576,17 +578,18 @@ Blue when waiting.
 ----<| BetterPath |
       \-----------|
 
-The ljinux kernel is in the board's root, while the os root is under /LjinuxRoot.
-This is so that it is possible to use an sdcard as a root instead.
-Betterpath is a function that is integrated into ljinux to make the
-os appear and function as if /LjinuxRoot is the real root.
+The beryllium kernel is in the board's root, while the os root is under by default under /Beryllium.
+The root path is set by the kernel in pv[0]["root"].
+Root cannot be "/".
+Betterpath is a function that is integrated into the kernel to make the
+os appear and function as if /Beryllium is the real root.
 It works by standing as a middleman between all os path requests.
 However it doesn't prohibit the access to the board's real root.
 It work by mapping:
 
     Real path | Betterpath
        "/"    |  "&/"
-"/LjinuxRoot" |  "/"
+ "/Beryllium" |  "/"
 
 And treating all subsequent paths by that rule.
 It additionally maps "~" to the user's home directory, and "-" to the previous directory.
@@ -621,7 +624,7 @@ Example 3:
       \---------------------|
 
 To use the built-in circuitpython module "wifi" as your network connection:
-  - Run "modprobe driver_wifi as network" to load the ljinux wifi driver.
+  - Run "modprobe driver_wifi as network" to load the beryllium os wifi driver.
      You can optionally add it to /boot/Init.lja, to load it on boot.
   - Use iwctl to configure the wifi connection.
      For info on how to use iwctl, please refer to
@@ -630,24 +633,12 @@ To use the built-in circuitpython module "wifi" as your network connection:
      You can automatically reconnect on reboot by running `iwctl station wifi auto`.
 
 
-To use a w5500 ethernet module:
-  - Ensure you have run "make w5500" from the host computer.
-     If you haven't, run "devmode" from within ljinux, to enable usb access,
-     and perform the module installation. Then disable developer mode (as stated above)
-     and reboot ljinux.
-  - Run "modprobe driver_w5500 as network" to load the ljinux wifi driver.
-     You can optionally add it to /boot/Init.lja, to load it on boot.
-  - Use eth to configure the network interface.
-     For more information please refer to the manpage by running "man eth".
-     This is not implemented. Good luck.
-
-
       /-------------------|
 ----<| Isolated processes |
       \-------------------|
 
-During ljinux execution every variable created persists across processes.
-And every process can access any other process's stuff. Securitey!
+During beryllium execution every variable created persists across processes.
+And every process can access any other process's stuff. Very secure, yea.
 Having a parser that effectively blocks touching other processes would be
 too much of an overhead and impractical.
 

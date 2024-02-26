@@ -6,15 +6,11 @@ SYNOPSIS
 
 DESCRIPTION
     Neofetch displays an assortment of system info.
-    Flex your ljinux board.
 
-    It displays the:
-    
-     - Username
-     - Hostname
-     - Board it's running on
-     - Ljinux version
-     - CircuitPython version
+    It displays:
+     - The current username
+     - The system hostname
+     - The board it's running on
+     - The kernel version
+     - The CircuitPython version
      - Ram usage
-     - Esp-idf ram usage
-       (if running on espressif)

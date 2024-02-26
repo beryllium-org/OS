@@ -6,7 +6,7 @@ SYNOPSIS
 
 DESCRIPTION
     Executes the python COMMAND.
-    
-    It runs under the same scope as ljinux, so yes, be careful.
-    
+
+    It runs under the same scope as the kernel, so yes, be careful.
+
     See also exec, fpexec

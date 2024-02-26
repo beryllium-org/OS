@@ -5,4 +5,4 @@ SYNOPSIS
     exit [CODE]
 
 DESCRIPTION
-    Exit Ljinux with exit CODE.
+    Disconnects the current shell.

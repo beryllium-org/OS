@@ -1,12 +1,13 @@
 NAME
-    devmode - Enable ljinux developer mode
+    devmode - Enable Beryllium OS developer mode
 
 SYNOPSIS
-    devmode [-q]
+    devmode [-q/-p]
 
 DESCRIPTION
     Enables usb access to the host and reboots the board.
-    IMPORTANT NOTE: The board will not be writable by ljinux, while devmode is enabled.
-    To disable it, delete 'devm' from the board's root (&/).
-    
-    To skip the warning text delay, pass "-q" as an argument.
+    By default this change only applies for one boot.
+
+    To make this permenant pass -p. (NOT RECOMMENDED)
+
+    To suppress the warning delay, pass -p.

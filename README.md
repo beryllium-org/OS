@@ -1,7 +1,7 @@
 # Beryllium OS
 A unix-like operating system for CircuitPython microcontrollers.  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a><br />
 (Formerly known as ljinux)<br />
-![neofetch](https://github.com/bill88t/ljinux/blob/main/other/screenshots/boot.gif)<br />
+![neofetch](https://github.com/beryllium-org/OS/blob/main/other/screenshots/boot.gif)<br />
 <b>Important notes:</b><br />
 This project is still <b>in it's early developement</b>!<br />
 This project is <b>NOT</b> a linux distribution.<br />
@@ -10,7 +10,7 @@ This project is <b>NOT</b> compatible with any linux code / binaries.<br />
 <b><i>We also now have a [discord](https://discord.gg/V8AejwGpCv) server!<br />
 If you need support or want to hang out, feel free to join in!</i></b><br />
 
-We also work with [Github Discussions](https://github.com/bill88t/ljinux/discussions).<br />
+We also work with [Github Discussions](https://github.com/beryllium-org/OS/discussions).<br />
 
 Table of Contents
 =================
@@ -93,8 +93,8 @@ You can find beryllium packages in the [jpkg github topic](https://github.com/to
 <br />
 <b>Recommended packages:</b><br />
 <br />
-RubberDucky script support: https://github.com/bill88t/ljinux-ducky <br />
-Hashutils, md5 / sha commands: https://github.com/bill88t/ljinux-hashutils <br />
+RubberDucky script support: https://github.com/beryllium-org/OS-ducky <br />
+Hashutils, md5 / sha commands: https://github.com/beryllium-org/OS-hashutils <br />
 
 ## Connection
 
@@ -121,12 +121,12 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 
 ## A complete Beryllium manual is available
 
- https://github.com/bill88t/ljinux/blob/main/Manual.txt<br />
+ https://github.com/beryllium-org/OS/blob/main/Manual.txt<br />
  <br />
 
 ## Additional screenshots
-![less](https://github.com/bill88t/ljinux/blob/main/other/screenshots/less.png)
-![iwctl](https://github.com/bill88t/ljinux/blob/main/other/screenshots/iwctl.png)
+![less](https://github.com/beryllium-org/OS/blob/main/other/screenshots/less.png)
+![iwctl](https://github.com/beryllium-org/OS/blob/main/other/screenshots/iwctl.png)
 
 ## Useful resources that helped with the development of this project
  https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797<br />

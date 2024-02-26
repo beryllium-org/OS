@@ -1,18 +1,19 @@
 NAME
-    Ljinux - The ljinux wanna-be operating system
+    Beryllium - The beryllium operating system
 
 SYNOPSIS
-    Ljinux is written in 100% python.
+    Beryllium is written in 100% python.
     It is absolutely not compliant with any standards.
-    It features no code from linux, or any of it's utils.
-    It's all a rewrite from memory.
+    It features no code from linux, or any of it's utilities.
+    It's all a rewrite.
+    It cannot execute binary ELF code.
 
 DESCRIPTION
     The shell you just used to run this command with is the Based shell.
-    
+
     You can use the arrow keys to browse the history and TAB to autofill commands and files.
-    
+
     To view the available commands run "help".
-    
+
     For information regarding a specific command, run "man" with the command name.
     For more information regarding man pages, run "man man".
