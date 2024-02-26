@@ -1,6 +1,7 @@
 source/mpy-cross-*
 source/target
 source/build_*
+source/release
 *.pyc
 *.xml
 *.iml
