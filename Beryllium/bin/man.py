@@ -3,7 +3,7 @@ vr("manls", listdir(pv[0]["root"] + "/usr/share/man"))
 vr("manpages", set())
 for pv[get_pid()]["manpage"] in vr("manls"):
     if vr("manpage").endswith(".man"):
-        pv[get_pid()]["manpages"].add(vr("manpage")[:-4])
+        vr("manpages").add(vr("manpage")[:-4])
 
 vr("opts", be.api.xarg())
 
@@ -11,8 +11,7 @@ if len(vr("opts")["w"]) is 1:
     vr("page_dayo", vr("opts")["w"][0])
     if vr("page_dayo") in vr("manpages"):
         be.based.run(
-            "less",
-            [pv[0]["root"] + "/usr/share/man/{}.man".format(vr("page_dayo"))],
+            "less /usr/share/man/{}.man".format(vr("page_dayo")),
         )
     else:
         term.write(
