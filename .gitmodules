@@ -31,3 +31,6 @@
 [submodule "packages/ducky"]
 	path = packages/ducky
 	url = https://github.com/beryllium-org/ducky
+[submodule "scripts/jpkgstrap"]
+	path = scripts/jpkgstrap
+	url = https://github.com/beryllium-org/jpkgstrap
