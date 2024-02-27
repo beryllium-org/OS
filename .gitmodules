@@ -3,10 +3,10 @@
 	url = https://github.com/adafruit/Adafruit_CircuitPython_Requests
 [submodule "source/jcurses"]
 	path = source/jcurses
-	url = https://github.com/bill88t/jcurses
+	url = https://github.com/beryllium-org/jcurses
 [submodule "source/jz"]
 	path = source/jz
-	url = https://github.com/bill88t/jz
+	url = https://github.com/beryllium-org/jz
 [submodule "other/Adafruit_CircuitPython_NTP"]
 	path = other/Adafruit_CircuitPython_NTP
 	url = https://github.com/adafruit/Adafruit_CircuitPython_NTP
@@ -18,13 +18,13 @@
 	url = https://github.com/adafruit/Adafruit_CircuitPython_Wiznet5k
 [submodule "scripts/CircuitMPY"]
 	path = scripts/CircuitMPY
-	url = https://github.com/bill88t/CircuitMPY
+	url = https://github.com/beryllium-org/CircuitMPY
 [submodule "other/Adafruit_CircuitPython_SD"]
 	path = other/Adafruit_CircuitPython_SD
 	url = https://github.com/adafruit/Adafruit_CircuitPython_SD
 [submodule "other/cptoml"]
 	path = other/cptoml
-	url = https://github.com/bill88t/cptoml
+	url = https://github.com/beryllium-org/cptoml
 [submodule "other/CircuitPython_FTP_Server"]
 	path = other/CircuitPython_FTP_Server
-	url = https://github.com/bill88t/CircuitPython_FTP_Server
+	url = https://github.com/beryllium-org/CircuitPython_FTP_Server
