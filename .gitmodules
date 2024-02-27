@@ -40,3 +40,6 @@
 [submodule "packages/nano"]
 	path = packages/nano
 	url = https://github.com/beryllium-org/nano
+[submodule "packages/hashutils"]
+	path = packages/hashutils
+	url = https://github.com/beryllium-org/hashutils
