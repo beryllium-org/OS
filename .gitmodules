@@ -34,3 +34,6 @@
 [submodule "scripts/jpkgstrap"]
 	path = scripts/jpkgstrap
 	url = https://github.com/beryllium-org/jpkgstrap
+[submodule "other/Adafruit_CircuitPython_ConnectionManager"]
+	path = other/Adafruit_CircuitPython_ConnectionManager
+	url = https://github.com/adafruit/Adafruit_CircuitPython_ConnectionManager/
