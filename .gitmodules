@@ -28,3 +28,6 @@
 [submodule "other/CircuitPython_FTP_Server"]
 	path = other/CircuitPython_FTP_Server
 	url = https://github.com/beryllium-org/CircuitPython_FTP_Server
+[submodule "packages/ducky"]
+	path = packages/ducky
+	url = https://github.com/beryllium-org/ducky
