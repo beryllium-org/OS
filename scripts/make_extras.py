@@ -1,4 +1,4 @@
-from os import system, mkdir, listdir, path, getcwd, environ
+from os import system, mkdir, listdir, path, getcwd, environ, chdir
 from sys import argv
 from sys import path as spath
 from shutil import copytree
@@ -105,6 +105,28 @@ if path.exists(f"../Boardfiles/{board}/extras"):
             else:
                 print("Use folders instead")
                 errexit()
+        elif i.endswith(".pkg"):
+            olddir = getcwd()
+            print("[-/-] Building package: " + i[:-4])
+            chdir("../packages/" + i[:-4])
+            system("make clean package")
+            chdir(olddir)
+            print("[-/-] Strapping package: " + i[:-4])
+            chdir("../scripts/jpkgstrap/")
+            target_root = boardpath + "/Beryllium"
+            if target_root.startswith("build"):
+                target_root = "../../source/" + target_root
+            target_root = path.abspath(target_root)
+            system(
+                "python3 jpkgstrap.py "
+                + target_root
+                + " -U ../../packages/"
+                + i[:-4]
+                + "/"
+                + i[:-4]
+                + ".jpk"
+            )
+            chdir(olddir)
         else:
             pass
 
