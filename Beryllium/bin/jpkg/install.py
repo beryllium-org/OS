@@ -1,4 +1,7 @@
 rename_process("jpkg-install")
+if gc.mem_free() < 100000:
+    term.write("Low memory, wiping dmesg log..")
+    be.based.run("_ndmesg")
 vr("fl", set())
 be.api.subscript("/bin/jpkg/generatelist.py")
 
