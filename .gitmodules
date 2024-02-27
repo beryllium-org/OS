@@ -37,3 +37,6 @@
 [submodule "other/Adafruit_CircuitPython_ConnectionManager"]
 	path = other/Adafruit_CircuitPython_ConnectionManager
 	url = https://github.com/adafruit/Adafruit_CircuitPython_ConnectionManager/
+[submodule "packages/nano"]
+	path = packages/nano
+	url = https://github.com/beryllium-org/nano
