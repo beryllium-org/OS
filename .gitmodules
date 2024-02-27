@@ -43,3 +43,6 @@
 [submodule "packages/hashutils"]
 	path = packages/hashutils
 	url = https://github.com/beryllium-org/hashutils
+[submodule "packages/neofetch"]
+	path = packages/neofetch
+	url = https://github.com/beryllium-org/neofetch
