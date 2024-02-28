@@ -49,3 +49,6 @@
 [submodule "packages/jpkg"]
 	path = packages/jpkg
 	url = https://github.com/beryllium-org/JPKG
+[submodule "packages/less"]
+	path = packages/less
+	url = https://github.com/beryllium-org/less
