@@ -755,11 +755,7 @@ class be:
 
         def basepath(path=".") -> str:
             old = getcwd()
-            true_root = (
-                (path[0] == "&")
-                or (old == "/" and path == ".")
-                or (old == pv[0]["root"] and path == "..")
-            )
+            true_root = path[0] == "&" or old == "/" or old == pv[0]["root"]
             path = be.api.betterpath(path)
             res = ""
             try:
@@ -778,10 +774,9 @@ class be:
             return res
 
         def listdir(path=".") -> list:
-            path = be.api.basepath(path)
+            path = be.api.betterpath(be.api.basepath(path))
             res = []
             if path:
-                path = be.api.betterpath(path)
                 if path == pv[0]["root"] + "/dev":  # Device enumeration done here.
                     devs = list(be.devices.keys())
                     terms = list(pv[0]["consoles"].keys())
