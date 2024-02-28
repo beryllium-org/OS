@@ -37,6 +37,8 @@ if system(f"test -d {boardpath}/lib") != 0:
 if system(f"test -d {boardpath}/lib/drivers") != 0:
     mkdir(f"{boardpath}/lib/drivers")
 
+packages = set()
+
 if path.exists(f"../Boardfiles/{board}/extras"):
     for i in listdir(f"../Boardfiles/{board}/extras/"):
         if i.endswith(".other"):
@@ -106,28 +108,26 @@ if path.exists(f"../Boardfiles/{board}/extras"):
                 print("Use folders instead")
                 errexit()
         elif i.endswith(".pkg"):
-            olddir = getcwd()
+            packages.add(i)
+        else:
+            pass
+    if packages:
+        olddir = getcwd()
+        for i in packages:
             print("[-/-] Building package: " + i[:-4])
             chdir("../packages/" + i[:-4])
             system("make clean package")
             chdir(olddir)
-            print("[-/-] Strapping package: " + i[:-4])
-            chdir("../scripts/jpkgstrap/")
-            target_root = boardpath + "/Beryllium"
-            if target_root.startswith("build"):
-                target_root = "../../source/" + target_root
-            target_root = path.abspath(target_root)
-            system(
-                "python3 jpkgstrap.py "
-                + target_root
-                + " -U ../../packages/"
-                + i[:-4]
-                + "/"
-                + i[:-4]
-                + ".jpk"
-            )
-            chdir(olddir)
-        else:
-            pass
+        print("[-/-] Strapping packages..")
+        chdir("../scripts/jpkgstrap/")
+        target_root = boardpath + "/Beryllium"
+        if target_root.startswith("build"):
+            target_root = "../../source/" + target_root
+        target_root = path.abspath(target_root)
+        cmd = "python3 jpkgstrap.py " + target_root + " -U"
+        for i in packages:
+            cmd += " ../../packages/" + i[:-4] + "/" + i[:-4] + ".jpk"
+        system(cmd)
+        chdir(olddir)
 
 system("sync")
