@@ -494,6 +494,8 @@ class be:
             r = 0 if fn else 1
 
             for i in range(r, len(inpt)):
+                if not inpt[i]:
+                    continue
                 if inpt[i][0] == "$":  # variable
                     if not s:
                         inpt[i] = be.api.adv_input(inpt[i][1:])
