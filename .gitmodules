@@ -46,3 +46,6 @@
 [submodule "packages/neofetch"]
 	path = packages/neofetch
 	url = https://github.com/beryllium-org/neofetch
+[submodule "packages/jpkg"]
+	path = packages/jpkg
+	url = https://github.com/beryllium-org/JPKG
