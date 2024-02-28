@@ -1,6 +1,0 @@
-Ljinux package manager version 1.
-
-Usage:
-    jpkg install package_file.jpkg
-    jpkg uninstall package_name
-    jpkg list

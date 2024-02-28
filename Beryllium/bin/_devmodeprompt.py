@@ -16,6 +16,6 @@ To disable it, {colors.red_t}set usb_msc_enabled to 'false'{colors.endc} in '&/s
             term.write(
                 f"""\n{colors.red_t}Warning:{colors.endc} USB filesystem is enabled for this boot!
 
-Please reboot to perform write operations from be.
+Please reboot to perform write operations from Beryllium.
 """
             )
