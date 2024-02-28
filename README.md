@@ -86,15 +86,10 @@ Don't even try from wsl. The scripts rely on mount points. They will just not de
 <b>IMPORTANT NOTE: To make the board appear again as a usb drive on the host, run the Beryllium command </b><code>devmode</code>. More info regarding the devmode command, available in the manual.<br />
 
 ## Packages
-Some of beryllium's features are not bundled with this install.<br />
+Some of beryllium os'es features are not bundled with this install.<br />
 You will have to install them seperately through the jpkg package manager.<br />
 <br />
 You can find beryllium packages in the [jpkg github topic](https://github.com/topics/jpkg).<br />
-<br />
-<b>Recommended packages:</b><br />
-<br />
-RubberDucky script support: https://github.com/beryllium-org/OS-ducky <br />
-Hashutils, md5 / sha commands: https://github.com/beryllium-org/OS-hashutils <br />
 
 ## Connection
 
