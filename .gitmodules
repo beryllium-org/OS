@@ -52,3 +52,6 @@
 [submodule "packages/less"]
 	path = packages/less
 	url = https://github.com/beryllium-org/less
+[submodule "packages/ed"]
+	path = packages/ed
+	url = https://github.com/beryllium-org/ed
