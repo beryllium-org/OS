@@ -1,9 +1,8 @@
 00-gpio.py
 00-no-dmesg.lja
 01-early-connection.py
-02-path.py
-03-LEDs.py
-04-reload-hostname.py
-05-wifi.py
-06-advance-time.lja
+02-LEDs.py
+03-reload-hostname.py
+04-wifi.py
+05-advance-time.lja
 50-telnet.lja

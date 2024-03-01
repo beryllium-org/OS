@@ -2,6 +2,10 @@ print("Early boot log:\n")
 
 from storage import getmount, remount, disable_usb_drive, remount
 from supervisor import runtime, status_bar
+from sys import path
+
+path.append("/Beryllium/lib")
+
 import cptoml
 
 runtime.autoreload = False

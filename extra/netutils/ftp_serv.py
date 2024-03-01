@@ -1,7 +1,13 @@
 import wifi
 from socketpool import SocketPool
-from ftp_server import ftp
 from supervisor import reload
+
+from sys import path as syspath
+
+syspath.append("/Beryllium/lib")
+
+from ftp_server import ftp
+
 
 if not wifi.radio.connected:
     print("No wifi. Trying to connect via settings.toml")

@@ -1,4 +1,5 @@
 from sys import exit
+from sys import path as syspath
 from time import sleep
 from microcontroller import reset, RunMode, on_next_reset
 from supervisor import reload
@@ -15,6 +16,8 @@ exit_l = {
 }
 
 jrub = lambda text: print(f"jrub> {text}")
+
+syspath.append("/Beryllium/lib")
 
 try:
     from be import be
