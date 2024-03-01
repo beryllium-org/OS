@@ -1,28 +1,16 @@
 SHELL = bash
 
 all: help
-install: kernel rootfs extra boot
+install: rootfs kernel extra boot
+debug: rootfs kernel_debug extra boot
 
-kernel: prep comp
-kernel_debug: prep debug_comp
-
-#w5500spi: prep driver_w5500spi
-#w5500spi_debug: prep driver_w5500spi_debug
+kernel: prep clean_core comp strap_kern
+kernel_debug: prep clean_core debug_comp strap_kern
 
 prep: modules prepperms
 
 help:
 	@cat ../other/makefile_help.txt
-#driver_w5500spi:
-#	@echo -e "\nInstalling w5500 spi driver"
-#	@python3 ../scripts/copy_w5500spi.py
-#	@sync
-#	@echo "w5500 spi driver done"
-#driver_w5500spi_debug:
-#	@echo -e "\nInstalling w5500 spi driver (debug)"
-#	@python3 ../scripts/copy_w5500spi.py debug
-#	@sync
-#	@echo "w5500 spi driver done"
 update_modules:
 	@echo "Updating git submodules from remotes.."
 	@git submodule update --init --recursive --remote ..
@@ -39,6 +27,11 @@ prepperms:
 	@echo -n "Preparing script permissions.."
 	@chmod +x ../scripts/*.sh
 	@echo " OK"
+clean_core:
+	@if [ -e "core_packages/kernel.jpk" ]; then rm core_packages/kernel.jpk; fi
+	@if [ -e "core_packages/jcurses.jpk" ]; then rm core_packages/jcurses.jpk; fi
+	@if [ -e "core_packages/cptoml.jpk" ]; then rm core_packages/cptoml.jpk; fi
+	@if [ -e "core_packages/jz.jpk" ]; then rm core_packages/jz.jpk; fi
 comp:
 	@echo -e "\nCommencing kernel compilation.."
 	@sync
@@ -47,35 +40,18 @@ debug_comp:
 	@echo -e "\nCommencing kernel compilation.. (debug)"
 	@sync
 	@python3 ../scripts/make_kernel.py debug
-connection:
-	@echo -n "Ensuring GNU/Screen is installed.."
-	@command -v screen >/dev/null && echo "Found" || (echo -e "Not found\nInstalling.." && ./scripts/installscreen.sh)
-	@echo -n "Ensuring user is in dialout group.."
-	@../scripts/groupadd.sh
-	@echo -e "\nRunning screen connection.."
-	@../scripts/screenningg.sh
-blacktest:
-	@echo -n "Commencing black compatibility test.."
-	@command -v black >/dev/null && echo -e "Found black\n" || (echo -e "Not found\nInstalling.." && ./scripts/installblack.sh)
-	@black --check .
-	@../scripts/returncheck.sh
-ccon:
-	@echo -n "Ensuring GNU/Screen is installed.."
-	@command -v screen >/dev/null && echo "Found" || (echo -e "Not found\nInstalling.." && ./scripts/installscreen.sh)
-	@echo -n "Ensuring user is in dialout group.."
-	@../scripts/groupadd.sh
-	@echo "Installing ccon to the machine.."
-	@python3 ../scripts/ccon.py
-	@echo -e "\nDone, now try running ccon\n"
 extra:
 	@echo -e "\nLoading extras:"
 	@python3 ../scripts/make_extras.py
 	@sync
-clean:
-	@rm -r ./build_*
+clean: clean_core
+	@rm -r ./build_* || true
 boot:
 	@echo -e "\nSetup /boot:"
 	@python3 ../scripts/make_boot.py
 releases:
 	@echo "Creating releases archives.."
 	@../scripts/make_releases.sh
+strap_kern:
+	@echo "Strapping kernel.."
+	@python3 ../scripts/strap_kern.py

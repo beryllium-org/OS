@@ -32,9 +32,7 @@ if boardpath == None:
     )
     exit(1)
 
-if system(f"test -d {boardpath}/lib") != 0:
-    mkdir(f"{boardpath}/lib")
-if system(f"test -d {boardpath}/lib/drivers") != 0:
+if system(f"test -d {boardpath}/Beryllium/lib/drivers") != 0:
     mkdir(f"{boardpath}/lib/drivers")
 
 packages = set()
@@ -43,7 +41,9 @@ if path.exists(f"../Boardfiles/{board}/extras"):
     for i in listdir(f"../Boardfiles/{board}/extras/"):
         if i.endswith(".other"):
             source_p = "../other/" + i[:-6].replace(".", "/")
-            target_p = f"{boardpath}/lib/" + source_p[source_p.rfind("/") + 1 :]
+            target_p = (
+                f"{boardpath}/Beryllium/lib/" + source_p[source_p.rfind("/") + 1 :]
+            )
             print(f"[-/-] Compiling extras: {source_p}")
             if path.isdir(source_p):
                 if not path.exists(target_p):
@@ -73,7 +73,7 @@ if path.exists(f"../Boardfiles/{board}/extras"):
                 try:
                     circuitmpy.compile_mpy(
                         f"../Boardfiles/{board}/extras/{i}",
-                        f"{boardpath}/lib/{i[:-3]}.mpy",
+                        f"{boardpath}/Beryllium/lib/{i[:-3]}.mpy",
                         optim=optimis,
                     )
                 except OSError:
@@ -89,7 +89,7 @@ if path.exists(f"../Boardfiles/{board}/extras"):
                 try:
                     circuitmpy.compile_mpy(
                         f"../drivers/{i[:-7]}.py",
-                        f"{boardpath}/lib/drivers/{i[:-7]}.mpy",
+                        f"{boardpath}/Beryllium/lib/drivers/{i[:-7]}.mpy",
                         optim=optimis,
                     )
                 except OSError:

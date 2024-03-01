@@ -1,11 +1,11 @@
-from os import system, mkdir, listdir, environ
+from os import system, mkdir, listdir, environ, getcwd, chdir, remove
 from sys import argv
 from sys import path as spath
 
 spath.append("../scripts/CircuitMPY/")
-spath.append("../other/cptoml/")
+spath.append("./jz")
 import circuitmpy
-from cptoml import fetch
+from jz import compress
 
 
 def errexit():
@@ -34,63 +34,92 @@ if boardpath == None:
 print(f"Using board path: {boardpath}")
 print(f"Building for board: {board}\n")
 
-if system(f"test -d {boardpath}/lib") != 0:
-    mkdir(f"{boardpath}/lib")
-if system(f"test -d {boardpath}/lib/drivers") != 0:
-    mkdir(f"{boardpath}/lib/drivers")
+print("[1/4] Building kernel package")
 
-print("[1/6] Compiling source files")
+kern_files = ["be.py", "lj_colours.py", "lj_colours_placebo.py", "neopixel_colors.py"]
+jcurses_files = ["jcurses.py", "jcurses_data.py"]
+
+for filee in kern_files:
+    try:
+        circuitmpy.compile_mpy(
+            f"./{filee}",
+            f"./core_packages/kernel/{filee[:-3]}.mpy",
+            optim=optimis,
+        )
+    except OSError:
+        errexit()
+
+olddir = getcwd()
+chdir("core_packages/kernel")
+execstr = ""
 for filee in listdir():
-    if filee.endswith(".py"):
-        try:
-            circuitmpy.compile_mpy(
-                f"./{filee}",
-                f"{boardpath}/lib/{filee[:-3]}.mpy",
-                optim=optimis,
-            )
-        except OSError:
-            errexit()
+    execstr += f", '{filee}'"
+execstr = "compress(" + execstr[2:] + ", '../kernel.jpk')"
+exec(execstr)
+chdir(olddir)
 
-print("[2/6] Compiling jcurses")
-for filee in listdir("jcurses"):
-    if filee.endswith(".py"):
-        try:
-            circuitmpy.compile_mpy(
-                f"./jcurses/{filee}",
-                f"{boardpath}/lib/{filee[:-3]}.mpy",
-                optim=optimis,
-            )
-        except OSError:
-            errexit()
+for filee in kern_files:
+    remove(f"./core_packages/kernel/{filee[:-3]}.mpy")
+print("Done")
 
-print("[3/6] Copying base files")
-for filee in listdir("../rootfilesystem/"):
-    system(f"cp ../rootfilesystem/{filee} {boardpath}/")
+print("\n[2/4] Building jcurses package")
+for filee in jcurses_files:
+    try:
+        circuitmpy.compile_mpy(
+            f"./jcurses/{filee}",
+            f"./core_packages/jcurses/{filee[:-3]}.mpy",
+            optim=optimis,
+        )
+    except OSError:
+        errexit()
 
-print("[4/6] Copying board configuration files")
-skiptm = False
+chdir("core_packages/jcurses")
+execstr = ""
+for filee in listdir():
+    execstr += f", '{filee}'"
+execstr = "compress(" + execstr[2:] + ", '../jcurses.jpk')"
+exec(execstr)
+chdir(olddir)
+
+for filee in jcurses_files:
+    remove(f"./core_packages/jcurses/{filee[:-3]}.mpy")
+print("Done")
+
+print("\n[3/4] Building jz package")
 try:
-    if fetch("setup", "BERYLLIUM", toml=f"{boardpath}/settings.toml"):
-        skiptm = True
-except:
-    pass
-if not skiptm:
-    system(f"cp ../Boardfiles/{board}/settings.toml {boardpath}/settings.toml")
-else:
-    print(" - Skipped updating toml as setup variable already True")
-
-print("[5/6] Compiling jz")
-try:
-    circuitmpy.compile_mpy("./jz/jz.py", f"{boardpath}/lib/jz.mpy", optim=optimis)
+    circuitmpy.compile_mpy("./jz/jz.py", f"./core_packages/jz/jz.mpy", optim=optimis)
 except OSError:
     errexit()
+print("Done")
 
-print("[6/6] Compiling cptoml")
+chdir("core_packages/jz")
+execstr = ""
+for filee in listdir():
+    execstr += f", '{filee}'"
+execstr = "compress(" + execstr[2:] + ", '../jz.jpk')"
+exec(execstr)
+chdir(olddir)
+
+remove(f"./core_packages/jz/jz.mpy")
+print("Done")
+
+print("\n[4/4] Building cptoml package")
 try:
     circuitmpy.compile_mpy(
-        "../other/cptoml/cptoml.py", f"{boardpath}/lib/cptoml.mpy", optim=optimis
+        "../other/cptoml/cptoml.py",
+        f"./core_packages/cptoml/cptoml.mpy",
+        optim=optimis,
     )
 except OSError:
     errexit()
 
-system("sync")
+chdir("core_packages/cptoml")
+execstr = ""
+for filee in listdir():
+    execstr += f", '{filee}'"
+execstr = "compress(" + execstr[2:] + ", '../cptoml.jpk')"
+exec(execstr)
+chdir(olddir)
+
+remove(f"./core_packages/cptoml/cptoml.mpy")
+print("Done")

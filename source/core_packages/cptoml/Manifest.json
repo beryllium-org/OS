@@ -1,0 +1,12 @@
+{
+    "JPKG_minimum_version": 2,
+    "package_name": "cptoml",
+    "version": [1, 0, 0],
+    "dependencies": [],
+    "conflicts": [],
+    "install": "installer.py",
+    "remove": "uninstaller.py",
+    "update": "installer.py",
+    "strap": "strap.py",
+    "restart_required": false
+} 
