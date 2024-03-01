@@ -58,3 +58,6 @@
 [submodule "packages/camera"]
 	path = packages/camera
 	url = https://github.com/beryllium-org/camera
+[submodule "packages/m5x-config"]
+	path = packages/m5x-config
+	url = https://github.com/beryllium-org/m5x-config
