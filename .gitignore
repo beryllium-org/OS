@@ -6,3 +6,4 @@ source/release
 *.xml
 *.iml
 .directory
+*.jpk

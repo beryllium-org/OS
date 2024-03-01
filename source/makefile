@@ -53,5 +53,5 @@ releases:
 	@echo "Creating releases archives.."
 	@../scripts/make_releases.sh
 strap_kern:
-	@echo "Strapping kernel.."
+	@echo -e "\nStrapping kernel.."
 	@python3 ../scripts/strap_kern.py
