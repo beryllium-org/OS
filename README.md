@@ -106,12 +106,15 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 ## Directory structure
 
 <ul>
-<li><code>Beryllium</code>, the root filesystem for beryllium os. It should be copied as is to the board. Packages will be strapped over it.</li>
-<li><code>rootfilesystem</code>, the files needed in the root of the board. These should also be copied as is.</li>
+<li><code>base</code>, the base root filesystem that will be used to strap all other packages over it.</li>
+<li><code>Boardfiles</code>, the different board ports and their configuration data.</li>
+<li><code>bootcfg</code>, boot configuration files, to be cherrypicked by ports.</li>
+<li><code>drivers</code>, different device drivers that may be build depending on the port.</li>
+<li><code>extra</code>, extra files, usually board-specific files.</li>
+<li><code>other</code>, miscellaneous files used by scripts for the most part.</li>
+<li><code>packages</code>, most of these (if they are compatible) will be built and strapped onto the new installation.</li>
 <li><code>scripts</code>, the files needed for compilation, and installation to a board. They should not be copied over,</li>
-<li><code>source</code>, the source files for this project and co. They should be compiled into .mpy files and put in /lib of the board.</li>
-<li><code>packages</code>, beryllium featured packages and preinstalled software, coming soon.</li>
-<li><code>other</code>, miscellaneous files</li>
+<li><code>source</code>, the source files for this project and co. They should be compiled into .mpy files, then into packages.</li>
 </ul>
 
 ## A complete Beryllium manual is available
