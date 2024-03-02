@@ -7,8 +7,8 @@
 [submodule "scripts/CircuitMPY"]
 	path = scripts/CircuitMPY
 	url = https://github.com/beryllium-org/CircuitMPY
-[submodule "other/cptoml"]
-	path = other/cptoml
+[submodule "source/cptoml"]
+	path = source/cptoml
 	url = https://github.com/beryllium-org/cptoml
 [submodule "packages/ducky"]
 	path = packages/ducky
