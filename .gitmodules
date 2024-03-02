@@ -49,3 +49,6 @@
 [submodule "packages/netutils"]
 	path = packages/netutils
 	url = https://github.com/beryllium-org/netutils
+[submodule "packages/virtUART"]
+	path = packages/virtUART
+	url = https://github.com/beryllium-org/virtUART
