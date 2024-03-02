@@ -64,3 +64,6 @@
 [submodule "packages/wget"]
 	path = packages/wget
 	url = https://github.com/beryllium-org/wget
+[submodule "packages/ftpd"]
+	path = packages/ftpd
+	url = https://github.com/beryllium-org/ftpd
