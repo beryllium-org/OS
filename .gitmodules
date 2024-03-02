@@ -49,3 +49,6 @@
 [submodule "packages/ftpd"]
 	path = packages/ftpd
 	url = https://github.com/beryllium-org/ftpd
+[submodule "packages/netutils"]
+	path = packages/netutils
+	url = https://github.com/beryllium-org/netutils
