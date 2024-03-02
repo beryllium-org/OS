@@ -106,7 +106,7 @@ print("Done")
 print("\n[4/4] Building cptoml package")
 try:
     circuitmpy.compile_mpy(
-        "../other/cptoml/cptoml.py",
+        "../source/cptoml/cptoml.py",
         f"./core_packages/cptoml/cptoml.mpy",
         optim=optimis,
     )

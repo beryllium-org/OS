@@ -2,7 +2,7 @@ from os import system, mkdir, environ
 from sys import path as spath
 
 spath.append("../scripts/CircuitMPY/")
-spath.append("../other/cptoml/")
+spath.append("../source/cptoml/")
 import circuitmpy
 from cptoml import fetch
 

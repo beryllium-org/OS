@@ -4,7 +4,7 @@ from sys import path as spath
 from shutil import copytree
 
 spath.append("../scripts/CircuitMPY/")
-spath.append("../other/cptoml/")
+spath.append("../source/cptoml/")
 import circuitmpy
 from cptoml import fetch
 
