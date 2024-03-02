@@ -16,10 +16,13 @@ These instructions are seperated into 3 big steps:
     For the pinout.map, you need to create a ascii pinout for the board.<br />
      If you feel too uncreative, you can skip it.<br />
     <br />
-    For the extras, include whatever modules your board's hardware needs.<br />
-    For example, or adding native wifi support, create a file named <code>driver_wifi.driver</code> in folder extras.<br />
-    Files in extras that have their name end with .driver will pull a .py file from other/drivers.<br />
-    Files in extras that have their name end with .other will pull from other/ a file or a folder.<br />
-    To include a folder deeper in other/, use dots in place of slashes, for example, to include other/Adafruit_CircuitPython_HTTPServer/, create a file named "Adafruit_CircuitPython_HTTPServer.adafruit_httpserver.other".<br />
+    For packages.txt you need to include all the packages this board needs.<br />
+    You are advised to view similar boards's packages.txt<br />
+    <br />
+    For drivers.txt just like packages, include what is needed for all the board to work fully out of the box.<br />
+    If something you want doesn't exist, you may make it, or skip it.<br />
+    <br />
+    For both packages.txt and drivers.txt you should only have one item per line, followed by no spaces or comments.<br />
     <br />
 3) Test your changes by loading beryllium onto the board.<br />
+    Ensure the status led works, and the statuses are not inverted and that all the needed packages are preinstalled.<br />
