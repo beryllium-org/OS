@@ -1,2 +1,0 @@
-# iwctl network management
-fpexec /bin/iwctl/main.py
