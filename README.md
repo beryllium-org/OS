@@ -110,7 +110,6 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 <li><code>Boardfiles</code>, the different board ports and their configuration data.</li>
 <li><code>bootcfg</code>, boot configuration files, to be cherrypicked by ports.</li>
 <li><code>drivers</code>, different device drivers that may be build depending on the port.</li>
-<li><code>extra</code>, extra files, usually board-specific files.</li>
 <li><code>other</code>, miscellaneous files used by scripts for the most part.</li>
 <li><code>packages</code>, most of these (if they are compatible) will be built and strapped onto the new installation.</li>
 <li><code>scripts</code>, the files needed for compilation, and installation to a board. They should not be copied over,</li>
