@@ -1,0 +1,12 @@
+camera
+ed
+ftpd
+hashutils
+jpkg
+less
+m5x-config
+nano
+neofetch
+netutils
+virtUART
+wget

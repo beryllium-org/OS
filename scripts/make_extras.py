@@ -32,102 +32,53 @@ if boardpath == None:
     )
     exit(1)
 
-if system(f"test -d {boardpath}/Beryllium/lib/drivers") != 0:
-    mkdir(f"{boardpath}/lib/drivers")
-
 packages = set()
 
-if path.exists(f"../Boardfiles/{board}/extras"):
-    for i in listdir(f"../Boardfiles/{board}/extras/"):
-        if i.endswith(".other"):
-            source_p = "../other/" + i[:-6].replace(".", "/")
-            target_p = (
-                f"{boardpath}/Beryllium/lib/" + source_p[source_p.rfind("/") + 1 :]
-            )
-            print(f"[-/-] Compiling extras: {source_p}")
-            if path.isdir(source_p):
-                if not path.exists(target_p):
-                    mkdir(target_p)
-                for filee in listdir(source_p):
-                    circuitmpy.compile_mpy(
-                        f"{source_p}/{filee}",
-                        f"{target_p}/{filee[:-3]}.mpy",
-                        optim=optimis,
-                    )
-            elif path.isfile(source_p + ".py"):
-                try:
-                    circuitmpy.compile_mpy(
-                        f"../other/{source_p}.py", f"{target_p}.mpy", optim=optimis
-                    )
-                except OSError:
-                    errexit()
-            else:
-                errexit()
-            del source_p, target_p
-        elif i.endswith(".py"):
-            print(f"[-/-] Compiling extras: extras/{i[:-2]}")
-            if path.isdir(f"../Boardfiles/{board}/extras/{i}"):
-                print("NOT IMPLEMENTED")
-                errexit()
-            elif path.isfile(f"../Boardfiles/{board}/extras/{i}"):
-                try:
-                    circuitmpy.compile_mpy(
-                        f"../Boardfiles/{board}/extras/{i}",
-                        f"{boardpath}/Beryllium/lib/{i[:-3]}.mpy",
-                        optim=optimis,
-                    )
-                except OSError:
-                    errexit()
-            else:
-                errexit()
-        elif i.endswith(".driver"):
-            print(f"[-/-] Compiling extras: drivers/{i[:-7]}")
-            if path.isdir(f"../Boardfiles/{board}/extras/{i}"):
-                print("NOT IMPLEMENTED")
-                errexit()
-            elif path.isfile(f"../Boardfiles/{board}/extras/{i}"):
-                try:
-                    circuitmpy.compile_mpy(
-                        f"../drivers/{i[:-7]}.py",
-                        f"{boardpath}/Beryllium/lib/drivers/{i[:-7]}.mpy",
-                        optim=optimis,
-                    )
-                except OSError:
-                    errexit()
-            else:
-                errexit()
-        elif i.endswith(".ex"):
-            print("[-/-] Copying extras: extra/" + i[:-3])
-            if path.isdir("../extra/" + i[:-3]):
-                copytree(
-                    f"../extra/{i[:-3]}/",
-                    boardpath + "/",
-                    dirs_exist_ok=True,
-                )
-            else:
-                print("Use folders instead")
-                errexit()
-        elif i.endswith(".pkg"):
-            packages.add(i)
-        else:
-            pass
-    if packages:
-        olddir = getcwd()
-        for i in packages:
-            print("[-/-] Building package: " + i[:-4])
-            chdir("../packages/" + i[:-4])
-            system("make clean package")
-            chdir(olddir)
-        print("[-/-] Strapping packages..")
-        chdir("../scripts/jpkgstrap/")
-        target_root = boardpath + "/Beryllium"
-        if target_root.startswith("build"):
-            target_root = "../../source/" + target_root
-        target_root = path.abspath(target_root)
-        cmd = "python3 jpkgstrap.py " + target_root + " -U"
-        for i in packages:
-            cmd += " ../../packages/" + i[:-4] + "/" + i[:-4] + ".jpk"
-        system(cmd)
+with open(f"../Boardfiles/{board}/packages.txt") as f:
+    tmp_packages = f.readlines()
+    for i in range(len(tmp_packages)):
+        pk = tmp_packages[i].replace("\n", "")
+        if pk:
+            packages.add(pk)
+
+if packages:
+    olddir = getcwd()
+    for i in packages:
+        print("[-/-] Building package: " + i)
+        chdir("../packages/" + i)
+        system("make clean package")
         chdir(olddir)
+    print("[-/-] Strapping packages..")
+    chdir("../scripts/jpkgstrap/")
+    target_root = boardpath + "/Beryllium"
+    if target_root.startswith("build"):
+        target_root = "../../source/" + target_root
+    target_root = path.abspath(target_root)
+    cmd = "python3 jpkgstrap.py " + target_root + " -U"
+    for i in packages:
+        cmd += " ../../packages/" + i + "/" + i + ".jpk"
+    system(cmd)
+    chdir(olddir)
+
+drivers = set()
+
+with open(f"../Boardfiles/{board}/drivers.txt") as f:
+    tmp_drivers = f.readlines()
+    for i in range(len(tmp_drivers)):
+        dri = tmp_drivers[i].replace("\n", "")
+        if dri:
+            drivers.add(dri)
+
+if drivers:
+    for i in drivers:
+        print("[-/-] Building driver: " + i)
+        try:
+            circuitmpy.compile_mpy(
+                f"../drivers/{i}.py",
+                f"{boardpath}/Beryllium/lib/drivers/{i}.mpy",
+                optim=optimis,
+            )
+        except OSError:
+            errexit()
 
 system("sync")

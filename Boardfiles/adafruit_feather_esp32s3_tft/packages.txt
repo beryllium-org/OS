@@ -1,0 +1,10 @@
+ducky
+ed
+ftpd
+hashutils
+jpkg
+less
+nano
+neofetch
+netutils
+wget

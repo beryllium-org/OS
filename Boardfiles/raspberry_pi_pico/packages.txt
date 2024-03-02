@@ -1,0 +1,7 @@
+ducky
+ed
+hashutils
+jpkg
+less
+nano
+neofetch
