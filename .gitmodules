@@ -1,21 +1,9 @@
-[submodule "other/Adafruit_CircuitPython_Requests"]
-	path = other/Adafruit_CircuitPython_Requests
-	url = https://github.com/adafruit/Adafruit_CircuitPython_Requests
 [submodule "source/jcurses"]
 	path = source/jcurses
 	url = https://github.com/beryllium-org/jcurses
 [submodule "source/jz"]
 	path = source/jz
 	url = https://github.com/beryllium-org/jz
-[submodule "other/Adafruit_CircuitPython_NTP"]
-	path = other/Adafruit_CircuitPython_NTP
-	url = https://github.com/adafruit/Adafruit_CircuitPython_NTP
-[submodule "other/Adafruit_CircuitPython_HTTPServer"]
-	path = other/Adafruit_CircuitPython_HTTPServer
-	url = https://github.com/adafruit/Adafruit_CircuitPython_HTTPServer
-[submodule "other/Adafruit_CircuitPython_Wiznet5k"]
-	path = other/Adafruit_CircuitPython_Wiznet5k
-	url = https://github.com/adafruit/Adafruit_CircuitPython_Wiznet5k
 [submodule "scripts/CircuitMPY"]
 	path = scripts/CircuitMPY
 	url = https://github.com/beryllium-org/CircuitMPY
@@ -25,18 +13,12 @@
 [submodule "other/cptoml"]
 	path = other/cptoml
 	url = https://github.com/beryllium-org/cptoml
-[submodule "other/CircuitPython_FTP_Server"]
-	path = other/CircuitPython_FTP_Server
-	url = https://github.com/beryllium-org/CircuitPython_FTP_Server
 [submodule "packages/ducky"]
 	path = packages/ducky
 	url = https://github.com/beryllium-org/ducky
 [submodule "scripts/jpkgstrap"]
 	path = scripts/jpkgstrap
 	url = https://github.com/beryllium-org/jpkgstrap
-[submodule "other/Adafruit_CircuitPython_ConnectionManager"]
-	path = other/Adafruit_CircuitPython_ConnectionManager
-	url = https://github.com/adafruit/Adafruit_CircuitPython_ConnectionManager/
 [submodule "packages/nano"]
 	path = packages/nano
 	url = https://github.com/beryllium-org/nano
