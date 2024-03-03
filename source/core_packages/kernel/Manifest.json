@@ -2,7 +2,7 @@
     "JPKG_minimum_version": 2,
     "package_name": "beryllium-os-kernel",
     "version": [0, 4, 0],
-    "dependencies": ["cptoml", "jz", "jcurses"],
+    "dependencies": ["coreutils", "cptoml", "jz", "jcurses"],
     "conflicts": [],
     "install": "installer.py",
     "remove": "uninstaller.py",
