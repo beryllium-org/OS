@@ -9,3 +9,4 @@ nano
 neofetch
 netutils
 wget
+lm_sensors

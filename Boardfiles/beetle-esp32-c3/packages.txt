@@ -8,3 +8,4 @@ neofetch
 netutils
 virtUART
 wget
+lm_sensors

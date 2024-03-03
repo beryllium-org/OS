@@ -5,3 +5,4 @@ jpkg
 less
 nano
 neofetch
+lm_sensors

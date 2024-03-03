@@ -1,8 +1,0 @@
-NAME
-    sensors - Display system sensors
-
-SYNOPSIS
-    sensors
-
-DESCRIPTION
-    Display all system sensors, and their respective readings.
