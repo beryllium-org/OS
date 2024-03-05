@@ -60,8 +60,8 @@ if cptoml.fetch("usb_midi_available", "BERYLLIUM"):
 
     if cptoml.fetch("usb_midi_enabled", "BERYLLIUM"):
         print("MIDI Enabled.")
-        usb_midi.enable()
     else:
         print("MIDI Disabled.")
+        usb_midi.disable()
 else:
     print("This board does not support MIDI enumeration.")
