@@ -194,8 +194,9 @@ vr("access_log", [])
 vr("consoles", {})
 vr("console_active", None)
 vr("ndmesg", False)  # disable dmesg for ram
-vr("root", "/Beryllium")
 # run _ndmesg from the shell to properly trigger it
+vr("root", "/Beryllium")
+vr("mounts", [])
 
 # Core board libs
 try:
@@ -782,6 +783,7 @@ class be:
                 if path == pv[0]["root"] + "/dev":  # Device enumeration done here.
                     devs = list(be.devices.keys())
                     terms = list(pv[0]["consoles"].keys())
+                    disks = len(pv[0]["mounts"]) + 1
                     devs.sort()
                     terms.sort()
                     for i in devs:
@@ -804,6 +806,18 @@ class be:
                         res.append(
                             [
                                 i,
+                                "c",
+                                [7, 7, 7],
+                                0,
+                                time.localtime(),
+                                "root",
+                                "root",
+                            ]
+                        )
+                    for i in range(disks):
+                        res.append(
+                            [
+                                "blkdev" + str(i),
                                 "c",
                                 [7, 7, 7],
                                 0,
