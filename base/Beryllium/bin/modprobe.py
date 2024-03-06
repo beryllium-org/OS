@@ -24,14 +24,27 @@ if vr("argl") is not 0:
     elif vr("ass") is not None:
         vr("module", vr("ass"))
     try:
-        if vr("module") not in be.devices:
-            be.devices[vr("module")] = []
-        vr("dmtextt", 'Modprobe: Inserting device "{}"'.format(vr("module")))
-        vr(
-            "execstr",
-            ('be.devices["' + vr("module") + '"].append(' + vr("module") + "())"),
-        )
-        exec(vr("execstr"))
+        be.based.run("mknod " + vr("module"))
+        vr("node", be.api.getvar("return"))
+        vr("ok", False)
+        be.api.subscript("/bin/stringproccessing/devid.py")
+        if vr("ok"):
+            vr("dmtextt", 'Modprobe: Inserting device "{}"'.format(vr("module")))
+            vr(
+                "execstr",
+                (
+                    'be.devices["'
+                    + vr("dev_name")
+                    + '"]['
+                    + str(vr("dev_id"))
+                    + "]="
+                    + vr("module")
+                    + "()"
+                ),
+            )
+            exec(vr("execstr"))
+        else:
+            raise ImportError
     except ImportError:
         be.based.error()
 else:
