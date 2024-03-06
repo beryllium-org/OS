@@ -24,8 +24,7 @@
    .| O - SDA [ GPIO3 | RTC | ADC1 CH2 | T3 ]        |  B | - [ NEOPIXEL | GPIO33 | RTC ]
    .| O - SCL [ GPIO4 | RTC | ADC1 CH3 | T4 ]        `----'
     `---
-    
-    
+
 
 Adafruit Feather ESP32-S2
 
