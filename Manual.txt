@@ -4,7 +4,7 @@
  \============================================/
 
 Official repository: https://github.com/beryllium-org/OS
-This manual is up to date with commit  @ /feb/2024.
+This manual is up to date with Release 0.4.0 @ 09/mar/2024.
 Anything passed that point is not covered by this manual.
 
       /------------|
@@ -12,21 +12,33 @@ Anything passed that point is not covered by this manual.
       \------------|
 
 0.  Index table          : line 10
-1.  Basic commands       : line 0
-2.  Scripting            : line 0
-3.  Errors               : line 0
-4.  Api functions        : line 0
-5.  jCurses              : line 0
-6.  Led activity         : line 0
-7.  BetterPath           : line 0
-8.  GPIO Usage           : line 0
-9.  Network driver usage : line 0
-10. Isolated processes   : line 0
-11. Contributions        : line 0
+1.  Basic commands       : line 27
+2.  Scripting            : line 355
+3.  Errors               : line 377
+4.  Api functions        : line 457
+5.  jCurses              : line 549
+6.  Led activity         : line 602
+7.  BetterPath           : line 613
+8.  GPIO Usage           : line 634
+9.  Network driver usage : line 660
+10. Isolated processes   : line 676
+11. Packages             : line 732
+12. Devices and consoles : line 880
+13. Contributions        : line 932
 
       /---------------|
 ----<| Basic commands |
       \---------------|
+
+The following commands are the ones that are included with every installation, with the
+package "coreutils".
+The commands are sorted alphabetically.
+
+
+advance_build_date
+
+Checks if the system RTC (Real Time Clock) is not initialized, and advances it to build time.
+
 
 alias [COMMAND=data]
 
@@ -43,7 +55,7 @@ cat [file]
 Catenates the contents of file [file]
 
 
-cd [DIR]...
+cd [DIR]
 
 Changes to specified directory
 Please refer to the betterpath section, on more info on how does the board filesystem appear.
@@ -51,7 +63,13 @@ Please refer to the betterpath section, on more info on how does the board files
 
 clear
 
-Clear the current terminal
+Clear the current terminal, clearing scrollback too.
+
+
+cp [SOURCE] [DESTINATION]
+
+Copies source to destination.
+Please keep in mind the current implementation is INCREDIBLY FRAGILE.
 
 
 date [set]...
@@ -70,8 +88,8 @@ devmode [OPTIONS]
 Enables usb access and other development features.
 This temporarily prohibits write access to the built in filesystem.
 The notice can be skipped by passing -q.
-This change for one boot.
-To make this permenant, which is highly not recommended, pass -p.
+This change by default is applied for one boot.
+To make this permenant, which is absolutely NOT RECOMMENDED, pass -p.
 To revert the change, set `usb_msc_enabled = false` under
 section [BERYLLIUM] in the board's `/settings.toml`.
 
@@ -81,24 +99,20 @@ df [-h]
 Report all attached file system's space usage.
 
 
-disconnect
-
-Immediately disconnect the current terminal, if it can be disconnected.
-
-
 dmesg
 
 Prints out the current dmesg log.
 
 
+dropcache [FILE]...
+
+Drops the specified file, or if none is specified, all files, from compiled code cache.
+On boards without 150kb ram free, code is not cached, and this command is useless.
+
+
 echo [DATA]...
 
 Print some variables or text.
-
-
-ed [FILE]
-
-A line-oriented text editor.
 
 
 exec [FILE]
@@ -126,7 +140,7 @@ Display memory usage.
 
 halt
 
-Sync all filesystems, and halt the system.
+Sync all filesystems, remount everything read-only and halt the system.
 
 
 head [-n int] [FILE]
@@ -189,20 +203,20 @@ mkdir [DIR]...
 Make a new directory
 
 
+mknod [NAME]
+
+Create an empty device node.
+Resulting name returned.
+
+
 modprobe [MODULE as MODULE_TYPE]
 
 Load a kernel MODULE with it's type specified by MODULE_TYPE.
 
 
-nano [FILE]
+pinout
 
-A text editor similar to GNU/nano.
-
-
-neofetch
-
-A simple system info viewer.
-Much less bloated than it's linux counterpart.
+Display current board pinout.
 
 
 pexec [-n] [python commands]
@@ -215,6 +229,11 @@ pinout
 Displays the current board's pinout map.
 
 
+preload [FILE]
+
+Compile and load a python file into ram.
+
+
 pwd
 
 Print the current working directory.
@@ -225,6 +244,11 @@ python
 Opens a virtual python REPL.
 To pass commands instead of actually opening the REPL, use pexec instead.
 To pass files to run instead of actually opening the REPL, use fpexec instead.
+
+
+quit
+
+Quit Beryllium OS and exit to CircuitPython REPL.
 
 
 random
@@ -254,15 +278,15 @@ rmdir [DIR]...
 Delete an empty directory.
 
 
+rmnod [NAME]
+
+Remove the specified device.
+
+
 runparts [FOLDER]
 
 Run all the .py files in a folder by alphabetic order.
 Used by init.
-
-
-sensors
-
-Print the current system sensors and their current values.
 
 
 sleep [TIME]
@@ -275,16 +299,16 @@ sync
 Sync all currently attached filesystems.
 
 
-tail [-n int] [FILE]
+terminal [get/list/activate]...
 
-Opposite of head.
-Output the last part of files.
-By default displays the last 10 lines of the FILE.
+A command to retrieve / set the current console.
+Allows retrieving the list of consoles too.
 
 
 title [TEXT]
 
 Sets the terminal title to the TEXT.
+
 
 top
 
@@ -321,13 +345,12 @@ Can also be used on GPIO variables.
 The GPIO will be deinitialized.
 
 
-var [DATA]... (!!!DEPRECATED, SOON TO BE REPLACED!!!)
+var [DATA]...
 
 Create a new variable. syntax: var a = "ok"
 Numbers do not need brackets.
-The command itself is optional (a = "is also valid")
-GPIO pins can be allocated like: a = GP9
-and used by setting them to either 0 or 1: a = 1
+The command itself is optional, `a = "is also valid"`
+On how to use GPIO, refer to the relevant section.
 
 
 watch [-s] [-n SECONDS] [COMMAND]
@@ -343,7 +366,7 @@ Hide the titlebar text with `-s`.
 Based script files need to have the .lja file extension. All internal or external commands
 can be used in scripts, along with kernel api functions.
 To have a script appear as a command, put it in /{pv[0]["root"]}/bin/
-(where pv[0]["root"] is the root filesystem name).
+(where pv[0]["root"] is the absolute root path name).
 
 To execute python code, you are advised to use pexec & fpexec.
 The scope is the same as the one of the kernel and you can call & alter kernel data freely.
@@ -446,18 +469,22 @@ Beryllium OS api functions.
 Available from:
       be.api.[function](parameters)
 
-      setvar(var, data=None, system=False)
-        Variable setter / deleter.
-        Sets variable var, in be.based.user_vars.
-        The var name has to be an str.
-        When the data is None, deletes the variable.
-        The system option, when True, uses be.based.system_vars instead.
+      remove_ansi(text)
+        Removes all ansi escape from a string of text and returns
+        the cleared string.
 
       getvar(var)
         Variable getter.
         Returns variable var, from be.based.user_vars or be.based.system_vars.
         The var name has to be an str.
         In case it doesn't exist, returns None.
+
+      setvar(var, data=None, system=False)
+        Variable setter / deleter.
+        Sets variable var, in be.based.user_vars.
+        The var name has to be an str.
+        When the data is None, deletes the variable.
+        The system option, when True, uses be.based.system_vars instead.
 
       xarg(rinpt=None, fn=False)
         Argument parser.
@@ -495,6 +522,16 @@ Available from:
 
         When None, return current directory.
 
+      basepath(path=".")
+        Return the absolute and true path of a given location.
+        Returns "" if the path doesn't exist.
+
+      listdir(path=".")
+        Virtual directory listing. Returns permissions, size, filetype, modification time
+        and much more.
+        Supports Beryllium OS virtual drives and enumerates devices.
+        Returns a nested list.
+
       adv_input(whatever, _type)
         Universal variable request
         Returns the variable's value in the specified type
@@ -504,7 +541,16 @@ Available from:
         Returns:
             The result of the variable in the type
             specified if found
-            Otherwise, it returns the input
+            Otherwise, it returns the input.
+
+      subscript(filen)
+        Runs as script in the current scope.
+        Does not report back failure / success.
+        Use process variables to check.
+
+      console_connected()
+        Fast function to check if any console is connected.
+        Returns the boolean state.
 
 
       /--------|
@@ -564,14 +610,11 @@ jCurses does not depend onto Beryllium OS.
 ----<| Led activity |
       \-------------|
 
-Beryllium OS supports both generic led's as well as neopixels for it's activity led.
+Beryllium OS supports both generic led's as well as neopixels and rgb leds for it's activity led.
 
 Generic leds stay on when idle, and off on command activity.
-Neopixels stay green when idle,
-Glow more when special characters are being inputted,
-Red when an error occurs,
-Yellow on activity and
-Blue when waiting.
+Neopixels stay green when idle, glow more when special characters are being inputted,
+green normally, red when an error occurs, yellow on activity and blue when waiting.
 
 
       /-----------|
@@ -595,28 +638,30 @@ And treating all subsequent paths by that rule.
 It additionally maps "~" to the user's home directory, and "-" to the previous directory.
 
 
-      /-----------| [                                    ]
-----<| GPIO Usage | [ DEPRECATED, SOON TO BE REPLACED!!! ]
-      \-----------| [                                    ]
+      /-----------|
+----<| GPIO Usage |
+      \-----------|
 
-From within the based shell you can use the unused GPIO pins as variables.
+GPIO pins as variables, both digital and analog io is supported.
 Example:
+```
+    a = gp#GP9
+```
+This would temporarily allocate board.GP9 and read it's state digitally, storing the result
+to variable 'a'. The pin would then be free'ed.
 
-    a = GP9
-    a = 1
+doing the opposite:
+```
+    gp#GP9 = 1
+```
+would set board.GP9 as an output pin and set it's value to 1.
+From there reading back the pin will switch it back to read mode, but not deinit it.
 
-This would allocate GPIO 9 to variable 'a' and set it's value to 1.
-
-To deinit the pin, simply unset the variable like:
-Example 2:
-
-    unset a
-
-To read a GPIO's value, it has to be already set into a variable (Example 1) and used like:
-Example 3:
-
-    b = a
-    echo b
+Temporarily, only analog reads are supported. This is achieved by:
+```
+    a = adc#GP25
+```
+Analog writes through the use of PWM will be added soon.
 
 
       /---------------------|
@@ -627,10 +672,12 @@ To use the built-in circuitpython module "wifi" as your network connection:
   - Run "modprobe driver_wifi as network" to load the beryllium os wifi driver.
      You can optionally add it to /boot/Init.lja, to load it on boot.
   - Use iwctl to configure the wifi connection.
-     For info on how to use iwctl, please refer to
-     [https://wiki.archlinux.org/title/iwd]
+     For info on how to use iwctl, please refer to [https://wiki.archlinux.org/title/iwd]
   - You connections will automatically be stored into &/settings.toml.
      You can automatically reconnect on reboot by running `iwctl station wifi auto`.
+
+Wifi boards are automatically set to use iwctl in automatic mode during boot.
+This behaviour can be edited through /boot/boot.d/
 
 
       /-------------------|
@@ -685,11 +732,201 @@ for pv[get_pid()]["i"] in vr("some_list"):
       vr("data", vr("i") * potatoes)
 ```
 
-You can use read-only properties of the variables just fine with `vr`.
+You can use properties of the variables just fine with `vr`.
 `vr("socket").accept()`
 
-But if you need to write to it, you need to access it directly.
-`pv[get_pid()]["list"].pop(2)`
+
+      /---------|
+----<| Packages |
+      \---------|
+
+Beryllium OS comes with an incredibly simple package manager called JPKG.
+The packages themselves are jz zlib-compressed sets of files.
+
+The following is detailing as to how to create a a jpkg package and the packaging
+guidelines, if you just want to know how to use the package manager, read the man page or skip
+further below.
+
+Each .jpk package must contain a `Manifest.json` (this is case sensitive)
+and that manifest must contain the following:
+
+ - An interger specifying the minimum jpkg version supported
+   (JPKG_minimum_version)
+ - The package name as a string
+   (package_name)
+ - The package version in a 3-int list.
+   (version)
+ - A list of dependencies and a list of conflicts
+   (dependencies and conflicts)
+ - The script name to be run on a first install
+   (install)
+ - The script name to be run on uninstall
+   (remove)
+ - The script name to be run on update (may match install)
+   (update)
+ - The script name to be run from a desktop computer to strap onto the root
+   (strap)
+ - A boolean if a restart is required
+   (restart_required)
+
+The resulting json should look like this:
+```json
+{
+    "JPKG_minimum_version": 2,
+    "package_name": "package",
+    "version": [0, 0, 0],
+    "dependencies": [],
+    "conflicts": [],
+    "install": "installer.py",
+    "remove": "uninstaller.py",
+    "update": "updater.py",
+    "strap": "strap.py",
+    "restart_required": false
+}
+```
+
+The install script should use shell commands for cp and mkdir.
+You should not attempt to perform direct io operations without the use of the api or commands.
+
+Example from the ducky package:
+```py
+# ducky files
+for pv[get_pid()]["filee"] in ["ducky.lja", "duckyline.lja", "duckycat.lja"]:
+    be.based.run("cp " + vr("filee") + " /bin/" + vr("filee"))
+
+be.based.run("mkdir /bin/ducky")
+for pv[get_pid()]["filee"] in [
+    "ducky.py",
+    "duckyline.py",
+    "duckyload.py",
+    "duckycat.py",
+]:
+    be.based.run("cp " + vr("filee") + " /bin/ducky/" + vr("filee"))
+
+be.based.run("cp help_ducky.txt /usr/share/help/ducky.txt")
+be.based.run("cp help_duckyline.txt /usr/share/help/duckyline.txt")
+be.based.run("cp help_duckycat.txt /usr/share/help/duckycat.txt")
+
+# hid files
+be.based.run("mkdir /lib/adafruit_hid")
+
+for pv[get_pid()]["filee"] in [
+    "__init__.mpy",
+    "consumer_control_code.mpy",
+    "consumer_control.mpy",
+    "keyboard_layout_base.mpy",
+    "keyboard_layout_us.mpy",
+    "keyboard.mpy",
+    "keycode.mpy",
+    "mouse.mpy",
+]:
+    be.based.run("cp " + vr("filee") + " /lib/adafruit_hid/" + vr("filee"))
+
+be.api.setvar("return", "0")
+```
+
+If the installation was successful you should always end the script
+with `be.api.setvar("return", "0")` or otherwise jpkg will raise an error.
+
+For the uninstall script you should manually delete every file, since currently shell rm doesn't
+support recursion.
+
+For the strap script you should use shutil it's already imported in your local scope.
+Example from ducky:
+```py
+# ducky files
+for i in ["ducky.lja", "duckyline.lja", "duckycat.lja"]:
+    shutil.copy(i, path.join(root, "bin", i))
+
+try:
+    mkdir(path.join(root, "bin/ducky"))
+except FileExistsError:
+    pass
+for i in [
+    "ducky.py",
+    "duckyline.py",
+    "duckyload.py",
+    "duckycat.py",
+]:
+    shutil.copy(i, path.join(root, "bin/ducky", i))
+
+shutil.copy("help_ducky.txt", path.join(root, "usr/share/help", "ducky.txt"))
+shutil.copy("help_duckyline.txt", path.join(root, "usr/share/help", "duckyline.txt"))
+shutil.copy("help_duckycat.txt", path.join(root, "usr/share/help", "duckycat.txt"))
+
+# hid files
+try:
+    mkdir(path.join(root, "lib/adafruit_hid"))
+except FileExistsError:
+    pass
+
+for i in [
+    "__init__.mpy",
+    "consumer_control_code.mpy",
+    "consumer_control.mpy",
+    "keyboard_layout_base.mpy",
+    "keyboard_layout_us.mpy",
+    "keyboard.mpy",
+    "keycode.mpy",
+    "mouse.mpy",
+]:
+    shutil.copy(i, path.join(root, "lib/adafruit_hid", i))
+```
+
+In path.join, do not end or start the string with "/".
+
+JPKG currently only supports 3 commands:
+ - `jpkg install`
+ - `jpkg uninstall`
+ - `jpkg list`
+
+However performing on multiple packages at once is supported.
+
+
+      /---------------------|
+----<| Devices and consoles |
+      \---------------------|
+
+Beryllium os devices are stored in `be.devices`.
+It's a dict.
+To refer to device ttyACM0, we would go to `be.devices["ttyACM"][0]`.
+To refer to device ov3660_0, we would go to `be.devices["ov3660"][0]`.
+
+Every device category is an additional dict, so type(be.devices["ov3660"]) is dict.
+
+To add / remove devices use the mknod and rmnod commands.
+Make sure devices are deinitialized before removing.
+
+To load a module and create a device out of it, use the modprobe command.
+
+Modprobe expects the module to be available and path and that it has a class with the same name
+as the module.
+
+Module aliases may be applied during modprobe like:
+```
+    modprobe driver_wifi as network
+```
+This ensures that this driver will be loaded into `/dev/network0`.
+
+To get a new blank device, use the following command snippet:
+```py
+be.based.run("mknod " + vr("dev"))
+vr("node", be.api.getvar("return"))
+be.api.subscript("/bin/stringproccessing/devid.py")
+```
+
+If this is successful, you should now have in your process's storage the container variables
+"dev_id" and "dev_name" (`vr("dev_id")` & `vr("dev_name")`).
+
+To access your new device you can then just use:
+`be.devices[vr("dev_name")][vr("dev_id")]`
+
+Consoles are stored in `pv[0]["consoles"]`.
+It's highly advised you do not interface with them unless you have studied all existing
+console code.
+
+The internal `terminal` command and the api function to check consoles
+are gonna be your best friends.
 
 
       /-----------------------------|
