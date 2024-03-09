@@ -772,7 +772,7 @@ class be:
                     res = res[len(pv[0]["root"]) :]
                     if not res:
                         res = "/"
-            else:
+            elif res:
                 res = "&" + res
             return res
 
