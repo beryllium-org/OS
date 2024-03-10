@@ -55,3 +55,6 @@
 [submodule "packages/lm_sensors"]
 	path = packages/lm_sensors
 	url = https://github.com/beryllium-org/lm_sensors
+[submodule "packages/fbs3-config"]
+	path = packages/fbs3-config
+	url = https://github.com/beryllium-org/fbs3-config
