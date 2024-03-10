@@ -187,7 +187,7 @@ def clear_process_storage() -> None:
 
 # Allocate kernel task
 launch_process("kernel", "root", True)  # pid will always be 0
-vr("Version", "0.4.0")
+vr("Version", "0.4.1")
 
 vr("dmesg", [])
 vr("access_log", [])
