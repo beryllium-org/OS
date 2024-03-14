@@ -15,6 +15,11 @@ class displayiotty:
         self._lines = None
         self._chars = None
         self.stdio = None
+        self._conn = False
+
+    @property
+    def enabled(self):
+        return self._conn
 
     @property
     def display(self):
@@ -23,6 +28,7 @@ class displayiotty:
     @display.setter
     def display(self, displayobj) -> None:
         self._display = displayobj
+        self._r = displayio.Group()
         font_width, font_height = terminalio.FONT.get_bounding_box()
         self._lines = int(self._display.height / font_height) - 1
         self._chars = int(self._display.width / font_width) - 1
@@ -37,8 +43,8 @@ class displayiotty:
             y=(self._display.height - (self._lines * font_height)) // 2,
         )
         self._terminal = terminalio.Terminal(tg, terminalio.FONT)
-        self._r = displayio.Group()
         self._r.append(tg)
+        self.disable()
 
     @property
     def terminal(self):
@@ -50,15 +56,15 @@ class displayiotty:
 
     @property
     def in_waiting(self) -> int:
-        return int(self.stdio.in_waiting)
+        return self.stdio.in_waiting
 
     @property
     def out_waiting(self) -> int:
-        return int(self.stdio.out_waiting)
+        return self.stdio.out_waiting if hasattr(self.stdio, "out_waiting") else 0
 
     @property
     def connected(self) -> bool:
-        return self.stdio.connected if hasattr(self.stdio, "connected") else False
+        return self.stdio.connected if hasattr(self.stdio, "connected") else self._conn
 
     def flush(self) -> None:
         self.stdio.flush()
@@ -75,10 +81,12 @@ class displayiotty:
     def enable(self) -> None:
         self._initchk()
         self._display.root_group = self._r
+        self._conn = True
 
     def disable(self) -> None:
         self._initchk()
         self._display.root_group = None
+        self._conn = False
 
     def write(self, data: bytes) -> int:
         self._initchk()
