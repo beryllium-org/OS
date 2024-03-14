@@ -58,3 +58,6 @@
 [submodule "packages/fbs3-config"]
 	path = packages/fbs3-config
 	url = https://github.com/beryllium-org/fbs3-config
+[submodule "packages/womp"]
+	path = packages/womp
+	url = https://github.com/beryllium-org/womp
