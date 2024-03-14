@@ -1,3 +1,4 @@
 gpiochip
 led_generic
 displayiotty
+wiopad
