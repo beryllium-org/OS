@@ -58,7 +58,7 @@ class displayiotty:
 
     @property
     def connected(self) -> bool:
-        return self.stdio.connected if hasattr(self.stdio, "connected") else True
+        return self.stdio.connected if hasattr(self.stdio, "connected") else False
 
     def flush(self) -> None:
         self.stdio.flush()
