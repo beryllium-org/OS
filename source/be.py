@@ -1201,19 +1201,13 @@ class be:
 
             vr("Exit_code", 0, 0)
             be.io.ledset(3)  # act
-            systemprints(2, "Boot Services")
-            try:
-                be.based.run("runparts /boot/boot.d")
-                systemprints(1, "Boot Services")
-            except:
-                systemprints(3, "Boot Services")
-            systemprints(2, "Init script")
+            systemprints(2, "Running init")
             try:
                 be.io.ledset(3)  # act
                 be.based.command.exec(pv[0]["root"] + "/boot/Init.lja")
-                systemprints(1, "Init script")
+                systemprints(1, "Boot complete")
             except OSError:
-                systemprints(3, "Init script")
+                systemprints(3, "Init failed")
             systemprints(2, "History load")
             be.history.load(be.based.user_vars["history-file"])
             try:
@@ -1281,8 +1275,10 @@ class be:
                         inpt.append(temp[i + 1])
                 try:
                     # basic checks, if any of this fails, quit
-                    if not inpt[0].startswith("gp#") and (
-                        inpt[0][3:] in be.devices["gpiochip"][0].pins
+                    if (
+                        "gpiochip" in be.devices
+                        and not inpt[0].startswith("gp#")
+                        and (inpt[0][3:] in be.devices["gpiochip"][0].pins)
                     ):
                         for chh in inpt[0]:
                             if not (chh.islower() or chh.isupper() or chh == "-"):

@@ -3,6 +3,11 @@ cd /home/board
 USER = "board"
 SECURITY = "on"
 
+# Run boot scripts
+pexec systemprints(2, "Boot Services")
+runparts /boot/boot.d
+pexec systemprints(1, "Boot Services")
+
 # Wait for connection
 _waitforconnection
 
