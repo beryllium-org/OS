@@ -82,11 +82,13 @@ class displayiotty:
         self._initchk()
         self._display.root_group = self._r
         self._conn = True
+        self._display.brightness = 1.0
 
     def disable(self) -> None:
         self._initchk()
         self._display.root_group = None
         self._conn = False
+        self._display.brightness = 0.0
 
     def write(self, data: bytes) -> int:
         self._initchk()
