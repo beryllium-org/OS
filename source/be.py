@@ -777,7 +777,12 @@ class be:
             return res
 
         def listdir(path=".") -> list:
+            nr = (not getcwd().startswith(pv[0]["root"])) and not path.startswith(
+                pv[0]["root"]
+            )
             path = be.api.betterpath(be.api.basepath(path))
+            if nr and path.startswith(pv[0]["root"]):
+                path = path[len(pv[0]["root"]) :]
             res = []
             if path:
                 if path == pv[0]["root"] + "/dev":  # Device enumeration done here.
