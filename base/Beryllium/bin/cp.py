@@ -10,9 +10,9 @@ try:
     if vr("srcisd") is 2 or (vr("dstisd") is 2 and vr("dst").endswith("/")):
         raise OSError
     elif vr("srcisd") is 0 and vr("dstisd") in [0, 2]:
-        with be.api.fopen(vr("src"), "rb") as pv[get_pid()]["srcf"]:
+        with be.api.fs.open(vr("src"), "rb") as pv[get_pid()]["srcf"]:
             vr("srcd", vr("srcf").read())
-            with be.api.fopen(vr("dst"), "wb") as pv[get_pid()]["dstf"]:
+            with be.api.fs.open(vr("dst"), "wb") as pv[get_pid()]["dstf"]:
                 if vr("dstf") is None:
                     raise RuntimeError
                 vr("dstf").write(vr("srcd"))
@@ -34,16 +34,16 @@ try:
                 vr("srcisd", be.api.isdir(vr("src")))
                 vr("dstisd", be.api.isdir(vr("dst")))
             else:
-                with be.api.fopen(vr("src") + "/" + vr("i"), "rb") as srcf:
+                with be.api.fs.open(vr("src") + "/" + vr("i"), "rb") as srcf:
                     vr("srcd", srcf.read())
-                    with be.api.fopen(vr("dst") + "/" + vr("i"), "wb") as dstf:
+                    with be.api.fs.open(vr("dst") + "/" + vr("i"), "wb") as dstf:
                         dstf.write(vr("srcd"))
                     vrd("srcd")
             gc.collect()
             gc.collect()
     elif vr("srcisd") is 0 and vr("dstisd") is 1:
-        with be.api.fopen(vr("src"), "rb") as pv[get_pid()]["srcf"]:
-            with be.api.fopen(
+        with be.api.fs.open(vr("src"), "rb") as pv[get_pid()]["srcf"]:
+            with be.api.fs.open(
                 vr("dst") + "/" + vr("src")[vr("src").rfind("/") + 1 :], "wb"
             ) as pv[get_pid()]["dstf"]:
                 if vr("dstf") is None:

@@ -14,7 +14,7 @@ else:
     term.hold_stdout = True
 
 try:
-    with be.api.fopen(vr("opts")["w"][0], "r") as pv[get_pid()]["f"]:
+    with be.api.fs.open(vr("opts")["w"][0], "r") as pv[get_pid()]["f"]:
         vr("content", vr("f").readlines())
         vr("count", len(vr("content")))
         vr("start", (0 if vr("mod") == "head" else vr("count") - vr("lines")))

@@ -5,7 +5,7 @@ if "help" in vr("opts")["o"] or "h" in vr("opts")["o"]:
 else:
     if use_compiler:
         for pv[get_pid()]["i"] in vr("opts")["w"]:
-            with be.api.fopen(vr("i")) as pv[get_pid()]["f"]:
+            with be.api.fs.open(vr("i")) as pv[get_pid()]["f"]:
                 if vr("f") is None:
                     be.based.error(
                         4, vr("i"), prefix=colors.error + "Preload" + colors.endc

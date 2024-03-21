@@ -668,48 +668,6 @@ class be:
                 argd.update({"n": inpt[0]})
             return argd
 
-        class fopen(object):
-            """
-            Beryllium standard api file operation function.
-            To be used in the place of "with open()".
-            Example:
-              with be.api.fopen("file path here", "wb", getcwd()):
-            """
-
-            def __init__(self, fname, mod="r", ctx=None):
-                self.fn = fname
-                self.mod = mod
-
-            def __enter__(self):
-                # print(f"DEBUG FOPEN: {self.fn}:{self.mod}")
-                try:
-                    rm = False  # remount
-                    fname = be.api.fs.resolve(self.fn)
-                    # print(f"DEBUG FNAME: {fname}")
-                    if "w" in self.mod or "a" in self.mod:
-                        if fname in be.code_cache:
-                            be.code_cache.pop(fname)
-                        rm = True
-                    if rm:
-                        remount("/", False)
-                    self.file = open(fname, self.mod)
-                    del fname
-                    if rm:
-                        remount("/", True)
-                except (RuntimeError, OSError):
-                    return None
-                return self.file
-
-            def __exit__(self, typee, value, traceback):
-                try:
-                    self.file.flush()
-                    self.file.close()
-
-                    del self.file
-                except AttributeError:
-                    pass
-                del self.fn, self.mod
-
         def isdir(dirr: str, rdir: str = None) -> int:
             """
             Checks if given item is file (returns 0) or directory (returns 1).
@@ -797,6 +755,48 @@ class be:
                 elif res:
                     res = "&" + res
                 return res
+
+            class open(object):
+                """
+                Beryllium standard api file operation function.
+                To be used in the place of "with open()".
+                Example:
+                  with be.api.fs.open("file path here", "wb", getcwd()):
+                """
+
+                def __init__(self, fname, mod="r", ctx=None):
+                    self.fn = fname
+                    self.mod = mod
+
+                def __enter__(self):
+                    # print(f"DEBUG FOPEN: {self.fn}:{self.mod}")
+                    try:
+                        rm = False  # remount
+                        fname = be.api.fs.resolve(self.fn)
+                        # print(f"DEBUG FNAME: {fname}")
+                        if "w" in self.mod or "a" in self.mod:
+                            if fname in be.code_cache:
+                                be.code_cache.pop(fname)
+                            rm = True
+                        if rm:
+                            remount("/", False)
+                        self.file = open(fname, self.mod)
+                        del fname
+                        if rm:
+                            remount("/", True)
+                    except (RuntimeError, OSError):
+                        return None
+                    return self.file
+
+                def __exit__(self, typee, value, traceback):
+                    try:
+                        self.file.flush()
+                        self.file.close()
+
+                        del self.file
+                    except AttributeError:
+                        pass
+                    del self.fn, self.mod
 
         def listdir(path=".") -> list:
             nr = (not getcwd().startswith(pv[0]["root"])) and not path.startswith(
@@ -921,7 +921,7 @@ class be:
             Scope doesn't change.
             """
             prog = None
-            with be.api.fopen(filen) as f:
+            with be.api.fs.open(filen) as f:
                 if f is None:
                     raise OSError
                 prog = f.read()
@@ -966,7 +966,7 @@ class be:
 
         def load(filen: str) -> None:
             be.history.historyy = []
-            with be.api.fopen(filen, "r") as historyfile:
+            with be.api.fs.open(filen, "r") as historyfile:
                 if historyfile is not None:
                     for line in historyfile:
                         be.io.ledset(3)  # act
@@ -974,7 +974,7 @@ class be:
                         be.io.ledset(1)  # idle
                 else:
                     try:
-                        with be.api.fopen(filen, "w") as historyfile:
+                        with be.api.fs.open(filen, "w") as historyfile:
                             pass
                     except RuntimeError:
                         be.based.error(4, filen)
@@ -1004,7 +1004,7 @@ class be:
             if not be.history.modified:
                 return
             try:
-                with be.api.fopen(filen, "w") as historyfile:
+                with be.api.fs.open(filen, "w") as historyfile:
                     if historyfile is None:
                         raise RuntimeError
                     for item in be.history.historyy:
@@ -1015,9 +1015,9 @@ class be:
         def clear(filen: str) -> None:
             try:
                 # deletes all history, from ram and storage
-                a = be.api.fopen(filen, "r")
+                a = be.api.fs.open(filen, "r")
                 a.close()
-                with be.api.fopen(filen, "w") as historyfile:
+                with be.api.fs.open(filen, "w") as historyfile:
                     if historyfile is None:
                         raise RuntimeError
                     historyfile.flush()
@@ -1261,7 +1261,7 @@ class be:
                 if vr("inpt")[0] == "exec":
                     vr("inpt", vr("inpt")[1:])
                 try:
-                    with be.api.fopen(vr("inpt")[0], "r") as filee:
+                    with be.api.fs.open(vr("inpt")[0], "r") as filee:
                         for linee in filee:
                             linee = linee.strip()
                             be.based.run(linee)
@@ -1463,7 +1463,7 @@ class be:
                 prog = None
                 fname = be.api.fs.resolve(inpt[offs])
                 if use_compiler and fname not in be.code_cache:
-                    with be.api.fopen(inpt[offs]) as f:
+                    with be.api.fs.open(inpt[offs]) as f:
                         if f is None:
                             raise OSError
                         prog = f.read()

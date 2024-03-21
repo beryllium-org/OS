@@ -2,7 +2,7 @@ rename_process("cat")
 vr("inpt", be.based.user_vars["argj"].split())
 
 try:
-    with be.api.fopen(vr("inpt")[1], "r") as pv[get_pid()]["f"]:
+    with be.api.fs.open(vr("inpt")[1], "r") as pv[get_pid()]["f"]:
         if vr("f") is None:
             be.based.error(4, vr("inpt")[1])
             be.api.setvar("return", "1")
