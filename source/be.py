@@ -419,6 +419,27 @@ class be:
                 time.sleep(1.2)  # Time needed for a proper disconnection
 
     class api:
+        class security:
+            class auth:
+                def __init__(self, value):
+                    pr = value
+                    kid = None
+
+                    def key(value, auth_id=None):
+                        if auth_id is not None and auth_id != kid:
+                            raise RuntimeError("Tampered authenticator")
+                        if not isinstance(pr, type(value)):
+                            return False
+                        return pr == value
+
+                    kid = id(key)
+
+                    def idfu():
+                        return kid
+
+                    self.key = key
+                    self.id = idfu
+
         def remove_ansi(text: str) -> str:
             result = ""
             i = 0
@@ -663,7 +684,7 @@ class be:
                 # print(f"DEBUG FOPEN: {self.fn}:{self.mod}")
                 try:
                     rm = False  # remount
-                    fname = be.api.betterpath(self.fn)
+                    fname = be.api.fs.resolve(self.fn)
                     # print(f"DEBUG FNAME: {fname}")
                     if "w" in self.mod or "a" in self.mod:
                         if fname in be.code_cache:
@@ -700,9 +721,9 @@ class be:
                 dirr = dirr[:-1]
             olddir = getcwd()
             if rdir is not None:
-                chdir(be.api.betterpath(rdir))
+                chdir(be.api.fs.resolve(rdir))
             try:
-                if stat(be.api.betterpath(dirr))[0] == 32768:
+                if stat(be.api.fs.resolve(dirr))[0] == 32768:
                     res = 0
                 else:
                     res = 1
@@ -711,76 +732,77 @@ class be:
             chdir(olddir)
             return res
 
-        def betterpath(back: str = None) -> str:
-            """
-            Beryllium standard api path translation.
-            Removes the need to account for /{pv[0]["root"]}
-            """
-            res = ""
-            userr = be.based.system_vars["USER"].lower()
-            if userr != "root":
-                hd = pv[0]["root"] + "/home/" + be.based.system_vars["USER"].lower()
-            else:
-                hd = "/"
-            if back is None:
-                a = getcwd()
-                if a.startswith(hd):
-                    res = "~" + a[len(hd) :]
-                elif a == "/":
-                    res = "&/"
-                elif a == pv[0]["root"]:
-                    res = "/"
-                elif a.startswith(pv[0]["root"]):
-                    res = a[len(pv[0]["root"]) :]
+        class fs:
+            def resolve(back: str = None) -> str:
+                """
+                Beryllium standard api path translation.
+                Removes the need to account for /{pv[0]["root"]}
+                """
+                res = ""
+                userr = be.based.system_vars["USER"].lower()
+                if userr != "root":
+                    hd = pv[0]["root"] + "/home/" + be.based.system_vars["USER"].lower()
                 else:
-                    res = "&" + a
-                if " " in res:
-                    res = res.replace(" ", "\\ ")
-            else:  # resolve path back to normal
-                if back in ["&/", "&"]:  # board root
-                    res = "/"
-                elif back.startswith("&/"):
-                    res = back[1:]
-                elif back.startswith(pv[0]["root"]):
-                    res = back  # already good
-                elif back[0] == "/":
-                    # This is for absolute paths
-                    res = pv[0]["root"]
-                    if back != "/":
-                        res += back
-                elif back[0] == "~":
-                    res = hd
-                    if back != "~":
-                        res += back[1:]
-                else:
-                    res = back
-            return res
-
-        def basepath(path=".") -> str:
-            old = getcwd()
-            true_root = path[0] == "&" or old == "/" or old == pv[0]["root"]
-            path = be.api.betterpath(path)
-            res = ""
-            try:
-                chdir(path)
-                res = getcwd()
-                chdir(old)
-            except:
-                pass
-            if not true_root:
-                if res.startswith(pv[0]["root"]):
-                    res = res[len(pv[0]["root"]) :]
-                    if not res:
+                    hd = "/"
+                if back is None:
+                    a = getcwd()
+                    if a.startswith(hd):
+                        res = "~" + a[len(hd) :]
+                    elif a == "/":
+                        res = "&/"
+                    elif a == pv[0]["root"]:
                         res = "/"
-            elif res:
-                res = "&" + res
-            return res
+                    elif a.startswith(pv[0]["root"]):
+                        res = a[len(pv[0]["root"]) :]
+                    else:
+                        res = "&" + a
+                    if " " in res:
+                        res = res.replace(" ", "\\ ")
+                else:  # resolve path back to normal
+                    if back in ["&/", "&"]:  # board root
+                        res = "/"
+                    elif back.startswith("&/"):
+                        res = back[1:]
+                    elif back.startswith(pv[0]["root"]):
+                        res = back  # already good
+                    elif back[0] == "/":
+                        # This is for absolute paths
+                        res = pv[0]["root"]
+                        if back != "/":
+                            res += back
+                    elif back[0] == "~":
+                        res = hd
+                        if back != "~":
+                            res += back[1:]
+                    else:
+                        res = back
+                return res
+
+            def base(path=".") -> str:
+                old = getcwd()
+                true_root = path[0] == "&" or old == "/" or old == pv[0]["root"]
+                path = be.api.fs.resolve(path)
+                res = ""
+                try:
+                    chdir(path)
+                    res = getcwd()
+                    chdir(old)
+                except:
+                    pass
+                if not true_root:
+                    if res.startswith(pv[0]["root"]):
+                        res = res[len(pv[0]["root"]) :]
+                        if not res:
+                            res = "/"
+                elif res:
+                    res = "&" + res
+                return res
 
         def listdir(path=".") -> list:
             nr = (not getcwd().startswith(pv[0]["root"])) and not path.startswith(
                 pv[0]["root"]
             )
-            path = be.api.betterpath(be.api.basepath(path))
+            path = be.api.fs.resolve(be.api.fs.base(path))
             if nr and path.startswith(pv[0]["root"]):
                 path = path[len(pv[0]["root"]) :]
             res = []
@@ -1439,7 +1461,7 @@ class be:
                     return
 
                 prog = None
-                fname = be.api.betterpath(inpt[offs])
+                fname = be.api.fs.resolve(inpt[offs])
                 if use_compiler and fname not in be.code_cache:
                     with be.api.fopen(inpt[offs]) as f:
                         if f is None:
@@ -1693,7 +1715,7 @@ class be:
                         + colors.white_t
                         + " | "
                         + colors.yellow_t
-                        + be.api.betterpath()
+                        + be.api.fs.resolve()
                         + colors.white_t
                         + "]"
                         + colors.blue_t

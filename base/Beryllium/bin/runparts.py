@@ -5,7 +5,7 @@ for pv[get_pid()]["i"] in vr("opts")["w"]:
         be.based.error(17)
         be.api.setvar("return", "1")
         break
-    vr("drl", listdir(be.api.betterpath(vr("i"))))
+    vr("drl", listdir(be.api.fs.resolve(vr("i"))))
     pv[get_pid()]["drl"].sort()
     for pv[get_pid()]["j"] in vr("drl"):
         if vr("j").endswith(".py"):

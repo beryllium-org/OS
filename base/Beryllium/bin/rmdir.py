@@ -8,13 +8,13 @@ else:
     if len(vr("opts")["w"]) > 0:
         for pv[get_pid()]["i"] in vr("opts")["w"]:
             if be.api.isdir(vr("i")) == 1:
-                vr("pr", be.api.betterpath(vr("i")))
+                vr("pr", be.api.fs.resolve(vr("i")))
                 if not len(listdir(vr("pr"))):
                     try:
                         if not vr("sdcard_fs", pid=0):
                             remount("/", False)
                         try:
-                            rmdir(be.api.betterpath(vr("pr")))
+                            rmdir(be.api.fs.resolve(vr("pr")))
                         except OSError:
                             be.based.error(4, vr("pr"), prefix="rmdir")
                         if not vr("sdcard_fs", pid=0):

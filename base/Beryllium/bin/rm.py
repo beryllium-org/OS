@@ -8,7 +8,7 @@ try:
 
     for pv[get_pid()]["filee"] in vr("fw"):
         try:
-            vr("fname", be.api.betterpath(vr("filee")))
+            vr("fname", be.api.fs.resolve(vr("filee")))
             remove(vr("fname"))
             if vr("fname") in be.code_cache:
                 be.code_cache.pop(vr("fname"))

@@ -1,6 +1,6 @@
 rename_process("mkdir")
 try:
-    vr("wd", be.api.betterpath(be.based.user_vars["argj"].split()[1]))
+    vr("wd", be.api.fs.resolve(be.based.user_vars["argj"].split()[1]))
     if be.api.isdir(vr("wd")) == 2:
         if not vr("sdcard_fs", pid=0):
             remount("/", False)

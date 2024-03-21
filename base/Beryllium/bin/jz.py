@@ -15,7 +15,7 @@ if ("d" in vr("opts")["o"] or "decompress" in vr("opts")["o"]) and len(vr("li"))
         remount("/", False)
     decompress(
         vr("zname"),
-        be.api.betterpath(vr("unzpath")),
+        be.api.fs.resolve(vr("unzpath")),
         quiet=vr("quiett"),
         debug=vr("jzdebug"),
     )

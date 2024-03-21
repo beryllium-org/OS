@@ -1,9 +1,9 @@
 rename_process("cp")
 try:
     vr("rd", getcwd())
-    vr("src", be.api.betterpath(be.based.user_vars["argj"].split()[1]))
+    vr("src", be.api.fs.resolve(be.based.user_vars["argj"].split()[1]))
     vr("srcisd", be.api.isdir(vr("src"), rdir=vr("rd")))
-    vr("dst", be.api.betterpath(be.based.user_vars["argj"].split()[2]))
+    vr("dst", be.api.fs.resolve(be.based.user_vars["argj"].split()[2]))
     vr("dstisd", be.api.isdir(vr("dst"), rdir=vr("rd")))
     vrd("rd")
 

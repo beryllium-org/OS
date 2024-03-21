@@ -15,7 +15,7 @@ else:
                 else:
                     vr("prog", vr("f").read())
                     vr("prog", compile(vr("prog"), "preload", "exec"))
-                    be.code_cache[be.api.betterpath(vr("i"))] = vr("prog")
+                    be.code_cache[be.api.fs.resolve(vr("i"))] = vr("prog")
     else:
         term.write("Compiler unavailable.")
 be.api.setvar("return", "0")

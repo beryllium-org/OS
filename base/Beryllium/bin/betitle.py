@@ -4,5 +4,5 @@ be.based.run(
     + "@"
     + be.based.system_vars["HOSTNAME"]
     + ": "
-    + be.api.betterpath()
+    + be.api.fs.resolve()
 )

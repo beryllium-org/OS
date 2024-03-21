@@ -9,7 +9,7 @@ else:
     vr("target", "~")
 vr("dr", be.api.isdir(vr("target")))
 if vr("dr") == 1:
-    chdir(be.api.betterpath(vr("target")))
+    chdir(be.api.fs.resolve(vr("target")))
     if vr("capdir") != getcwd():
         be.api.setvar("prevdir", vr("capdir"))
         be.based.olddir = getcwd()
