@@ -1,16 +1,16 @@
 rename_process("mkdir")
 try:
     vr("wd", be.api.fs.resolve(be.based.user_vars["argj"].split()[1]))
-    if be.api.isdir(vr("wd")) == 2:
+    if be.api.fs.isdir(vr("wd")) == 2:
         if not vr("sdcard_fs", pid=0):
             remount("/", False)
-        if be.api.isdir(vr("wd")[: vr("wd").rfind("/")]) == 2:
+        if be.api.fs.isdir(vr("wd")[: vr("wd").rfind("/")]) == 2:
             vr("fpaths", vr("wd")[: vr("wd").find("/") + 1])
             vr("wd", vr("wd")[vr("wd").find("/") + 1 :])
             while vr("wd").find("/") != -1:
                 pv[get_pid()]["fpaths"] += vr("wd")[: vr("wd").find("/") + 1]
                 vr("wd", vr("wd")[vr("wd").find("/") + 1 :])
-                if be.api.isdir(vr("fpaths")) == 2:
+                if be.api.fs.isdir(vr("fpaths")) == 2:
                     mkdir(vr("fpaths"))
             vr("wd", vr("fpaths") + vr("wd"))
         mkdir(vr("wd"))

@@ -1,7 +1,7 @@
 rename_process("runparts")
 vr("opts", be.api.xarg())
 for pv[get_pid()]["i"] in vr("opts")["w"]:
-    if be.api.isdir(vr("i")) != 1:
+    if be.api.fs.isdir(vr("i")) != 1:
         be.based.error(17)
         be.api.setvar("return", "1")
         break

@@ -10,7 +10,7 @@ if len(vr("li")):
     vr("path", vr("li")[0])
 
 try:
-    vr("ls", be.api.listdir(vr("path")))
+    vr("ls", be.api.fs.listdir(vr("path")))
     vrd("opts")
     if "l" in vr("co"):
         vr("sps", "\n")

@@ -187,7 +187,7 @@ def clear_process_storage() -> None:
 
 # Allocate kernel task
 launch_process("kernel", "root", True)  # pid will always be 0
-vr("Version", "0.4.1")
+vr("Version", "0.4.5")
 
 vr("dmesg", [])
 vr("access_log", [])
@@ -421,6 +421,15 @@ class be:
     class api:
         class security:
             class auth:
+                """
+                Authenticator function.
+
+                Stores a private key into a hopefully truly private variable.
+                It should never leak any info regarding the key.
+
+                Vulnerable to just reading the memory manually.
+                """
+
                 def __init__(self, value):
                     pr = value
                     kid = None
@@ -441,6 +450,9 @@ class be:
                     self.id = idfu
 
         def remove_ansi(text: str) -> str:
+            """
+            Remove all ansi from a given string.
+            """
             result = ""
             i = 0
             while i < len(text):
@@ -668,28 +680,6 @@ class be:
                 argd.update({"n": inpt[0]})
             return argd
 
-        def isdir(dirr: str, rdir: str = None) -> int:
-            """
-            Checks if given item is file (returns 0) or directory (returns 1).
-            Returns 2 if it doesn't exist.
-            """
-            res = 2
-
-            while dirr.endswith("/") and (dirr != "/"):
-                dirr = dirr[:-1]
-            olddir = getcwd()
-            if rdir is not None:
-                chdir(be.api.fs.resolve(rdir))
-            try:
-                if stat(be.api.fs.resolve(dirr))[0] == 32768:
-                    res = 0
-                else:
-                    res = 1
-            except OSError:
-                pass
-            chdir(olddir)
-            return res
-
         class fs:
             def resolve(back: str = None) -> str:
                 """
@@ -737,6 +727,10 @@ class be:
                 return res
 
             def base(path=".") -> str:
+                """
+                Base directory path finder.
+                Finds which is the real directory given path.
+                """
                 old = getcwd()
                 true_root = path[0] == "&" or old == "/" or old == pv[0]["root"]
                 path = be.api.fs.resolve(path)
@@ -756,12 +750,32 @@ class be:
                     res = "&" + res
                 return res
 
+            def isdir(dirr: str, rdir: str = None) -> int:
+                """
+                Checks if given item is file (returns 0) or directory (returns 1).
+                Returns 2 if it doesn't exist.
+                """
+                res = 2
+
+                while dirr.endswith("/") and (dirr != "/"):
+                    dirr = dirr[:-1]
+                olddir = getcwd()
+                if rdir is not None:
+                    chdir(be.api.fs.resolve(rdir))
+                try:
+                    if stat(be.api.fs.resolve(dirr))[0] == 32768:
+                        res = 0
+                    else:
+                        res = 1
+                except OSError:
+                    pass
+                chdir(olddir)
+                return res
+
             class open(object):
                 """
                 Beryllium standard api file operation function.
                 To be used in the place of "with open()".
-                Example:
-                  with be.api.fs.open("file path here", "wb", getcwd()):
                 """
 
                 def __init__(self, fname, mod="r", ctx=None):
@@ -798,30 +812,46 @@ class be:
                         pass
                     del self.fn, self.mod
 
-        def listdir(path=".") -> list:
-            nr = (not getcwd().startswith(pv[0]["root"])) and not path.startswith(
-                pv[0]["root"]
-            )
-            path = be.api.fs.resolve(be.api.fs.base(path))
-            if nr and path.startswith(pv[0]["root"]):
-                path = path[len(pv[0]["root"]) :]
-            res = []
-            if path:
-                if path == pv[0]["root"] + "/dev":  # Device enumeration done here.
-                    devs = list(be.devices.keys())
-                    terms = list(pv[0]["consoles"].keys())
-                    disks = list(pv[0]["mounts"].keys())
-                    devs.sort()
-                    terms.sort()
-                    disks.sort()
-                    for i in devs:
-                        name = i
-                        if name[-1].isdigit():
-                            name += "_"
-                        for j in be.devices[i]:
+            def listdir(path=".") -> list:
+                """
+                Standard api list directory function.
+                Supports all virtual storages.
+                """
+                nr = (not getcwd().startswith(pv[0]["root"])) and not path.startswith(
+                    pv[0]["root"]
+                )
+                path = be.api.fs.resolve(be.api.fs.base(path))
+                if nr and path.startswith(pv[0]["root"]):
+                    path = path[len(pv[0]["root"]) :]
+                res = []
+                if path:
+                    if path == pv[0]["root"] + "/dev":  # Device enumeration done here.
+                        devs = list(be.devices.keys())
+                        terms = list(pv[0]["consoles"].keys())
+                        disks = list(pv[0]["mounts"].keys())
+                        devs.sort()
+                        terms.sort()
+                        disks.sort()
+                        for i in devs:
+                            name = i
+                            if name[-1].isdigit():
+                                name += "_"
+                            for j in be.devices[i]:
+                                res.append(
+                                    [
+                                        name + str(j),
+                                        "c",
+                                        [7, 7, 7],
+                                        0,
+                                        time.localtime(),
+                                        "root",
+                                        "root",
+                                    ]
+                                )
+                        for i in terms:
                             res.append(
                                 [
-                                    name + str(j),
+                                    i,
                                     "c",
                                     [7, 7, 7],
                                     0,
@@ -830,61 +860,51 @@ class be:
                                     "root",
                                 ]
                             )
-                    for i in terms:
-                        res.append(
-                            [
-                                i,
-                                "c",
-                                [7, 7, 7],
-                                0,
-                                time.localtime(),
-                                "root",
-                                "root",
-                            ]
+                        for i in disks:
+                            res.append(
+                                [
+                                    "blkdev" + str(i),
+                                    "c",
+                                    [7, 7, 7],
+                                    0,
+                                    time.localtime(),
+                                    "root",
+                                    "root",
+                                ]
+                            )
+                    else:
+                        tmp = listdir(path)
+                        tmp.sort()
+                        tmpath = (
+                            path if path.startswith(pv[0]["root"]) else ("&" + path)
                         )
-                    for i in disks:
-                        res.append(
-                            [
-                                "blkdev" + str(i),
-                                "c",
-                                [7, 7, 7],
-                                0,
-                                time.localtime(),
-                                "root",
-                                "root",
-                            ]
-                        )
+                        for i in tmp:
+                            typ = be.api.fs.isdir(tmpath + "/" + i)
+                            if typ == 1:
+                                typ = "d"
+                            elif typ == 0:
+                                typ = "f"
+                            else:
+                                typ = "?"
+                            stati = stat(path + "/" + i)
+                            res.append(
+                                [
+                                    i,
+                                    typ,
+                                    [7, 7, 7],
+                                    stati[6],
+                                    time.localtime(
+                                        stati[9]
+                                        + be.based.system_vars["TIMEZONE_OFFSET"] * 3600
+                                    ),
+                                    "root",
+                                    "root",
+                                ]
+                            )
+                            del stati
                 else:
-                    tmp = listdir(path)
-                    tmp.sort()
-                    tmpath = path if path.startswith(pv[0]["root"]) else ("&" + path)
-                    for i in tmp:
-                        typ = be.api.isdir(tmpath + "/" + i)
-                        if typ == 1:
-                            typ = "d"
-                        elif typ == 0:
-                            typ = "f"
-                        else:
-                            typ = "?"
-                        stati = stat(path + "/" + i)
-                        res.append(
-                            [
-                                i,
-                                typ,
-                                [7, 7, 7],
-                                stati[6],
-                                time.localtime(
-                                    stati[9]
-                                    + be.based.system_vars["TIMEZONE_OFFSET"] * 3600
-                                ),
-                                "root",
-                                "root",
-                            ]
-                        )
-                        del stati
-            else:
-                raise OSError("Could not traverse directory.")
-            return res
+                    raise OSError("Could not traverse directory.")
+                return res
 
         def adv_input(whatever, _type=str):
             """

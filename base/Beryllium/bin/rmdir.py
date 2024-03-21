@@ -7,7 +7,7 @@ if ("help" in vr("opts")["o"]) or ("h" in vr("opts")["o"]):
 else:
     if len(vr("opts")["w"]) > 0:
         for pv[get_pid()]["i"] in vr("opts")["w"]:
-            if be.api.isdir(vr("i")) == 1:
+            if be.api.fs.isdir(vr("i")) == 1:
                 vr("pr", be.api.fs.resolve(vr("i")))
                 if not len(listdir(vr("pr"))):
                     try:

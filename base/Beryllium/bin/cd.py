@@ -7,7 +7,7 @@ if len(vr("opts")["w"]):
         vr("target", be.based.user_vars["prevdir"])
 else:
     vr("target", "~")
-vr("dr", be.api.isdir(vr("target")))
+vr("dr", be.api.fs.isdir(vr("target")))
 if vr("dr") == 1:
     chdir(be.api.fs.resolve(vr("target")))
     if vr("capdir") != getcwd():

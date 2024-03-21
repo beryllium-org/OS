@@ -2,9 +2,9 @@ rename_process("cp")
 try:
     vr("rd", getcwd())
     vr("src", be.api.fs.resolve(be.based.user_vars["argj"].split()[1]))
-    vr("srcisd", be.api.isdir(vr("src"), rdir=vr("rd")))
+    vr("srcisd", be.api.fs.isdir(vr("src"), rdir=vr("rd")))
     vr("dst", be.api.fs.resolve(be.based.user_vars["argj"].split()[2]))
-    vr("dstisd", be.api.isdir(vr("dst"), rdir=vr("rd")))
+    vr("dstisd", be.api.fs.isdir(vr("dst"), rdir=vr("rd")))
     vrd("rd")
 
     if vr("srcisd") is 2 or (vr("dstisd") is 2 and vr("dst").endswith("/")):
@@ -23,7 +23,7 @@ try:
         gc.collect()
         for pv[get_pid()]["i"] in listdir(vr("src")):
             term.write(vr("src") + "/" + vr("i") + " -> " + vr("dst") + "/" + vr("i"))
-            if be.api.isdir(pv[get_pid()]["src"] + "/" + pv[get_pid()]["i"]):
+            if be.api.fs.isdir(pv[get_pid()]["src"] + "/" + pv[get_pid()]["i"]):
                 be.api.setvar(
                     "argj",
                     "cp " + vr("src") + "/" + vr("i") + " " + vr("dst") + "/" + vr("i"),
@@ -31,8 +31,8 @@ try:
                 be.based.command.fpexec("/bin/cp.py")
                 vr("src", pv[get_pid()]["src"][: vr("src").rfind("/")])
                 vr("dst", vr("dst")[: vr("dst").rfind("/")])
-                vr("srcisd", be.api.isdir(vr("src")))
-                vr("dstisd", be.api.isdir(vr("dst")))
+                vr("srcisd", be.api.fs.isdir(vr("src")))
+                vr("dstisd", be.api.fs.isdir(vr("dst")))
             else:
                 with be.api.fs.open(vr("src") + "/" + vr("i"), "rb") as srcf:
                     vr("srcd", srcf.read())
