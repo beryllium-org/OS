@@ -65,9 +65,8 @@ The only real limiting factor should be ram, as about 70k (usable under circuitp
 
 ## Installation / Updating
 
-Do note, installation using scripts, from windows is unsupported. Use a release <code>.zip</code> instead.<br />
+Do note, installation using scripts from windows is unsupported. Use a release <code>.zip</code> instead.<br />
 Though, if you are windows user, this project **really** isn't for you.<br />
-Don't even try from wsl. The scripts rely on mount points. They will just not detect any boards.<br />
 
 1) Install a supported CircuitPython version onto the board.<br />
     Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
@@ -76,8 +75,8 @@ Don't even try from wsl. The scripts rely on mount points. They will just not de
     DO NOT run with <code>-j</code>!!!<br />
     This command will automatically update the system files if they already exist.<br />
     To only update the core files, run <code>make kernel</code> instead.<br />
-    If you only want to update the board extras, like drivers, run <code>make extras</code> instead.<br />
-    If you plan on loading the files remotely (via web/ble workflow), run <code>make \*your board.board_id\* install</code> instead.<br />
+    If you only want to update the board extras, like drivers and packages, run <code>make extras</code> instead.<br />
+    If you plan on loading the files remotely (via web/ble workflow), run <code>make BOARD=\*your board.board_id\* install</code> instead.<br />
     The files for you to copy will be created inside <code>source/build_\*your board.board_id\*</code>.<br />
 3) *(Optional)* Copy over the packages you wish to install with jpkg, or install drivers with make.<br />
     More info regarding packages in [Packages](#packages)
@@ -101,8 +100,8 @@ A console that works with ANSI escape commands is <b>REQUIRED</b> (aka, not ardu
 For Putty, select connection type to be Serial, select the port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the board, and set the speed/baudrate to 115200.<br />
 (You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br /><br />
 
-For Tio, if you are on linux, you need to be in the <code>dialout</code> or <code>uucp</code> user group and to connect, run: <code>tio /dev/ttyACM0</code>
-<br />If you are on a Mac instead, run: <code>ls /dev/tty.usb*</code> to find the device name, and connect to it by running: <code>tio /dev/tty.usb\<Device name here\></code><br />
+For Tio if you are on linux, you need to be in the <code>dialout</code> or <code>uucp</code> user group and to connect, run: <code>tio /dev/ttyACM0</code><br />
+If you are on a Mac instead, run: <code>ls /dev/tty.usb*</code> to find the device name, and connect to it by running: <code>tio /dev/tty.usb\<Device name here\></code><br />
 To disconnect, press <code>Ctrl</code> + <code>t</code>, <code>q</code>.<br />
 To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dialout \<your username here\></code> and restart.<br />
 
