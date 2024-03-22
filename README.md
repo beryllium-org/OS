@@ -4,6 +4,7 @@ A unix-like operating system for CircuitPython powered microcontrollers.  <a hre
 ![neofetch](https://github.com/beryllium-org/OS/blob/main/other/screenshots/boot.gif)<br />
 <b>Important notes:</b><br />
 This project is still <b>in it's early developement</b>!<br />
+The kernel API is undergoing massive breaking changes every day.<br />
 This project is <b>NOT</b> a linux distribution.<br />
 This project is <b>NOT</b> compatible with any linux code / binaries.<br />
 
@@ -24,7 +25,7 @@ Table of Contents
 
 ## Prerequisites and hardware support
 
-Runs on CircuitPython <code>8.1.X</code> or later, including up to <code>9.0.0-beta-0</code>.<br />
+Runs on CircuitPython <code>8.1.X</code> and <code>9.0.X</code>.<br />
 Most of the os, will function just fine on earlier versions, even <code>6.x</code>, but many functions will be broken.<br />
 Currently the supported boards are:<br />
 
@@ -83,7 +84,8 @@ Don't even try from wsl. The scripts rely on mount points. They will just not de
 4) Eject & powercycle the board<br />
     When it's plugged back in, you can connect to it via serial.<br />
     (You can use putty to connect to the board on Windows, Tio or GNU/Screen on Linux or MacOS)<br />
-<b>IMPORTANT NOTE: To make the board appear again as a usb drive on the host, run the Beryllium command </b><code>devmode</code>. More info regarding the devmode command, available in the manual.<br />
+<b>IMPORTANT NOTE: To make the board appear again as a usb drive on the host, run the Beryllium command </b><code>devmode</code>.<br />
+More info regarding internal commands, available in the manual.<br />
 
 ## Packages
 Some of beryllium os'es features are not bundled with this install.<br />
@@ -93,10 +95,11 @@ You can find beryllium packages in the [jpkg github topic](https://github.com/to
 
 ## Connection
 
-To connect to the board it's recommended to use Putty for Windows and Tio for Linux/MacOS.<br /><br />
+To connect to the board it's recommended to use Putty for Windows and Tio for Linux/MacOS.<br />
+A console that works with ANSI escape commands is <b>REQUIRED</b> (aka, not arduino ide).<br /><br />
 
-For Putty, select connection type to be Serial, select the port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the board and set the speed/baudrate to 115200.<br />
-(You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br />(The baudrate may differ for your board, do not explicitly stick to 115200)<br /><br />
+For Putty, select connection type to be Serial, select the port to be COM<b>X</b> where <b>X</b> is the number of the serial port allocated by the board, and set the speed/baudrate to 115200.<br />
+(You can find which com port is allocated from within the Device Manager, it usually is COM3 or COM4)<br /><br />
 
 For Tio, if you are on linux, you need to be in the <code>dialout</code> or <code>uucp</code> user group and to connect, run: <code>tio /dev/ttyACM0</code>
 <br />If you are on a Mac instead, run: <code>ls /dev/tty.usb*</code> to find the device name, and connect to it by running: <code>tio /dev/tty.usb\<Device name here\></code><br />
@@ -109,10 +112,10 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 <li><code>base</code>, the base root filesystem that will be used to strap all other packages over it.</li>
 <li><code>Boardfiles</code>, the different board ports and their configuration data.</li>
 <li><code>bootcfg</code>, boot configuration files, to be cherrypicked by ports.</li>
-<li><code>drivers</code>, different device drivers that may be build depending on the port.</li>
-<li><code>other</code>, miscellaneous files used by scripts for the most part.</li>
-<li><code>packages</code>, most of these (if they are compatible) will be built and strapped onto the new installation.</li>
-<li><code>scripts</code>, the files needed for compilation, and installation to a board. They should not be copied over,</li>
+<li><code>drivers</code>, different device drivers that may be build depending on the board.</li>
+<li><code>other</code>, miscellaneous files, not used during installation.</li>
+<li><code>packages</code>, most of these (if they are compatible with your board) will be bundles with every new installation.</li>
+<li><code>scripts</code>, the files needed for compilation, and installation to a board.</li>
 <li><code>source</code>, the source files for this project and co. They should be compiled into .mpy files, then into packages.</li>
 </ul>
 
