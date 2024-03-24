@@ -43,7 +43,7 @@ clear_process_storage()
 
 vr("c", [0, 0, 0])
 for pv[get_pid()]["i"] in pvd.keys():
-    pv[get_pid()]["c"][pvd[pv[get_pid()]["i"]]["status"]] += 1
+    pv[get_pid()]["c"][pvd[pv[get_pid()]["i"]][3]] += 1
 
 term.write(
     "Tasks:    {} total,    {} running,    {} sleeping,    {} zombie".format(
@@ -72,7 +72,9 @@ term.write(
         0.0,
     )
 )
-term.write(f"{colors.inverse}    PID USER      PRESERVE NAME{colors.uninverse}")
+term.write(
+    f"{colors.inverse}    PID USER      PRESERVE STATUS   NAME     {colors.uninverse}"
+)
 
 vr("k", list(pvd.keys()))
 pv[get_pid()]["k"].sort()
@@ -83,10 +85,12 @@ for pv[get_pid()]["i"] in vr("k"):
         vr("strpid", " " + vr("strpid"))
     term.nwrite(vr("strpid"))
     vrd("strpid")
-    term.nwrite(
-        " " + pvd[vr("i")]["owner"][:10] + " " * (10 - len(pvd[vr("i")]["owner"][:10]))
-    )
-    term.nwrite(
-        str(pvd[vr("i")]["preserve"]) + " " * (5 if pvd[vr("i")]["preserve"] else 4)
-    )
-    term.write(pvd[vr("i")]["name"])
+    term.nwrite(" " + pvd[vr("i")][2][:10] + " " * (10 - len(pvd[vr("i")][2][:10])))
+    term.nwrite(str(pvd[vr("i")][1]) + " " * (5 if pvd[vr("i")][1] else 4))
+    if not pvd[vr("i")][3]:
+        term.nwrite("Normal   ")
+    elif pvd[vr("i")][3] == 1:
+        term.nwrite("Sleeping ")
+    elif pvd[vr("i")][3] == 2:
+        term.nwrite("Zombie   ")
+    term.write(pvd[vr("i")][0])

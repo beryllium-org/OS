@@ -18,7 +18,7 @@ class Unset:  # None 2.0
 
 
 # Backend functions
-def pid_alloc(pr_name, owner, resume) -> int:
+def pid_alloc(pr_name: str, owner: str, resume: bool) -> int:
     # Allocate a pid and variable storage for that process.
     global pid_seq, pid_act
     if resume and pr_name in pvn:
@@ -27,35 +27,35 @@ def pid_alloc(pr_name, owner, resume) -> int:
     # Fall through otherwise
     pid_seq += 1
     pv[pid_seq] = {}
-    pvd[pid_seq] = {}
-    pvd[pid_seq]["name"] = pr_name
-    pvd[pid_seq]["preserve"] = resume  # resumable task.
-    pvd[pid_seq]["owner"] = owner
-    pvd[pid_seq]["status"] = 0  # 0 Active, 1 Sleep, 2 Zombie.
+    pvd[pid_seq] = []
+    pvd[pid_seq].append(pr_name)  # id 0, name.
+    pvd[pid_seq].append(resume)  # id 1, resumable task.
+    pvd[pid_seq].append(owner)  # id 2, owner name.
+    pvd[pid_seq].append(1)  # id 3, status, 0 Active, 1 Sleep, 2 Zombie.
     pvn[pr_name] = pid_seq
     return pid_seq
 
 
-def pid_free(pid) -> bool:
+def pid_free(pid: int) -> bool:
     # End a task and wipe it's memory, returns False when stuff was tampered with.
     res = True
     if pid in pv:
-        if not pvd[pid]["preserve"]:
-            pvn.pop(pvd[pid]["name"])
+        if not pvd[pid][1]:
+            pvn.pop(pvd[pid][0])
             pvd.pop(pid)
             pv.pop(pid)
         else:
-            pvd[pid]["sleep"] = 1
+            pvd[pid][3] = 1
     else:
         res = False
     return res
 
 
-def pid_activate(pid) -> bool:
+def pid_activate(pid: int) -> bool:
     # Add pid in list of active pids.
     if pid in pv and pid not in pid_act:
         pid_act.append(pid)
-        pvd[pid]["sleep"] = 0
+        pvd[pid][3] = 0
         return True
     else:
         return False
@@ -77,7 +77,7 @@ def get_parent_pid() -> int:
     return pid_act[-2]
 
 
-def vr(varn, dat=Unset, pid=None):
+def vr(varn: str, dat=Unset, pid: int = None):
     """
     Set / Get a variable in container storage.
 
@@ -95,7 +95,7 @@ def vr(varn, dat=Unset, pid=None):
     return res
 
 
-def vra(varn, dat, pid=None) -> None:
+def vra(varn: str, dat, pid: int = None) -> None:
     """
     Variable append.
     Append to a variable in container storage.
@@ -108,7 +108,7 @@ def vra(varn, dat, pid=None) -> None:
     pv[pid][varn].append(dat)
 
 
-def vrp(varn, dat=1, pid=None) -> None:
+def vrp(varn: str, dat=1, pid: int = None) -> None:
     """
     Variable plus.
     Add something to a variable in container storage.
@@ -121,7 +121,7 @@ def vrp(varn, dat=1, pid=None) -> None:
     pv[pid][varn] += dat
 
 
-def vrm(varn, dat=1, pid=None) -> None:
+def vrm(varn: str, dat=1, pid: int = None) -> None:
     """
     Variable minus.
     Subtract something to a variable in container storage.
@@ -134,7 +134,7 @@ def vrm(varn, dat=1, pid=None) -> None:
     pv[pid][varn] -= dat
 
 
-def vrd(varn, pid=None) -> None:
+def vrd(varn: str, pid: int = None) -> None:
     """
     Variable delete.
 
@@ -146,7 +146,9 @@ def vrd(varn, pid=None) -> None:
     del pv[pid][varn]
 
 
-def launch_process(pr_name, owner="Nobody", resume=False):
+def launch_process(
+    pr_name: str, owner: str = "Nobody", resume: bool = False, background: bool = False
+) -> int:
     # Get a pid, and activate it immediately.
     if not resume:
         pr_name_og = pr_name
@@ -155,27 +157,29 @@ def launch_process(pr_name, owner="Nobody", resume=False):
             pr_name = pr_name_og + str(pr_name_inc)
             pr_name_inc += 1
     tmppid = pid_alloc(pr_name, owner=owner, resume=resume)
-    pid_activate(tmppid)
+    if not background:
+        pid_activate(tmppid)
     # print("Launched process:", pr_name, tmppid)
+    return tmppid
 
 
-def rename_process(pr_name) -> None:
+def rename_process(pr_name: str) -> None:
     # Rename current process to target name.
-    if pr_name != pvd[get_pid()]["name"]:
+    if pr_name != pvd[get_pid()][0]:
         pr_name_og = pr_name
         pr_name_inc = 1
         while pr_name in pvn:
             pr_name = pr_name_og + str(pr_name_inc)
             pr_name_inc += 1
-        pvn.pop(pvd[get_pid()]["name"])
+        pvn.pop(pvd[get_pid()][0])
         pvn[pr_name] = get_pid()
-        pvd[get_pid()]["name"] = pr_name
+        pvd[get_pid()][0] = pr_name
         # print("Renamed process:", pr_name, get_pid())
 
 
 def end_process() -> None:
     # End current process.
-    # print("End process:", pvd[get_pid()]["name"], get_pid())
+    # print("End process:", pvd[get_pid()][0], get_pid())
     pid_free(get_pid())
     pid_deactivate()
 
@@ -187,7 +191,7 @@ def clear_process_storage() -> None:
 
 # Allocate kernel task
 launch_process("kernel", "root", True)  # pid will always be 0
-vr("Version", "0.4.5")
+vr("Version", "0.5.0")
 
 vr("dmesg", [])
 vr("access_log", [])
@@ -409,6 +413,7 @@ dmtex("Load complete")
 class be:
     devices = {}
     code_cache = {}
+    scheduler = {}
 
     def deinit_consoles() -> None:
         for i in vr("consoles", pid=0).keys():
@@ -417,6 +422,31 @@ class be:
                 pv[0]["consoles"].pop(i)
                 print(f"Deinit console {i}")
                 time.sleep(1.2)  # Time needed for a proper disconnection
+
+    def run_background_tasks() -> None:
+        to_run = {}
+        for i in scheduler:
+            try:
+                if scheduler[i][0]():
+                    if scheduler[i][1] not in to_run:
+                        to_run[scheduler[i][1]] = []
+                    to_run[scheduler[i][1]].append(scheduler[i][2])
+            except KeyboardInterrupt:
+                return
+            except:
+                pass
+        if to_run:
+            k = list(to_run.keys())
+            k.sort()
+            k.reverse()
+            for i in k:
+                for j in range(len(to_run[i])):
+                    try:
+                        to_run[i][j]()
+                    except KeyboardInterrupt:
+                        return
+                    except:
+                        pass
 
     class api:
         class security:
@@ -1187,9 +1217,9 @@ class be:
 
         def process_failure(err) -> None:
             # Report a process failure properly. Pass an exception.
-            namee = pvd[get_pid()]["name"]
+            namee = pvd[get_pid()][0]
             pid = get_pid()
-            ownd = pvd[get_pid()]["owner"]
+            ownd = pvd[get_pid()][2]
             gc.collect()
             gc.collect()
             term.hold_stdout = False
@@ -1704,7 +1734,7 @@ class be:
             if "trigger_dict_bck" not in pv[get_pid()].keys():  # First run
                 # Backup jcurses key config in case apps modify it.
                 vr("trigger_dict_bck", term.trigger_dict.copy())
-                pvd[get_pid()]["preserve"] = True  # Do not wipe process storage
+                pvd[get_pid()][1] = True  # Do not wipe process storage
 
             if (
                 "based_hist" in pv[get_pid()].keys()
