@@ -458,11 +458,11 @@ class be:
                         pid_activate(task[1])
                         task[2]()
                     except KeyboardInterrupt:
-                        backtrack_to_process(starting_pid())
+                        backtrack_to_process(starting_pid)
                         return
                     except:
                         pass
-                    backtrack_to_process(starting_pid())
+                    backtrack_to_process(starting_pid)
 
     class api:
         class security:
