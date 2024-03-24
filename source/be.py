@@ -156,9 +156,7 @@ def vrd(varn: str, pid: int = None) -> None:
     del pv[pid][varn]
 
 
-def launch_process(
-    pr_name: str, owner: str = "Nobody", resume: bool = False, background: bool = False
-) -> int:
+def launch_process(pr_name: str, owner: str = "Nobody", resume: bool = False) -> int:
     # Get a pid, and activate it immediately.
     if not resume:
         pr_name_og = pr_name
@@ -167,8 +165,7 @@ def launch_process(
             pr_name = pr_name_og + str(pr_name_inc)
             pr_name_inc += 1
     tmppid = pid_alloc(pr_name, owner=owner, resume=resume)
-    if not background:
-        pid_activate(tmppid)
+    pid_activate(tmppid)
     # print("Launched process:", pr_name, tmppid)
     return tmppid
 
@@ -423,7 +420,7 @@ dmtex("Load complete")
 class be:
     devices = {}  # DEVICE: [id]
     code_cache = {}  # file path: compiled_code
-    scheduler = []  # list of lists, [check func, pid, run func]
+    scheduler = []  # list of lists, [check func, pid, prio, run func]
 
     def deinit_consoles() -> None:
         for i in vr("consoles", pid=0).keys():
@@ -433,38 +430,60 @@ class be:
                 print(f"Deinit console {i}")
                 time.sleep(1.2)  # Time needed for a proper disconnection
 
-    def run_background_tasks() -> None:
-        starting_pid = get_pid()
-        to_run = {}
-        for i in scheduler:
-            try:
-                if scheduler[i][0]():
-                    prio = scheduler[i][1]
-                    if prio not in to_run:
-                        to_run[prio] = []
-                    to_run[prio].append(i)
-            except KeyboardInterrupt:
-                return
-            except:
-                pass
-        if to_run:
-            k = list(to_run.keys())
-            k.sort()
-            k.reverse()
-            for i in k:
-                for j in range(len(to_run[i])):
-                    task = scheduler[to_run[i][j]]
+    class api:
+        class tasks:
+            def run() -> None:
+                starting_pid = get_pid()
+                to_run = {}
+                for i in range(len(be.scheduler)):
                     try:
-                        pid_activate(task[1])
-                        task[2]()
+                        if be.scheduler[i][0]():
+                            prio = be.scheduler[i][2]
+                            if prio not in to_run:
+                                to_run[prio] = []
+                            to_run[prio].append(i)
                     except KeyboardInterrupt:
-                        backtrack_to_process(starting_pid)
                         return
                     except:
                         pass
-                    backtrack_to_process(starting_pid)
+                if to_run:
+                    k = list(to_run.keys())
+                    k.sort()
+                    k.reverse()
+                    for i in k:
+                        for j in range(len(to_run[i])):
+                            task = be.scheduler[to_run[i][j]]
+                            try:
+                                pid_activate(task[1])
+                                task[3]()
+                            except KeyboardInterrupt:
+                                backtrack_to_process(starting_pid)
+                                return
+                            except:
+                                pass
+                            backtrack_to_process(starting_pid)
 
-    class api:
+            def add(name: str, priority: int, check_func, run_func) -> int:
+                """
+                Create a background task and adds it to the scheduler.
+                Returns the new task's pid.
+                """
+                if (not isinstance(priority, int)) or priority > 100 or priority < 0:
+                    raise ValueError("Priority must be 0 to 100")
+                tmppid = launch_process(name, resume=True)
+                pid_deactivate()
+                pvd[tmppid][3] = 1
+                be.scheduler.append([check_func, tmppid, priority, run_func])
+
+            def rm(pid: int) -> bool:
+                for i in range(len(be.scheduler)):
+                    if be.scheduler[i][1] == pid:
+                        be.scheduler.pop(i)
+                        pvd[pid][1] = False
+                        pid_free(pid)
+                        return True
+                return False
+
         class security:
             class auth:
                 """
@@ -489,7 +508,7 @@ class be:
 
                     kid = id(key)
 
-                    def idfu():
+                    def idfu() -> int:
                         return kid
 
                     self.key = key
