@@ -77,6 +77,16 @@ def get_parent_pid() -> int:
     return pid_act[-2]
 
 
+def backtrack_to_process(pid: int) -> None:
+    if get_pid() == pid:
+        return
+    if pid in pid_act:
+        while get_pid() != pid:
+            end_process()
+    else:
+        pid_activate(pid)
+
+
 def vr(varn: str, dat=Unset, pid: int = None):
     """
     Set / Get a variable in container storage.
@@ -411,9 +421,9 @@ dmtex("Load complete")
 
 
 class be:
-    devices = {}
-    code_cache = {}
-    scheduler = {}
+    devices = {}  # DEVICE: [id]
+    code_cache = {}  # file path: compiled_code
+    scheduler = []  # list of lists, [check func, pid, run func]
 
     def deinit_consoles() -> None:
         for i in vr("consoles", pid=0).keys():
@@ -424,13 +434,15 @@ class be:
                 time.sleep(1.2)  # Time needed for a proper disconnection
 
     def run_background_tasks() -> None:
+        starting_pid = get_pid()
         to_run = {}
         for i in scheduler:
             try:
                 if scheduler[i][0]():
-                    if scheduler[i][1] not in to_run:
-                        to_run[scheduler[i][1]] = []
-                    to_run[scheduler[i][1]].append(scheduler[i][2])
+                    prio = scheduler[i][1]
+                    if prio not in to_run:
+                        to_run[prio] = []
+                    to_run[prio].append(i)
             except KeyboardInterrupt:
                 return
             except:
@@ -441,12 +453,16 @@ class be:
             k.reverse()
             for i in k:
                 for j in range(len(to_run[i])):
+                    task = scheduler[to_run[i][j]]
                     try:
-                        to_run[i][j]()
+                        pid_activate(task[1])
+                        task[2]()
                     except KeyboardInterrupt:
+                        backtrack_to_process(starting_pid())
                         return
                     except:
                         pass
+                    backtrack_to_process(starting_pid())
 
     class api:
         class security:
@@ -1210,9 +1226,12 @@ class be:
                 17: "Not a directory",
                 18: "Not a file",
                 19: "Not a device",
-                20: f"Unhandled exception: {f}",
+                20: f"Unhandled exception:\n",
             }
             term.write(f"{prefix}: {errs[wh]}")
+            if wh == 20:
+                for i in f:
+                    term.write(i)
             be.io.ledset(1)
 
         def process_failure(err) -> None:
@@ -1952,8 +1971,7 @@ class be:
                             except Exception as Err:
                                 term.flush_writes()
                                 be.based.error(20, format_exception(Err))
-                                while get_pid() != stored_pid:
-                                    end_process()
+                                backtrack_to_process(stored_pid)
                             if silencecmd:
                                 be.based.silent = False
 
