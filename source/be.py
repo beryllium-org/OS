@@ -447,12 +447,18 @@ class be:
                     except:
                         pass
                 if to_run:
+                    ran_low = False
                     k = list(to_run.keys())
                     k.sort()
                     k.reverse()
                     for i in k:
                         for j in range(len(to_run[i])):
                             task = be.scheduler[to_run[i][j]]
+                            if i < 50:
+                                if ran_low:
+                                    return
+                                else:
+                                    ran_low = True
                             try:
                                 pid_activate(task[1])
                                 task[3]()
