@@ -10,7 +10,7 @@ if "FSNAME" not in environ:
     environ["FSNAME"] = "BERYLLIUM"
 [boardpath, board, version] = circuitmpy.detect_board()
 
-if boardpath == "":
+if boardpath is None:
     print(
         "Error: Board not found.\nMake sure it is attached and mounted before you run make"
     )
@@ -18,6 +18,7 @@ if boardpath == "":
 
 print("[1/3] Updating base")
 system(f"rsync -r --update ../base/* {boardpath}/")
+system(f"rsync ../base/*.py {boardpath}/")
 print("[2/3] Installing board pinout map")
 system(
     f"rsync --update ../Boardfiles/{board}/pinout.map {boardpath}/Beryllium/bin/pinout.map"

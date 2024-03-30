@@ -8,7 +8,7 @@ if "FSNAME" not in environ:
     environ["FSNAME"] = "BERYLLIUM"
 [boardpath, board, version] = circuitmpy.detect_board()
 
-if boardpath == "":
+if boardpath == None:
     print(
         "Error: Board not found.\nMake sure it is attached and mounted before you run make"
     )
