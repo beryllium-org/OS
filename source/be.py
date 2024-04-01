@@ -1,7 +1,7 @@
 # ------------------------------------- #
 #             Beryllium OS              #
 #                                       #
-#         Written on a aarch64          #
+#   No security means no backdoors :)   #
 # ------------------------------------- #
 
 # Process stuffs
