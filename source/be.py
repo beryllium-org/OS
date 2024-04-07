@@ -480,6 +480,7 @@ class be:
                 pid_deactivate()
                 pvd[tmppid][3] = 1
                 be.scheduler.append([check_func, tmppid, priority, run_func])
+                return tmppid
 
             def rm(pid: int) -> bool:
                 for i in range(len(be.scheduler)):
