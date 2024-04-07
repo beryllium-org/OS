@@ -437,15 +437,19 @@ class be:
                 to_run = {}
                 for i in range(len(be.scheduler)):
                     try:
-                        if be.scheduler[i][0]():
+                        pid_activate(be.scheduler[i][1])
+                        res = be.scheduler[i][0]()
+                        pid_deactivate()
+                        if res:
                             prio = be.scheduler[i][2]
                             if prio not in to_run:
                                 to_run[prio] = []
                             to_run[prio].append(i)
                     except KeyboardInterrupt:
+                        backtrack_to_process(starting_pid)
                         return
                     except:
-                        pass
+                        backtrack_to_process(starting_pid)
                 if to_run:
                     ran_low = False
                     k = list(to_run.keys())
