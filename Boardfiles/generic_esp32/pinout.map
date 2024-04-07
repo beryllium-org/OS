@@ -1,0 +1,10 @@
+[No board view available]
+
+Generic ESP32
+
+SoC                : ESP32
+RAM                : >=512KB
+Storage            : ??
+Wi-fi              : True
+Bluetooth          : True
+
