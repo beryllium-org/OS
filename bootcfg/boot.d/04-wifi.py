@@ -3,7 +3,9 @@ be.based.run("modprobe driver_wifi as network")
 
 
 def _autocon() -> None:
-    if not be.devices["network"][0].connected:
+    if not (
+        be.devices["network"][0].connected or be.devices["network"][0].ap_connected
+    ):
         systemprints(2, "Connecting wifi")
         be.based.run(
             "iwctl station wifi auto"
