@@ -30,8 +30,10 @@ try:
                         )
                     )
                     remount("/", False)
-            term.write("Removing: " + vr("fn"))
+            if vr("verbose"):
+                term.write("Removing: " + vr("fn"))
             be.based.run("rmdir " + vr("fn"))
+            remount("/", False)
         else:
             be.based.error(4, f=vr("f"))
             be.api.setvar("return", "1")
