@@ -12,6 +12,9 @@ def _autocon() -> None:
         )  # Configure connections in &/settings.toml
         systemprints(1, "Connecting wifi")
         be.based.run("timesync")
+        if "ttyTELNET0" in pv[0]["consoles"]:
+            be.based.run("telnet deinit")
+            be.based.run("telnet setup -q")
     vr("tm", time.monotonic())
 
 
