@@ -1,5 +1,6 @@
 # Initialize wifi and configure background task to auto-connect
 be.based.run("modprobe driver_wifi as network")
+be.based.run("iwctl station wifi disconnect")
 
 
 def _autocon() -> None:
