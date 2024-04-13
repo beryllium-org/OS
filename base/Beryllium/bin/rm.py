@@ -1,28 +1,41 @@
 rename_process("rm")
 vr("opts", be.api.xarg())
-vr("fw", vr("opts")["hw"] + vr("opts")["w"])
+vr("verbose", "v" in vr("opts")["o"] or "verbose" in vr("opts")["o"])
+be.api.setvar("return", "0")
 
 try:
-    if not pv[0]["sdcard_fs"]:
-        remount("/", False)
-
-    for pv[get_pid()]["filee"] in vr("fw"):
-        try:
-            vr("fname", be.api.fs.resolve(vr("filee")))
-            remove(vr("fname"))
-            if vr("fname") in be.code_cache:
-                be.code_cache.pop(vr("fname"))
-        except OSError as errr:
-            if str(errr) == "[Errno 2] No such file/directory":
-                be.based.error(4, f=vr("filee"))
-            elif str(errr) == "[Errno 21] EISDIR":
-                be.based.error(15, prefix="rm")
-            else:
-                be.based.error(3)
-            del errr
-
-    if not pv[0]["sdcard_fs"]:
-        remount("/", True)
-
+    remount("/", False)
+    vr("rd", getcwd())
+    for pv[get_pid()]["f"] in vr("opts")["aw"]:
+        vr("fn", be.api.fs.resolve(vr("f")))
+        vr("t", be.api.fs.isdir(vr("f"), rdir=vr("rd")))
+        if not vr("t"):
+            if vr("verbose"):
+                term.write("Removing: " + vr("fn"))
+            remove(vr("fn"))
+            if vr("fn") in be.code_cache:
+                be.code_cache.pop(vr("fn"))
+        elif vr("t") == 1:
+            vr("ls", listdir(vr("fn")))
+            for pv[get_pid()]["i"] in vr("ls"):
+                if vr("verbose"):
+                    term.write("Removing: {}/{}".format(vr("fn"), vr("i")))
+                vr("t2", be.api.fs.isdir(vr("fn") + "/" + vr("i")))
+                if not vr("t2"):
+                    remove(vr("fn") + "/" + vr("i"))
+                else:
+                    be.based.run(
+                        "rm {}{}/{}".format(
+                            ("-v " if vr("verbose") else ""), vr("fn"), vr("i")
+                        )
+                    )
+                    remount("/", False)
+            term.write("Removing: " + vr("fn"))
+            be.based.run("rmdir " + vr("fn"))
+        else:
+            be.based.error(4, f=vr("f"))
+            be.api.setvar("return", "1")
+    remount("/", True)
 except RuntimeError:
     be.based.error(7)
+    be.api.setvar("return", "1")

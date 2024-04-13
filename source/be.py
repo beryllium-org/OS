@@ -576,8 +576,12 @@ class be:
                 "w" for the words that don't belong to a specific option.
                     Example: "ls /bin", "/bin" is gonna be returned in "w"
                 "hw" for the words, that were hidden due to an option.
-                    Example "ls -a /bin", "/bin" is not gonna be in "w"
+                    Example: "ls -a /bin", "/bin" is not gonna be in "w"
                     as it is a part of "o" but will be in "hw".
+                "aw" for all the words, including those that were hidden
+                    due to an option.
+                    Example: "ls -la amogus -v sus test" is gonna return
+                    ["amogus", "sus", "test"] in that specific order.
                 "o" for all the options, with their respective values.
                     Example: "ls -a /bin", {"a": "/bin"} is gonna be in "o"
                 "n" if False is passed to fn, contains the filename
@@ -594,6 +598,7 @@ class be:
             options = {}
             words = []
             hidwords = []
+            allwords = []
 
             n = False  # in keyword
             s = False  # in string
@@ -612,6 +617,7 @@ class be:
                     elif inpt[i].endswith('"'):
                         temp_s += be.api.adv_input(inpt[i][:-1])
                         words.append(temp_s)
+                        allwords.append(temp_s)
                         s = False
                     elif '"' not in inpt[i]:
                         temp_s += " " + be.api.adv_input(inpt[i][1:])
@@ -619,6 +625,7 @@ class be:
                     else:
                         temp_s += " " + be.api.adv_input(inpt[i][1 : inpt[i].find('"')])
                         words.append(temp_s)
+                        allwords.append(temp_s)
                         s = False
                         inpt[i] = inpt[i][inpt[i].find('"') + 1 :]
                 elif inpt[i].startswith("gp#") and (
@@ -638,6 +645,7 @@ class be:
                     elif inpt[i].endswith('"'):
                         temp_s += be.api.adv_input(inpt[i][:-1])
                         words.append(temp_s)
+                        allwords.append(temp_s)
                         s = False
                     elif '"' not in inpt[i]:
                         temp_s += " " + be.api.adv_input(inpt[i][1:])
@@ -645,6 +653,7 @@ class be:
                     else:
                         temp_s += " " + be.api.adv_input(inpt[i][1 : inpt[i].find('"')])
                         words.append(temp_s)
+                        allwords.append(temp_s)
                         s = False
                         inpt[i] = inpt[i][inpt[i].find('"') + 1 :]
                 elif inpt[i].startswith("adc#") and (
@@ -665,6 +674,7 @@ class be:
                     elif inpt[i].endswith('"'):
                         temp_s += be.api.adv_input(inpt[i][:-1])
                         words.append(temp_s)
+                        allwords.append(temp_s)
                         s = False
                     elif '"' not in inpt[i]:
                         temp_s += " " + be.api.adv_input(inpt[i][1:])
@@ -672,6 +682,7 @@ class be:
                     else:
                         temp_s += " " + be.api.adv_input(inpt[i][1 : inpt[i].find('"')])
                         words.append(temp_s)
+                        allwords.append(temp_s)
                         s = False
                         inpt[i] = inpt[i][inpt[i].find('"') + 1 :]
                 elif (not s) and (not mw) and inpt[i].startswith('"$'):
@@ -690,7 +701,9 @@ class be:
                         temp_s.append(temp[i][:-1])
                         continue
                     else:
-                        words.append(" ".join(temp_s + [inpt[i]]))
+                        ftemps = " ".join(temp_s + [inpt[i]])
+                        words.append(ftemps)
+                        allwords.append(ftemps)
                         temp_s = None
                         mw = False
                         continue
@@ -698,6 +711,7 @@ class be:
                     if (not s) and inpt[i].startswith("-"):
                         if not len(inpt[i]) - 1:
                             words.append(inpt[i])
+                            allwords.append(inpt[i])
                             continue
                         entry = inpt[i][1 + (int(inpt[i].startswith("--"))) :]
                         n = True
@@ -706,30 +720,37 @@ class be:
                             temp_s = inpt[i][1:]
                             s = True
                         else:
-                            words.append(inpt[i][1:-1])
+                            finpt = inpt[i][1:-1]
+                            words.append(finpt)
+                            allwords.append(finpt)
                     elif s:
                         if inpt[i].endswith('"'):
                             temp_s += " " + inpt[i][:-1]
                             words.append(temp_s)
+                            allwords.append(temp_s)
                             s = False
                         else:
                             temp_s += " " + inpt[i]
                     else:
                         words.append(inpt[i])
+                        allwords.append(inpt[i])
                 else:  # in keyword
                     if (not s) and inpt[i].startswith('"'):
                         if not inpt[i].endswith('"'):
                             temp_s = inpt[i][1:]
                             s = True
                         else:
-                            options.update({entry: inpt[i][1:-1]})
-                            hidwords.append(inpt[i][1:-1])
+                            fstr = inpt[i][1:-1]
+                            options.update({entry: fstr})
+                            hidwords.append(fstr)
+                            allwords.append(fstr)
                             n = False
                     elif s:
                         if inpt[i].endswith('"'):
                             temp_s += " " + inpt[i][:-1]
                             options.update({entry: temp_s})
                             hidwords.append(temp_s)
+                            allwords.append(temp_s)
                             n = False
                             s = False
                         else:
@@ -741,6 +762,7 @@ class be:
                     else:
                         options.update({entry: inpt[i]})
                         hidwords.append(inpt[i])
+                        allwords.append(inpt[i])
                         n = False
             if n:  # we have incomplete keyword
                 # not gonna bother if s is True
@@ -749,6 +771,7 @@ class be:
             argd = {
                 "w": words if words != [""] else [],
                 "hw": hidwords,
+                "aw": allwords,
                 "o": options,
             }
 
