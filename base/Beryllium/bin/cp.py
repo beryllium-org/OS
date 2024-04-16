@@ -4,9 +4,9 @@ vr("verbose", "v" in vr("opts")["o"] or "verbose" in vr("opts")["o"])
 
 if len(vr("opts")["aw"]) == 2:
     vr("rd", getcwd())
-    vr("src", be.api.fs.resolve(vr("opts")["aw"][0]))
+    vr("src", vr("opts")["aw"][0])
     vr("srcisd", be.api.fs.isdir(vr("src"), rdir=vr("rd")))
-    vr("dst", be.api.fs.resolve(vr("opts")["aw"][1]))
+    vr("dst", vr("opts")["aw"][1])
     vr("dstisd", be.api.fs.isdir(vr("dst"), rdir=vr("rd")))
     vrd("rd")
     be.api.setvar("return", "0")
