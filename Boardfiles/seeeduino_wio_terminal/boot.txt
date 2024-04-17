@@ -4,4 +4,3 @@
 03-reload-hostname.py
 05-advance-time.lja
 10-builtin-display-init.py
-11-wiopad-init.py

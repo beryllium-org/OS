@@ -61,3 +61,6 @@
 [submodule "packages/womp"]
 	path = packages/womp
 	url = https://github.com/beryllium-org/womp
+[submodule "packages/wio-config"]
+	path = packages/wio-config
+	url = https://github.com/Beryllium-org/wio-config
