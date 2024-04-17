@@ -11,6 +11,7 @@ else:
                     if hasattr(pv[0]["consoles"], "deinit"):
                         pv[0]["consoles"].deinit()
                     pv[0]["consoles"].pop(vr("i"))
+                    dmtex("/dev/" + vr("i") + " was removed")
                 else:
                     term.write(
                         'Console "'

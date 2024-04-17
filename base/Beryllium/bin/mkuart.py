@@ -47,6 +47,7 @@ if vr("uart") is not None:
     while ("ttyUART" + str(vr("index"))) in vr("existing"):
         vrp("index")
     pv[0]["consoles"]["ttyUART" + str(vr("index"))] = vr("uart")
+    dmtex("Created UART console at /dev/ttyUART" + str(vr("index")))
     be.api.setvar("return", "0")
 else:
     term.write("No UART port was configured.")
