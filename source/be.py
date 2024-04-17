@@ -1629,31 +1629,6 @@ class be:
                 gc.collect()
                 end_process()
 
-            def terminal(inpt: str) -> None:  # Manage active terminal
-                opts = inpt.split(" ")
-                if "--help" in opts or "-h" in opts or (not len(opts)) or opts[0] == "":
-                    term.write("Usage: terminal [get/list/activate] [ttyXXXX]")
-                else:
-                    if opts[0] == "get":
-                        term.write(globals()["console_active"])
-                    elif opts[0] == "activate":
-                        if len(opts) > 1 and opts[1] in pv[0]["consoles"]:
-                            term.console = pv[0]["consoles"][opts[1]]
-                            pv[0]["console_active"] = opts[1]
-                        else:
-                            term.write("Console not found.")
-                    elif opts[0] == "list":
-                        for i in pv[0]["consoles"].keys():
-                            term.nwrite(i)
-                            if i == pv[0]["console_active"]:
-                                term.write(" [ACTIVE]")
-                            else:
-                                term.write()
-                    else:
-                        term.write(
-                            "Unknown option specified, try running `terminal --help`"
-                        )
-
         def parse_pipes(inpt: str):
             # This is a pipe
             p_and = "&&" in inpt
@@ -1892,6 +1867,7 @@ class be:
                                         for j in i:
                                             if j.startswith(tofind):
                                                 candidates.append(j)
+                                candidates = list(set(candidates))
                                 if len(candidates) > 1:
                                     term.write()
                                     for i in candidates:
