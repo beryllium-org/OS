@@ -14,7 +14,6 @@ Backside:
 12 5way       | 12  |----|         .----.         |----|  10  |
    switch     \_____|    |_________|____|_________|    |______/
 
-
 GPIO:
                               __________________...___
                              /                  ...   \
@@ -42,10 +41,21 @@ GPIO:
                              | O              O ... O |
                              \__________________...___/
 
+Left port (viewing from the front):    | Right port (viewing from the front):
+                                       |
+    ....                               |    ....
+   |----|                              |   |----|
+   |    |                              |   |    |
+    ||||                               |    ||||
+    |||`--- [      GND         ]       |    |||`--- [       GND       ]
+    ||`---- [      3V3         ]       |    ||`---- [       3V3       ]
+    |`----- [ BCM03 | I2C1_SCL ]       |    |`----- [ BCM22 | D1 | A1 ]
+    `------ [ BCM02 | I2C1_SDA ]       |    `------ [ BCM27 | D0 | A0 ]
+
 
 Seeeduino Wio Terminal
 
-SoC                : Amtel SAMD51
+SoC                : Atmel SAMD51
 RAM                : 192KB
 Storage            : QSPI (4MB)
 Wi-fi              : True
