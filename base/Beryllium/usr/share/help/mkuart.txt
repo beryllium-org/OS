@@ -1,0 +1,6 @@
+Usage: mkuart [OPTIONS]..
+Create a new UART port.
+  -b        Use board.UART() for the port creation.
+  -t        Specify a custom TX pin.
+  -r        Specify a custom RX pin.
+  --baud    Specify a custom baudrate (default 115200).
