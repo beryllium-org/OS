@@ -20,7 +20,13 @@ elif "t" in vr("opts")["o"] and "r" in vr("opts")["o"]:
         if be.devices["gpiochip"][0].is_free(vr("txp")) and be.devices["gpiochip"][
             0
         ].is_free(vr("rxp")):
-            vr("uart", busio.UART(tx=vr("txp"), rx=vr("rxp")))
+            vr(
+                "uart",
+                busio.UART(
+                    tx=be.devices["gpiochip"][0].pin(vr("txp")),
+                    rx=be.devices["gpiochip"][0].pin(vr("rxp")),
+                ),
+            )
         else:
             term.write("The specified pins currently unavailable!")
     else:
