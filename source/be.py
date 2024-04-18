@@ -1583,7 +1583,7 @@ class be:
 
                 prog = None
                 fname = be.api.fs.resolve(inpt[offs])
-                if use_compiler and fname not in be.code_cache:
+                if fname not in be.code_cache:
                     with be.api.fs.open(inpt[offs]) as f:
                         if f is None:
                             raise OSError
