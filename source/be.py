@@ -428,7 +428,6 @@ class be:
                 pv[0]["consoles"][i].deinit()
                 pv[0]["consoles"].pop(i)
                 print(f"Deinit console {i}")
-                time.sleep(1.2)  # Time needed for a proper disconnection
 
     class api:
         class tasks:
