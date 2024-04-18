@@ -16,14 +16,14 @@ if boardpath is None:
     )
     exit(1)
 
-print("[1/3] Updating base")
+print("[1/4] Updating base")
 system(f"rsync -r --update ../base/* {boardpath}/")
 system(f"rsync ../base/*.py {boardpath}/")
-print("[2/3] Installing board pinout map")
+print("[2/4] Installing board pinout map")
 system(
     f"rsync --update ../Boardfiles/{board}/pinout.map {boardpath}/Beryllium/bin/pinout.map"
 )
-print("[3/3] Installing board config")
+print("[3/4] Installing board config")
 skiptm = False
 try:
     if fetch("setup", "BERYLLIUM", toml=f"{boardpath}/settings.toml"):
@@ -35,4 +35,9 @@ if not skiptm:
 else:
     print(" - Skipped updating toml as setup variable already True")
 
+print("[4/4] Cleaning .gitkeep files")
+try:
+    system(f'find {boardpath} -type f -name ".gitkeep" -delete')
+except:
+    pass
 system("sync")
