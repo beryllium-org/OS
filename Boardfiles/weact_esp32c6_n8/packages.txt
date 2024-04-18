@@ -9,3 +9,4 @@ netutils
 virtUART
 wget
 lm_sensors
+uartutils

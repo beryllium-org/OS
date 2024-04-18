@@ -11,3 +11,4 @@ netutils
 wget
 lm_sensors
 fbs3-config
+uartutils

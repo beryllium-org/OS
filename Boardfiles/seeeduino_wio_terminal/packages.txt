@@ -8,3 +8,4 @@ neofetch
 lm_sensors
 womp
 wio-config
+uartutils
