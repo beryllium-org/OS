@@ -64,3 +64,6 @@
 [submodule "packages/wio-config"]
 	path = packages/wio-config
 	url = https://github.com/Beryllium-org/wio-config
+[submodule "packages/uartutils"]
+	path = packages/uartutils
+	url = https://github.com/beryllium-org/uartutils
