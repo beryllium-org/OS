@@ -1,0 +1,6 @@
+rename_process("bcast")
+vr("data", be.based.user_vars["argj"])
+vr("data", bytes(vr("data"), "UTF-8"))
+vrp("data", b"\n")
+be.api.bcast(vr("data"))
+be.api.setvar("return", "0")

@@ -1076,6 +1076,10 @@ class be:
                     del tmpd
             return False
 
+        def bcast(msg: str) -> None:
+            for i in pv[0]["consoles"].keys():
+                pv[0]["consoles"][i].write(msg)
+
     class history:
         historyy = []
         nav = [0, 0, ""]
