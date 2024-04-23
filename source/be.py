@@ -1399,12 +1399,11 @@ class be:
                     vr("inpt", vr("inpt")[1:])
                 try:
                     with be.api.fs.open(vr("inpt")[0], "r") as filee:
-                        be.chkbreak()
                         for linee in filee:
-                            linee = linee.strip()
-                            be.based.run(linee)
                             if pv[0]["Exit"] or be.chkbreak():
                                 break  # System quit
+                            linee = linee.strip()
+                            be.based.run(linee)
                     if (be.based.olddir is not None) and be.based.olddir != getcwd():
                         chdir(be.based.olddir)
                 except OSError:
