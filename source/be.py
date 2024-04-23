@@ -274,6 +274,9 @@ pv[0]["dmesg"].append("[    0.00000] Timings reset")
 # dmtex previous end holder
 pv[0]["oend"] = "\n"  # needed to mask print
 
+# Script break to replace python break statement
+pv[0]["Break"] = False
+
 try:
     term = jcurses()  # the main curses entity, used primarily for based.shell()
     term.hold_stdout = True  # set it to buffered by default
@@ -421,6 +424,15 @@ class be:
     devices = {}  # DEVICE: [id]
     code_cache = {}  # file path: compiled_code
     scheduler = []  # list of lists, [check func, pid, prio, run func]
+
+    def setbreak() -> None:
+        pv[0]["Break"] = True
+
+    def chkbreak() -> bool:
+        if pv[0]["Break"]:
+            pv[0]["Break"] = False
+            return True
+        return False
 
     def deinit_consoles() -> None:
         for i in vr("consoles", pid=0).keys():
@@ -1387,10 +1399,11 @@ class be:
                     vr("inpt", vr("inpt")[1:])
                 try:
                     with be.api.fs.open(vr("inpt")[0], "r") as filee:
+                        be.chkbreak()
                         for linee in filee:
                             linee = linee.strip()
                             be.based.run(linee)
-                            if pv[0]["Exit"]:
+                            if pv[0]["Exit"] or be.chkbreak():
                                 break  # System quit
                     if (be.based.olddir is not None) and be.based.olddir != getcwd():
                         chdir(be.based.olddir)
