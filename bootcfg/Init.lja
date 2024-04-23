@@ -11,17 +11,11 @@ pexec systemprints(1, "Boot Services")
 # Wait for connection
 _waitforconnection
 
-# Late serial connection
-unhold
-flush
-pexec systemprints(1, "Dmesg flushed")
-
 # Stop dmesg from flooding tty
-pexec systemprints(1, "Suppress dmesg flooding")
 pexec term.dmtex_suppress = True
 
-# Clear boot buffer (optional)
-# clear
+# Clear boot buffer
+clear
 
 # Checks
 _rebootprompt
