@@ -1,0 +1,1 @@
+pexec term.hold_stdout = False

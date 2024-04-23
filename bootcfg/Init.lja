@@ -12,8 +12,8 @@ pexec systemprints(1, "Boot Services")
 _waitforconnection
 
 # Late serial connection
-pexec term.hold_stdout = False
-pexec term.flush_writes()
+unhold
+flush
 pexec systemprints(1, "Dmesg flushed")
 
 # Stop dmesg from flooding tty
