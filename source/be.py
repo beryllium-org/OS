@@ -1484,8 +1484,9 @@ class be:
                             pin_name = inpt[2][4:]
                             if be.devices["gpiochip"][0].is_free(pin_name):
                                 tmp_gpio = be.devices["gpiochip"][0].adc(pin_name)
-                                new_var += str(tmp_gpio.value)
-                                tmp_gpio.deinit()
+                                if tmp_gpio is not None:  # ADC2 may fail on ESP32
+                                    new_var += str(tmp_gpio.value)
+                                    tmp_gpio.deinit()
                         else:
                             new_var += str(inpt[2])
                     if valid:  # now do the actual set
