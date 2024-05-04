@@ -1016,6 +1016,26 @@ class be:
                     raise OSError("Could not traverse directory.")
                 return res
 
+        def code_load(filename: str):
+            prog = None
+            filename = be.api.fs.resolve(filename)
+            if filename not in be.code_cache:
+                with be.api.fs.open(filename) as f:
+                    if f is None:
+                        raise OSError("Could not load code segment")
+                    prog = f.read()
+            else:
+                prog = be.code_cache[filename]
+                return prog
+            if use_compiler:
+                prog = compile(prog, filename, "exec")
+                if gc.mem_free() > 200_000:
+                    be.code_cache[filename] = prog
+                elif len(be.code_cache):
+                    # We should clear the cache.
+                    be.code_cache.clear()
+            return prog
+
         def adv_input(whatever, _type=str):
             """
             Universal variable request
@@ -1050,16 +1070,9 @@ class be:
 
             Scope doesn't change.
             """
-            prog = None
-            with be.api.fs.open(filen) as f:
-                if f is None:
-                    raise OSError
-                prog = f.read()
-            del filen
+            prog = be.api.code_load(filen)
             gc.collect()
             try:
-                if use_compiler:
-                    prog = compile(prog, "subscript", "exec")
                 exec(prog)
                 del prog
                 gc.collect()
@@ -1600,29 +1613,11 @@ class be:
                     be.api.setvar("return", "1")
                     return
 
-                prog = None
-                fname = be.api.fs.resolve(inpt[offs])
-                if fname not in be.code_cache:
-                    with be.api.fs.open(inpt[offs]) as f:
-                        if f is None:
-                            raise OSError
-                        prog = f.read()
+                prog = be.api.code_load(inpt[offs])
+                launch_process(be.api.fs.resolve(inpt[offs]))
                 del inpt
-                launch_process(fname)
 
                 try:
-                    if use_compiler:
-                        if fname not in be.code_cache:
-                            prog = compile(prog, "fpexec", "exec")
-                            if gc.mem_free() > 200_000:
-                                # Only cache when we have ample ram.
-                                be.code_cache[fname] = prog
-                            elif len(be.code_cache):
-                                # We should clear the cache.
-                                be.code_cache.clear()
-                        else:
-                            prog = be.code_cache[fname]
-                    del fname
                     if not ("t" in fpargs or "l" in fpargs):
                         del fpargs
                         gc.collect()
