@@ -17,11 +17,14 @@ if cptoml.fetch("usb_msc_available", "BERYLLIUM"):
                     term.write("Aborted.")
                     be.api.setvar("return", "1")
             if vr("cont"):
-                remount("/", False)
-                cptoml.put("usb_msc_enabled", True, "BERYLLIUM")
-                remount("/", True)
-                vr("Exit", True, pid=0)
-            vr("Exit_code", 245, pid=0)
+                try:
+                    remount("/", False)
+                    cptoml.put("usb_msc_enabled", True, "BERYLLIUM")
+                    remount("/", True)
+                    vr("Exit", True, pid=0)
+                    vr("Exit_code", 245, pid=0)
+                except RuntimeError:
+                    term.write("Cannot enable, USB access is already enabled.")
         else:
             term.write(
                 "Developer mode already permenantly enabled! To disable it, "
@@ -43,11 +46,14 @@ if cptoml.fetch("usb_msc_available", "BERYLLIUM"):
                 term.write("Aborted.")
                 be.api.setvar("return", "1")
         if vr("cont"):
-            remount("/", False)
-            cptoml.put("usb_msc_onetime", True, "BERYLLIUM")
-            remount("/", True)
-            vr("Exit", True, pid=0)
-            vr("Exit_code", 245, pid=0)
+            try:
+                remount("/", False)
+                cptoml.put("usb_msc_onetime", True, "BERYLLIUM")
+                remount("/", True)
+                vr("Exit", True, pid=0)
+                vr("Exit_code", 245, pid=0)
+            except RuntimeError:
+                term.write("Cannot enable, USB access is already enabled.")
 else:
     term.write(
         "This board does not support exposing the filesystem over USB! To access it,"
