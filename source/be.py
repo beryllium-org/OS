@@ -524,7 +524,8 @@ class be:
                     def key(value, auth_id=None):
                         if auth_id is not None and auth_id != kid:
                             raise RuntimeError("Tampered authenticator")
-                        if not isinstance(pr, type(value)):
+                        if (not isinstance(pr, type(value))) or pr != value:
+                            [(lambda x: x * x)(i) for i in range(80000)]  # Penalty
                             return False
                         return pr == value
 
