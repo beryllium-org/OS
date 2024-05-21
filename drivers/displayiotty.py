@@ -70,13 +70,16 @@ class displayiotty:
         self.stdio.flush()
 
     def reset_input_buffer(self) -> None:
-        self.stdio.reset_input_buffer()
+        if self.stdio is not None:
+            self.stdio.reset_input_buffer()
 
     def reset_output_buffer(self) -> None:
-        self.stdio.reset_output_buffer()
+        if self.stdio is not None:
+            self.stdio.reset_output_buffer()
 
     def read(self, no=None) -> bytes:
-        return self.stdio.read(no)
+        if self.stdio is not None:
+            return self.stdio.read(no)
 
     def enable(self) -> None:
         self._initchk()
