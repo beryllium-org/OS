@@ -78,7 +78,7 @@ class displayiotty:
             self.stdio.reset_output_buffer()
 
     def read(self, no=None) -> bytes:
-        if self.stdio is not None:
+        if self._conn and (self.stdio is not None):
             return self.stdio.read(no)
 
     def enable(self) -> None:
@@ -95,6 +95,8 @@ class displayiotty:
 
     def write(self, data: bytes) -> int:
         self._initchk()
+        if not self._conn:
+            return
         res = self._terminal.write(data)
         if self.stdio is not None:
             res = self.stdio.write(data)
