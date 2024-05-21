@@ -1,0 +1,7 @@
+M5Stack Cardputer
+
+SoC                : ESP32-S3
+RAM                : 512KB
+Storage            : QIO (8MB)
+Wi-fi              : True
+Bluetooth          : True
