@@ -692,7 +692,7 @@ too much of an overhead and impractical.
 Still, it's possible there are variable nameshakes and forgotten variables.
 (If you use variable "i", your parent process could also be using it, and you could
 break some loop, causing a `while True`)
-(If you do not delete your variable before the program exit, it WILL REMAIN!)
+If you do not delete your variables before the program exit, they WILL REMAIN!
 
 For this I made a container storage for processes.
 Whenever fpexec is run, the code inside gets a pid.
