@@ -1236,6 +1236,9 @@ class be:
             "history-file": "/home/board/.history",
             "history-size": "10",
             "return": "0",
+            "PSA": "1",
+            "PS1": "{white_t}[{cyan_t}{user}{white_t}@{cyan_t}{hostname}{white_t} | {yellow_t}{path}{white_t}]{blue_t}> {endc}",
+            "PS2": "{white_t}{path_short} {bang} {endc}",
         }
 
         from os import uname
@@ -1347,6 +1350,39 @@ class be:
                 chdir(be.based.olddir)
             gc.collect()
             gc.collect()
+
+        def getPS() -> str:
+            cPS = be.api.getvar("PSA")
+            res = be.api.getvar("PS" + cPS)
+            del cPS
+            for i in [["{user}", "USER"], ["{hostname}", "HOSTNAME"]]:
+                res = res.replace(i[0], be.api.getvar(i[1]))
+            cwdp = be.api.fs.resolve()
+            res = res.replace("{path}", cwdp)
+            if "{path_short}" in res:
+                if cwdp != "&/":
+                    cwds = cwdp[cwdp.rfind("/") :]
+                else:
+                    cwds = "&"
+                if len(cwds) - 1:
+                    cwds = cwds.replace("/", "")
+                res = res.replace("{path_short}", cwds)
+            for i in [
+                "{underline}",
+                "{bold}",
+                "{endc}",
+                "{black_t}",
+                "{red_t}",
+                "{green_t}",
+                "{yellow_t}",
+                "{blue_t}",
+                "{magenta_t}",
+                "{cyan_t}",
+                "{white_t}",
+            ]:
+                res = res.replace(i, getattr(colors, i[1:-1]))
+            res = res.replace("{bang}", "#" if be.api.getvar("USER") == "root" else "$")
+            return res
 
         def autorun() -> int:
             launch_process("autorun")
@@ -1814,25 +1850,7 @@ class be:
                 while ((command_input == None) or (command_input == "\n")) and not pv[
                     0
                 ]["Exit"]:
-                    term.trigger_dict["prefix"] = (
-                        colors.white_t
-                        + "["
-                        + colors.cyan_t
-                        + be.based.system_vars["USER"]
-                        + colors.white_t
-                        + "@"
-                        + colors.cyan_t
-                        + be.based.system_vars["HOSTNAME"]
-                        + colors.white_t
-                        + " | "
-                        + colors.yellow_t
-                        + be.api.fs.resolve()
-                        + colors.white_t
-                        + "]"
-                        + colors.blue_t
-                        + "> "
-                        + colors.endc
-                    )
+                    term.trigger_dict["prefix"] = be.based.getPS()
                     if term.trigger_dict != vr("trigger_dict_bck"):
                         # Update backup
                         vr("trigger_dict_bck", term.trigger_dict.copy())
