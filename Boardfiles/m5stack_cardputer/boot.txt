@@ -4,5 +4,5 @@
 03-reload-hostname.py
 04-wifi.py
 05-advance-time.lja
-10-builtin-display-init.py
+10-builtin-display-init-cardputer.py
 50-telnet.lja

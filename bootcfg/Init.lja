@@ -14,8 +14,8 @@ _waitforconnection
 # Stop dmesg from flooding tty
 pexec term.dmtex_suppress = True
 
-# Clear boot buffer
-clear
+# Clear boot buffer (optional)
+# clear
 
 # Checks
 _rebootprompt
