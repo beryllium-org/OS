@@ -32,7 +32,7 @@ if cptoml.fetch("usb_msc_available", "BERYLLIUM"):
             cptoml.put("usb_msc_onetime", False, "BERYLLIUM")
             remount("/", True)
             print("The USB filesystem is enabled this once.")
-            print("Ljinux will access root Read-Only!")
+            print("Beryllium will access root Read-Only!")
         else:
             disable_usb_drive()
             print("The USB filesystem is disabled.\nBeryllium will operate normally.")
