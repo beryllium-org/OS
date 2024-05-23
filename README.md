@@ -33,7 +33,7 @@ Espressif:<br />
  - Adafruit Feather ESP32-S3 TFT<br />
  - DFRobot Beetle ESP32-C3<br />
  - Firebeetle 2 ESP32-S3<br />
- - M5Stack Cardputer<br />
+ - M5Stack Cardputer (Requires 9.1.0-beta1 or later)<br />
  - M5Stack Timer Camera X<br />
  - Wemos Lolin S2 Mini<br />
  - WeAct ESP32-C6<br />
