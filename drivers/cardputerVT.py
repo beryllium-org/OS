@@ -89,10 +89,9 @@ class cardputerVT:
 
     @property
     def connected(self) -> bool:
-        while not self._conn and self.in_waiting:
-            if "\n" in self._in_buf:
-                self.enable()
-                self.reset_input_buffer()
+        if not self._conn and self.in_waiting and "\n" in self._in_buf:
+            self.enable()
+            self.reset_input_buffer()
         return self._conn
 
     def disconnect(self) -> None:
