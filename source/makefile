@@ -45,7 +45,7 @@ extra:
 	@python3 ../scripts/make_extras.py
 	@sync
 clean: clean_core
-	@rm -r ./build_* || true
+	@find .. -type d -name "build_*" -exec rm -r {} +
 boot:
 	@echo -e "\nSetup /boot:"
 	@python3 ../scripts/make_boot.py
