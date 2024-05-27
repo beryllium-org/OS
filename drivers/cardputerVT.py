@@ -17,7 +17,7 @@ lm_str = (
     + "  ,-----------,     System active\n\r"
     + "  | 4    9.01 |     -------------\n\r"
     + "  |           |\n\r"
-    + "  |           |\n\r"
+    + "  |           |     Battery: ???%\n\r"
     + "  | BERYLLIUM |\n\r"
     + "  '-----------'\n\r"
 )
@@ -32,6 +32,8 @@ class cardputerVT:
         self._lines = None
         self._chars = None
         self._conn = False
+        self.bat_sense = None
+        self._bat_vstate = -1
         self._in_buf = str()
         self._r = displayio.Group()
         font_width, font_height = terminalio.FONT.get_bounding_box()
@@ -83,6 +85,8 @@ class cardputerVT:
                 cb = _stdin.read(1)
                 if cb == chr(8):
                     cb = chr(127)
+                elif cb == chr(3):
+                    continue
                 self._in_buf += cb
         else:
             self._in_buf += _stdin.read()
@@ -91,7 +95,22 @@ class cardputerVT:
     def connected(self) -> bool:
         if not self._conn and self.in_waiting and "\n" in self._in_buf:
             self.enable()
+        if self._in_buf:
             self.reset_input_buffer()
+        if self.bat_sense is not None:
+            if not self._conn:
+                curr = self.bat_sense.percentage
+                if curr != self._bat_vstate:
+                    self._bat_vstate = curr
+                    if curr < 10:
+                        curr = str(2 * " " + curr)
+                    elif curr < 100:
+                        curr = str(" " + curr)
+                    else:
+                        curr = str(curr)
+                    self._terminal.write(lm_str.replace("???", curr))
+            else:
+                self._bat_vstate = -1
         return self._conn
 
     def disconnect(self) -> None:
@@ -130,8 +149,11 @@ class cardputerVT:
         _display.brightness = 1.0
 
     def disable(self) -> None:
-        self._terminal.write(lm_str)
         self._conn = False
+        if self.bat_sense is not None:
+            self.connected
+        else:
+            self._terminal.write(lm_str)
 
     def write(self, data=bytes) -> int:
         if not self._conn:
