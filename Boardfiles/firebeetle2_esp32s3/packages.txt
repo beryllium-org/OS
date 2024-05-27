@@ -12,3 +12,4 @@ wget
 lm_sensors
 fbs3-config
 uartutils
+i2ctools

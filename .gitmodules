@@ -67,3 +67,6 @@
 [submodule "packages/uartutils"]
 	path = packages/uartutils
 	url = https://github.com/beryllium-org/uartutils
+[submodule "packages/i2ctools"]
+	path = packages/i2ctools
+	url = https://github.com/beryllium-org/i2ctools

@@ -12,3 +12,4 @@ virtUART
 wget
 lm_sensors
 uartutils
+i2ctools
