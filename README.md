@@ -46,6 +46,7 @@ Raspberry Pi:<br />
  - Raspberry Pi Pico<br />
  - Raspberry Pi Pico W<br />
  - Waveshare RP2040-Zero<br />
+ - Waveshare RP2040-Tiny<br />
 
 Nordic:<br />
  - Seeed XIAO nRF52840 (Sense)<br />
