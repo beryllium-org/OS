@@ -1,7 +1,7 @@
 from os import uname, system, environ, path, listdir
 from time import sleep
 
-running_under_spyware = "WSL2" in uname().machine
+running_under_spyware = "WSL2" in uname().release
 
 board_set = False
 try:
