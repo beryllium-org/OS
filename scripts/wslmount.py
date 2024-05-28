@@ -1,9 +1,16 @@
-from os import uname, system, environ
+from os import uname, system, environ, path, listdir
 from time import sleep
 
 running_under_spyware = "WSL2" in uname().machine
 
-if running_under_spyware:
+board_set = False
+try:
+    environ["BOARD"]
+    board_set = True
+except KeyError:
+    pass
+
+if running_under_spyware and not board_set:
     print(
         "Ew WSL.\n"
         + "Well, I am not going to touch this, mount the board yourself.\n"
@@ -13,10 +20,17 @@ if running_under_spyware:
         + "Where D is the CIRCUITPY drive letter.\n"
         + "Here have a shell, exit when you're done.\n"
     )
-    system("bash")
-    print("Alright, now whats the mount path (/mnt/D)?")
-    path = input("> ")
-    print("Running the rest of the installation in 3 seconds..\n" + "")
+    while True:
+        system("bash")
+        print("Alright, now whats the mount path (/mnt/D)?")
+        bpath = input("> ")
+        try:
+            if path.exists(bpath) and "boot_out.txt" in listdir(bpath):
+                break
+        except:
+            pass
+        print("Path invalid.")
     with open("/tmp/CUSTOMBOARDPATH", "w") as f:
         f.write(path if len(path) else "/mnt/D")
+    print("Running the rest of the installation in 3 seconds..\n" + "")
     sleep(3)
