@@ -1,8 +1,8 @@
 SHELL = bash
 
 all: help
-install: rootfs kernel extra boot
-debug: rootfs kernel_debug extra boot
+install: modules rootfs kernel extra boot
+debug: modules rootfs kernel_debug extra boot
 
 kernel: prep clean_core comp strap_kern
 kernel_debug: prep clean_core debug_comp strap_kern
