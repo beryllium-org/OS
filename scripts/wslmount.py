@@ -3,7 +3,7 @@ from time import sleep
 
 running_under_spyware = "WSL2" in uname().machine
 
-if running_under_spyware or 1:
+if running_under_spyware:
     print(
         "Ew WSL.\n"
         + "Well, I am not going to touch this, mount the board yourself.\n"
