@@ -1,8 +1,8 @@
 SHELL = bash
 
 all: help
-install: wsltest modules rootfs kernel extra boot
-debug: wsltest modules rootfs kernel_debug extra boot
+install: wsltest modules rootfs kernel extra boot wslclean
+debug: wsltest modules rootfs kernel_debug extra boot wslclean
 
 kernel: prep clean_core comp strap_kern
 kernel_debug: prep clean_core debug_comp strap_kern
@@ -15,6 +15,9 @@ update_modules:
 	@echo "Updating git submodules from remotes.."
 	@git submodule update --init --recursive --remote ..
 	@echo -e "Submodules ready\n\nMake sure to git commit before procceding to make!!"
+remove_all_modules:
+	@echo "Removing all github submodules.."
+	@git submodule deinit --all --force
 modules:
 	@echo "Preparing git submodules.."
 	@git submodule update --init --recursive ..
@@ -57,3 +60,5 @@ strap_kern:
 	@python3 ../scripts/strap_kern.py
 wsltest:
 	@python3 ../scripts/wslmount.py
+wslclean:
+	@python3 ../scripts/wslrmsetter.py

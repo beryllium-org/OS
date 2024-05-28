@@ -1,4 +1,5 @@
 from os import system, mkdir, environ
+from os import path as ospath
 from sys import path as spath
 
 spath.append("../scripts/CircuitMPY/")
@@ -15,6 +16,9 @@ if boardpath is None:
         "Error: Board not found.\nMake sure it is attached and mounted before you run make"
     )
     exit(1)
+
+if not ospath.exists(boardpath):
+    mkdir(boardpath)
 
 print("[1/4] Updating base")
 system(f"rsync -r --update ../base/* {boardpath}/")
