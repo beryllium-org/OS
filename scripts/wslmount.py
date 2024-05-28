@@ -24,6 +24,8 @@ if running_under_spyware and not board_set:
         system("bash")
         print("Alright, now whats the mount path (/mnt/D)?")
         bpath = input("> ")
+        if not len(bpath):
+            bpath = "/mnt/D"
         try:
             if path.exists(bpath) and "boot_out.txt" in listdir(bpath):
                 break
@@ -31,6 +33,6 @@ if running_under_spyware and not board_set:
             pass
         print("Path invalid.")
     with open("/tmp/CUSTOMBOARDPATH", "w") as f:
-        f.write(path if len(bpath) else "/mnt/D")
+        f.write(bpath)
     print("Running the rest of the installation in 3 seconds..\n" + "")
     sleep(3)
