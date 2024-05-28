@@ -1,8 +1,8 @@
 SHELL = bash
 
 all: help
-install: modules rootfs kernel extra boot
-debug: modules rootfs kernel_debug extra boot
+install: wsltest modules rootfs kernel extra boot
+debug: wsltest modules rootfs kernel_debug extra boot
 
 kernel: prep clean_core comp strap_kern
 kernel_debug: prep clean_core debug_comp strap_kern
@@ -55,3 +55,5 @@ releases:
 strap_kern:
 	@echo -e "\nStrapping kernel.."
 	@python3 ../scripts/strap_kern.py
+wsltest:
+	@python3 ../scripts/wslmount.py
