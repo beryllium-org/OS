@@ -18,5 +18,5 @@ if running_under_spyware:
     path = input("> ")
     print("Running the rest of the installation in 3 seconds..\n" + "")
     with open("/tmp/CUSTOMBOARDPATH", "w") as f:
-        f.write(path)
+        f.write(path if len(path) else "/mnt/D")
     sleep(3)
