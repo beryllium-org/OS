@@ -836,7 +836,7 @@ Example from ducky:
 ```py
 # ducky files
 for i in ["ducky.lja", "duckyline.lja", "duckycat.lja"]:
-    shutil.copy(i, path.join(root, "bin", i))
+    shutil.copyfile(i, path.join(root, "bin", i))
 
 try:
     mkdir(path.join(root, "bin/ducky"))
@@ -848,11 +848,11 @@ for i in [
     "duckyload.py",
     "duckycat.py",
 ]:
-    shutil.copy(i, path.join(root, "bin/ducky", i))
+    shutil.copyfile(i, path.join(root, "bin/ducky", i))
 
-shutil.copy("help_ducky.txt", path.join(root, "usr/share/help", "ducky.txt"))
-shutil.copy("help_duckyline.txt", path.join(root, "usr/share/help", "duckyline.txt"))
-shutil.copy("help_duckycat.txt", path.join(root, "usr/share/help", "duckycat.txt"))
+shutil.copyfile("help_ducky.txt", path.join(root, "usr/share/help", "ducky.txt"))
+shutil.copyfile("help_duckyline.txt", path.join(root, "usr/share/help", "duckyline.txt"))
+shutil.copyfile("help_duckycat.txt", path.join(root, "usr/share/help", "duckycat.txt"))
 
 # hid files
 try:
@@ -870,7 +870,7 @@ for i in [
     "keycode.mpy",
     "mouse.mpy",
 ]:
-    shutil.copy(i, path.join(root, "lib/adafruit_hid", i))
+    shutil.copyfile(i, path.join(root, "lib/adafruit_hid", i))
 ```
 
 In path.join, do not end or start the string with "/".

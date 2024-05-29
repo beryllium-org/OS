@@ -1,1 +1,1 @@
-shutil.copy("cptoml.mpy", path.join(root, "lib", "cptoml.mpy"))
+shutil.copyfile("cptoml.mpy", path.join(root, "lib", "cptoml.mpy"))

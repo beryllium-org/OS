@@ -1,1 +1,1 @@
-shutil.copy("jz.mpy", path.join(root, "lib", "jz.mpy"))
+shutil.copyfile("jz.mpy", path.join(root, "lib", "jz.mpy"))
