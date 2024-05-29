@@ -66,7 +66,7 @@ The only real limiting factor should be ram, as about 70k (usable under circuitp
 
 ## Installation / Updating
 
-Do note, installation using scripts from windows is unsupported. Use a release <code>.zip</code> instead.<br />
+Installation from windows is **supported** through WSL.<br />
 Though, if you are windows user, this project **really** isn't for you.<br />
 
 1) Install a supported CircuitPython version onto the board.<br />
