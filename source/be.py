@@ -1951,6 +1951,7 @@ class be:
                                     term.focus = be.history.nav[1]
                                     be.history.nav[0] = 0
                             term.clear_line()
+                            be.io.ledset(1)  # idle
                         elif term.buf[0] in [11, 12]:  # pgup / pgdw
                             term.clear_line()
                         elif term.buf[0] is 13:  # Ctrl + L (clear screen)
