@@ -1,5 +1,4 @@
 from os import uname, system, environ, path, listdir
-from time import sleep
 
 running_under_spyware = "WSL2" in uname().release
 
@@ -34,5 +33,4 @@ if running_under_spyware and not board_set:
         print("Path invalid.")
     with open("/tmp/CUSTOMBOARDPATH", "w") as f:
         f.write(bpath)
-    print("Running the rest of the installation in 3 seconds..\n" + "")
-    sleep(3)
+    print("Board path valid!\nRunning installation..\n")
