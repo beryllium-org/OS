@@ -16,10 +16,11 @@ if running_under_spyware and not board_set:
         + "This is commonly done by running:\n\n"
         + "    sudo mkdir /mnt/D\n"
         + "    sudo mount -t drvfs D: /mnt/D\n\n"
-        + "Where D is the CIRCUITPY drive letter.\n"
-        + "Here have a shell, exit when you're done.\n"
+        + 'With "D" is the CIRCUITPY drive letter.\n'
+        + "Here have a shell.\n"
     )
     while True:
+        print("(The program is still running, exit this shell to continue)")
         system("bash")
         print("Alright, now whats the mount path (/mnt/D)?")
         bpath = input("> ")
