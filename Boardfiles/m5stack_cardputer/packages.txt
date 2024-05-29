@@ -11,3 +11,4 @@ wget
 lm_sensors
 uartutils
 i2ctools
+cardputer-config
