@@ -1,0 +1,14 @@
+camera
+ed
+ftpd
+hashutils
+jpkg
+less
+nano
+neofetch
+netutils
+virtUART
+wget
+lm_sensors
+uartutils
+i2ctools
