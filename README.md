@@ -31,6 +31,7 @@ Currently the supported boards are:<br />
 Espressif:<br />
  - Adafruit Feather ESP32-S2<br />
  - Adafruit Feather ESP32-S3 TFT<br />
+ - AiThinker ESP32-CAM<br />
  - DFRobot Beetle ESP32-C3<br />
  - Firebeetle 2 ESP32-S3<br />
  - M5Stack Cardputer (Requires 9.1.0-beta1 or later)<br />
