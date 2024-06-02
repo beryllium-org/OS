@@ -4,6 +4,7 @@ ftpd
 hashutils
 jpkg
 less
+esp32cam-config
 nano
 neofetch
 netutils
