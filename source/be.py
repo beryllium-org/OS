@@ -4,16 +4,418 @@
 #   No security means no backdoors :)   #
 # ------------------------------------- #
 
+# Process stuffs
+pv = {}  # Process variable container storage
+pvn = {}  # Process names list
+pvd = {}  # Process control data
+pid_seq = -1  # PID sequence number. No need for advanced logic here.
+pid_act = []  # Active process list
+# It's a stack effectively, since we are operating on one thread.
 
-def drexec(filen: str) -> None:
-    with open(filen) as f:
-        exec(f.read())
+
+class Unset:  # None 2.0
+    pass
 
 
-# Initial kernel init in other files to save ram.
-drexec("/Beryllium/usr/lib/kernel/stage1.py")
-drexec("/Beryllium/usr/lib/kernel/stage2.py")
-del drexec
+# Backend functions
+def pid_alloc(pr_name: str, owner: str, resume: bool) -> int:
+    # Allocate a pid and variable storage for that process.
+    global pid_seq, pid_act
+    if resume and pr_name in pvn:
+        res = pvn[pr_name]
+        return res
+    # Fall through otherwise
+    pid_seq += 1
+    pv[pid_seq] = {}
+    pvd[pid_seq] = []
+    pvd[pid_seq].append(pr_name)  # id 0, name.
+    pvd[pid_seq].append(resume)  # id 1, resumable task.
+    pvd[pid_seq].append(owner)  # id 2, owner name.
+    pvd[pid_seq].append(1)  # id 3, status, 0 Active, 1 Sleep, 2 Zombie.
+    pvn[pr_name] = pid_seq
+    return pid_seq
+
+
+def pid_free(pid: int) -> bool:
+    # End a task and wipe it's memory, returns False when stuff was tampered with.
+    res = True
+    if pid in pv:
+        if not pvd[pid][1]:
+            pvn.pop(pvd[pid][0])
+            pvd.pop(pid)
+            pv.pop(pid)
+        else:
+            pvd[pid][3] = 1
+    else:
+        res = False
+    return res
+
+
+def pid_activate(pid: int) -> bool:
+    # Add pid in list of active pids.
+    if pid in pv and pid not in pid_act:
+        pid_act.append(pid)
+        pvd[pid][3] = 0
+        return True
+    else:
+        return False
+
+
+def pid_deactivate() -> None:
+    # Removes active pid from pid list.
+    pid_act.pop()
+
+
+# Frontend functions
+def get_pid() -> int:
+    # Get current active pid
+    return pid_act[-1]
+
+
+def get_parent_pid() -> int:
+    # Get parent pid
+    return pid_act[-2]
+
+
+def backtrack_to_process(pid: int) -> None:
+    if get_pid() == pid:
+        return
+    if pid in pid_act:
+        while get_pid() != pid:
+            end_process()
+    else:
+        pid_activate(pid)
+
+
+def vr(varn: str, dat=Unset, pid: int = None):
+    """
+    Set / Get a variable in container storage.
+
+    You can safely pass None to be set as a value.
+    """
+    res = None
+    if pid is None:
+        pid = get_pid()
+    if dat is Unset:
+        # print(f"GET [{pid}][{varn}]")
+        res = pv[pid][varn]
+    else:
+        # print(f"SET [{pid}][{varn}] = {dat}")
+        pv[pid][varn] = dat
+    return res
+
+
+def vra(varn: str, dat, pid: int = None) -> None:
+    """
+    Variable append.
+    Append to a variable in container storage.
+
+    You can safely pass None to be appended.
+    """
+    if pid is None:
+        pid = get_pid()
+    # print(f"APPEND [{pid}][{varn}] + {dat}")
+    pv[pid][varn].append(dat)
+
+
+def vrp(varn: str, dat=1, pid: int = None) -> None:
+    """
+    Variable plus.
+    Add something to a variable in container storage.
+
+    Adds 1 by default.
+    """
+    if pid is None:
+        pid = get_pid()
+    # print(f"ADD [{pid}][{varn}] + {dat}")
+    pv[pid][varn] += dat
+
+
+def vrm(varn: str, dat=1, pid: int = None) -> None:
+    """
+    Variable minus.
+    Subtract something to a variable in container storage.
+
+    Subtracts 1 by default.
+    """
+    if pid is None:
+        pid = get_pid()
+    # print(f"SUB [{pid}][{varn}] - {dat}")
+    pv[pid][varn] -= dat
+
+
+def vrd(varn: str, pid: int = None) -> None:
+    """
+    Variable delete.
+
+    Delete a variable from container storage.
+    """
+    if pid is None:
+        pid = get_pid()
+    # print(f"DEL [{pid}][{variable_name}]")
+    del pv[pid][varn]
+
+
+def launch_process(pr_name: str, owner: str = "Nobody", resume: bool = False) -> int:
+    # Get a pid, and activate it immediately.
+    if not resume:
+        pr_name_og = pr_name
+        pr_name_inc = 1
+        while pr_name in pvn:
+            pr_name = pr_name_og + str(pr_name_inc)
+            pr_name_inc += 1
+    tmppid = pid_alloc(pr_name, owner=owner, resume=resume)
+    pid_activate(tmppid)
+    # print("Launched process:", pr_name, tmppid)
+    return tmppid
+
+
+def rename_process(pr_name: str) -> None:
+    # Rename current process to target name.
+    if pr_name != pvd[get_pid()][0]:
+        pr_name_og = pr_name
+        pr_name_inc = 1
+        while pr_name in pvn:
+            pr_name = pr_name_og + str(pr_name_inc)
+            pr_name_inc += 1
+        pvn.pop(pvd[get_pid()][0])
+        pvn[pr_name] = get_pid()
+        pvd[get_pid()][0] = pr_name
+        # print("Renamed process:", pr_name, get_pid())
+
+
+def end_process() -> None:
+    # End current process.
+    # print("End process:", pvd[get_pid()][0], get_pid())
+    pid_free(get_pid())
+    pid_deactivate()
+
+
+def clear_process_storage() -> None:
+    pv.pop(get_pid())
+    pv[get_pid()] = {}
+
+
+# Allocate kernel task
+launch_process("kernel", "root", True)  # pid will always be 0
+vr("Version", "0.5.0")
+
+vr("dmesg", [])
+vr("access_log", [])
+vr("consoles", {})
+vr("console_active", None)
+vr("ndmesg", False)  # disable dmesg for ram
+# run _ndmesg from the shell to properly trigger it
+vr("root", "/Beryllium")
+vr("mounts", {0: "/"})
+
+# Core board libs
+try:
+    import gc
+
+    gc.enable()
+
+    from sys import implementation, platform, modules, exit
+
+    import busio
+    from microcontroller import cpu
+    from storage import remount, VfsFat, mount, getmount
+    from os import chdir, rmdir, mkdir, sync, getcwd, listdir, remove, sync, stat
+    from math import trunc
+    import time
+
+    from jcurses import jcurses
+    import cptoml
+    from lj_colours import lJ_Colours as colors
+    from traceback import format_exception
+except ImportError:
+    print("FATAL: Core libraries loading failed")
+
+    from sys import exit
+
+    exit(1)
+
+global console
+try:
+    from usb_cdc import console
+
+    pv[0]["consoles"]["ttyUSB0"] = console
+    vr("console_active", "ttyUSB0")
+except ImportError:
+    try:
+        global virtUART
+        from virtUART import virtUART
+
+        console = virtUART()
+        pv[0]["consoles"]["ttyUART0"] = console
+        vr("console_active", "ttyUART0")
+    except ImportError:
+        from sys import exit
+
+        exit(1)
+
+print("[    0.00000] Core modules loaded")
+pv[0]["dmesg"].append("[    0.00000] Core modules loaded")
+
+vr("digitalio_store", {})
+
+# Exit code holder, has to be global for everyone to be able to see it.
+vr("Exit", False)
+vr("Exit_code", 0)
+
+# Hardware autodetect vars, starts assuming everything is missing
+vr("sdcard_fs", False)
+
+vr("uptimee", -time.monotonic())
+# using uptimee as an offset, this way uptime + time.monotonic = 0 at this very moment and it goes + from here on out
+print("[    0.00000] Timings reset")
+pv[0]["dmesg"].append("[    0.00000] Timings reset")
+
+# dmtex previous end holder
+pv[0]["oend"] = "\n"  # needed to mask print
+
+# Script break to replace python break statement
+pv[0]["Break"] = False
+
+try:
+    term = jcurses()  # the main curses entity, used primarily for based.shell()
+    term.hold_stdout = True  # set it to buffered by default
+    term.console = console
+    term.nwrite(colors.reset_s_format)
+    print("[    0.00000] Jcurses init complete")
+    pv[0]["dmesg"].append("[    0.00000] Jcurses init complete")
+except ImportError:
+    print("FATAL: FAILED TO INIT JCURSES")
+    exit(0)
+
+
+def dmtex(
+    texx: str = None, end: str = "\n", timing: bool = True, force: bool = False
+) -> None:
+    # Persistent offset, Print "end=" preserver
+
+    # current time since kernel start rounded to 5 digits
+    ct = "%.5f" % (pv[0]["uptimee"] + time.monotonic())
+
+    # used to disable the time print
+    strr = "[{}{}] {}".format((11 - len(ct)) * " ", str(ct), texx) if timing else texx
+
+    if (not term.dmtex_suppress) or force:
+        term.write(strr, end=end)  # using the provided end
+
+    """
+    if the oend of the last print is a newline we add a new entry
+    otherwise we go to the last one and we add it along with the old oend
+    """
+
+    if not pv[0]["ndmesg"]:
+        if "\n" == pv[0]["oend"]:
+            pv[0]["dmesg"].append(strr)
+        elif (len(pv[0]["oend"].replace("\n", "")) > 0) and (
+            "\n" in pv[0]["oend"]
+        ):  # there is hanging text in old oend
+            pv[0]["dmesg"][-1] += pv[0]["oend"].replace("\n", "")
+            pv[0]["dmesg"].append(strr)
+        else:
+            pv[0]["dmesg"][-1] += pv[0]["oend"] + strr
+        pv[0]["oend"] = end  # oend for next
+
+
+# From now on use dmtex
+dmtex("Dmesg ready")
+
+use_compiler = False
+try:
+    compile("", "", "exec")
+
+    use_compiler = True
+    dmtex("Kernel compiler enabled")
+except NameError:
+    dmtex("Kernel compiler disabled")
+
+try:
+    from neopixel_write import neopixel_write
+except ImportError:
+    pass  # no big deal, this just isn't a neopixel board
+
+# Board specific configurations
+defaultoptions = {  # default configuration, in line with the manual (default value, type, allocates pin bool)
+    "led": ("LED", str),
+    "ledtype": ("generic", str),
+    "serial_console_enabled": (True, bool),
+    "usb_msc_available": (False, bool),
+    "usb_hid_available": (False, bool),
+    "usb_midi_available": (False, bool),
+    "wifi_available": (False, bool),
+    "ble_available": (False, bool),
+    "blc_available": (False, bool),
+    "usb_msc_enabled": (False, bool),
+    "usb_hid_enabled": (False, bool),
+    "usb_midi_enabled": (False, bool),
+    "fs_label": ("BERYLLIUM", str),
+    "DEBUG": (False, bool),
+}
+
+# General options
+dmtex("Options loaded:")
+for optt in list(defaultoptions.keys()):
+    optt_dt = cptoml.fetch(optt, "BERYLLIUM")
+    try:
+        if isinstance(optt_dt, defaultoptions[optt][1]):
+            dmtex(
+                "\t"
+                + colors.green_t
+                + "√"
+                + colors.endc
+                + " "
+                + optt
+                + "="
+                + str(optt_dt),
+                timing=False,
+            )
+        else:
+            raise KeyError
+    except KeyError:
+        try:
+            remount("/", False)
+            optt_dt = defaultoptions[optt][0]
+            cptoml.put(optt, optt_dt, "BERYLLIUM")
+            dmtex(
+                colors.green_t + "Updated: " + colors.endc + optt + "=" + str(optt_dt),
+                timing=False,
+            )
+            remount("/", True)
+        except RuntimeError:
+            dmtex("Could not update /settings.toml, usb access is enabled.")
+            term.hold_stdout = True  # set it to buffered by default
+            term.flush_writes()
+            exit(0)
+    del optt, optt_dt
+
+del defaultoptions
+gc.collect()
+gc.collect()
+
+dmtex(f"Board memory: " + str(gc.mem_alloc() + gc.mem_free()) + " bytes")
+dmtex(f"Memory free: " + str(gc.mem_free()) + " bytes")
+
+
+def systemprints(mod: int, tx1: str, tx2: str = None) -> None:
+    dmtex(colors.white_t + "[ " + colors.endc, timing=False, end="")
+
+    mods = {
+        1: lambda: dmtex(colors.green_t + "OK", timing=False, end=""),
+        2: lambda: dmtex(colors.magenta_t + "..", timing=False, end=""),
+        3: lambda: dmtex(colors.red_t + "FAILED", timing=False, end=""),
+        4: lambda: dmtex(colors.red_t + "EMERG", timing=False, end=""),
+        5: lambda: dmtex(colors.white_t + "SKIP", timing=False, end=""),
+    }
+    mods[mod]()
+    dmtex(colors.white_t + " ] " + colors.endc + tx1, timing=False)
+    if tx2 is not None:
+        dmtex("    -> ", timing=False, end="")
+        dmtex(tx2, timing=False)
+
 
 dmtex("Load complete")
 
