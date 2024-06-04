@@ -1,6 +1,7 @@
 from os import system, mkdir, listdir, environ, getcwd, chdir, remove
 from sys import argv
 from sys import path as spath
+from shutil import copyfile
 
 spath.append("../scripts/CircuitMPY/")
 spath.append("./jz")
@@ -50,7 +51,11 @@ for filee in kern_files:
         errexit()
 
 olddir = getcwd()
-chdir("core_packages/kernel")
+chdir("kernel_stages")
+for filee in listdir():
+    copyfile(filee, f"../core_packages/kernel/{filee}")
+chdir(olddir)
+chdir("./core_packages/kernel")
 execstr = ""
 for filee in listdir():
     execstr += f", '{filee}'"
@@ -58,8 +63,15 @@ execstr = "compress(" + execstr[2:] + ", '../kernel.jpk')"
 exec(execstr)
 chdir(olddir)
 
-for filee in kern_files:
-    remove(f"./core_packages/kernel/{filee[:-3]}.mpy")
+for filee in listdir("core_packages/kernel"):
+    if filee not in [
+        "Manifest.json",
+        "kernel.jpk",
+        "installer.py",
+        "strap.py",
+        "uninstaller.py",
+    ]:
+        remove(f"core_packages/kernel/{filee}")
 print("Done")
 
 print("\n[2/4] Building jcurses package")
