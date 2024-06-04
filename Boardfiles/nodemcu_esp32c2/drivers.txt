@@ -1,0 +1,2 @@
+driver_wifi
+gpiochip

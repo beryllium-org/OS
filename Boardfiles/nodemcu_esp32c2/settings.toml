@@ -1,0 +1,30 @@
+CIRCUITPY_PYSTACK_SIZE = 4608
+
+[BERYLLIUM]
+setup = true
+
+fs_label = "BERYLLIUM"
+
+serial_console_enabled = true
+usb_msc_available = false
+usb_hid_available = false
+usb_midi_available = false
+wifi_available = true
+ble_available = false
+blc_available = false
+usb_msc_enabled = false
+usb_hid_enabled = false
+usb_midi_enabled = false
+
+ledtype = "none"
+led = "none"
+
+DEBUG = false
+
+[IWD]
+#Network1 = "password1"
+#Network2 = "password2"
+
+[IWD-AP]
+# SSID = "beryllium-ap"
+# PASSWD = "CHANGEME WIFI PASSWORD"

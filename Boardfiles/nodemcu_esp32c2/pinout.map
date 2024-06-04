@@ -1,0 +1,10 @@
+[No board view available]
+
+NodeMcu ESP32-C2
+
+SoC                : ESP8684
+RAM                : 284kb
+Storage            : 4MB (qio)
+Wi-fi              : True
+Bluetooth          : True
+
