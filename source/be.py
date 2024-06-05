@@ -697,6 +697,38 @@ class be:
                         allwords.append(temp_s)
                         s = False
                         inpt[i] = inpt[i][inpt[i].find('"') + 1 :]
+                elif inpt[i].startswith("adcv#") and (
+                    inpt[i][5:] in be.devices["gpiochip"][0].pins
+                ):
+                    if not s:
+                        pin_name = inpt[i][5:]
+                        if pin_name not in pv[0]["digitalio_store"]:
+                            if be.devices["gpiochip"][0].is_free(pin_name):
+                                tmp_gpio = be.devices["gpiochip"][0].adc(pin_name)
+                                inpt[i] = str(
+                                    tmp_gpio.value
+                                    * (tmp_gpio.reference_voltage / 65535)
+                                )
+                                tmp_gpio.deinit()
+                            else:
+                                term.write("Could not allocate GPIO " + pin_name)
+                        else:
+                            # Can read digitalio, ignore
+                            inpt[i] = str(pv[0]["digitalio_store"][pin_name].value)
+                    elif inpt[i].endswith('"'):
+                        temp_s += be.api.adv_input(inpt[i][:-1])
+                        words.append(temp_s)
+                        allwords.append(temp_s)
+                        s = False
+                    elif '"' not in inpt[i]:
+                        temp_s += " " + be.api.adv_input(inpt[i][1:])
+                        continue
+                    else:
+                        temp_s += " " + be.api.adv_input(inpt[i][1 : inpt[i].find('"')])
+                        words.append(temp_s)
+                        allwords.append(temp_s)
+                        s = False
+                        inpt[i] = inpt[i][inpt[i].find('"') + 1 :]
                 elif (not s) and (not mw) and inpt[i].startswith('"$'):
                     if inpt[i].endswith('"'):
                         inpt[i] = be.api.adv_input(inpt[i][2:-1])
@@ -1507,6 +1539,7 @@ class be:
                         or inpt[2].startswith("/")
                         or inpt[2].startswith("gp#")
                         or inpt[2].startswith("adc#")
+                        or inpt[2].startswith("adcv#")
                         or inpt[2] in vr("digitalio_store", pid=0)
                     ):
                         valid = False
@@ -1530,12 +1563,19 @@ class be:
                                 tmp_gpio = be.devices["gpiochip"][0].input(pin_name)
                                 new_var += str(tmp_gpio.value)
                                 tmp_gpio.deinit()
-                        elif inpt[2].startswith("adc#"):  # gpio read
+                        elif inpt[2].startswith("adc#"):  # adc read
                             pin_name = inpt[2][4:]
                             if be.devices["gpiochip"][0].is_free(pin_name):
                                 tmp_gpio = be.devices["gpiochip"][0].adc(pin_name)
                                 if tmp_gpio is not None:  # ADC2 may fail on ESP32
                                     new_var += str(tmp_gpio.value)
+                                    tmp_gpio.deinit()
+                        elif inpt[2].startswith("adcv#"):  # adc voltage read
+                            pin_name = inpt[2][5:]
+                            if be.devices["gpiochip"][0].is_free(pin_name):
+                                tmp_gpio = be.devices["gpiochip"][0].adc(pin_name)
+                                if tmp_gpio is not None:  # ADC2 may fail on ESP32
+                                    new_var += str(tmp_gpio.value * (3.3 / 65535))
                                     tmp_gpio.deinit()
                         else:
                             new_var += str(inpt[2])
