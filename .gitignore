@@ -2,6 +2,16 @@ source/mpy-cross-*
 source/target
 source/build_*
 source/release
+source/core_packages/coreutils/*.py
+source/core_packages/coreutils/*.lja
+source/core_packages/coreutils/*.man
+source/core_packages/coreutils/*.txt
+source/core_packages/base/.basedrc
+source/core_packages/base/*.lja
+source/core_packages/base/*.py
+source/core_packages/base/hostname
+source/core_packages/base/motd
+source/core_packages/base/passwd
 *.pyc
 *.xml
 *.iml

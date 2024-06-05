@@ -23,9 +23,11 @@ modules:
 	@git submodule update --init --recursive ..
 	@echo "Submodules ready"
 rootfs:
-	@echo -e "\nUpdating the board's rootfs:"
-	@sync
+	@echo -e "\nUpdating the board's coreutils and base packages:"
+	@python3 ../scripts/gen_base.py
+	@python3 ../scripts/gen_coreutils.py
 	@python3 ../scripts/copy_rootfs.py
+	@sync
 prepperms:
 	@echo -n "Preparing script permissions.."
 	@chmod +x ../scripts/*.sh

@@ -1,4 +1,4 @@
-from os import system, mkdir, environ
+from os import system, mkdir, environ, getcwd, chdir
 from os import path as ospath
 from sys import path as spath
 
@@ -20,14 +20,50 @@ if boardpath is None:
 if not ospath.exists(boardpath):
     mkdir(boardpath)
 
-print("[1/4] Updating base")
-system(f"rsync -r --update ../base/* {boardpath}/")
+try:
+    mkdir(boardpath + "/Beryllium")
+except FileExistsError:
+    pass
+try:
+    mkdir(boardpath + "/Beryllium/etc")
+except FileExistsError:
+    pass
+try:
+    mkdir(boardpath + "/Beryllium/etc/jpkg")
+except FileExistsError:
+    pass
+try:
+    mkdir(boardpath + "/Beryllium/etc/jpkg/installed")
+except FileExistsError:
+    pass
+
+print("\n[1/4] Strapping base")
+olddir = getcwd()
+chdir("../scripts/jpkgstrap/")
+target_root = boardpath + "/Beryllium"
+if target_root.startswith("build"):
+    target_root = "../../source/" + target_root
+target_root = ospath.abspath(target_root)
+cmd = "python3 jpkgstrap.py " + target_root + " -U ../../source/core_packages/base.jpk"
+system(cmd)
+
+print("\n[2/4] Strapping coreutils")
+cmd = (
+    "python3 jpkgstrap.py "
+    + target_root
+    + " -U ../../source/core_packages/coreutils.jpk"
+)
+system(cmd)
+chdir(olddir)
+
+print("\n[3/5] Copying bootloader files")
 system(f"rsync ../base/*.py {boardpath}/")
-print("[2/4] Installing board pinout map")
+
+print("[4/5] Installing board pinout map")
 system(
     f"rsync --update ../Boardfiles/{board}/pinout.map {boardpath}/Beryllium/bin/pinout.map"
 )
-print("[3/4] Installing board config")
+print("[5/5] Installing board config")
 skiptm = False
 try:
     if fetch("setup", "BERYLLIUM", toml=f"{boardpath}/settings.toml"):
@@ -39,9 +75,4 @@ if not skiptm:
 else:
     print(" - Skipped updating toml as setup variable already True")
 
-print("[4/4] Cleaning .gitkeep files")
-try:
-    system(f'find {boardpath} -type f -name ".gitkeep" -delete')
-except:
-    pass
 system("sync")
