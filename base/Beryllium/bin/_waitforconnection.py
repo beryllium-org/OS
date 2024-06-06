@@ -14,8 +14,10 @@ time.sleep(0.2)  # Delay for the terminal to get used to it.
 term.clear_line(True)
 term.clear_buffer()
 # Switch to tiny shell prefix if the terminal is too narrow
-if term.detect_size()[1] < 60:
-    be.api.setvar("PSA", "2")
-else:
-    be.api.setvar("PSA", "1")
+vr("sz", term.detect_size())
+if vr("sz") is not False:
+    if vr("sz")[1] < 60:
+        be.api.setvar("PSA", "2")
+    else:
+        be.api.setvar("PSA", "1")
 term.hold_stdout = False
