@@ -258,6 +258,7 @@ print("[    0.00000] Core modules loaded")
 pv[0]["dmesg"].append("[    0.00000] Core modules loaded")
 
 vr("digitalio_store", {})
+vr("analogio_store", {})
 
 # Exit code holder, has to be global for everyone to be able to see it.
 vr("Exit", False)
@@ -673,16 +674,21 @@ class be:
                 ):
                     if not s:
                         pin_name = inpt[i][4:]
-                        if pin_name not in pv[0]["digitalio_store"]:
+                        tmp_gpio = None
+                        if pin_name in pv[0]["analogio_store"]:
+                            tmp_gpio = pv[0]["analogio_store"][pin_name]
+                        elif pin_name not in pv[0]["digitalio_store"]:
                             if be.devices["gpiochip"][0].is_free(pin_name):
                                 tmp_gpio = be.devices["gpiochip"][0].adc(pin_name)
-                                inpt[i] = str(tmp_gpio.value)
-                                tmp_gpio.deinit()
                             else:
                                 term.write("Could not allocate GPIO " + pin_name)
                         else:
                             # Can read digitalio, ignore
                             inpt[i] = str(pv[0]["digitalio_store"][pin_name].value)
+                        if tmp_gpio is not None:
+                            inpt[i] = str(tmp_gpio.value)
+                            if pin_name not in pv[0]["analogio_store"]:
+                                tmp_gpio.deinit()
                     elif inpt[i].endswith('"'):
                         temp_s += be.api.adv_input(inpt[i][:-1])
                         words.append(temp_s)
@@ -703,15 +709,20 @@ class be:
                     if not s:
                         pin_name = inpt[i][5:]
                         if pin_name not in pv[0]["digitalio_store"]:
-                            if be.devices["gpiochip"][0].is_free(pin_name):
+                            tmp_gpio = None
+                            if pin_name in pv[0]["analogio_store"]:
+                                tmp_gpio = pv[0]["analogio_store"][pin_name]
+                            elif be.devices["gpiochip"][0].is_free(pin_name):
                                 tmp_gpio = be.devices["gpiochip"][0].adc(pin_name)
+                            else:
+                                term.write("Could not allocate GPIO " + pin_name)
+                            if tmp_gpio is not None:
                                 inpt[i] = str(
                                     tmp_gpio.value
                                     * (tmp_gpio.reference_voltage / 65535)
                                 )
-                                tmp_gpio.deinit()
-                            else:
-                                term.write("Could not allocate GPIO " + pin_name)
+                                if pin_name not in pv[0]["analogio_store"]:
+                                    tmp_gpio.deinit()
                         else:
                             # Can read digitalio, ignore
                             inpt[i] = str(pv[0]["digitalio_store"][pin_name].value)
@@ -1565,17 +1576,25 @@ class be:
                                 tmp_gpio.deinit()
                         elif inpt[2].startswith("adc#"):  # adc read
                             pin_name = inpt[2][4:]
-                            if be.devices["gpiochip"][0].is_free(pin_name):
+                            tmp_gpio = None
+                            if pin_name in pv[0]["analogio_store"]:
+                                tmp_gpio = pv[0]["analogio_store"][pin_name]
+                            elif be.devices["gpiochip"][0].is_free(pin_name):
                                 tmp_gpio = be.devices["gpiochip"][0].adc(pin_name)
-                                if tmp_gpio is not None:  # ADC2 may fail on ESP32
-                                    new_var += str(tmp_gpio.value)
+                            if tmp_gpio is not None:  # ADC2 may fail on ESP32
+                                new_var += str(tmp_gpio.value)
+                                if pin_name not in pv[0]["analogio_store"]:
                                     tmp_gpio.deinit()
                         elif inpt[2].startswith("adcv#"):  # adc voltage read
                             pin_name = inpt[2][5:]
-                            if be.devices["gpiochip"][0].is_free(pin_name):
+                            tmp_gpio = None
+                            if pin_name in pv[0]["analogio_store"]:
+                                tmp_gpio = pv[0]["analogio_store"][pin_name]
+                            elif be.devices["gpiochip"][0].is_free(pin_name):
                                 tmp_gpio = be.devices["gpiochip"][0].adc(pin_name)
-                                if tmp_gpio is not None:  # ADC2 may fail on ESP32
-                                    new_var += str(tmp_gpio.value * (3.3 / 65535))
+                            if tmp_gpio is not None:  # ADC2 may fail on ESP32
+                                new_var += str(tmp_gpio.value * (3.3 / 65535))
+                                if pin_name not in pv[0]["analogio_store"]:
                                     tmp_gpio.deinit()
                         else:
                             new_var += str(inpt[2])

@@ -76,3 +76,6 @@
 [submodule "packages/esp32cam-config"]
 	path = packages/esp32cam-config
 	url = https://github.com/beryllium-org/esp32cam-config
+[submodule "packages/adctools"]
+	path = packages/adctools
+	url = https://github.com/beryllium-org/adctools

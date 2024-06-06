@@ -8,3 +8,4 @@ neofetch
 lm_sensors
 uartutils
 i2ctools
+adctools
