@@ -1,8 +1,8 @@
-# ------------------------------------- #
-#             Beryllium OS              #
-#                                       #
-#   No security means no backdoors :)   #
-# ------------------------------------- #
+# ------------------------------------ #
+#             Beryllium OS             #
+#                                      #
+# I'm crying, pls no more optimisation #
+# ------------------------------------ #
 
 # Process stuffs
 pv = {}  # Process variable container storage
@@ -325,15 +325,6 @@ def dmtex(
 # From now on use dmtex
 dmtex("Dmesg ready")
 
-use_compiler = False
-try:
-    compile("", "", "exec")
-
-    use_compiler = True
-    dmtex("Kernel compiler enabled")
-except NameError:
-    dmtex("Kernel compiler disabled")
-
 try:
     from neopixel_write import neopixel_write
 except ImportError:
@@ -394,11 +385,6 @@ for optt in list(defaultoptions.keys()):
     del optt, optt_dt
 
 del defaultoptions
-gc.collect()
-gc.collect()
-
-dmtex(f"Board memory: " + str(gc.mem_alloc() + gc.mem_free()) + " bytes")
-dmtex(f"Memory free: " + str(gc.mem_free()) + " bytes")
 
 
 def systemprints(mod: int, tx1: str, tx2: str = None) -> None:
@@ -537,22 +523,6 @@ class be:
 
                     self.key = key
                     self.id = idfu
-
-        def remove_ansi(text: str) -> str:
-            """
-            Remove all ansi from a given string.
-            """
-            result = ""
-            i = 0
-            while i < len(text):
-                if text[i : i + 2] == "\033[":  # Skip
-                    while i < len(text) and text[i] != "m":
-                        i += 1
-                    i += 1
-                else:
-                    result += text[i]
-                    i += 1
-            return result
 
         def getvar(var: str):
             """
@@ -1071,13 +1041,12 @@ class be:
             else:
                 prog = be.code_cache[filename]
                 return prog
-            if use_compiler:
-                prog = compile(prog, filename, "exec")
-                if gc.mem_free() > 200_000:
-                    be.code_cache[filename] = prog
-                elif len(be.code_cache):
-                    # We should clear the cache.
-                    be.code_cache.clear()
+            prog = compile(prog, filename, "exec")
+            if gc.mem_free() > 200_000:
+                be.code_cache[filename] = prog
+            elif len(be.code_cache):
+                # We should clear the cache.
+                be.code_cache.clear()
             return prog
 
         def adv_input(whatever, _type=str):
@@ -1347,14 +1316,13 @@ class be:
                 10: "File exists",
                 11: "Not enough system memory",
                 12: "Based: Error, variable already used",
-                13: f"Terminal too small, minimum size: {f}",
                 14: "Is a file",
                 15: "Is a directory",
                 16: "Directory not empty",
                 17: "Not a directory",
                 18: "Not a file",
                 19: "Not a device",
-                20: f"Unhandled exception:\n",
+                20: "Unhandled exception:\n",
             }
             term.write(f"{prefix}: {errs[wh]}")
             if wh == 20:
@@ -1382,9 +1350,7 @@ class be:
             for i in erl:
                 term.write(i)
             term.write(
-                "Please take note of the above information and report it"
-                + " to your system administrator for further assistance.\n"
-                + "If you plan on opening a Github issue, "
+                "If you plan on opening a Github issue, "
                 + "please provide this information along with the program.\n"
             )
             if (  # Restore dir
@@ -1501,28 +1467,6 @@ class be:
                         chdir(be.based.olddir)
                 except OSError:
                     be.based.error(4, vr("inpt")[0])
-
-            def help(inpt: str) -> None:
-                term.write(
-                    f"LNL {colors.magenta_t}based{colors.endc}\nThese shell commands are defined internally or are in PATH.\nType 'help' to see this list.\n{colors.green_t}"
-                )
-
-                lt = set(be.based.get_bins() + be.based.get_internal())
-                l = []
-                lenn = 0
-                for i in lt:
-                    if not i.startswith("_"):
-                        l.append(i)
-                        if len(i) > lenn:
-                            lenn = len(i)
-                lenn += 2
-                l.sort()
-
-                for index, tool in enumerate(l):
-                    term.write(tool, end=(" " * lenn).replace(" ", "", len(tool)))
-                    if index % 4 == 3:
-                        term.write()
-                term.write(colors.endc)
 
             def var(inpt: str):  # variables setter / editor
                 valid = True
@@ -1679,8 +1623,7 @@ class be:
 
             def pexec(inpt):  # Python exec
                 launch_process("pexec")
-                if use_compiler:
-                    inpt = compile(inpt, "pexec", "exec")
+                inpt = compile(inpt, "pexec", "exec")
                 gc.collect()
                 try:
                     exec(inpt)
