@@ -1,3 +1,0 @@
-# Uncomment this to activate telnet serial
-# Depends on network being up
-telnet setup -q

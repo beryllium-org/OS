@@ -26,7 +26,13 @@ with open(f"../Boardfiles/{board}/boot.txt") as f:
         i = i[:-1]
         if i not in btls:
             print(f"[-/-] Loading boot.d/{i}")
-            system(f"cp ../bootcfg/boot.d/{i} {boardpath}/Beryllium/boot/boot.d/")
+            src = i
+            dst = i
+            if i.endswith(".disabled"):
+                src = i[:-9]
+            system(
+                f"cp ../bootcfg/boot.d/{src} {boardpath}/Beryllium/boot/boot.d/{dst}"
+            )
 if "Init.lja" not in listdir(boardpath + "/Beryllium/boot"):
     print("[-/-] Generating Init.lja")
     system(f"cp ../bootcfg/Init.lja {boardpath}/Beryllium/boot/Init.lja")
