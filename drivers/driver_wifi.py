@@ -30,6 +30,10 @@ class driver_wifi:
             self._session = Session(self._pool, create_default_context())
 
     @property
+    def enabled(self) -> bool:
+        return wifi.radio.enabled
+
+    @property
     def connected(self) -> bool:
         return wifi.radio.connected
 
