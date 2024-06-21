@@ -7,7 +7,7 @@ from adafruit_requests import Session
 
 class driver_wifi:
     """
-    Ljinux network driver for the built in wifi module
+    Beryllium OS network driver for the built in wifi module
     Usage: modprobe driver_wifi as network
     """
 
@@ -70,7 +70,7 @@ class driver_wifi:
                 else:
                     wifi.radio.connect(ssid=ssid)
                 break
-            except ConnectionError:
+            except:
                 fails += 1
         if fails is retries:
             self.disconnect()
