@@ -1,7 +1,7 @@
 # Beryllium OS
 A unix-like operating system for CircuitPython powered microcontrollers.  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a><br />
 (Formerly known as ljinux)<br />
-![neofetch](https://github.com/beryllium-org/OS/blob/main/other/screenshots/boot.gif)<br />
+![neofetch](other/screenshots/boot.gif)<br />
 <b>Important notes:</b><br />
 This project is still <b>in it's early developement</b>!<br />
 The kernel API is undergoing massive breaking changes every day.<br />
@@ -137,8 +137,8 @@ The default hotspot IP is <code>192.168.4.1</code>.<br />
  <br />
 
 ## Additional screenshots
-![less](https://github.com/beryllium-org/OS/blob/main/other/screenshots/less.png)
-![iwctl](https://github.com/beryllium-org/OS/blob/main/other/screenshots/iwctl.png)
+![less](other/screenshots/less.png)
+![iwctl](other/screenshots/iwctl.png)
 
 ## Useful resources that helped with the development of this project
  https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797<br />
