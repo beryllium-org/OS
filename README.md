@@ -70,14 +70,15 @@ The only real limiting factor should be ram, as about 70k (usable under circuitp
 
 ## Installation / Updating
 
-Installation from windows is **supported** through WSL.<br />
+Installation from windows using scripts is only **supported** through WSL.<br />
 Though, if you are windows user, this project **really** isn't for you.<br />
+Linux and MacOS will work much better.<br />
 
 1) Install a supported CircuitPython version onto the board.<br />
     Detailed instructions regarding CircuitPython can be found [here](https://learn.adafruit.com/welcome-to-circuitpython).<br />
 2) Download the latest Beryllium OS release for your board and extract it onto it.<br />
-    <b>Or even better</b>, if you wish to use the latest and greatest, clone this repository and from within the "source" folder, run <code>make install</code> with your board mounted.<br />
-    DO NOT run with <code>-j</code>!!!<br />
+    If your board has no stable release just yet, or you wish to use the latest and greatest, clone this repository and from within the "source" folder, run <code>make install</code> with your board mounted.<br />
+    DO NOT run with <code>-j</code>!!! GNU/Make is assumed to be installed.<br />
     This command will automatically update the system files if they already exist.<br />
     To only update the core files, run <code>make kernel</code> instead.<br />
     If you only want to update the board extras, like drivers and packages, run <code>make extras</code> instead.<br />
