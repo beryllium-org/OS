@@ -1,0 +1,8 @@
+MakerGo SuperTiny C3
+
+SoC                : ESP32-C3
+RAM                : 400KB
+Storage            : QIO (4MB)
+Wi-fi              : True
+Bluetooth          : True
+
