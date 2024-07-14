@@ -116,7 +116,7 @@ To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dial
 
 Wi-Fi boards by default start a Wi-Fi hotspot by default and a telnet server.<br />
 The default wifi credentials are: <code>beryllium-ap</code>/<code>CHANGEME WIFI PASSWORD</code> and can be changed from <code>&/settings.toml</code><br />
-The default hotspot IP is <code>192.168.4.1</code><br />.
+The default hotspot IP is <code>192.168.4.1</code>.<br />
 
 ## Directory structure
 
