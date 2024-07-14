@@ -89,6 +89,8 @@ Linux and MacOS will work much better.<br />
 4) Eject & powercycle the board<br />
     When it's plugged back in, you can connect to it via serial.<br />
     (You can use putty to connect to the board on Windows, Tio or GNU/Screen on Linux or MacOS)<br />
+    Most Wi-Fi boards will start an AP and a telnet server. You can connect with default Wi-Fi credentials.<br />
+    More info under [Connection](#connection)
 <b>IMPORTANT NOTE: To make the board appear again as a usb drive on the host, run the Beryllium command </b><code>devmode</code>.<br />
 More info regarding internal commands, available in the manual.<br />
 
@@ -111,6 +113,10 @@ For Tio if you are on linux, you need to be in the <code>dialout</code> or <code
 If you are on a Mac instead, run: <code>ls /dev/tty.usb*</code> to find the device name, and connect to it by running: <code>tio /dev/tty.usb\<Device name here\></code><br />
 To disconnect, press <code>Ctrl</code> + <code>t</code>, <code>q</code>.<br />
 To be added to the <code>dialout</code> group, run <code>sudo usermod -a -G dialout \<your username here\></code> and restart.<br />
+
+Wi-Fi boards by default start a Wi-Fi hotspot by default and a telnet server.<br />
+The default wifi credentials are: <code>beryllium-ap</code>/<code>CHANGEME WIFI PASSWORD</code> and can be changed from <code>&/settings.toml</code><br />
+The default hotspot IP is <code>192.168.4.1</code><br />
 
 ## Directory structure
 
