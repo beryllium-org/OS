@@ -12,6 +12,8 @@ alias la="ls -la"
 
 alias py="python"
 
+alias sys="sysinfo"
+
 #alias ifpexec="fpexec -i"
 #alias lfpexec="fpexec -l"
 
