@@ -84,7 +84,7 @@ Linux and MacOS will work much better.<br />
     If you only want to update the board extras, like drivers and packages, run <code>make extras</code> instead.<br />
     If you plan on loading the files remotely (via web/ble workflow), run <code>make BOARD=\*your board.board_id\* install</code> instead.<br />
     The files for you to copy will be created inside <code>source/build_\*your board.board_id\*</code>.<br />
-3) *(Optional)* Copy over the packages you wish to install with jpkg, or install drivers with make.<br />
+3) *(Optional)* Load / Strap 3rd party packages.<br />
     More info regarding packages in [Packages](#packages)
 4) Eject & powercycle the board<br />
     When it's plugged back in, you can connect to it via serial.<br />
@@ -93,7 +93,8 @@ Linux and MacOS will work much better.<br />
 More info regarding internal commands, available in the manual.<br />
 
 ## Packages
-Some of beryllium os'es features are not bundled with this install.<br />
+Most of what you need to use your board is already included with the stock installation. (Whatever drivers are implemented, are preloaded)<br />
+However it's possible to install 3rd party packages using the Beryllium OS' package manager JPKG.<br />
 You will have to install them seperately through the jpkg package manager.<br />
 <br />
 You can find beryllium packages in the [jpkg github topic](https://github.com/topics/jpkg).<br />
