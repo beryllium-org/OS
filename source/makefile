@@ -51,7 +51,7 @@ extra:
 	@sync
 clean: clean_core
 	@find .. -type d -name "build_*" -exec rm -r {} +
-full_clean: clean_core
+full_clean: clean
 	@find .. -type f -name "mpy-cross*" -exec rm {} +
 boot:
 	@echo -e "\nSetup /boot:"
