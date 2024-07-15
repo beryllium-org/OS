@@ -24,7 +24,7 @@ if target_root.startswith("build"):
     target_root = "../../source/" + target_root
 target_root = path.abspath(target_root)
 cmd = "python3 jpkgstrap.py " + target_root + " -U"
-for i in ["cptoml", "jcurses", "jz", "kernel"]:
+for i in ["cptoml", "jcurses", "jz", "kernel", "manual"]:
     cmd += " ../../source/core_packages/" + i + ".jpk"
 system(cmd)
 

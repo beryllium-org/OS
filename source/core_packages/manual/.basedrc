@@ -1,0 +1,22 @@
+sysinfo
+cat /etc/motd
+
+# Uncomment to override history size
+# Default is 10, to preserve memory
+#history-size = 100
+
+# nice aliases, enable whichever you want.
+
+alias ll="ls -l"
+alias la="ls -la"
+
+alias py="python"
+
+alias sys="sysinfo"
+
+#alias ifpexec="fpexec -i"
+#alias lfpexec="fpexec -l"
+
+#alias more="less"
+alias hist="history"
+alias atop="watch -s -n 0.6 top"

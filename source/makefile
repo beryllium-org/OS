@@ -37,6 +37,7 @@ clean_core:
 	@if [ -e "core_packages/jcurses.jpk" ]; then rm core_packages/jcurses.jpk; fi
 	@if [ -e "core_packages/cptoml.jpk" ]; then rm core_packages/cptoml.jpk; fi
 	@if [ -e "core_packages/jz.jpk" ]; then rm core_packages/jz.jpk; fi
+	@if [ -e "core_packages/manual.jpk" ]; then rm core_packages/manual.jpk; fi
 comp:
 	@echo -e "\nCommencing kernel compilation.."
 	@sync

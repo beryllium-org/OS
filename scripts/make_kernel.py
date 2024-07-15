@@ -1,6 +1,7 @@
 from os import system, mkdir, listdir, environ, getcwd, chdir, remove
 from sys import argv
 from sys import path as spath
+import shutil
 
 spath.append("../scripts/CircuitMPY/")
 spath.append("./jz")
@@ -34,7 +35,7 @@ if boardpath == None:
 print(f"Using board path: {boardpath}")
 print(f"Building for board: {board}\n")
 
-print("[1/4] Building kernel package")
+print("[1/5] Building kernel package")
 
 kern_files = ["be.py", "lj_colours.py", "lj_colours_placebo.py", "neopixel_colors.py"]
 jcurses_files = ["jcurses.py", "jcurses_data.py"]
@@ -62,7 +63,7 @@ for filee in kern_files:
     remove(f"./core_packages/kernel/{filee[:-3]}.mpy")
 print("Done")
 
-print("\n[2/4] Building jcurses package")
+print("\n[2/5] Building jcurses package")
 for filee in jcurses_files:
     try:
         circuitmpy.compile_mpy(
@@ -85,7 +86,7 @@ for filee in jcurses_files:
     remove(f"./core_packages/jcurses/{filee[:-3]}.mpy")
 print("Done")
 
-print("\n[3/4] Building jz package")
+print("\n[3/5] Building jz package")
 try:
     circuitmpy.compile_mpy("./jz/jz.py", f"./core_packages/jz/jz.mpy", optim=optimis)
 except OSError:
@@ -103,7 +104,7 @@ chdir(olddir)
 remove(f"./core_packages/jz/jz.mpy")
 print("Done")
 
-print("\n[4/4] Building cptoml package")
+print("\n[4/5] Building cptoml package")
 try:
     circuitmpy.compile_mpy(
         "../source/cptoml/cptoml.py",
@@ -120,6 +121,19 @@ for filee in listdir():
 execstr = "compress(" + execstr[2:] + ", '../cptoml.jpk')"
 exec(execstr)
 chdir(olddir)
-
 remove(f"./core_packages/cptoml/cptoml.mpy")
+
+print("\n[5/5] Creating manual package")
+shutil.copyfile(
+    "../Manual.txt",
+    "core_packages/manual/Manual.txt",
+)
+chdir("core_packages/manual")
+execstr = ""
+for filee in listdir():
+    execstr += f", '{filee}'"
+execstr = "compress(" + execstr[2:] + ", '../manual.jpk')"
+exec(execstr)
+chdir(olddir)
+
 print("Done")

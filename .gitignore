@@ -12,6 +12,7 @@ source/core_packages/base/*.py
 source/core_packages/base/hostname
 source/core_packages/base/motd
 source/core_packages/base/passwd
+source/core_packages/manual/Manual.txt
 *.pyc
 *.xml
 *.iml
