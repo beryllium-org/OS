@@ -1,3 +1,4 @@
+sysinfo
 ducky
 ed
 ftpd

@@ -1,3 +1,4 @@
+sysinfo
 camera
 ed
 ftpd

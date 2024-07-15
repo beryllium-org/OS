@@ -1,4 +1,4 @@
-uname -a
+sysinfo
 cat /etc/motd
 
 # Uncomment to override history size
