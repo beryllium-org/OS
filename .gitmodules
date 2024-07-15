@@ -79,3 +79,6 @@
 [submodule "packages/adctools"]
 	path = packages/adctools
 	url = https://github.com/beryllium-org/adctools
+[submodule "packages/sysinfo"]
+	path = packages/sysinfo
+	url = https://github.com/beryllium-org/sysinfo
