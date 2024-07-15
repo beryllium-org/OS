@@ -5,6 +5,6 @@ for directory in "../Boardfiles"/*; do
     board="${directory##*/}"
     make clean
     make BOARD=$board install
-    zip -r "release/${board}.zip" "./build_${board}/"
+    (cd "./build_${board}" && zip -r "../release/${board}.zip" .)
 done
 make clean
