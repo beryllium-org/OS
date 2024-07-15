@@ -10,6 +10,7 @@ term.trigger_dict = {  # Will automatically be reverted.
     "rest_a": "common",
     "echo": "common",
     "prefix": ">>> ",
+    "idle": 4,
 }
 term.buf[1] = ""
 
@@ -177,5 +178,10 @@ while True:
         term.buf[1] = ""
         pv[get_pid()]["mass"].clear()
         term.focus = 0
+    elif term.buf[0] == 4:
+        term.buf[1] = ""
+        term.focus = 0
+        break
+
 dmtex("Python shell session has ended")
 be.api.setvar("return", "0")
