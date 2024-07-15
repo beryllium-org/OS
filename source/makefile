@@ -58,7 +58,7 @@ full_clean: clean
 boot:
 	@echo -e "\nSetup /boot:"
 	@python3 ../scripts/make_boot.py
-releases:
+releases: modules
 	@echo "Creating releases archives.."
 	@../scripts/make_releases.sh
 strap_kern:
