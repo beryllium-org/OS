@@ -53,6 +53,7 @@ clean: clean_core
 	@find .. -type d -name "build_*" -exec rm -r {} +
 full_clean: clean
 	@find .. -type f -name "mpy-cross*" -exec rm {} +
+	@if [ -e "release" ]; then rm -r release; fi
 boot:
 	@echo -e "\nSetup /boot:"
 	@python3 ../scripts/make_boot.py
