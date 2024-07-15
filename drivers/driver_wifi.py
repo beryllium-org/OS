@@ -165,26 +165,24 @@ class driver_wifi:
             "bssid": None,
             "channel": None,
             "country": None,
-            "ip": wifi.radio.ipv4_address
-            if not wifi.radio.ap_active
-            else wifi.radio.ipv4_address_ap,
+            "ip": wifi.radio.ipv4_address,
+            "ip_ap": wifi.radio.ipv4_address_ap,
             "power": str(wifi.radio.enabled),
             "gateway": wifi.radio.ipv4_gateway
             if not wifi.radio.ap_active
             else wifi.radio.ipv4_gateway_ap,
-            "mode": "ap" if wifi.radio.ap_active else "station",
+            "mode": self._mode,
             "dns": wifi.radio.ipv4_dns,
-            "subnet": wifi.radio.ipv4_subnet
-            if not wifi.radio.ap_active
-            else wifi.radio.ipv4_subnet_ap,
-            "mac": wifi.radio.mac_address
-            if not wifi.radio.ap_active
-            else wifi.radio.mac_address_ap,
-            "mac_pretty": str(
-                wifi.radio.mac_address
-                if not wifi.radio.ap_active
-                else wifi.radio.mac_address_ap
-            ).replace("\\x", ":")[3:-3],
+            "subnet": wifi.radio.ipv4_subnet,
+            "subnet_ap": wifi.radio.ipv4_subnet_ap,
+            "mac": wifi.radio.mac_address,
+            "mac_ap": wifi.radio.mac_address_ap,
+            "mac_pretty": ":".join(
+                "{:02x}".format(byte) for byte in wifi.radio.mac_address
+            ),
+            "mac_pretty_ap": ":".join(
+                "{:02x}".format(byte) for byte in wifi.radio.mac_address_ap
+            ),
             "hostname": wifi.radio.hostname,
         }
 
