@@ -4,7 +4,7 @@
  \============================================/
 
 Official repository: https://github.com/beryllium-org/OS
-This manual is up to date with Release 0.4.0 @ 09/mar/2024.
+This manual is up to date with Release 0.5.0 @ 15/jul/2024.
 Anything passed that point is not covered by this manual.
 
       /------------|
@@ -13,18 +13,18 @@ Anything passed that point is not covered by this manual.
 
 0.  Index table          : line 10
 1.  Basic commands       : line 27
-2.  Scripting            : line 355
-3.  Errors               : line 377
-4.  Api functions        : line 457
-5.  jCurses              : line 549
-6.  Led activity         : line 602
-7.  BetterPath           : line 613
-8.  GPIO Usage           : line 634
-9.  Network driver usage : line 660
-10. Isolated processes   : line 676
-11. Packages             : line 732
-12. Devices and consoles : line 880
-13. Contributions        : line 932
+2.  Scripting            : line 409
+3.  Errors               : line 431
+4.  Api functions        : line 511
+5.  jCurses              : line 617
+6.  Led activity         : line 670
+7.  Virtual Paths        : line 681
+8.  GPIO Usage           : line 702
+9.  Network driver usage : line 730
+10. Isolated processes   : line 746
+11. Packages             : line 802
+12. Devices and consoles : line 949
+13. Contributions        : line 995
 
       /---------------|
 ----<| Basic commands |
@@ -45,6 +45,11 @@ alias [COMMAND=data]
 Runs data, whenever command is typed
 
 
+bcast [DATA]
+
+Broadcast a message to all terminals
+
+
 bell
 
 Ring the bell on the current terminal
@@ -58,12 +63,17 @@ Catenates the contents of file [file]
 cd [DIR]
 
 Changes to specified directory
-Please refer to the betterpath section, on more info on how does the board filesystem appear.
+Please refer to the virtual paths section, on more info on how does the board filesystem appear.
 
 
 clear
 
 Clear the current terminal, clearing scrollback too.
+
+
+clear_line
+
+Clear the current terminal line.
 
 
 cp [SOURCE] [DESTINATION]
@@ -99,6 +109,11 @@ df [-h]
 Report all attached file system's space usage.
 
 
+dir [??].. ??
+
+A paradox of unknown origin. Unknown effects.
+
+
 dmesg
 
 Prints out the current dmesg log.
@@ -128,6 +143,16 @@ Attempts to disconnect the shell.
 If the shell cannot be disconnected, ask the user to disconnect instead.
 
 
+false
+
+Returns a false exit code.
+
+
+flush
+
+Flushes terminal forcibly.
+
+
 fpexec [file]
 
 Runs a python file in a new process.
@@ -152,6 +177,11 @@ By default displays the first 10 lines of the FILE.
 help [COMMAND]
 
 Displays all currently discovered commands.
+
+
+hold
+
+Hold terminal output.
 
 
 history [save/load/clear]
@@ -212,6 +242,11 @@ Resulting name returned.
 modprobe [MODULE as MODULE_TYPE]
 
 Load a kernel MODULE with it's type specified by MODULE_TYPE.
+
+
+mv [SRC] [DST]
+
+Moves files or folders from source to destination.
 
 
 pinout
@@ -289,6 +324,11 @@ Run all the .py files in a folder by alphabetic order.
 Used by init.
 
 
+runtasks
+
+Enters task execution mode, running all background tasks.
+
+
 sleep [TIME]
 
 Sleep TIME, in seconds.
@@ -297,6 +337,11 @@ Sleep TIME, in seconds.
 sync
 
 Sync all currently attached filesystems.
+
+
+sysinfo
+
+Displays system info.
 
 
 terminal [get/list/activate]...
@@ -332,10 +377,12 @@ Removes ALIAS.
 
 uname [-a]
 
-Print system information
+Print system information.
 
 
-Loads an .lja file and executes it's commands
+unhold
+
+Releases a terminal, allowing data output.
 
 
 unset [Variable]
@@ -467,26 +514,42 @@ CODE:
 
 Beryllium OS api functions.
 Available from:
-      be.api.[function](parameters)
+    be.api.[function](parameters)
 
-      remove_ansi(text)
-        Removes all ansi escape from a string of text and returns
-        the cleared string.
+    tasks
+        run() -> None
+            Run background tasks if needed.
 
-      getvar(var)
+        add(name: str, priority: int 0-100, check_func: function, run_func: function) -> int
+            Add a task, returns a pid.
+
+        rm(pid: int)
+            Deletes a task.
+
+    security
+        auth <- class
+            __init__(value: any)
+            key(value: any) -> bool
+            id <- property
+        A class that can be used for securely store a private variable.
+        It will never permit access to that variable.
+        You can only check if a value matches.
+        Causes a blocking delay when authentication fails.
+
+    getvar(var)
         Variable getter.
         Returns variable var, from be.based.user_vars or be.based.system_vars.
         The var name has to be an str.
         In case it doesn't exist, returns None.
 
-      setvar(var, data=None, system=False)
+    setvar(var, data=None, system=False)
         Variable setter / deleter.
         Sets variable var, in be.based.user_vars.
         The var name has to be an str.
         When the data is None, deletes the variable.
         The system option, when True, uses be.based.system_vars instead.
 
-      xarg(rinpt=None, fn=False)
+    xarg(rinpt=None, fn=False)
         Argument parser.
         When no input stream specified, rely on be.based.user_vars["argj"].
         Returns a dict with the following stuff:
@@ -498,59 +561,57 @@ Available from:
                Example: "ls -a /bin", {"a": "/bin"} is gonna be in "o"
           "n" if False is passed to fn, contains the filename
 
-      fopen(object)
-        Meant to be used with "with".
-        Opens files with the path automatically parsed by betterpath.
-        Also remounts the filesystem when in write or append mode automatically.
-        Example:
-          with be.api.fopen("/bin/nano.py", "w")
+    fs
+        resolve(back: str = None) -> str
+            Path translation from Beryllium OS virtual paths to real path.
+            For example: &/settings.toml -> /settings.toml
+                         /bin/ls.py -> /Beryllium/bin/ls.py
 
-      isdir(dirr, rdir=None)
-        Checks if given item is file (returns 0) or directory (returns 1).
-        Returns 2 if it doesn't exist.
+        base(path=".") -> str
+            Given a path, finds what is the physical path.
+            ../../../../../ -> /
+            /bin/../bin -> bin
 
-        rdir specifies reference directory.
-        When None, automatically use . as reference.
+        isdir(dirr: str, rdir: str = None) -> int
+            Tests if input is a folder, file or doesn't exist.
+            Returns:
+                - 0 for files
+                - 1 for folders
+                - 2 if it doesn't exist
 
-      betterpath(back=None)
-        Automatically rewrite paths to match virtual filesystem.
-        Assuming root (pv[0]["root"]) is set to "/Beryllium"
-        /Beryllium/bin/nano.py -> /bin/nano.py
-        /boot_out.txt -> &/boot_out.txt
-        / -> &
-        ~ automatically parsed
+        open <- class
+            Equivelant to open(), but works with all virtual paths.
 
-        When None, return current directory.
+        listdir(path=".") -> list
+            An advanced directory lister, that supports all virtual paths.
+            Returns a list that contains lists.
+            Each sublist is structured as follows:
+                0: name
+                1: type, can be "f", "d", "c" for file, folder, device respectively.
+                2: permissions, a 3 item list following unix user/group/others format.
+                3: size in bytes
+                4: modification time in struct_time
+                5: owner
+                6: group
 
-      basepath(path=".")
-        Return the absolute and true path of a given location.
-        Returns "" if the path doesn't exist.
+    code_load(filename: str) -> code
+        Loads a python code file and returns a code object.
+        May raise an OSError if the file does not exist, or other errors,
+        during code compilation.
 
-      listdir(path=".")
-        Virtual directory listing. Returns permissions, size, filetype, modification time
-        and much more.
-        Supports Beryllium OS virtual drives and enumerates devices.
-        Returns a nested list.
+    adv_input(whatever: any, _type=str):
+        Universal variable requester.
+        Fetches variables from all contexts and returns it _type casted.
 
-      adv_input(whatever, _type)
-        Universal variable request
-        Returns the variable's value in the specified type
-        Parameters:
-            whatever : The name of the variable
-            _type : The type in which it should be returned
-        Returns:
-            The result of the variable in the type
-            specified if found
-            Otherwise, it returns the input.
+    subscript(filen: str) -> None
+        A helper function for calling for scripts to run under other scripts,
+        under the same scope, pid and variable container storage.
 
-      subscript(filen)
-        Runs as script in the current scope.
-        Does not report back failure / success.
-        Use process variables to check.
+    console_connected() -> bool
+        Tests if any console is connected, and automatically loads it.
 
-      console_connected()
-        Fast function to check if any console is connected.
-        Returns the boolean state.
+    bcast(msg: str) -> None
+        Broadcasts a message to all consoles.
 
 
       /--------|
@@ -617,16 +678,15 @@ Neopixels stay green when idle, glow more when special characters are being inpu
 green normally, red when an error occurs, yellow on activity and blue when waiting.
 
 
-      /-----------|
-----<| BetterPath |
-      \-----------|
+      /--------------|
+----<| Virtual paths |
+      \--------------|
 
 The beryllium kernel is in the board's root, while the os root is under by default under /Beryllium.
 The root path is set by the kernel in pv[0]["root"].
 Root cannot be "/".
-Betterpath is a function that is integrated into the kernel to make the
-os appear and function as if /Beryllium is the real root.
-It works by standing as a middleman between all os path requests.
+For simulating the root being under "/" virtual paths are used with kernel integrations.
+The be.api.fs.resolve function stands as a middleman between userspace all os path requests.
 However it doesn't prohibit the access to the board's real root.
 It work by mapping:
 
@@ -636,6 +696,7 @@ It work by mapping:
 
 And treating all subsequent paths by that rule.
 It additionally maps "~" to the user's home directory, and "-" to the previous directory.
+All kernel functions use resolved virtual paths automatically.
 
 
       /-----------|
@@ -661,7 +722,9 @@ Temporarily, only analog reads are supported. This is achieved by:
 ```
     a = adc#GP25
 ```
-Analog writes through the use of PWM will be added soon.
+
+For using I2C, UART and ADC there are program provided from the adctools,
+i2ctools and uartutils packages.
 
 
       /---------------------|
