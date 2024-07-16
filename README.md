@@ -34,6 +34,7 @@ Espressif:<br />
  - AiThinker ESP32-CAM<br />
  - DFRobot Beetle ESP32-C3<br />
  - Firebeetle 2 ESP32-S3<br />
+ - LILYGO T-Deck<br />
  - M5Stack Cardputer (Requires 9.1.0-beta1 or later)<br />
  - M5Stack Timer Camera X<br />
  - MakerGo C3 Supertiny<br />
