@@ -1,7 +1,7 @@
 {
     "JPKG_minimum_version": 2,
     "package_name": "manual",
-    "version": [0, 5, 0],
+    "version": [0, 5, 1],
     "dependencies": [],
     "conflicts": [],
     "install": "installer.py",

@@ -4,7 +4,7 @@
  \============================================/
 
 Official repository: https://github.com/beryllium-org/OS
-This manual is up to date with Release 0.5.0 @ 15/jul/2024.
+This manual is up to date with Release 0.5.1 @ 25/jul/2024.
 Anything passed that point is not covered by this manual.
 
       /------------|
