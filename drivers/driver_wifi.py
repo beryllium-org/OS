@@ -17,12 +17,12 @@ class driver_wifi:
         self._session = None
         self._tz = None
         self._ntp = None
+        self._ssid = None
 
         # public
         self.error = False
         self.hw_name = "wifi"
         self.interface_type = "wifi"
-        self.mode = "hotspot" if wifi.radio.ap_active else "station"
 
         if wifi.radio.connected or wifi.radio.ap_active:
             # We need to inherit connection
@@ -41,7 +41,8 @@ class driver_wifi:
     def ap_connected(self) -> bool:
         return wifi.radio.ap_active
 
-    def _mode(self) -> str:
+    @property
+    def mode(self) -> None:
         if wifi.radio.ap_active:
             if wifi.radio.connected:
                 return "both"
@@ -51,6 +52,11 @@ class driver_wifi:
             return "station"
         else:
             return "disconnected"
+
+    def _update(self) -> None:
+        if (not wifi.radio.connected) and self._ssid:
+            self._ssid = None
+            self.disconnect()
 
     def connect(self, ssid, passwd=None, retries=3) -> bool:
         """
@@ -77,7 +83,7 @@ class driver_wifi:
             return False
         self._pool = SocketPool(wifi.radio)
         self._session = Session(self._pool, create_default_context())
-        self.mode = self._mode()
+        self._ssid = ssid
         return True
 
     def connect_ap(self, ssid, passwd=None) -> bool:
@@ -95,7 +101,6 @@ class driver_wifi:
             return False
         self._pool = SocketPool(wifi.radio)
         self._session = Session(self._pool, create_default_context())
-        self.mode = self._mode()
         return True
 
     def hostname(self, name=None) -> str:
@@ -115,7 +120,7 @@ class driver_wifi:
         """
         if self._session is not None:
             if not (host.startswith("http://") or host.startswith("https://")):
-                host = "https://" + host
+                host = "http://" + host
 
             return self._session.get(host)
         else:
@@ -171,7 +176,8 @@ class driver_wifi:
             "gateway": wifi.radio.ipv4_gateway
             if not wifi.radio.ap_active
             else wifi.radio.ipv4_gateway_ap,
-            "mode": self._mode,
+            "mode": self.mode,
+            "ssid": self._ssid,
             "dns": wifi.radio.ipv4_dns,
             "subnet": wifi.radio.ipv4_subnet,
             "subnet_ap": wifi.radio.ipv4_subnet_ap,
@@ -187,12 +193,13 @@ class driver_wifi:
         }
 
         try:
-            data["ssid"] = wifi.radio.ap_info.ssid
             data["bssid"] = wifi.radio.ap_info.bssid
             data["channel"] = wifi.radio.ap_info.channel
             data["country"] = wifi.radio.ap_info.country
         except:
-            pass
+            data["bssid"] = None
+            data["channel"] = None
+            data["country"] = None
 
         return data
 
@@ -228,7 +235,6 @@ class driver_wifi:
         del self._pool, self._session
         self._pool = None
         self._session = None
-        self.mode = self._mode()
 
     def disconnect_ap(self) -> None:
         """
@@ -258,7 +264,6 @@ class driver_wifi:
         del self._pool, self._session
         self._pool = None
         self._session = None
-        self.mode = self._mode()
 
     def start(self) -> None:
         """
