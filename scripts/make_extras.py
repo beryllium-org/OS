@@ -60,25 +60,4 @@ if packages:
     system(cmd)
     chdir(olddir)
 
-drivers = set()
-
-with open(f"../Boardfiles/{board}/drivers.txt") as f:
-    tmp_drivers = f.readlines()
-    for i in range(len(tmp_drivers)):
-        dri = tmp_drivers[i].replace("\n", "")
-        if dri:
-            drivers.add(dri)
-
-if drivers:
-    for i in drivers:
-        print("[-/-] Building driver: " + i)
-        try:
-            circuitmpy.compile_mpy(
-                f"../drivers/{i}.py",
-                f"{boardpath}/Beryllium/lib/drivers/{i}.mpy",
-                optim=optimis,
-            )
-        except OSError:
-            errexit()
-
 system("sync")

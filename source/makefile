@@ -1,8 +1,8 @@
 SHELL = bash
 
 all: help
-install: wsltest modules rootfs kernel extra boot wslclean
-debug: wsltest modules rootfs kernel_debug extra boot wslclean
+install: wsltest modules rootfs kernel extra drivers boot wslclean
+debug: wsltest modules rootfs kernel_debug extra drivers boot wslclean
 
 kernel: prep clean_core comp strap_kern
 kernel_debug: prep clean_core debug_comp strap_kern
@@ -49,6 +49,10 @@ debug_comp:
 extra:
 	@echo -e "\nLoading extras:"
 	@python3 ../scripts/make_extras.py
+	@sync
+drivers:
+	@echo -e "\nLoading drivers:"
+	@python3 ../scripts/make_drivers.py
 	@sync
 clean: clean_core
 	@find .. -type d -name "build_*" -exec rm -r {} +
