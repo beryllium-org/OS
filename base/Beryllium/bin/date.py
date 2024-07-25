@@ -37,9 +37,9 @@ except IndexError:
     )
 
     for pv[get_pid()]["i"] in range(0, 5):
-        pv[get_pid()]["dat"][pv[get_pid()]["i"]] = str(vr("dat")[vr("i")])
+        vr("dat")[vr("i")] = str(vr("dat")[vr("i")])
         if len(str(vr("dat")[vr("i")])) < 2:
-            pv[get_pid()]["dat"][pv[get_pid()]["i"]] = "0" + vr("dat")[vr("i")]
+            vr("dat")[vr("i")] = "0" + vr("dat")[vr("i")]
 
     vr(
         "daydict",
