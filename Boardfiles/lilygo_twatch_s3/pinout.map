@@ -1,0 +1,9 @@
+[No pinout depiction yet available.]
+
+LILYGO T-Watch-S3
+
+SoC                : ESP32-S3
+RAM                : 8704KB
+Storage            : QIO (16MB)
+Wi-fi              : True
+Bluetooth          : True

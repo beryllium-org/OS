@@ -1,0 +1,15 @@
+sysinfo
+ducky
+ed
+ftpd
+hashutils
+jpkg
+less
+nano
+neofetch
+netutils
+wget
+lm_sensors
+uartutils
+i2ctools
+adctools
