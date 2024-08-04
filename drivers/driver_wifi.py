@@ -114,7 +114,7 @@ class driver_wifi:
         """
         return wifi.radio.ping(self.resolve(host))
 
-    def get(self, host: str):
+    def get(self, host: str, timeout: int = 6):
         """
         HTTP Get
         """
@@ -122,7 +122,7 @@ class driver_wifi:
             if not (host.startswith("http://") or host.startswith("https://")):
                 host = "http://" + host
 
-            return self._session.get(host)
+            return self._session.get(host, timeout=timeout)
         else:
             return None
 
