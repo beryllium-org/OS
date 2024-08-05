@@ -14,3 +14,4 @@ uartutils
 i2ctools
 adctools
 tws3-config
+ftouchutils

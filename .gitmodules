@@ -85,3 +85,6 @@
 [submodule "packages/tws3-config"]
 	path = packages/tws3-config
 	url = https://github.com/beryllium-org/tws3-config
+[submodule "packages/ftouchutils"]
+	path = packages/ftouchutils
+	url = https://github.com/beryllium-org/ftouchutils
