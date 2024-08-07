@@ -26,5 +26,5 @@ DEBUG = false
 #Network2 = "password2"
 
 [IWD-AP]
-SSID = "beryllium-ap"
-PASSWD = "CHANGEME WIFI PASSWORD"
+# SSID = "beryllium-ap"
+# PASSWD = "CHANGEME WIFI PASSWORD"
