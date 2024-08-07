@@ -88,3 +88,6 @@
 [submodule "packages/ftouchutils"]
 	path = packages/ftouchutils
 	url = https://github.com/beryllium-org/ftouchutils
+[submodule "packages/twm"]
+	path = packages/twm
+	url = https://github.com/beryllium-org/twm
