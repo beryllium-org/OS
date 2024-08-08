@@ -14,5 +14,7 @@ uartutils
 i2ctools
 adctools
 tws3-config
+axp2101utils
+bma423utils
 ftouchutils
 twm

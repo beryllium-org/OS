@@ -91,3 +91,9 @@
 [submodule "packages/twm"]
 	path = packages/twm
 	url = https://github.com/beryllium-org/twm
+[submodule "packages/bma423utils"]
+	path = packages/bma423utils
+	url = https://github.com/beryllium-org/bma423utils
+[submodule "packages/axp2101utils"]
+	path = packages/axp2101utils
+	url = https://github.com/beryllium-org/axp2101utils
