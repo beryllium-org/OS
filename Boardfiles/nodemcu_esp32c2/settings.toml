@@ -28,3 +28,7 @@ DEBUG = false
 [IWD-AP]
 # SSID = "beryllium-ap"
 # PASSWD = "CHANGEME WIFI PASSWORD"
+
+[RFKILL]
+wlan = false
+bluetooth = false
