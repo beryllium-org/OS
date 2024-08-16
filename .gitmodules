@@ -97,3 +97,9 @@
 [submodule "packages/axp2101utils"]
 	path = packages/axp2101utils
 	url = https://github.com/beryllium-org/axp2101utils
+[submodule "packages/drvutils"]
+	path = packages/drvutils
+	url = https://github.com/beryllium-org/drvutils
+[submodule "packages/pcf8563utils"]
+	path = packages/pcf8563utils
+	url = https://github.com/beryllium-org/pcf8563utils
