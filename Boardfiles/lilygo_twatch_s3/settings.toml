@@ -32,6 +32,7 @@ DEBUG = false
 [TWM]
 brightness = 80
 suspend_brightness = 1
+vibration = true
 
 [RFKILL]
 wlan = false
