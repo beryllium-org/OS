@@ -12,6 +12,7 @@ wget
 lm_sensors
 uartutils
 i2ctools
+i2stools
 adctools
 tws3-config
 axp2101utils

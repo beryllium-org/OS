@@ -1,0 +1,8 @@
+Generic RP2040 board
+
+Revision           : ???
+SoC                : RP2040
+RAM                : 264KB
+Storage            : SQPI (2MB)
+Wi-fi              : False
+Bluetooth          : False

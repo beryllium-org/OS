@@ -11,4 +11,5 @@ womp
 wio-config
 uartutils
 i2ctools
+i2stools
 adctools

@@ -103,3 +103,6 @@
 [submodule "packages/pcf8563utils"]
 	path = packages/pcf8563utils
 	url = https://github.com/beryllium-org/pcf8563utils
+[submodule "packages/i2stools"]
+	path = packages/i2stools
+	url = https://github.com/beryllium-org/i2stools

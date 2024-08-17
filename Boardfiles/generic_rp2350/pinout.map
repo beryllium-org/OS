@@ -1,0 +1,8 @@
+Generic RP2040 board
+
+Revision           : ???
+SoC                : RP2350
+RAM                : 512KB
+Storage            : ???
+Wi-fi              : False
+Bluetooth          : False

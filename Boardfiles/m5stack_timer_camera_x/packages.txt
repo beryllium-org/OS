@@ -14,4 +14,5 @@ wget
 lm_sensors
 uartutils
 i2ctools
+i2stools
 adctools
