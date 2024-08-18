@@ -1,8 +1,8 @@
 SHELL = bash
 
 all: help
-install: wsltest modules rootfs kernel extra drivers boot wslclean
-debug: wsltest modules rootfs kernel_debug extra drivers boot wslclean
+install: wsltest modules rootfs kernel tag extra drivers boot wslclean
+debug: wsltest modules rootfs kernel_debug tag_debug extra drivers boot wslclean
 
 kernel: prep clean_core comp strap_kern
 kernel_debug: prep clean_core debug_comp strap_kern
@@ -72,3 +72,9 @@ wsltest:
 	@python3 ../scripts/wslmount.py
 wslclean:
 	@python3 ../scripts/wslrmsetter.py
+tag:
+	@echo -ne "\nTagging installation.. "
+	@python3 ../scripts/tag.py
+tag_debug:
+	@echo -ne "\nTagging installation (debug).. "
+	@python3 ../scripts/tag_debug.py
