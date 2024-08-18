@@ -198,7 +198,7 @@ def clear_process_storage() -> None:
 
 # Allocate kernel task
 launch_process("kernel", "root", True)  # pid will always be 0
-vr("Version", "0.5.1")
+vr("Version", "unknown")
 
 vr("dmesg", [])
 vr("access_log", [])
@@ -234,6 +234,11 @@ except ImportError:
     from sys import exit
 
     exit(1)
+
+vers = cptoml.fetch("git_tag", "BERYLLIUM")
+if vers is not None:
+    vr("Version", vers)
+del vers
 
 global console
 try:
