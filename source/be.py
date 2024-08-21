@@ -1147,9 +1147,9 @@ class be:
 
         def appen(itemm: str) -> None:  # add to history, but don't save to file
             be.history.modified = True
-            if (
-                len(be.history.historyy) > 0 and itemm not in be.history.historyy[-5:]
-            ) or len(be.history.historyy) is 0:
+            if (len(be.history.historyy) > 0 and itemm != be.history.gett(1)) or len(
+                be.history.historyy
+            ) is 0:
                 if len(be.history.historyy) < be.history.sz:
                     be.history.historyy.append(itemm)
                 elif len(be.history.historyy) is be.history.sz:
