@@ -272,8 +272,10 @@ vr("Exit_code", 0)
 # Hardware autodetect vars, starts assuming everything is missing
 vr("sdcard_fs", False)
 
-vr("uptimee", -time.monotonic())
+# vr("uptimee", -time.monotonic())
 # using uptimee as an offset, this way uptime + time.monotonic = 0 at this very moment and it goes + from here on out
+vr("uptimee", 0)
+# But real uptime is better
 print("[    0.00000] Timings reset")
 pv[0]["dmesg"].append("[    0.00000] Timings reset")
 
