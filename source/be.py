@@ -951,9 +951,12 @@ class be:
                 nr = (not getcwd().startswith(pv[0]["root"])) and not path.startswith(
                     pv[0]["root"]
                 )
-                path = be.api.fs.resolve(be.api.fs.base(path))
-                if nr and path.startswith(pv[0]["root"]):
-                    path = path[len(pv[0]["root"]) :]
+                try:
+                    path = be.api.fs.resolve(be.api.fs.base(path))
+                    if nr and path.startswith(pv[0]["root"]):
+                        path = path[len(pv[0]["root"]) :]
+                except IndexError:
+                    path = None
                 res = []
                 if path:
                     if path == pv[0]["root"] + "/dev":  # Device enumeration done here.
