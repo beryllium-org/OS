@@ -2,6 +2,7 @@ import displayio
 import terminalio
 
 _palette = displayio.Palette(2)
+_palette.make_transparent(0)
 _palette[1] = 0xFFFFFF
 
 
