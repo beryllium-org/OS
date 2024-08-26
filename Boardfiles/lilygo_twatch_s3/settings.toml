@@ -40,3 +40,14 @@ timer_sound = false
 [RFKILL]
 wlan = false
 bluetooth = false
+
+[SNAKE]
+hearts = 3
+score = 0
+level = 0
+apple_power = 0
+next_move = 0
+prev_move = 0
+chain = "8|7|2|9|7|6|10|7|8"
+apples = ""
+hscores = "0|0|0|0|0"
