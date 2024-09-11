@@ -19,11 +19,11 @@ vr("mass", [])
 dmtex("Staring Python shell")
 term.write(
     "CircuitPython "
-    + be.based.system_vars["IMPLEMENTATION"]
+    + be.based.system_vars["IMPLEMENTATION_RAW"]
     + " on Beryllium "
     + be.based.system_vars["VERSION"]
     + "\n"
-    + "Board: "
+    + "Board ID: "
     + be.based.system_vars["BOARD"]
     + "\n"
     + 'Type "help", "copyright", "credits" or "license" for more information.'
@@ -45,14 +45,19 @@ while True:
     elif term.buf[0] == 3:
         try:
             if term.focus is 0 and term.buf[1].endswith("."):
-                exec(
-                    'vr("ljdirtest", dir({}))'.format(
-                        term.buf[1][: term.buf[1].rfind(".")]
+                vr("dirtest", None)
+                exec('vr("dirtest", dir(term.buf[1][: term.buf[1].rfind(".")]))')
+                if not vr("dirtest"):
+                    exec(
+                        'vr("dirtest", dir(term.buf[1][term.buf[1].find(" "): term.buf[1].rfind(".")]))'
                     )
-                )
-                if len(vr("ljdirtest")):
+                if not vr("dirtest"):
+                    exec(
+                        'vr("dirtest", dir(term.buf[1][term.buf[1].find(";"): term.buf[1].rfind(".")]))'
+                    )
+                if vr("dirtest"):
                     term.write()
-                    for pv[get_pid()]["i"] in vr("ljdirtest"):
+                    for pv[get_pid()]["i"] in vr("dirtest"):
                         if not vr("i").startswith("_"):
                             term.nwrite(vr("i") + "    ")
                     term.write()
@@ -176,6 +181,7 @@ while True:
     elif term.buf[0] == 2:
         term.write("\nKeyboardInterrupt")
         term.buf[1] = ""
+        term.trigger_dict["prefix"] = ">>> "
         pv[get_pid()]["mass"].clear()
         term.focus = 0
     elif term.buf[0] == 4:
