@@ -1276,7 +1276,7 @@ class be:
             "TERM": "xterm-256color",
             "LANG": "en_GB.UTF-8",
             "BOARD": board_id,
-            "IMPLEMENTATION": ".".join(map(str, list(implementation.version))),
+            "IMPLEMENTATION": ".".join(map(str, list(implementation.version)[:3])),
             "IMPLEMENTATION_RAW": uname()[3][: uname()[3].find(" on ")],
             "IMPLEMENTATION_DATE": uname()[3][uname()[3].rfind(" ") + 1 :],
             "TIMEZONE_OFFSET": 0,
