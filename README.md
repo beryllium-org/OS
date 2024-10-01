@@ -43,6 +43,7 @@ Espressif:<br />
  - Wemos Lolin S2 Mini<br />
  - WeAct ESP32-C6<br />
  - Waveshare ESP32-S2-Pico<br />
+ - Waveshare ESP32-S3-Zero<br />
 
 Raspberry Pi:<br />
  - Adafruit KB2040<br />
