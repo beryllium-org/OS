@@ -39,6 +39,7 @@ Espressif:<br />
  - M5Stack Cardputer (Requires 9.1.0-beta1 or later)<br />
  - M5Stack Timer Camera X<br />
  - MakerGo C3 Supermini<br />
+ - MakerGo C6 Supermini<br />
  - NodeMcu ESP32-C2 (experimental support)<br />
  - Wemos Lolin S2 Mini<br />
  - WeAct ESP32-C6<br />

@@ -1,0 +1,8 @@
+MakerGo SuperTiny C6
+
+SoC                : ESP32-C6
+RAM                : 512KB
+Storage            : QIO (4MB)
+Wi-fi              : True
+Bluetooth          : True
+
