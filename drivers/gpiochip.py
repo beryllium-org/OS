@@ -1,9 +1,24 @@
 import board
 import digitalio
-import analogio
-import touchio
-import pwmio
-import busio
+
+try:
+    import analogio
+except ImportError:
+    pass
+try:
+    import touchio
+except ImportError:
+    pass
+
+try:
+    import pwmio
+except ImportError:
+    pass
+
+try:
+    import busio
+except ImportError:
+    pass
 
 
 class gpiochip:
