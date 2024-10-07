@@ -23,9 +23,8 @@
                                              ^^^
                                        SWCLK ||| SWDIO
                                          GND  |
-Raspberry Pi Pico Rev 1.0
+Raspberry Pi Pico
 
-Revision           : 1.0
 SoC                : RP2040
 RAM                : 264KB
 Storage            : SQPI (2MB)
