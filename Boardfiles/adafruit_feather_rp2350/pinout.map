@@ -1,5 +1,5 @@
                                                          ,--------------.
-                                               RST  (1)  |1 0  ====  0  |  LED [ GPIO7  | TX0  | RTS1 | SCL1 | PWM3B ]
+                                               RST  (1)  |1 0  ====  0  |  LED [ GPIO7 | TX0 | RTS1 | SCL1 | PWM3B ]
                                                3v3  (2)  |o    usbC ,---|  GND
                                                3v3  (3)  |o  BOOT   | - |
                                                GND  (4)  |o  []     `---|  VBAT
@@ -7,14 +7,14 @@
 [ ADC1 | PWM5B | SCL1 | RTS1 | TX1  | GPIO27 ] A1   (6)  |o  RESET     o|  (27) EN
 [ ADC2 | PWM6A | SDA0 | TX0  | RX1  | GPIO28 ] A2   (7)  |o   +----+   o|  (26) VBUS
 [ ADC3 | PWM6B | SCL0 | RX0  | CSn1 | GPIO29 ] A3   (8)  |o   |F   |   o|  (25) D13  [ GPIO7  | TX0  | RTS1 | SCL1 | PWM3B ]
-[      | PWM4A | SDA0 | TX1  | RX1  | GPIO24 ] D24  (9)  |o   |E  R|   o|  (24) D12  [ GPIO4  | RX0  | TX1  | SDA0 | PWM2A ]
-[      | PWM4B | SLC0 | RX1  | CSn1 | GPIO25 ] D25  (10) |o   |A  P|   o|  (23) D11  [ GPIO11 | TX1  | RTS1 | SCL1 | PWM5B ]
-[      | PWM3A | SDA1 | CTS1 | SCK0 | GPIO10 ] SCK  (11) |o   |T  2|   o|  (22) D10  [ GPIO10 | SCK1 | CTS1 | SDA1 | PWM5A ]
-[      | PWM3B | SLC1 | RTS1 | TX0  | GPIO11 ] MOSI (12) |o   |H  3|   o|  (21) D9   [ GPIO9  | CSn1 | RX1  | SCL0 | PWM4B ]
-[      | PWM2A | SDA0 | TX1  | RX0  | GPIO12 ] MISO (13) |o   |E  5|   o|  (20) D6   [ GPIO6  | SCK0 | CTS1 | SDA1 | PWM3A ]
-[      | PWM0B | SCL0 | RX0  | CSn0 | GPIO1  ] RX   (14) |o   |R  0|   o|  (19) D5   [ GPIO5  | CSn0 | RX1  | SCL0 | PWM2B ]
-[      | PWM0A | SDA0 | TX0  | RX0  | GPIO0  ] TX   (15) |o   +----+   o|  (18) SCL  [ GPIO2  | TX0  | RTS0 | SCL0 | PWM1B ]
-[      | PWM4A | SDA0 | TX1  | RX1  | GPIO8  ] PCS  (16) |o    HSTX    o|  (17) SDA  [ GPIO3  | SCK0 | CTS0 | SDA0 | PWM1A ]
+       [ PWM4A | SDA0 | TX1  | RX1  | GPIO24 ] D24  (9)  |o   |E  R|   o|  (24) D12  [ GPIO4  | RX0  | TX1  | SDA0 | PWM2A ]
+       [ PWM4B | SLC0 | RX1  | CSn1 | GPIO25 ] D25  (10) |o   |A  P|   o|  (23) D11  [ GPIO11 | TX1  | RTS1 | SCL1 | PWM5B ]
+       [ PWM3A | SDA1 | CTS1 | SCK0 | GPIO10 ] SCK  (11) |o   |T  2|   o|  (22) D10  [ GPIO10 | SCK1 | CTS1 | SDA1 | PWM5A ]
+       [ PWM3B | SLC1 | RTS1 | TX0  | GPIO11 ] MOSI (12) |o   |H  3|   o|  (21) D9   [ GPIO9  | CSn1 | RX1  | SCL0 | PWM4B ]
+       [ PWM2A | SDA0 | TX1  | RX0  | GPIO12 ] MISO (13) |o   |E  5|   o|  (20) D6   [ GPIO6  | SCK0 | CTS1 | SDA1 | PWM3A ]
+       [ PWM0B | SCL0 | RX0  | CSn0 | GPIO1  ] RX   (14) |o   |R  0|   o|  (19) D5   [ GPIO5  | CSn0 | RX1  | SCL0 | PWM2B ]
+       [ PWM0A | SDA0 | TX0  | RX0  | GPIO0  ] TX   (15) |o   +----+   o|  (18) SCL  [ GPIO2  | TX0  | RTS0 | SCL0 | PWM1B ]
+       [ PWM4A | SDA0 | TX1  | RX1  | GPIO8  ] PCS  (16) |o    HSTX    o|  (17) SDA  [ GPIO3  | SCK0 | CTS0 | SDA0 | PWM1A ]
                                                          `----======----'  
 
     ,---                                                        ,---
@@ -24,13 +24,13 @@
     | O - D0P [ GPIO18 | SCK0 | CTS0 | SDA1 | PWM1A | HSTX ]    `---
     | O - D1N [ GPIO17 | CSn0 | RX0  | SCL0 | PWM0B | HSTX ]
     | O - D1P [ GPIO16 | RX0  | TX0  | SDA0 | PWM0A | HSTX ]    ,---
-    | O - D2N [ GPIO13 | CSn1 | RX0  | SCL0 | PWM6B | HSTX ]   .| O - SCL [ GPIO2  | SCK0 | CTS0 | SDA1 | PWM1A ]
-    | O - D2P [ GPIO12 | RX1  | TX0  | SDA0 | PWM6A | HSTX ]   .| O - SDA [ GPIO3  | TX0  | RTS1 | SCL1 | PWM1B ]
+    | O - D2N [ GPIO13 | CSn1 | RX0  | SCL0 | PWM6B | HSTX ]   .| O - SCL [ GPIO2 | SCK0 | CTS0 | SDA1 | PWM1A ]
+    | O - D2P [ GPIO12 | RX1  | TX0  | SDA0 | PWM6A | HSTX ]   .| O - SDA [ GPIO3 | TX0  | RTS1 | SCL1 | PWM1B ]
     | O - D11 [ GPIO11 | TX1  | RTS1 | SCL1 | PWM5B ]          .| O - 3v3
     | O - D10 [ GPIO10 | SCK1 | CTS1 | SDA1 | PWM5A ]          .| O - GND
     | O - SCL [ GPIO3  | TX0  | RTS0 | SCL1 | PWM1B ]           `---
     | O - SDA [ GPIO2  | SCK0 | CTS0 | SDA1 | PWM1A ]          ,----.
-    | O - 3v3                                                  | GR |  -  NEOPIXEL [ GPIO21 | CSr0 | RX1 | SCL0 | PWM2B ]
+    | O - 3v3                                                  | GR | - NEOPIXEL [ GPIO21 | CSr0 | RX1 | SCL0 | PWM2B ]
     | O - GND                                                  | B  |
     `---                                                       `----'
 
