@@ -48,6 +48,7 @@ Espressif:<br />
 
 Raspberry Pi:<br />
  - Adafruit KB2040<br />
+ - Adafruit Feather RP2350<br />
  - Pimoroni Pico Lipo (16mb)<br />
  - Pimoroni Pico Lipo (4mb)<br />
  - Raspberry Pi Pico<br />
