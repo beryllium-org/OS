@@ -15,6 +15,7 @@ blc_available = false
 usb_msc_enabled = false
 usb_hid_enabled = false
 usb_midi_enabled = false
+tz_offset = 2
 
 ledtype = "generic"
 led = "GPIO48"
