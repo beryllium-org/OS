@@ -3,6 +3,7 @@ import wifi
 from socketpool import SocketPool
 from ssl import create_default_context
 from adafruit_requests import Session
+from cptoml import fetch
 
 
 class driver_wifi:
@@ -299,20 +300,10 @@ class driver_wifi:
         from time import struct_time
 
         if tz is None:
-            if self.connected:
-                try:
-                    utc_offset = self.get("https://worldtimeapi.org/api/ip").json()[
-                        "utc_offset"
-                    ]
-                    negative = utc_offset[0] != "+"
-                    tz = int(utc_offset[1:3])
-                    if negative:
-                        tz = -tz
-                    self.reset_session()
-                except:
-                    return False
-            else:
-                return False
+            tz = fetch("tz_offset")
+
+        if tz is None:
+            tz = 2
 
         if tz != self._tz:
             self._tz = tz
