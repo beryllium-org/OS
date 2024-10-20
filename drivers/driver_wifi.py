@@ -300,7 +300,7 @@ class driver_wifi:
         from time import struct_time
 
         if tz is None:
-            tz = fetch("tz_offset")
+            tz = fetch("tz_offset", "BERYLLIUM")
 
         if tz is None:
             tz = 2
