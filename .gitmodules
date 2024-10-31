@@ -106,3 +106,6 @@
 [submodule "packages/i2stools"]
 	path = packages/i2stools
 	url = https://github.com/beryllium-org/i2stools
+[submodule "packages/espnowtools"]
+	path = packages/espnowtools
+	url = https://github.com/beryllium-org/espnowtools

@@ -15,3 +15,4 @@ i2ctools
 i2stools
 cardputer-config
 adctools
+espnowtools

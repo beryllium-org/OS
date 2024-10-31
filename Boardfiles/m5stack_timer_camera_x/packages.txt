@@ -16,3 +16,4 @@ uartutils
 i2ctools
 i2stools
 adctools
+espnowtools
