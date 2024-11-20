@@ -3,12 +3,12 @@ CIRCUITPY_PYSTACK_SIZE = 12288
 [BERYLLIUM]
 setup = true
 
-fs_label = "BERYLLIUM"
+fs_label = "TDECK"
 
 serial_console_enabled = true
-usb_msc_available = false
-usb_hid_available = false
-usb_midi_available = false
+usb_msc_available = true
+usb_hid_available = true
+usb_midi_available = true
 wifi_available = true
 ble_available = false
 blc_available = false
