@@ -109,3 +109,6 @@
 [submodule "packages/espnowtools"]
 	path = packages/espnowtools
 	url = https://github.com/beryllium-org/espnowtools
+[submodule "packages/tdeck-config"]
+	path = packages/tdeck-config
+	url = https://github.com/beryllium-org/tdeck-config

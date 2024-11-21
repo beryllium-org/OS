@@ -15,3 +15,5 @@ i2ctools
 i2stools
 adctools
 espnowtools
+ftouchutils
+tdeck-config
