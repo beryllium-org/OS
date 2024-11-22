@@ -15,5 +15,5 @@ i2ctools
 i2stools
 adctools
 espnowtools
-ftouchutils
+gt911touchutils
 tdeck-config

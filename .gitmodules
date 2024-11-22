@@ -112,3 +112,6 @@
 [submodule "packages/tdeck-config"]
 	path = packages/tdeck-config
 	url = https://github.com/beryllium-org/tdeck-config
+[submodule "packages/gt911touchutils"]
+	path = packages/gt911touchutils
+	url = https://github.com/beryllium-org/gt911touchutils
