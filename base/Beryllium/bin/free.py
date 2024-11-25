@@ -16,7 +16,7 @@ vr(
 )
 
 try:
-    vr("total", vr("calc_cond")[vr("flag")](vr("usable_ram", pid=0)))
+    vr("total", vr("calc_cond")[vr("flag")](gc.mem_alloc() + gc.mem_free()))
     vr("free", vr("calc_cond")[vr("flag")](gc.mem_free()))
     vr("used", vr("total") - vr("free"))
     vr("gnspace", 12)
