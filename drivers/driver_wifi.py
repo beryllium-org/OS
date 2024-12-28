@@ -87,14 +87,14 @@ class driver_wifi:
         self._ssid = ssid
         return True
 
-    def connect_ap(self, ssid, passwd=None) -> bool:
+    def connect_ap(self, ssid: str, passwd=None) -> bool:
         """
         Create an AP.
         """
 
         self.disconnect_ap()
         try:
-            if passwd is not None:
+            if passwd:
                 wifi.radio.start_ap(ssid=ssid, password=passwd)
             else:
                 wifi.radio.start_ap(ssid=ssid)
