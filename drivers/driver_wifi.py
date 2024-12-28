@@ -59,7 +59,7 @@ class driver_wifi:
             self._ssid = None
             self.disconnect()
 
-    def connect(self, ssid, passwd=None, retries=3) -> bool:
+    def connect(self, ssid: str, passwd=None, retries: int = 3) -> bool:
         """
         Connect to a wifi access point
         """
@@ -72,7 +72,7 @@ class driver_wifi:
             self.disconnect()
 
             try:
-                if passwd is not None:
+                if passwd:
                     wifi.radio.connect(ssid=ssid, password=passwd)
                 else:
                     wifi.radio.connect(ssid=ssid)
