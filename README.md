@@ -59,6 +59,7 @@ Raspberry Pi:<br />
 
 Nordic:<br />
  - Seeed XIAO nRF52840 (Sense)<br />
+ - Nice!Nano (Limited storage and preinstalled packages)<br />
 
 SAMD:<br />
  - Seeed Wio Terminal<br />

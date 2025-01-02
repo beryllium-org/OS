@@ -1,0 +1,7 @@
+Nice!Nano nRF52840
+
+SoC                : nRF52840
+RAM                : 256KB
+Storage            : QSPI (1MB)
+Wi-fi              : False
+Bluetooth          : True
