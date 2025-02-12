@@ -531,6 +531,113 @@ class be:
                     self.key = key
                     self.id = idfu
 
+            class VObject:
+                """
+                A virtual object, proxying another object with limited permissions, set at creation.
+
+                This way of doing things is private variables for CircuitPython.
+                However note that CPython's `inspect` module can still find it.
+                """
+
+                def __init__(
+                    self,
+                    target,  # The real object
+                    attr_whitelist,  # If None, the other filters apply
+                    attr_blacklist,  # Same
+                    writes: bool,  # Permit calling functions and setting attributes
+                ):
+                    _target = target  # Private variables (not accessible via self)
+                    _whitelist = set(attr_whitelist) if attr_whitelist else None
+                    _blacklist = set(attr_blacklist) if attr_blacklist else None
+                    _writes = writes
+
+                    class _Proxy:
+                        def __getattr__(_, name):
+                            if (_whitelist and name not in _whitelist) or (
+                                _blacklist and name in _blacklist
+                            ):
+                                raise AttributeError(
+                                    f'Access to "{name}" is restricted.'
+                                )
+
+                            attr = getattr(_target, name)
+                            if callable(attr):  # Proxy method calls
+                                if not _writes:
+                                    raise AttributeError(
+                                        f'Calls to "{name}" are restricted.'
+                                    )
+                                return lambda *args, **kwargs: attr(*args, **kwargs)
+                            return attr
+
+                        def __setattr__(_, name: str, value) -> None:
+                            if (
+                                (_whitelist and name not in _whitelist)
+                                or (_blacklist and name in _blacklist)
+                                or not _writes
+                            ):
+                                raise AttributeError(
+                                    f"Access to '{name}' is restricted."
+                                )
+                            setattr(_target, name, value)
+
+                        def __dir__(_) -> list:
+                            return dir(_target)
+
+                    self._proxy = _Proxy()
+
+                def __getattr__(self, name: str):
+                    return getattr(
+                        self._proxy, name
+                    )  # Delegate attributes to the internal proxy.
+
+                def __setattr__(self, name: str, value) -> None:
+                    return setattr(self._proxy, name, value)  # Same
+
+                def __dir__(self):
+                    return dir(self._proxy)  # Delegate `dir()` to the internal proxy.
+
+            class SafeExec:
+                def __init__(self):
+                    self._globals = {}
+
+                def add_object(
+                    self,
+                    obj,
+                    name=None,  # Variable name in scope override
+                    whitelist=None,  # Reference VObject comments
+                    blacklist=None,
+                    writes: bool = False,
+                ):
+                    """Adds a restricted object inside exec()."""
+                    if name is None:
+                        try:
+                            name = obj.__name__
+                        except:
+                            raise RuntimeError("No name on nameless object")
+                    self._globals[name] = VObject(obj, whitelist, blacklist, mode)
+
+                def add_variable(self, **kwargs):
+                    """Adds variables that can be modified inside exec but don't affect outside."""
+                    for key, value in kwargs.items():
+                        if isinstance(value, (int, float, str, bool, type(None))):
+                            self._globals[key] = value  # Immutable types are fine
+                        elif isinstance(value, list):
+                            self._globals[key] = list(value)
+                        elif isinstance(value, tuple):
+                            self._globals[key] = tuple(value)
+                        elif isinstance(value, set):
+                            self._globals[key] = set(value)
+                        elif isinstance(value, dict):
+                            self._globals[key] = dict(value)
+                        else:
+                            raise TypeError(
+                                f"Type: {type(value).__name__}, cannot be copied"
+                            )
+
+                def run(self, code):
+                    """Executes the given code in the constructed isolated environment."""
+                    exec(code, self._globals, {})
+
         def getvar(var: str):
             """
             Get a system user variable without mem leaks
