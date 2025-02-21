@@ -29,6 +29,7 @@ Runs on CircuitPython <code>9.0.X</code>, <code>9.1.X</code> and <code>9.2.X</co
 Currently the supported boards are:<br />
 
 Espressif:<br />
+ - 01Space ESP32-C3-0.42LCD<br />
  - Adafruit Feather ESP32-S2<br />
  - Adafruit Feather ESP32-S3 TFT<br />
  - AiThinker ESP32-CAM<br />

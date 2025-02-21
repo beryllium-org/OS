@@ -1,0 +1,8 @@
+01Space ESP32-C3 LCD
+
+SoC                : ESP32-C3
+RAM                : 400KB
+Storage            : QIO (4MB)
+Wi-fi              : True
+Bluetooth          : True
+
