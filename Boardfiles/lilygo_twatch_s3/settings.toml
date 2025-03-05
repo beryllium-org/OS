@@ -34,6 +34,7 @@ DEBUG = false
 brightness = 80
 suspend_brightness = 1
 vibration = true
+sounds = true
 notification_sound = false
 alarm_sound = false
 timer_sound = false
