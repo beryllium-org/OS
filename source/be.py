@@ -1128,16 +1128,21 @@ class be:
                             else:
                                 typ = "?"
                             stati = stat(path + "/" + i)
+                            lt = time.localtime(946688400)
+                            try:
+                                lt = time.localtime(
+                                    stati[9]
+                                    + be.based.system_vars["TIMEZONE_OFFSET"] * 3600
+                                )
+                            except OverflowError:
+                                pass
                             res.append(
                                 [
                                     i,
                                     typ,
                                     [7, 7, 7],
                                     stati[6],
-                                    time.localtime(
-                                        stati[9]
-                                        + be.based.system_vars["TIMEZONE_OFFSET"] * 3600
-                                    ),
+                                    lt,
                                     "root",
                                     "root",
                                 ]
